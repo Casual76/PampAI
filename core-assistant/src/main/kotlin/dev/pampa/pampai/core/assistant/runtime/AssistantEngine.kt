@@ -31,6 +31,7 @@ import dev.pampa.pampai.core.assistant.prompt.AriaChips
 import dev.pampa.pampai.core.assistant.prompt.PreRouter
 import dev.pampa.pampai.core.assistant.prompt.PromptBuilder
 import dev.pampa.pampai.core.assistant.prompt.PromptContext
+import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import dev.pampa.pampai.core.assistant.tools.Dates
 import dev.pampa.pampai.core.assistant.tools.PampaiToolContext
@@ -83,7 +84,12 @@ class AssistantEngine @Inject constructor(
   private val usage: UsageRepository,
   private val http: AiHttp,
   private val preRouter: PreRouter,
+  private val screen: ScreenContextStore,
 ) {
+
+  internal fun screenNote(request: AssistantRequest): String? = screenNoteOf(screen.current, request) { pkg ->
+    pkg?.let { runCatching { context.packageManager.getApplicationLabel(context.packageManager.getApplicationInfo(it, 0)).toString() }.getOrNull() }
+  }
 
   /** Le conversazioni in memoria per processo: il traffico tool dell'ultima domanda vive qui, non su disco. */
   private val memoryConversations = ConcurrentHashMap<Long, Conversation>()
@@ -148,6 +154,7 @@ class AssistantEngine @Inject constructor(
         gate = gate, memory = memory, conversations = conversations, settings = pampaiSettings, http = http,
         provider = first, deepCapabilities = first.capabilities(first.model(ModelTier.DEEP)),
         conversationId = conversationId, capabilitiesSummary = { catalog.summary },
+        screen = screen.takeIf { request.surface == Surface.SESSION },
       )
       traced = toolContext
       val parts = request.attachments.map { it.toPart() }
@@ -163,7 +170,7 @@ class AssistantEngine @Inject constructor(
           actionsEnabled = settings.actionsEnabled,
           loadedCategories = conversation.loadedCategories.map { it.id },
           maxSteps = config(request.surface).maxRounds,
-          screenNote = null,
+          screenNote = screenNote(request),
           attachmentsNote = parts.takeIf { it.isNotEmpty() }?.let { list -> "l'utente ha allegato " + list.joinToString(", ") { it.displayName ?: "testo" } },
           conversationTitle = stored?.title?.takeIf { stored.autoTitled },
         ),
@@ -299,3 +306,23 @@ class AssistantEngine @Inject constructor(
 
 /** L'orchestratore scrive lo stato direttamente: il runtime espone il flusso mutabile solo a chi esegue. */
 internal fun AssistantRuntime.mutableState(): kotlinx.coroutines.flow.MutableStateFlow<AssistantState> = state as kotlinx.coroutines.flow.MutableStateFlow<AssistantState>
+
+/** Cosa dire al modello dello schermo sotto la sessione: quale app, cosa c'e' a disposizione, se l'utente l'ha allegato. */
+private fun AssistantEngine.screenNoteOf(snapshot: ScreenContextStore.Snapshot?, request: AssistantRequest, appLabel: (String?) -> String?): String? {
+  if (request.surface != Surface.SESSION || snapshot == null || !snapshot.available) return null
+  val app = appLabel(snapshot.foregroundPackage) ?: snapshot.foregroundPackage
+  val attached = request.attachments.any { it.name.startsWith("schermo") }
+  return buildString {
+    append(if (app != null) "l'utente stava usando $app" else "l'app sotto non e' nota")
+    append("; ")
+    append(
+      when {
+        snapshot.lockscreen -> "il telefono e' bloccato: niente lettura dello schermo"
+        attached -> "l'utente ha allegato lo schermo (o una porzione) a questo messaggio: guardalo, non serve schermo_guarda"
+        snapshot.assistExpected && snapshot.screenshotExpected -> "il testo e lo screenshot dello schermo sono disponibili con i tool schermo_leggi / schermo_guarda (categoria schermo), solo se la domanda riguarda lo schermo"
+        snapshot.assistExpected -> "il testo dello schermo e' disponibile con schermo_leggi (categoria schermo), solo se la domanda riguarda lo schermo"
+        else -> "lo schermo non e' leggibile (impostazioni dell'assistente)"
+      },
+    )
+  }
+}

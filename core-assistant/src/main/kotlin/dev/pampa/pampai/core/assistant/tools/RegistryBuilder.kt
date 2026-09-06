@@ -8,6 +8,7 @@ import dev.antigravity.fluidengine.ai.tools.ToolRegistry
 import dev.antigravity.fluidengine.ai.tools.resolvedCategory
 import dev.pampa.pampai.core.assistant.tools.aria.ariaTools
 import dev.pampa.pampai.core.assistant.tools.calc.calcTools
+import dev.pampa.pampai.core.assistant.tools.screen.screenTools
 import dev.pampa.pampai.core.assistant.tools.web.webTools
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,7 +45,7 @@ class RegistryHolder @Inject constructor() {
   }
 
   private fun build(sets: List<RemoteToolSet>): MountedCatalog {
-    val local: List<AiTool<PampaiToolContext>> = ariaTools() + calcTools() + webTools()
+    val local: List<AiTool<PampaiToolContext>> = ariaTools() + calcTools() + webTools() + screenTools()
     val tools = local.map { TracedTool(it) } + sets.flatMap { set -> set.tools.map { TracedTool(it, app = set.appLabel) } }
     // Solo i gruppi che hanno davvero dei tool: una sottocategoria vuota nel menu' del modello
     // e' una porta su una stanza vuota.

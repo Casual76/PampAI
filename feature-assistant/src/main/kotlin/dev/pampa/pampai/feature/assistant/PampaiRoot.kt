@@ -53,6 +53,7 @@ import dev.antigravity.fluidengine.ui.fluid.rememberFluidNotificationHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.antigravity.fluidengine.ui.theme.FluidRouteMotionHost
 import dev.pampa.pampai.core.assistant.prompt.AriaChips
+import dev.pampa.pampai.feature.assistant.assist.AssistantRole
 import dev.pampa.pampai.feature.assistant.chat.ChatRoute
 import dev.pampa.pampai.feature.assistant.chat.ChatViewModel
 import dev.pampa.pampai.feature.assistant.consent.consentItems
@@ -81,8 +82,19 @@ private val Tabs = listOf(
 /** Quanto la pagina coperta si sposta mentre quella nuova la copre. */
 private const val CoveredParallax = 0.25f
 
-/** Cosa l'app chiede da fuori: aprire una conversazione (una notifica), la voce (una scorciatoia). */
-data class EntryRequest(val conversationId: Long? = null, val voice: Boolean = false, val stamp: Long = System.currentTimeMillis())
+/**
+ * Cosa l'app chiede da fuori: aprire una conversazione (una notifica, la sessione che si espande),
+ * la voce (una scorciatoia, il trampolino), una chat nuova, l'ultima, o un testo e dei file condivisi.
+ */
+data class EntryRequest(
+  val conversationId: Long? = null,
+  val voice: Boolean = false,
+  val newChat: Boolean = false,
+  val last: Boolean = false,
+  val sharedText: String? = null,
+  val sharedUris: List<Uri> = emptyList(),
+  val stamp: Long = System.currentTimeMillis(),
+)
 
 /**
  * La radice dell'app: il navigation host con le transizioni opache e laterali del design system
@@ -142,8 +154,14 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
   // Una notifica o una scorciatoia: si apre la conversazione chiesta (o la voce) nella scheda della chat.
   LaunchedEffect(entry?.stamp) {
     val request = entry ?: return@LaunchedEffect
-    request.conversationId?.let { chat.open(it) }
+    when {
+      request.conversationId != null -> chat.open(request.conversationId)
+      request.last -> chat.openLast()
+      request.newChat || request.sharedText != null || request.sharedUris.isNotEmpty() -> chat.newConversation()
+    }
     tab = TabChat
+    request.sharedUris.forEach { chat.attach(it) }
+    request.sharedText?.let { chat.draft.value = it }
     if (request.voice) chat.startVoice()
   }
 
@@ -151,7 +169,7 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
     when (chip.id) {
       AriaChips.URL -> chip.value?.let { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }
       AriaChips.CONVERSATION -> chip.value?.toLongOrNull()?.let { chat.open(it); tab = TabChat }
-      AriaChips.SETTINGS -> tab = TabSettings
+      AriaChips.SETTINGS -> if (chip.value == "assistente") AssistantRole.openSettings(context) else tab = TabSettings
       AriaChips.PLACE -> chip.value?.let { chat.send("E a $it?") }
       AriaChips.APP -> chip.value?.let { name -> openApp(context, name) }
       else -> Unit
@@ -209,7 +227,7 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
 }
 
 /** Apre un'app per nome (le app Pampa hanno i loro package; le altre si cercano per etichetta). */
-private fun openApp(context: android.content.Context, name: String) {
+fun openApp(context: android.content.Context, name: String) {
   val known = mapOf(
     "classeviva" to "dev.antigravity.classevivaexpressive", "cv" to "dev.antigravity.classevivaexpressive",
     "meteo" to "dev.pampa.fluidweather", "fluidweather" to "dev.pampa.fluidweather",

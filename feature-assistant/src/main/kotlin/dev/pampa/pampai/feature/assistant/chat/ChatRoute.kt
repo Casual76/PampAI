@@ -106,6 +106,7 @@ fun ChatRoute(
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val partial by viewModel.runtimePartial.collectAsStateWithLifecycle()
+  val draft by viewModel.draft.collectAsStateWithLifecycle()
   val speaking by viewModel.speaking.collectAsStateWithLifecycle()
   val context = LocalContext.current
   val listState = rememberLazyListState()
@@ -161,6 +162,8 @@ fun ChatRoute(
           partial = partial,
           speaking = speaking,
           voiceEvents = viewModel.voiceEvents,
+          draft = draft,
+          onDraftConsumed = { viewModel.draft.value = null },
           onAttach = viewModel::attach,
           onRemoveAttachment = viewModel::removeAttachment,
           onOpenSettings = onOpenSettings,
@@ -279,7 +282,7 @@ private fun AssistantBubble(
 
 /** "Ho usato N strumenti · Groq · 6 s" e, sotto, a richiesta, i passi: cosa il modello ha chiesto a ciascuno e come ha risposto. */
 @Composable
-private fun RunSteps(run: Run) {
+fun RunSteps(run: Run) {
   val hasDetails = run.tools.isNotEmpty() || run.error != null
   var details by rememberSaveable(run.id) { mutableStateOf(false) }
   Text(
@@ -321,7 +324,7 @@ private fun LiveBubble(live: AssistantState, pending: PendingConfirmation?, onRe
 }
 
 @Composable
-private fun ConfirmationRow(pending: PendingConfirmation, onResolve: (Long, Boolean) -> Unit) {
+fun ConfirmationRow(pending: PendingConfirmation, onResolve: (Long, Boolean) -> Unit) {
   Spacer(Modifier.height(8.dp))
   Text(pending.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
   pending.detail?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -381,6 +384,8 @@ private fun Composer(
   partial: String?,
   speaking: Boolean,
   voiceEvents: kotlinx.coroutines.flow.SharedFlow<VoiceEvent>,
+  draft: String?,
+  onDraftConsumed: () -> Unit,
   onAttach: (android.net.Uri) -> Unit,
   onRemoveAttachment: (Int) -> Unit,
   onOpenSettings: () -> Unit,
@@ -388,6 +393,12 @@ private fun Composer(
   val context = LocalContext.current
   var text by rememberSaveable { mutableStateOf("") }
   LaunchedEffect(editing?.id) { editing?.let { text = it.text } }
+  LaunchedEffect(draft) {
+    if (draft != null) {
+      text = draft
+      onDraftConsumed()
+    }
+  }
   val busy = state.live?.isBusy == true
   val listening = state.live is AssistantState.Listening
   val transcribing = state.live is AssistantState.Transcribing

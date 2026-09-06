@@ -8,4 +8,26 @@
     <item name="android:navigationBarColor">@android:color/transparent</item>
     <item name="android:windowLightStatusBar">true</item>
   </style>
+
+  <!-- La finestra della sessione di sistema: trasparente sopra l'app corrente, senza animazioni
+       di finestra (lo scrim e l'orb entrano da soli). -->
+  <style name="Theme.PampAI.Session" parent="android:Theme.Material.NoActionBar">
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowIsFloating">false</item>
+    <item name="android:windowAnimationStyle">@null</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">@android:color/transparent</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:backgroundDimEnabled">false</item>
+  </style>
+
+  <!-- Il trampolino: un'Activity che non si vede mai. -->
+  <style name="Theme.PampAI.Transparent" parent="android:Theme.Material.NoActionBar">
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowAnimationStyle">@null</item>
+    <item name="android:windowContentOverlay">@null</item>
+  </style>
 </resources>

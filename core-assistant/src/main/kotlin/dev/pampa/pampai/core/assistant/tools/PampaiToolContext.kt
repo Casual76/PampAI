@@ -10,6 +10,7 @@ import dev.antigravity.fluidengine.ai.tools.ToolOutput
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.db.MemoryRepository
 import dev.pampa.pampai.core.assistant.runtime.PampaiConfirmationGate
+import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -49,6 +50,8 @@ class PampaiToolContext(
   val language: String = "it",
   /** Le righe su cosa sa fare Aria, per il tool `aiuto`: le scrive chi costruisce il registry. */
   val capabilitiesSummary: () -> String = { "" },
+  /** Lo schermo sotto la sessione di sistema (screenshot, testo, app in primo piano); null nella chat dell'app. */
+  val screen: ScreenContextStore? = null,
 ) {
   private val traceList = java.util.Collections.synchronizedList(mutableListOf<PampaiToolTrace>())
 

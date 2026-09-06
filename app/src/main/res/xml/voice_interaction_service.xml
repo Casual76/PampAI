@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:sessionService="dev.pampa.pampai.assist.PampaiSessionService"
+    android:recognitionService="dev.pampa.pampai.assist.PassthroughRecognitionService"
+    android:settingsActivity="dev.pampa.pampai.MainActivity"
+    android:supportsAssist="true"
+    android:supportsLaunchVoiceAssistFromKeyguard="true"
+    android:supportsLocalInteraction="true" />

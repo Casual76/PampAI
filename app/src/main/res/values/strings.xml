@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">PampAI</string>
+  <string name="share_with_aria">Condividi con Aria</string>
+  <string name="tile_label">Aria</string>
 </resources>

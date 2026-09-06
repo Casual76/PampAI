@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -162,6 +163,15 @@ class ChatViewModel @Inject constructor(
     runtime.selectConversation(conversationId)
     runtime.reset()
   }
+
+  /** La scorciatoia "Ultima": riapre la conversazione piu' recente (o ne inizia una, se non ce ne sono). */
+  fun openLast() = viewModelScope.launch {
+    val last = conversations.observeConversations().first().firstOrNull()
+    if (last != null) open(last.id) else newConversation()
+  }
+
+  /** Un testo arrivato da fuori ("Condividi con Aria"): finisce nel campo, e l'utente lo manda quando vuole. */
+  val draft = MutableStateFlow<String?>(null)
 
   /** Modifica e rinvia: cade tutto cio' che segue, e la domanda riparte con il nuovo testo. */
   fun editAndResend(message: Message, newText: String) = viewModelScope.launch {
