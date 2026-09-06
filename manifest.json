@@ -21,8 +21,8 @@
 
   "engine": {
     "schema": 1,
-    "minimumVersion": "1.26.0",
-    "recommendedVersion": "1.26.0",
+    "minimumVersion": "1.27.0",
+    "recommendedVersion": "1.27.0",
     "notice": null,
     "flags": {
       "assistant_session": true,
