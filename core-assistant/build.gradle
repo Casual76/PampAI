@@ -55,6 +55,10 @@ dependencies {
   implementation libs.pdfbox.android
   // I conti esatti: il modello non fa aritmetica a mente.
   implementation libs.exp4j
+  // Il controllo di Fluidify via MediaBrowser (media3), con i future di Guava in coroutine.
+  implementation libs.media3.session
+  implementation libs.media3.common
+  implementation libs.kotlinx.coroutines.guava
 
   ksp libs.hilt.compiler
   ksp libs.room.compiler

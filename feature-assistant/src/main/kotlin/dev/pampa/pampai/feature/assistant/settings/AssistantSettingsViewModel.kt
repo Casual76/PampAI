@@ -23,6 +23,8 @@ import dev.antigravity.fluidengine.foundation.ThemeMode
 import dev.antigravity.fluidengine.storage.EngineSettingsStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettings
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
+import dev.pampa.pampai.core.assistant.runtime.PampaiConfirmationGate
+import dev.pampa.pampai.core.assistant.tools.RegistryHolder
 import dev.pampa.pampai.core.assistant.settings.SttMode
 import dev.pampa.pampai.core.assistant.settings.TtsEngine
 import javax.inject.Inject
@@ -58,6 +60,7 @@ class AssistantSettingsViewModel @Inject constructor(
   private val catalogs: ModelCatalogStore,
   private val diagnostics: AiDiagnosticsLog,
   private val pampaiStore: PampaiSettingsStore,
+  registryHolder: RegistryHolder,
   private val engineStore: EngineSettingsStore,
 ) : ViewModel() {
 
@@ -108,6 +111,14 @@ class AssistantSettingsViewModel @Inject constructor(
   fun refreshCatalogue(provider: ProviderId) = viewModelScope.launch { runCatching { verifier.refreshIfStale(provider, force = true) } }
 
   // Voce.
+  /** I tool con conferma che si possono fidare: nome e descrizione, dal catalogo di adesso. */
+  val trustable: List<Pair<String, String>> = registryHolder.catalog.value.registry.tools
+    .filter { it.needsConfirmation && PampaiConfirmationGate.canTrust(it.name) }
+    .map { it.name to it.description }
+    .sortedBy { it.first }
+
+  fun setTrusted(tool: String, trusted: Boolean) = viewModelScope.launch { pampaiStore.setTrusted(tool, trusted) }
+
   fun setSttMode(mode: SttMode) = viewModelScope.launch { pampaiStore.setSttMode(mode) }
   fun setStartInText(enabled: Boolean) = viewModelScope.launch { pampaiStore.setStartInText(enabled) }
   fun setTtsEngine(engine: TtsEngine) = viewModelScope.launch { pampaiStore.setTtsEngine(engine) }

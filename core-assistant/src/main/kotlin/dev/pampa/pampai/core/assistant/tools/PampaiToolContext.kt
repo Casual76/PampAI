@@ -1,6 +1,7 @@
 package dev.pampa.pampai.core.assistant.tools
 
 import android.content.Context
+import dev.antigravity.fluidengine.ai.keys.AiSettingsStore
 import dev.antigravity.fluidengine.ai.net.AiHttp
 import dev.antigravity.fluidengine.ai.orchestrator.AskMode
 import dev.antigravity.fluidengine.ai.orchestrator.ConfirmationOutcome
@@ -9,6 +10,10 @@ import dev.antigravity.fluidengine.ai.provider.ReadyProvider
 import dev.antigravity.fluidengine.ai.tools.ToolOutput
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.db.MemoryRepository
+import dev.pampa.pampai.core.assistant.music.FluidifyClient
+import dev.pampa.pampai.core.assistant.permissions.PermissionGate
+import dev.pampa.pampai.core.assistant.reminders.ReminderRepository
+import dev.pampa.pampai.core.assistant.usage.UsageRepository
 import dev.pampa.pampai.core.assistant.runtime.PampaiConfirmationGate
 import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
@@ -52,6 +57,15 @@ class PampaiToolContext(
   val capabilitiesSummary: () -> String = { "" },
   /** Lo schermo sotto la sessione di sistema (screenshot, testo, app in primo piano); null nella chat dell'app. */
   val screen: ScreenContextStore? = null,
+  /** I permessi Android chiesti al volo dai tool del telefono. */
+  val permissions: PermissionGate,
+  val reminders: ReminderRepository,
+  val fluidify: FluidifyClient,
+  val usage: UsageRepository,
+  /** Le impostazioni dell'assistente dell'engine (servizi, modelli, azioni), per `impostazioni_pampai`. */
+  val aiSettings: AiSettingsStore,
+  /** I pacchetti collegati via bridge (Fase B): vuoto finche' non c'e' il bridge. */
+  val connectedPackages: () -> Set<String> = { emptySet() },
 ) {
   private val traceList = java.util.Collections.synchronizedList(mutableListOf<PampaiToolTrace>())
 

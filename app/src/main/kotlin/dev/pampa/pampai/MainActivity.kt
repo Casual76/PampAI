@@ -7,6 +7,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import dev.pampa.pampai.core.assistant.permissions.PermissionGate
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -31,6 +35,14 @@ class MainActivity : ComponentActivity() {
   @Inject lateinit var engineSettings: EngineSettingsStore
   @Inject lateinit var pampaiSettings: PampaiSettingsStore
   @Inject lateinit var runtime: AssistantRuntime
+  @Inject lateinit var permissions: PermissionGate
+
+  /** La richiesta di permesso che il dialogo di sistema sta mostrando, per rispondere al tool giusto. */
+  private var pendingPermissionId: Long? = null
+  private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+    pendingPermissionId?.let { permissions.resolve(it, result.values.all { granted -> granted }) }
+    pendingPermissionId = null
+  }
 
   /** L'ultima richiesta arrivata da fuori (notifica, scorciatoia, condivisione, sessione): la home la consuma. */
   private val entry = MutableStateFlow<EntryRequest?>(null)
@@ -40,6 +52,15 @@ class MainActivity : ComponentActivity() {
     enableEdgeToEdge()
     AppShortcuts.publish(this)
     entry.value = entryOf(intent)
+    // Un tool che gira nel service chiede un permesso: il dialogo lo mostra l'Activity, se e' davanti.
+    lifecycleScope.launch {
+      permissions.pending.collect { request ->
+        if (request != null && pendingPermissionId == null && lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+          pendingPermissionId = request.id
+          permissionLauncher.launch(request.permissions.toTypedArray())
+        }
+      }
+    }
     setContent {
       val engine by engineSettings.settings.collectAsState(initial = EngineSettings())
       // La prima schermata dipende da una lettura su disco: meglio un fotogramma vuoto che
@@ -61,10 +82,12 @@ class MainActivity : ComponentActivity() {
   override fun onStart() {
     super.onStart()
     runtime.appInForeground = true
+    permissions.handlerAttached = true
   }
 
   override fun onStop() {
     runtime.appInForeground = false
+    permissions.handlerAttached = false
     super.onStop()
   }
 

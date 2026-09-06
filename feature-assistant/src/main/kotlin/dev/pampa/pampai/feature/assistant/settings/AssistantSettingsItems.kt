@@ -140,6 +140,12 @@ fun LazyListScope.assistantSettingsItems(
   item { FluidSectionHeader(title = "Voce", detail = "Come Aria ascolta e come legge le risposte.") }
   item { VoicePreferences(viewModel, state) }
 
+  item { FluidSectionHeader(title = "Permessi", detail = "Ogni strumento chiede il suo permesso solo quando serve; da qui li concedi tutti insieme.") }
+  item { PermissionsSection() }
+
+  item { FluidSectionHeader(title = "Azioni fidate", detail = "Le azioni che Aria fa senza chiederti conferma.") }
+  item { TrustedActionsSection(viewModel, state) }
+
   item {
     Text(
       "Le tue domande, gli allegati e i dati che gli strumenti leggono per rispondere partono verso il servizio scelto, con la tua chiave. Le conversazioni e la memoria restano su questo telefono.",

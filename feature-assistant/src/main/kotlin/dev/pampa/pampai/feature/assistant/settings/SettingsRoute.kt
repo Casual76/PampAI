@@ -44,6 +44,7 @@ class AboutViewModel @Inject constructor(val updater: AppUpdater) : ViewModel()
 fun SettingsRoute(
   bottomInset: Dp,
   onOpenConsent: () -> Unit,
+  onOpenUsage: () -> Unit = {},
   viewModel: AssistantSettingsViewModel = hiltViewModel(),
   about: AboutViewModel = hiltViewModel(),
 ) {
@@ -60,6 +61,15 @@ fun SettingsRoute(
 
     item { FluidSectionHeader(title = "Aria") }
     assistantSettingsItems(viewModel, state, onOpenConsent)
+    item {
+      FluidListGroup(glass = true) {
+        FluidListRow(
+          title = "Consumi",
+          subtitle = "Richieste, token e costo stimato per servizio e modello; limiti e avvisi.",
+          onClick = onOpenUsage,
+        )
+      }
+    }
 
     item { FluidSectionHeader(title = "Assistente di sistema", detail = "Per richiamare Aria tenendo premuto il tasto di accensione.") }
     item { AssistantRoleCard() }

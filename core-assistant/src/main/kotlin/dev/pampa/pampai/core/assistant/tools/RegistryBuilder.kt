@@ -9,6 +9,15 @@ import dev.antigravity.fluidengine.ai.tools.resolvedCategory
 import dev.pampa.pampai.core.assistant.tools.aria.ariaTools
 import dev.pampa.pampai.core.assistant.tools.calc.calcTools
 import dev.pampa.pampai.core.assistant.tools.screen.screenTools
+import dev.pampa.pampai.core.assistant.tools.device.calendarTools
+import dev.pampa.pampai.core.assistant.tools.device.clockTools
+import dev.pampa.pampai.core.assistant.tools.device.contactTools
+import dev.pampa.pampai.core.assistant.tools.device.infoTools
+import dev.pampa.pampai.core.assistant.tools.device.notificationTools
+import dev.pampa.pampai.core.assistant.tools.device.openTools
+import dev.pampa.pampai.core.assistant.tools.device.reminderTools
+import dev.pampa.pampai.core.assistant.tools.device.systemTools
+import dev.pampa.pampai.core.assistant.tools.music.musicTools
 import dev.pampa.pampai.core.assistant.tools.web.webTools
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,7 +54,8 @@ class RegistryHolder @Inject constructor() {
   }
 
   private fun build(sets: List<RemoteToolSet>): MountedCatalog {
-    val local: List<AiTool<PampaiToolContext>> = ariaTools() + calcTools() + webTools() + screenTools()
+    val local: List<AiTool<PampaiToolContext>> = ariaTools() + calcTools() + webTools() + screenTools() +
+      clockTools() + reminderTools() + calendarTools() + contactTools() + notificationTools() + systemTools() + openTools() + infoTools() + musicTools()
     val tools = local.map { TracedTool(it) } + sets.flatMap { set -> set.tools.map { TracedTool(it, app = set.appLabel) } }
     // Solo i gruppi che hanno davvero dei tool: una sottocategoria vuota nel menu' del modello
     // e' una porta su una stanza vuota.

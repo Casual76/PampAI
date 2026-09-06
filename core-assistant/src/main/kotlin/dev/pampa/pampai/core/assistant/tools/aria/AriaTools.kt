@@ -107,4 +107,4 @@ class ConversazioniCercaTool : AiTool<PampaiToolContext> {
 }
 
 /** Tutti i tool del gruppo `aria` disponibili in questa fase. */
-fun ariaTools(): List<AiTool<PampaiToolContext>> = listOf(AiutoTool(), RicordaTool(), DimenticaTool(), MemoriaElencoTool(), ConversazioniCercaTool())
+fun ariaTools(): List<AiTool<PampaiToolContext>> = listOf(AiutoTool(), RicordaTool(), DimenticaTool(), MemoriaElencoTool(), ConversazioniCercaTool()) + ariaExtraTools()

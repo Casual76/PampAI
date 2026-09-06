@@ -32,6 +32,9 @@ import dev.pampa.pampai.core.assistant.prompt.PreRouter
 import dev.pampa.pampai.core.assistant.prompt.PromptBuilder
 import dev.pampa.pampai.core.assistant.prompt.PromptContext
 import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
+import dev.pampa.pampai.core.assistant.music.FluidifyClient
+import dev.pampa.pampai.core.assistant.permissions.PermissionGate
+import dev.pampa.pampai.core.assistant.reminders.ReminderRepository
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import dev.pampa.pampai.core.assistant.tools.Dates
 import dev.pampa.pampai.core.assistant.tools.PampaiToolContext
@@ -85,6 +88,9 @@ class AssistantEngine @Inject constructor(
   private val http: AiHttp,
   private val preRouter: PreRouter,
   private val screen: ScreenContextStore,
+  private val permissions: PermissionGate,
+  private val reminders: ReminderRepository,
+  private val fluidify: FluidifyClient,
 ) {
 
   internal fun screenNote(request: AssistantRequest): String? = screenNoteOf(screen.current, request) { pkg ->
@@ -155,6 +161,7 @@ class AssistantEngine @Inject constructor(
         provider = first, deepCapabilities = first.capabilities(first.model(ModelTier.DEEP)),
         conversationId = conversationId, capabilitiesSummary = { catalog.summary },
         screen = screen.takeIf { request.surface == Surface.SESSION },
+        permissions = permissions, reminders = reminders, fluidify = fluidify, usage = usage, aiSettings = settingsStore,
       )
       traced = toolContext
       val parts = request.attachments.map { it.toPart() }

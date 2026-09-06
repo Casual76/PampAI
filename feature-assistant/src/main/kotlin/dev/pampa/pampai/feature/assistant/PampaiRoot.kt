@@ -61,12 +61,14 @@ import dev.pampa.pampai.feature.assistant.history.HistoryRoute
 import dev.pampa.pampai.feature.assistant.onboarding.OnboardingRoute
 import dev.pampa.pampai.feature.assistant.settings.AssistantSettingsViewModel
 import dev.pampa.pampai.feature.assistant.settings.SettingsRoute
+import dev.pampa.pampai.feature.assistant.usage.UsageRoute
 
 /** Le rotte laterali; le tre schede della home sono stato, non rotte. */
 private object Routes {
   const val Onboarding = "onboarding"
   const val Home = "home"
   const val Consent = "consent"
+  const val Usage = "usage"
 }
 
 private const val TabChat = "chat"
@@ -130,6 +132,9 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
     composable(Routes.Consent) {
       Page(this) { ConsentRoute(onBack = { navController.popBackStack() }) }
     }
+    composable(Routes.Usage) {
+      Page(this) { UsageRoute(onBack = { navController.popBackStack() }) }
+    }
   }
 }
 
@@ -169,7 +174,11 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
     when (chip.id) {
       AriaChips.URL -> chip.value?.let { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }
       AriaChips.CONVERSATION -> chip.value?.toLongOrNull()?.let { chat.open(it); tab = TabChat }
-      AriaChips.SETTINGS -> if (chip.value == "assistente") AssistantRole.openSettings(context) else tab = TabSettings
+      AriaChips.SETTINGS -> when (chip.value) {
+        "assistente" -> AssistantRole.openSettings(context)
+        "consumi" -> navController.navigate(Routes.Usage)
+        else -> tab = TabSettings
+      }
       AriaChips.PLACE -> chip.value?.let { chat.send("E a $it?") }
       AriaChips.APP -> chip.value?.let { name -> openApp(context, name) }
       else -> Unit
@@ -197,6 +206,7 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
             TabSettings -> SettingsRoute(
               bottomInset = FluidFoldingTabBarDefaults.ContentInset,
               onOpenConsent = { navController.navigate(Routes.Consent) },
+              onOpenUsage = { navController.navigate(Routes.Usage) },
             )
             else -> ChatRoute(bottomInset = FluidFoldingTabBarDefaults.ContentInset, onChip = onChip, onOpenSettings = { tab = TabSettings }, viewModel = chat)
           }
