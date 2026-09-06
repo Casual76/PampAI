@@ -146,6 +146,9 @@ fun LazyListScope.assistantSettingsItems(
   item { FluidSectionHeader(title = "Azioni fidate", detail = "Le azioni che Aria fa senza chiederti conferma.") }
   item { TrustedActionsSection(viewModel, state) }
 
+  item { FluidSectionHeader(title = "App collegate", detail = "Le app Pampa che espongono i loro strumenti ad Aria.") }
+  item { ConnectedAppsSection(viewModel) }
+
   item {
     Text(
       "Le tue domande, gli allegati e i dati che gli strumenti leggono per rispondere partono verso il servizio scelto, con la tua chiave. Le conversazioni e la memoria restano su questo telefono.",

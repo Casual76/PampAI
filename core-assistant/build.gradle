@@ -39,6 +39,7 @@ android {
 dependencies {
   // Il trasporto e l'orchestrazione senza dominio stanno nell'engine; qui c'e' il dominio di Aria.
   api project(":engine-ai")
+  api project(":engine-ai-bridge")
   api project(":engine-storage")
   implementation project(":engine-net")
 

@@ -6,10 +6,12 @@ import dagger.hilt.android.HiltAndroidApp
 import dev.antigravity.fluidengine.config.EngineRemoteConfig
 import dev.antigravity.fluidengine.foundation.EngineCompatibility
 import dev.antigravity.fluidengine.foundation.EngineFlag
+import dev.pampa.pampai.core.assistant.bridge.RemoteCatalogs
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /** I flag remoti, dichiarati con il valore con cui la build e' stata provata. */
@@ -31,6 +33,7 @@ object Flags {
 class PampaiApplication : Application() {
 
   @Inject lateinit var remoteConfig: EngineRemoteConfig
+  @Inject lateinit var remoteCatalogs: RemoteCatalogs
 
   /** Vive quanto il processo: niente di quello che parte qui ha qualcosa da cui essere cancellato. */
   private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -42,6 +45,12 @@ class PampaiApplication : Application() {
     // arriva, l'app usa l'ultima risposta valida (o i default compilati).
     applicationScope.launch {
       runCatching { remoteConfig.refreshIfStale() }
+    }
+
+    // Le app collegate: si cercano subito e a ogni pacchetto che cambia (se il flag remoto non le spegne).
+    applicationScope.launch {
+      val enabled = runCatching { remoteConfig.flag(Flags.FederatedTools).first() }.getOrDefault(true)
+      if (enabled) remoteCatalogs.start()
     }
 
     // Cosa fare se questa build e' rimasta indietro: per ora lo si scrive nel log; la UI lo

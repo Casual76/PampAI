@@ -23,6 +23,7 @@ import dev.antigravity.fluidengine.foundation.ThemeMode
 import dev.antigravity.fluidengine.storage.EngineSettingsStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettings
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
+import dev.pampa.pampai.core.assistant.bridge.RemoteCatalogs
 import dev.pampa.pampai.core.assistant.runtime.PampaiConfirmationGate
 import dev.pampa.pampai.core.assistant.tools.RegistryHolder
 import dev.pampa.pampai.core.assistant.settings.SttMode
@@ -61,6 +62,7 @@ class AssistantSettingsViewModel @Inject constructor(
   private val diagnostics: AiDiagnosticsLog,
   private val pampaiStore: PampaiSettingsStore,
   registryHolder: RegistryHolder,
+  private val remoteCatalogs: RemoteCatalogs,
   private val engineStore: EngineSettingsStore,
 ) : ViewModel() {
 
@@ -116,6 +118,10 @@ class AssistantSettingsViewModel @Inject constructor(
     .filter { it.needsConfirmation && PampaiConfirmationGate.canTrust(it.name) }
     .map { it.name to it.description }
     .sortedBy { it.first }
+
+  val connected = remoteCatalogs.state
+  val connectedRefreshing = remoteCatalogs.isRefreshing
+  fun refreshConnected() = remoteCatalogs.refreshAsync()
 
   fun setTrusted(tool: String, trusted: Boolean) = viewModelScope.launch { pampaiStore.setTrusted(tool, trusted) }
 

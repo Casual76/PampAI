@@ -86,7 +86,6 @@ class AssistantEngine @Inject constructor(
   private val diagnostics: AiDiagnosticsLog,
   private val usage: UsageRepository,
   private val http: AiHttp,
-  private val preRouter: PreRouter,
   private val screen: ScreenContextStore,
   private val permissions: PermissionGate,
   private val reminders: ReminderRepository,
@@ -162,6 +161,7 @@ class AssistantEngine @Inject constructor(
         conversationId = conversationId, capabilitiesSummary = { catalog.summary },
         screen = screen.takeIf { request.surface == Surface.SESSION },
         permissions = permissions, reminders = reminders, fluidify = fluidify, usage = usage, aiSettings = settingsStore,
+        connectedPackages = { catalog.connectedPackages },
       )
       traced = toolContext
       val parts = request.attachments.map { it.toPart() }
@@ -182,7 +182,7 @@ class AssistantEngine @Inject constructor(
           conversationTitle = stored?.title?.takeIf { stored.autoTitled },
         ),
       )
-      val pre = preRouter.decide(question, settings.actionsEnabled, parts.isNotEmpty())
+      val pre = PreRouter(catalog.preRules).decide(question, settings.actionsEnabled, parts.isNotEmpty())
       val orchestrator = AiOrchestrator(registry, catalog.router, diagnostics, config = config(request.surface), usageSink = usage)
       val input = AskInput(
         question = question,
