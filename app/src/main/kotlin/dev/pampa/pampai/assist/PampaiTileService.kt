@@ -1,5 +1,6 @@
 package dev.pampa.pampai.assist
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
@@ -15,11 +16,16 @@ class PampaiTileService : TileService() {
     qsTile?.apply {
       state = Tile.STATE_ACTIVE
       label = "Aria"
-      if (Build.VERSION.SDK_INT >= 29) subtitle = if (PampaiInteractionService.isActive(this@PampaiTileService)) "Assistente" else "PampAI"
+      subtitle = if (PampaiInteractionService.isActive(this@PampaiTileService)) "Assistente" else "PampAI"
       updateTile()
     }
   }
 
+  /**
+   * Sotto Android 14 l'unico modo di aprire qualcosa chiudendo il pannello e' la versione con
+   * l'Intent: e' deprecata, non sostituita, e sopra la 34 si usa gia' quella con il PendingIntent.
+   */
+  @SuppressLint("StartActivityAndCollapseDeprecated")
   override fun onClick() {
     super.onClick()
     // Il pannello delle impostazioni rapide sta sopra tutto: la sessione si apre solo dopo che si e' chiuso.
