@@ -70,12 +70,15 @@ class RegistryHolderTest {
     assertNotNull(mounted.registry.find("cv_voti_media"))
     assertTrue(mounted.categories.any { it.id == "classeviva" })
     assertEquals(setOf("dev.antigravity.classevivaexpressive"), mounted.connectedPackages)
-    assertEquals(1, mounted.preRules.size)
+    // Due regole per app: le parole del mestiere e il vocabolario che manda l'app.
+    assertEquals(2, mounted.preRules.size)
     // La regola del vocabolario decide il gruppo remoto senza il router: "la media di matematica".
     val verdict = PreRouter(mounted.preRules).decide("che media ho in matematica?", actionsEnabled = true)
     assertTrue(verdict.groups.any { it.id == "cv_voti" })
     // E la chat normale non si fa distrarre.
     assertFalse(PreRouter(mounted.preRules).decide("ciao come va", actionsEnabled = true).groups.any { it.id == "cv_voti" })
+    // Le parole del mestiere bastano da sole: "che voti ho preso" non nomina nessuna materia.
+    assertTrue(PreRouter(mounted.preRules).decide("che voti ho preso?", actionsEnabled = true).groups.any { it.id == "cv_voti" })
     // Smontare riporta al catalogo locale.
     holder.setRemote(emptyList())
     assertTrue(holder.catalog.value.registry.find("cv_voti_media") == null)

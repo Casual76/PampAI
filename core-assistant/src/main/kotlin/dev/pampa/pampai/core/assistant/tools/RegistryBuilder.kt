@@ -84,15 +84,37 @@ class RegistryHolder @Inject constructor() {
    * nome decidono il gruppo che si apre con la categoria, cosi' "quando passa il 23" non chiama il
    * router remoto.
    */
-  private fun preRules(sets: List<RemoteToolSet<PampaiToolContext>>): List<PreRouter.Rule> = sets.mapNotNull { set ->
-    val group = set.groups.firstOrNull { it.loadsWithCategory } ?: set.groups.firstOrNull() ?: return@mapNotNull null
+  private fun preRules(sets: List<RemoteToolSet<PampaiToolContext>>): List<PreRouter.Rule> = sets.flatMap { set ->
+    val group = set.groups.firstOrNull { it.loadsWithCategory } ?: set.groups.firstOrNull() ?: return@flatMap emptyList()
+    // Le parole del mestiere: come si chiede una cosa a quell'app, anche senza nominarla.
+    val trade = DOMAIN_WORDS[set.catalog.domain]?.let { PreRouter.Rule(group, it, weight = 2) }
     val words = (set.catalog.vocabulary + listOf(set.catalog.appLabel, set.catalog.domain))
       .map { Text.normalize(it) }
       .filter { it.length >= 3 }
       .distinct()
       .take(80)
-    if (words.isEmpty()) return@mapNotNull null
-    PreRouter.Rule(group, "\\b(" + words.joinToString("|") { Regex.escape(it) } + ")\\b", weight = 2)
+    // Il vocabolario pesa meno: un nome di fermata puo' essere una parola qualsiasi ("Duomo"),
+    // mentre "quando passa" parla di autobus e basta.
+    val vocabulary = words.takeIf { it.isNotEmpty() }?.let { list ->
+      PreRouter.Rule(group, "\\b(" + list.joinToString("|") { w -> Regex.escape(w) } + ")\\b", weight = 1)
+    }
+    listOfNotNull(trade, vocabulary)
+  }
+
+  private companion object {
+    /**
+     * Come si chiede una cosa a ciascuna app, con le parole di tutti i giorni. Le sovrapposizioni
+     * non sono un problema: due gruppi che rispondono alla stessa parola tolgono la certezza al
+     * pre-router e la domanda va al router come suggerimento — un giro in piu' costa meno di una
+     * categoria sbagliata.
+     */
+    val DOMAIN_WORDS: Map<String, String> = mapOf(
+      "cv" to "\\b(vot[oi]|media|medie|compit[oi]|verific\\w*|interrogazion\\w*|prof\\w*|scuola|scolastic\\w*|registro|circolar\\w*|bacheca|assenz\\w*|giustific\\w*|materia|materie|lezion[ei]|pagella|classe)\\b",
+      "meteo" to "\\b(meteo|che tempo|tempo fa|piov\\w*|piogg\\w*|nevic\\w*|neve|temperatur\\w*|grad[oi]|vento|umidit\\w*|nuvol\\w*|prevision[ei]|radar|allert[ae]|ombrello|tramonto|alba)\\b",
+      "bus" to "\\b(bus|autobus|pullman|fermata|fermate|passagg\\w*|corsa|corse|tram|quando passa|come arrivo|come ci arrivo|capolinea)\\b",
+      "store" to "\\b(store|installa\\w*|disinstall\\w*|aggiornament[oi]|aggiorna le app|catalogo|apk)\\b",
+      "convert" to "\\b(conversion[ei] di file|formato del file|in pdf|in jpg|in png|in mp3|in mp4|in docx|da pdf a)\\b",
+    )
   }
 }
 
