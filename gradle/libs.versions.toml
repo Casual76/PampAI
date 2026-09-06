@@ -20,7 +20,7 @@ pdfbox = "2.0.27.0"
 media3 = "1.5.1"
 coroutinesGuava = "1.8.1"
 coil = "2.7.0"
-markdown = "0.45.0"
+markdown = "0.41.0"
 exp4j = "0.4.8"
 junit = "4.13.2"
 

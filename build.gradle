@@ -9,3 +9,21 @@ plugins {
   alias(libs.plugins.ksp) apply false
   alias(libs.plugins.hilt) apply false
 }
+
+// Le cartelle di build fuori dal repo, se local.properties lo chiede:
+//   pampai.buildRoot=C:/Users/<utente>/AppData/Local/PampAI-build
+// Il repo vive in una cartella sincronizzata da Google Drive, che tiene aperti i file appena
+// scritti: una compilazione su due falliva con "Unable to delete directory". Con le build altrove
+// il sincronizzatore non le vede mai. La chiave e' per macchina, e local.properties non si committa.
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+  localPropsFile.withInputStream { localProps.load(it) }
+}
+def buildRoot = localProps.getProperty('pampai.buildRoot')
+if (buildRoot != null) {
+  rootProject.layout.buildDirectory.set(file("$buildRoot/root"))
+  subprojects {
+    layout.buildDirectory.set(file("$buildRoot/${project.name}"))
+  }
+}

@@ -47,8 +47,17 @@ dependencies {
   implementation libs.serialization.json
   implementation libs.kotlinx.coroutines.android
   implementation libs.datastore.preferences
+  // Le conversazioni, la memoria, i consumi, i promemoria.
+  implementation libs.room.runtime
+  implementation libs.room.ktx
+  // Le pagine web ridotte a testo; i PDF allegati estratti in testo per i modelli che non li leggono.
+  implementation libs.jsoup
+  implementation libs.pdfbox.android
+  // I conti esatti: il modello non fa aritmetica a mente.
+  implementation libs.exp4j
 
   ksp libs.hilt.compiler
+  ksp libs.room.compiler
 
   testImplementation libs.junit4
   testImplementation libs.kotlinx.coroutines.test

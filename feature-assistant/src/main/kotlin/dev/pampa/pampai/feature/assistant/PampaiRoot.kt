@@ -1,5 +1,7 @@
 package dev.pampa.pampai.feature.assistant
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,6 +33,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ui.fluid.FluidFoldingTabBar
 import dev.antigravity.fluidengine.ui.fluid.FluidFoldingTabBarDefaults
 import dev.antigravity.fluidengine.ui.fluid.FluidGlassModalHost
@@ -47,7 +52,9 @@ import dev.antigravity.fluidengine.ui.fluid.rememberFluidGlassModalHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberFluidNotificationHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.antigravity.fluidengine.ui.theme.FluidRouteMotionHost
+import dev.pampa.pampai.core.assistant.prompt.AriaChips
 import dev.pampa.pampai.feature.assistant.chat.ChatRoute
+import dev.pampa.pampai.feature.assistant.chat.ChatViewModel
 import dev.pampa.pampai.feature.assistant.consent.consentItems
 import dev.pampa.pampai.feature.assistant.history.HistoryRoute
 import dev.pampa.pampai.feature.assistant.onboarding.OnboardingRoute
@@ -74,12 +81,15 @@ private val Tabs = listOf(
 /** Quanto la pagina coperta si sposta mentre quella nuova la copre. */
 private const val CoveredParallax = 0.25f
 
+/** Cosa l'app chiede da fuori: aprire una conversazione (una notifica), la voce (una scorciatoia). */
+data class EntryRequest(val conversationId: Long? = null, val voice: Boolean = false, val stamp: Long = System.currentTimeMillis())
+
 /**
  * La radice dell'app: il navigation host con le transizioni opache e laterali del design system
  * (una pagina in arrivo non sfuma mai), e dentro la home con le tre schede.
  */
 @Composable
-fun PampaiRoot(startAtOnboarding: Boolean) {
+fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
   val navController = rememberNavController()
   NavHost(
     navController = navController,
@@ -103,7 +113,7 @@ fun PampaiRoot(startAtOnboarding: Boolean) {
       }
     }
     composable(Routes.Home) {
-      Page(this) { Home(navController) }
+      Page(this) { Home(navController, entry) }
     }
     composable(Routes.Consent) {
       Page(this) { ConsentRoute(onBack = { navController.popBackStack() }) }
@@ -118,7 +128,8 @@ private fun Page(scope: AnimatedContentScope, content: @Composable () -> Unit) {
 
 /** La home: tre schede sotto una barra di vetro che si ripiega scorrendo, con i padroni di casa di modali e notifiche. */
 @Composable
-private fun Home(navController: NavHostController) {
+private fun Home(navController: NavHostController, entry: EntryRequest?, chat: ChatViewModel = hiltViewModel()) {
+  val context = LocalContext.current
   var tab by rememberSaveable { mutableStateOf(TabChat) }
   val chromeController = rememberFluidChromeController()
   val scrollToTop = remember { FluidScrollToTopBus() }
@@ -127,6 +138,25 @@ private fun Home(navController: NavHostController) {
   val fallbackBackdrop = rememberGlassBackdrop()
   val backdrop = chromeController.activeBackdrop.value ?: fallbackBackdrop
   val barFold = rememberFluidBarFold()
+
+  // Una notifica o una scorciatoia: si apre la conversazione chiesta (o la voce) nella scheda della chat.
+  LaunchedEffect(entry?.stamp) {
+    val request = entry ?: return@LaunchedEffect
+    request.conversationId?.let { chat.open(it) }
+    tab = TabChat
+    if (request.voice) chat.startVoice()
+  }
+
+  val onChip: (AnswerChip) -> Unit = { chip ->
+    when (chip.id) {
+      AriaChips.URL -> chip.value?.let { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }
+      AriaChips.CONVERSATION -> chip.value?.toLongOrNull()?.let { chat.open(it); tab = TabChat }
+      AriaChips.SETTINGS -> tab = TabSettings
+      AriaChips.PLACE -> chip.value?.let { chat.send("E a $it?") }
+      AriaChips.APP -> chip.value?.let { name -> openApp(context, name) }
+      else -> Unit
+    }
+  }
 
   CompositionLocalProvider(
     LocalFluidGlassModalHostState provides modalHost,
@@ -145,12 +175,12 @@ private fun Home(navController: NavHostController) {
             .fluidGlassModalObscured(),
         ) {
           when (tab) {
-            TabHistory -> HistoryRoute(FluidFoldingTabBarDefaults.ContentInset)
+            TabHistory -> HistoryRoute(bottomInset = FluidFoldingTabBarDefaults.ContentInset, onOpenConversation = { tab = TabChat })
             TabSettings -> SettingsRoute(
               bottomInset = FluidFoldingTabBarDefaults.ContentInset,
               onOpenConsent = { navController.navigate(Routes.Consent) },
             )
-            else -> ChatRoute(FluidFoldingTabBarDefaults.ContentInset)
+            else -> ChatRoute(bottomInset = FluidFoldingTabBarDefaults.ContentInset, onChip = onChip, onOpenSettings = { tab = TabSettings }, viewModel = chat)
           }
         }
       }
@@ -176,6 +206,20 @@ private fun Home(navController: NavHostController) {
       FluidNotificationHost(state = notificationHost, backdrop = backdrop, modifier = Modifier.align(Alignment.TopCenter))
     }
   }
+}
+
+/** Apre un'app per nome (le app Pampa hanno i loro package; le altre si cercano per etichetta). */
+private fun openApp(context: android.content.Context, name: String) {
+  val known = mapOf(
+    "classeviva" to "dev.antigravity.classevivaexpressive", "cv" to "dev.antigravity.classevivaexpressive",
+    "meteo" to "dev.pampa.fluidweather", "fluidweather" to "dev.pampa.fluidweather",
+    "bus" to "dev.antigravity.fluidtransit", "transit" to "dev.antigravity.fluidtransit",
+    "convert" to "com.p2r3.convert", "conv" to "com.p2r3.convert",
+    "store" to "com.pampa.store", "musica" to "dev.pampa.fluidify", "fluidify" to "dev.pampa.fluidify",
+  )
+  val packageName = known[name.lowercase().trim()] ?: name
+  val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return
+  runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }
 
 /** La pagina di consenso a se', raggiunta dall'interruttore "Aria" delle impostazioni. */

@@ -46,7 +46,8 @@ object Dates {
     runCatching { return LocalDate.parse(text.take(10)) }
     runCatching { return LocalDate.parse(text, italian) }
     runCatching { return LocalDate.parse(text, italianShort) }
-    val words = text.split(" ")
+    // "lunedi'" con l'apostrofo al posto dell'accento e' la grafia piu' comune del modello.
+    val words = text.split(" ").map { it.trim('\'', '.') }
     val day = words.firstNotNullOfOrNull { weekdays[it] } ?: return null
     val next = words.any { it.startsWith("prossim") }
     val previous = words.any { it.startsWith("scors") || it.startsWith("passat") }

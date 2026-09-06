@@ -48,6 +48,9 @@ dependencies {
   implementation libs.hilt.android
   implementation libs.androidx.hilt.navigation.compose
   implementation libs.coil.compose
+  // Il Markdown completo delle risposte: tabelle, codice, link, in puro Compose.
+  implementation libs.markdown.renderer
+  implementation libs.markdown.renderer.m3
 
   ksp libs.hilt.compiler
 
