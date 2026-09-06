@@ -1,0 +1,39 @@
+{
+  "_commento": "Il manifest ospitato di PampAI: la sezione app e' quella del Pampa Store, la sezione engine governa flag, versione minima e kill switch delle build installate. Vedi engine/docs/04-config-remota.md.",
+
+  "app": {
+    "id": "pampai",
+    "name": "PampAI",
+    "description": "Aria, l'assistente delle app Pampa: chat, voce, e strumenti che agiscono sulle altre app.",
+    "packageName": "dev.pampa.pampai",
+    "category": "Strumenti",
+    "developer": "Pampa",
+    "repository": {
+      "repoOwner": "Casual76",
+      "repoName": "PampAI",
+      "manifestPath": "manifest.json",
+      "ref": ""
+    },
+    "stable": null,
+    "beta": null,
+    "history": []
+  },
+
+  "engine": {
+    "schema": 1,
+    "minimumVersion": "1.26.0",
+    "recommendedVersion": "1.26.0",
+    "notice": null,
+    "flags": {
+      "assistant_session": true,
+      "federated_tools": true,
+      "cloud_tts": true,
+      "web_search": true
+    },
+    "killSwitch": {
+      "enabled": false,
+      "message": null
+    },
+    "overrides": {}
+  }
+}

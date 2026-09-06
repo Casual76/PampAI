@@ -1,0 +1,59 @@
+// feature-assistant: tutto quello che di Aria si vede. Chat, overlay di sessione, onboarding,
+// impostazioni, tracker; disegnato con il design system dell'engine.
+plugins {
+  alias(libs.plugins.android.library)
+  alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.ksp)
+  alias(libs.plugins.hilt)
+}
+
+android {
+  namespace "dev.pampa.pampai.feature.assistant"
+  compileSdk 36
+
+  defaultConfig {
+    minSdk 29
+  }
+
+  buildFeatures {
+    compose true
+    buildConfig false
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = "17"
+  }
+
+  sourceSets {
+    main.java.setSrcDirs(["src/main/kotlin"])
+    test.java.setSrcDirs(["src/test/kotlin"])
+  }
+}
+
+dependencies {
+  api project(":core-assistant")
+  // Il design system porta con se' Compose, Material 3 ed engine-foundation.
+  api project(":engine-ui")
+  implementation project(":engine-update")
+  implementation project(":engine-config")
+
+  implementation platform(libs.compose.bom)
+  implementation libs.bundles.compose
+  implementation libs.hilt.android
+  implementation libs.androidx.hilt.navigation.compose
+  implementation libs.coil.compose
+
+  ksp libs.hilt.compiler
+
+  debugImplementation libs.compose.ui.tooling
+  implementation libs.compose.ui.tooling.preview
+
+  testImplementation libs.junit4
+  testImplementation libs.kotlinx.coroutines.test
+}

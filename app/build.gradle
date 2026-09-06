@@ -1,0 +1,121 @@
+plugins {
+  alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.ksp)
+  alias(libs.plugins.hilt)
+}
+
+// La chiave vera vive fuori dal repo: local.properties (git-ignorato) con
+//   pampa.storeFile=C:/VibeCoded Projects/pampa.jks
+//   pampa.storePassword=...
+//   pampa.keyAlias=pampa
+//   pampa.keyPassword=...
+// Senza chiave si compila lo stesso con la firma di debug, e lo si dice: quella build non e'
+// pubblicabile, e — questo conta per PampAI — non puo' parlare con le app dello store, perche' i
+// permessi del bridge sono a livello di firma.
+def keystoreProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+  localPropsFile.withInputStream { keystoreProps.load(it) }
+}
+def hasReleaseKey = keystoreProps.getProperty('pampa.storeFile') != null
+
+android {
+  namespace 'dev.pampa.pampai'
+  compileSdk 36
+
+  defaultConfig {
+    applicationId 'dev.pampa.pampai'
+    minSdk 29
+    targetSdk 36
+    versionCode 1
+    // Letterale: il publisher dello store legge questa riga con una regex che capisce solo stringhe.
+    versionName '0.1.0'
+    vectorDrawables.useSupportLibrary = true
+  }
+
+  signingConfigs {
+    if (hasReleaseKey) {
+      release {
+        storeFile file(keystoreProps.getProperty('pampa.storeFile'))
+        storePassword keystoreProps.getProperty('pampa.storePassword')
+        keyAlias keystoreProps.getProperty('pampa.keyAlias', 'pampa')
+        keyPassword keystoreProps.getProperty('pampa.keyPassword')
+        // La v1 va accesa a mano: AGP la toglie con minSdk >= 24, e il publisher dello store
+        // convalida proprio la presenza della firma JAR (META-INF/*.RSA) prima di caricare.
+        enableV1Signing true
+        enableV2Signing true
+        enableV3Signing true
+      }
+    }
+  }
+
+  buildTypes {
+    debug {
+      // Un suffisso, cosi' una build di lavoro convive sul telefono con quella dello store.
+      applicationIdSuffix '.debug'
+      // Firmata con la chiave vera quando c'e': i permessi `signature` del bridge devono coincidere
+      // con le app installate dallo store, e la chiave di debug di Android Studio non coincide.
+      if (hasReleaseKey) signingConfig signingConfigs.release
+    }
+    release {
+      minifyEnabled true
+      shrinkResources true
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      if (hasReleaseKey) {
+        signingConfig signingConfigs.release
+      } else {
+        signingConfig signingConfigs.debug
+        println 'PampAI: nessuna chiave in local.properties: release firmata DEBUG, non pubblicabile.'
+      }
+    }
+  }
+
+  buildFeatures {
+    compose true
+    buildConfig true
+  }
+
+  defaultConfig {
+    buildConfigField 'String', 'MANIFEST_URL', '"https://raw.githubusercontent.com/Casual76/PampAI/main/manifest.json"'
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = '17'
+  }
+
+  packaging {
+    resources {
+      excludes += '/META-INF/{AL2.0,LGPL2.1}'
+    }
+  }
+
+  sourceSets {
+    main.java.setSrcDirs(['src/main/kotlin'])
+  }
+}
+
+dependencies {
+  implementation project(':core-assistant')
+  implementation project(':feature-assistant')
+  implementation project(':engine-config')
+  implementation project(':engine-update')
+
+  implementation platform(libs.compose.bom)
+  implementation libs.bundles.compose
+  implementation libs.hilt.android
+  implementation libs.androidx.hilt.navigation.compose
+
+  ksp libs.hilt.compiler
+
+  debugImplementation libs.compose.ui.tooling
+  implementation libs.compose.ui.tooling.preview
+
+  testImplementation libs.junit4
+}

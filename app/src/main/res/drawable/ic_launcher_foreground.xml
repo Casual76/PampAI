@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- L'orb di Aria: un disco di vetro con il suo riflesso, e un alone piu' tenue attorno. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <path
+      android:pathData="M54,54m-33,0a33,33 0,1 1,66 0a33,33 0,1 1,-66 0"
+      android:fillColor="#33FFFFFF" />
+  <path
+      android:pathData="M54,54m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"
+      android:fillColor="#99FFFFFF" />
+  <path
+      android:pathData="M54,54m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"
+      android:strokeColor="#E6FFFFFF"
+      android:strokeWidth="1.6"
+      android:fillColor="#00000000" />
+  <path
+      android:pathData="M37,44 A20,20 0 0 1 47,34.5"
+      android:strokeColor="#FFFFFFFF"
+      android:strokeWidth="3.2"
+      android:strokeLineCap="round"
+      android:fillColor="#00000000" />
+</vector>

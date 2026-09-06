@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Compose dipinge tutto; il tema di piattaforma deve solo togliersi di mezzo e lasciare la
+       finestra da bordo a bordo, cosi' le barre hanno qualcosa su cui stare. -->
+  <style name="Theme.PampAI" parent="android:Theme.Material.NoActionBar">
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">@android:color/transparent</item>
+    <item name="android:windowLightStatusBar">true</item>
+  </style>
+</resources>
