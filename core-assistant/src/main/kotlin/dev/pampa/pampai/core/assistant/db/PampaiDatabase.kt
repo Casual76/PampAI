@@ -29,6 +29,12 @@ data class ConversationEntity(
   val loadedGroupsJson: String? = null,
   /** Vero quando il titolo l'ha scritto il modello, e non e' piu' la prima domanda troncata. */
   val autoTitled: Boolean = false,
+  /**
+   * Il plugin scelto dall'utente per questa conversazione: l'id di una categoria del catalogo
+   * (`classeviva`, `meteo`, `dispositivo`...), o null. Non forza: apre i suoi strumenti in
+   * partenza e lo dice al modello, che resta libero di usare altro se la domanda e' altro.
+   */
+  val plugin: String? = null,
 )
 
 @Entity(tableName = "messages", indices = [Index("conversationId")])
@@ -315,7 +321,7 @@ interface ReminderDao {
 
 @Database(
   entities = [ConversationEntity::class, MessageEntity::class, AttachmentEntity::class, RunEntity::class, UsageEventEntity::class, MemoryEntity::class, ReminderEntity::class],
-  version = 1,
+  version = 2,
   exportSchema = false,
 )
 abstract class PampaiDatabase : RoomDatabase() {

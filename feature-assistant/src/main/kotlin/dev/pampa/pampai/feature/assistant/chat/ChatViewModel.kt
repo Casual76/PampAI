@@ -31,11 +31,13 @@ import dev.pampa.pampai.core.assistant.runtime.AssistantRequest
 import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
 import dev.pampa.pampai.core.assistant.runtime.ContextEstimate
 import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
+import dev.pampa.pampai.core.assistant.tools.RegistryHolder
 import dev.pampa.pampai.core.assistant.tools.Surface
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,8 +47,12 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+/** Un plugin scegliibile nel composer: una categoria del catalogo. */
+data class PluginOption(val id: String, val label: String, val hint: String)
 
 data class ChatUiState(
   val conversation: Conversation? = null,
@@ -83,7 +89,37 @@ class ChatViewModel @Inject constructor(
   private val keyStore: AiKeyStore,
   private val catalogs: ModelCatalogStore,
   private val pampaiSettings: PampaiSettingsStore,
+  registryHolder: RegistryHolder,
 ) : ViewModel() {
+
+  /** Il plugin scelto nel composer per la prossima conversazione (o quella aperta). */
+  val plugin = MutableStateFlow<String?>(null)
+
+  /** "Pensa piu' a fondo" armato per la prossima domanda. */
+  val deepNext = MutableStateFlow(false)
+
+  /** I plugin fra cui scegliere: le categorie del catalogo, app collegate e aree del telefono. */
+  val plugins: StateFlow<List<PluginOption>> = registryHolder.catalog
+    .map { catalog -> catalog.categories.map { PluginOption(it.id, it.label, it.hint) } }
+    .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+  val thinkingAuto: StateFlow<Boolean> = pampaiSettings.settings
+    .map { it.thinkingAuto }
+    .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+  fun setPlugin(id: String?) {
+    plugin.value = id
+    val conversationId = runtime.activeConversationId.value ?: return
+    viewModelScope.launch { conversations.setPlugin(conversationId, id) }
+  }
+
+  fun toggleDeepNext() {
+    deepNext.value = !deepNext.value
+  }
+
+  fun setThinkingAuto(auto: Boolean) {
+    viewModelScope.launch { pampaiSettings.setThinkingAuto(auto) }
+  }
 
   private val pendingAttachments = MutableStateFlow<List<PendingAttachment>>(emptyList())
   private val contextEstimate = MutableStateFlow<ContextEstimate?>(null)
@@ -131,7 +167,22 @@ class ChatViewModel @Inject constructor(
 
   private val settingsFlow = combine(settingsStore.settings, keyStore.states, catalogs.catalogues) { s, k, c -> Triple(s, k, c) }
 
-  val state: StateFlow<ChatUiState> = combine(conversationFlow, runtime.state, runtime.pendingConfirmation, settingsFlow, combine(pendingAttachments, contextEstimate) { a, c -> a to c }) { (conversation, messages, runs), live, pending, (settings, keys, catalogues), (attachments, estimate) ->
+  /**
+   * Lo stato del runtime, con un freno mentre scrive.
+   *
+   * Ogni token che arriva e' un nuovo `Answering`, e ogni `Answering` ricompone la risposta e la
+   * ri-analizza come Markdown. Su un testo lungo sono centinaia di analisi al secondo, e si vede:
+   * lo scorrimento scatta e la tastiera arranca. Uno `StateFlow` tiene da se' solo l'ultimo valore
+   * mentre chi lo legge e' fermo, e si sta fermi 66 ms soltanto dopo un `Answering`: gli altri
+   * stati passano subito.
+   */
+  private val throttledState = runtime.state
+    .transform { s ->
+      emit(s)
+      if (s is AssistantState.Answering) delay(66)
+    }
+
+  val state: StateFlow<ChatUiState> = combine(conversationFlow, throttledState, runtime.pendingConfirmation, settingsFlow, combine(pendingAttachments, contextEstimate) { a, c -> a to c }) { (conversation, messages, runs), live, pending, (settings, keys, catalogues), (attachments, estimate) ->
     ChatUiState(
       conversation = conversation,
       messages = messages,
@@ -167,7 +218,9 @@ class ChatViewModel @Inject constructor(
   fun send(text: String) {
     val attachments = pendingAttachments.value
     pendingAttachments.value = emptyList()
-    runtime.submit(AssistantRequest(runtime.activeConversationId.value, text, AskMode.TEXT, attachments, Surface.APP))
+    val deep = deepNext.value
+    deepNext.value = false
+    runtime.submit(AssistantRequest(runtime.activeConversationId.value, text, AskMode.TEXT, attachments, Surface.APP, plugin = plugin.value, deep = deep))
   }
 
   fun startVoice() {
@@ -189,12 +242,15 @@ class ChatViewModel @Inject constructor(
   fun resolve(id: Long, confirmed: Boolean) = runtime.resolveConfirmation(id, confirmed)
 
   fun newConversation() {
+    plugin.value = null
+    deepNext.value = false
     if (runtime.isBusy) runtime.cancel()
     runtime.selectConversation(null)
     runtime.reset()
   }
 
   fun open(conversationId: Long) {
+    viewModelScope.launch { plugin.value = conversations.conversation(conversationId)?.plugin }
     if (runtime.isBusy && runtime.activeConversationId.value != conversationId) runtime.cancel()
     runtime.selectConversation(conversationId)
     runtime.reset()

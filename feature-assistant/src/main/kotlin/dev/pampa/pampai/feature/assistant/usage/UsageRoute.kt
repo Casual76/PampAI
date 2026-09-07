@@ -50,7 +50,9 @@ private const val GEMINI_FREE_DAILY = 1_000
  */
 @Composable
 fun UsageRoute(onBack: () -> Unit, viewModel: UsageViewModel = hiltViewModel()) {
-  val summary by viewModel.summary.collectAsStateWithLifecycle()
+  val loaded by viewModel.summary.collectAsStateWithLifecycle()
+  val summary = loaded ?: UsageSummary()
+  val ready = loaded != null
   val period by viewModel.period.collectAsStateWithLifecycle()
   var confirmClear by remember { mutableStateOf(false) }
 
@@ -69,9 +71,17 @@ fun UsageRoute(onBack: () -> Unit, viewModel: UsageViewModel = hiltViewModel()) 
     item {
       FluidCard(glass = true) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
-          Stat("Richieste", summary.requests.toString(), Modifier.weight(1f))
-          Stat("Token", tokens(summary.tokens), Modifier.weight(1f))
-          Stat("Costo stimato", cost(summary.costUsd), Modifier.weight(1f))
+          Stat("Richieste", if (ready) summary.requests.toString() else "\u2014", Modifier.weight(1f))
+          Stat("Token", if (ready) tokens(summary.tokens) else "\u2014", Modifier.weight(1f))
+          Stat("Speso", if (ready) cost(summary.paidUsd) else "\u2014", Modifier.weight(1f))
+        }
+        if (ready && summary.costUsd > summary.paidUsd) {
+          Spacer(Modifier.height(6.dp))
+          Text(
+            "A listino sarebbero ${cost(summary.costUsd)}: Groq e Gemini, per come li usi, non fanno pagare.",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
         }
         Spacer(Modifier.height(12.dp))
         FluidMiniChart(points = summary.series.ifEmpty { listOf(0f, 0f) }, color = MaterialTheme.colorScheme.primary, modifier = Modifier.height(72.dp))
@@ -95,7 +105,7 @@ fun UsageRoute(onBack: () -> Unit, viewModel: UsageViewModel = hiltViewModel()) 
           detail = listOfNotNull(
             "${provider.requests} richieste",
             "${tokens(provider.tokens)} token",
-            cost(provider.costUsd),
+            if (provider.billed) cost(provider.costUsd) else "gratis (a listino ${cost(provider.costUsd)})",
             provider.rateLimited.takeIf { it > 0 }?.let { "$it × 429" },
             provider.remainingRequests?.let { "restano $it richieste" + (provider.remainingTokens?.let { t -> ", ${tokens(t)} token" } ?: "") },
           ).joinToString(" · "),
@@ -113,7 +123,7 @@ fun UsageRoute(onBack: () -> Unit, viewModel: UsageViewModel = hiltViewModel()) 
                 model.audioSeconds.takeIf { it > 0 }?.let { "${it.toInt()} s audio" },
                 model.errors.takeIf { it > 0 }?.let { "$it errori" },
               ).joinToString(" · "),
-              meta = cost(model.costUsd),
+              meta = if (provider.billed) cost(model.costUsd) else "a listino ${cost(model.costUsd)}",
             )
             if (index < provider.models.lastIndex) FluidListDivider()
           }
@@ -122,7 +132,7 @@ fun UsageRoute(onBack: () -> Unit, viewModel: UsageViewModel = hiltViewModel()) 
     }
     item {
       FluidCard {
-        Text("I costi sono stime dal listino del ${CostTable.UPDATED}; i piani gratuiti valgono zero. OpenRouter riporta il costo vero quando lo manda.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("\"Speso\" e' quello che OpenRouter riporta davvero. Groq e Gemini, con le chiavi gratuite, non fanno pagare: il loro valore a listino (${CostTable.UPDATED}) e' scritto a parte, per sapere cosa varrebbe.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(10.dp))
         FluidButton(text = "Azzera il tracker", onClick = { confirmClear = true }, style = FluidButtonStyle.Plain, size = FluidButtonSize.Small)
       }

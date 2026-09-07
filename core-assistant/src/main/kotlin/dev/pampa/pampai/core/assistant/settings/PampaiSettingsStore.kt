@@ -38,6 +38,12 @@ data class PampaiSettings(
    * testo davanti a una pagina vuota, e al loro posto resta il saluto.
    */
   val suggestionsSeen: Boolean = false,
+  /**
+   * Il ragionamento lo decide Aria domanda per domanda: alto quando la domanda e' profonda o
+   * l'utente lo chiede, basso su una domanda secca da strumento, medio nel mezzo. Spento, vale
+   * il livello fisso di `AiSettings.thinking`.
+   */
+  val thinkingAuto: Boolean = true,
 )
 
 private val Context.pampaiStore: DataStore<Preferences> by preferencesDataStore(name = "pampai")
@@ -54,6 +60,7 @@ class PampaiSettingsStore(private val context: Context) {
   suspend fun setTtsEngine(engine: TtsEngine) = edit { it[Keys.TtsEngine] = engine.name }
   suspend fun setTtsVoice(voice: String?) = edit { if (voice == null) it.remove(Keys.TtsVoice) else it[Keys.TtsVoice] = voice }
   suspend fun setSuggestionsSeen() = edit { it[Keys.SuggestionsSeen] = true }
+  suspend fun setThinkingAuto(auto: Boolean) = edit { it[Keys.ThinkingAuto] = auto }
   suspend fun setTrusted(tool: String, trusted: Boolean) = edit {
     val now = it[Keys.TrustedActions].orEmpty()
     it[Keys.TrustedActions] = if (trusted) now + tool else now - tool
@@ -73,6 +80,7 @@ class PampaiSettingsStore(private val context: Context) {
       ttsVoice = this[Keys.TtsVoice],
       trustedActions = this[Keys.TrustedActions] ?: defaults.trustedActions,
       suggestionsSeen = this[Keys.SuggestionsSeen] ?: defaults.suggestionsSeen,
+      thinkingAuto = this[Keys.ThinkingAuto] ?: defaults.thinkingAuto,
     )
   }
 
@@ -84,5 +92,6 @@ class PampaiSettingsStore(private val context: Context) {
     val TtsVoice = stringPreferencesKey("tts_voice")
     val TrustedActions = stringSetPreferencesKey("trusted_actions")
     val SuggestionsSeen = booleanPreferencesKey("suggestions_seen")
+    val ThinkingAuto = booleanPreferencesKey("thinking_auto")
   }
 }

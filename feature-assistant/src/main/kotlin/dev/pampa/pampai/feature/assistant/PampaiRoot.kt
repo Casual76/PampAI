@@ -212,6 +212,7 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
       Box(modifier = Modifier.fillMaxSize().fluidGlassModalObscured()) {
         ChatRoute(
           bottomInset = 0.dp,
+          backdrop = backdrop,
           onChip = onChip,
           onOpenMenu = { scope.launch { drawer.open() } },
           onOpenSettings = { navController.navigate(Routes.Settings) },

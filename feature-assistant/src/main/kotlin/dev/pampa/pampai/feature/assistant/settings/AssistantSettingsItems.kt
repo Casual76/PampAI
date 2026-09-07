@@ -332,10 +332,11 @@ private fun AssistantPreferences(viewModel: AssistantSettingsViewModel, state: A
   FluidListGroup(glass = true) {
     ChoiceRow(
       title = "Ragionamento",
-      subtitle = "Quanto il modello pensa prima di rispondere: piu' alto, piu' lento e piu' preciso.",
+      subtitle = "Quanto il modello pensa prima di rispondere. In automatico lo decide Aria: alto sulle domande profonde, basso su quelle secche.",
     ) {
+      FluidChip(label = "Auto", selected = state.pampai.thinkingAuto, onClick = { viewModel.setThinkingAuto(true) })
       ThinkingLevel.entries.forEach { level ->
-        FluidChip(label = level.label(), selected = state.settings.thinking == level, onClick = { viewModel.setThinking(level) })
+        FluidChip(label = level.label(), selected = !state.pampai.thinkingAuto && state.settings.thinking == level, onClick = { viewModel.setThinkingAuto(false); viewModel.setThinking(level) })
       }
     }
     FluidListDivider()

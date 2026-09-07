@@ -29,7 +29,10 @@ data class ProviderUsage(
   val provider: ProviderId,
   val requests: Int,
   val tokens: Int,
+  /** Il valore a listino di quello che si e' consumato. Sui piani gratuiti non e' un costo: e' quanto sarebbe costato. */
   val costUsd: Double,
+  /** Vero per i servizi che fanno pagare davvero (OpenRouter riporta il costo); falso per Groq e Gemini, gratuiti per come li usiamo. */
+  val billed: Boolean,
   val rateLimited: Int,
   val errors: Int,
   val remainingRequests: Int?,
@@ -41,7 +44,10 @@ data class UsageSummary(
   val period: UsagePeriod = UsagePeriod.DAY,
   val requests: Int = 0,
   val tokens: Int = 0,
+  /** Il valore a listino di tutto il periodo, gratuiti compresi. */
   val costUsd: Double = 0.0,
+  /** Quello speso davvero: solo i servizi che fanno pagare. */
+  val paidUsd: Double = 0.0,
   val rateLimited: Int = 0,
   val providers: List<ProviderUsage> = emptyList(),
   /** I token per intervallo (ore del giorno, o giorni), per il grafico. */
@@ -67,9 +73,10 @@ class UsageViewModel @Inject constructor(private val usage: UsageRepository) : V
 
   private val events = period.flatMapLatest { p -> usage.observeSince(start(p).toInstant().toEpochMilli()).map { p to it } }
 
-  val summary: StateFlow<UsageSummary> = combine(events, usage.observeSince(ZonedDateTime.now(zone).toLocalDate().atStartOfDay(zone).toInstant().toEpochMilli())) { (p, list), today ->
+  /** Null finche' il database non ha risposto: la pagina mostra i trattini, non degli zeri che sembrano veri. */
+  val summary: StateFlow<UsageSummary?> = combine(events, usage.observeSince(ZonedDateTime.now(zone).toLocalDate().atStartOfDay(zone).toInstant().toEpochMilli())) { (p, list), today ->
     summarize(p, list, today.count { it.provider == ProviderId.GEMINI })
-  }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UsageSummary())
+  }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
   fun setPeriod(p: UsagePeriod) {
     period.value = p
@@ -85,6 +92,7 @@ class UsageViewModel @Inject constructor(private val usage: UsageRepository) : V
         requests = events.size,
         tokens = events.sumOf { it.tokens },
         costUsd = events.sumOf { it.costUsd ?: 0.0 },
+        billed = provider == ProviderId.OPENROUTER,
         rateLimited = events.count { it.rateLimited },
         errors = events.count { it.error != null && !it.rateLimited },
         remainingRequests = latestLimit?.remainingRequests,
@@ -107,6 +115,7 @@ class UsageViewModel @Inject constructor(private val usage: UsageRepository) : V
       requests = list.size,
       tokens = list.sumOf { it.tokens },
       costUsd = list.sumOf { it.costUsd ?: 0.0 },
+      paidUsd = list.filter { it.provider == ProviderId.OPENROUTER }.sumOf { it.costUsd ?: 0.0 },
       rateLimited = list.count { it.rateLimited },
       providers = providers,
       series = series.toList(),

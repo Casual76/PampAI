@@ -27,6 +27,9 @@ object DatabaseModule {
   @Singleton
   fun provideDatabase(@ApplicationContext context: Context): PampaiDatabase =
     Room.databaseBuilder(context, PampaiDatabase::class.java, "pampai.db")
+      .addMigrations(MIGRATION_1_2)
+      // Solo per gli schemi che nessuna migrazione conosce: le conversazioni dell'utente non
+      // sono un dato che si butta perche' e' cambiata una colonna.
       .fallbackToDestructiveMigration(dropAllTables = true)
       .build()
 
@@ -41,4 +44,11 @@ object DatabaseModule {
   @Provides
   @Singleton
   fun provideJson(): Json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+}
+
+/** 1 -> 2: il plugin scelto per la conversazione. Una colonna in piu', tutto il resto uguale. */
+private val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
+  override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+    db.execSQL("ALTER TABLE conversations ADD COLUMN plugin TEXT")
+  }
 }

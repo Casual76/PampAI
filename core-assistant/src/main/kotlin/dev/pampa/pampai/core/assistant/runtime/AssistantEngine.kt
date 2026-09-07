@@ -3,6 +3,7 @@ package dev.pampa.pampai.core.assistant.runtime
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.ai.keys.AiSettingsStore
+import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
 import dev.antigravity.fluidengine.ai.net.AiError
 import dev.antigravity.fluidengine.ai.net.AiHttp
 import dev.antigravity.fluidengine.ai.orchestrator.AiDiagnosticsLog
@@ -166,6 +167,20 @@ class AssistantEngine @Inject constructor(
       )
       traced = toolContext
       val stored = conversations.conversation(conversationId)
+
+      // Il plugin: scelto adesso nel composer, o gia' sulla conversazione. Si salva, e i suoi
+      // strumenti entrano nel primo giro senza passare dal router.
+      val pluginId = request.plugin ?: stored?.plugin
+      if (request.plugin != null && stored != null && stored.plugin != request.plugin) conversations.setPlugin(conversationId, request.plugin)
+      val pluginCategory = pluginId?.let { id -> registry.categories.firstOrNull { it.id == id } }
+      val pluginGroups = pluginCategory?.let { category ->
+        registry.topGroupsOf(category).let { top -> top.filter { it.loadsWithCategory }.ifEmpty { top.take(3) } }
+      }.orEmpty()
+      if (pluginCategory != null && pluginGroups.isNotEmpty()) {
+        conversation.touch(pluginGroups)
+        conversation.loadedCategories += pluginCategory
+      }
+
       val prompt = PromptBuilder.build(
         PromptContext(
           nowLabel = nowLabel(zone),
@@ -180,23 +195,38 @@ class AssistantEngine @Inject constructor(
           screenNote = screenNote(request),
           attachmentsNote = parts.takeIf { it.isNotEmpty() }?.let { list -> "l'utente ha allegato " + list.joinToString(", ") { it.displayName ?: "testo" } },
           conversationTitle = stored?.title?.takeIf { stored.autoTitled },
+          pluginLabel = pluginCategory?.label,
         ),
       )
       val pre = PreRouter(catalog.preRules).decide(question, settings.actionsEnabled, parts.isNotEmpty())
+      val deep = pre.deep || request.deep
+      // Quanto pensare lo decide la domanda, non un interruttore: alto quando e' profonda o quando
+      // l'utente ha chiesto "pensa piu' a fondo", basso su una domanda secca che finisce in uno
+      // strumento, medio nel mezzo. A meno che l'utente non abbia scelto un livello fisso.
+      val thinking = when {
+        !pampaiSettings.current().thinkingAuto -> settings.thinking
+        deep -> ThinkingLevel.HIGH
+        pre.confident && parts.isEmpty() && question.length < 90 -> ThinkingLevel.LOW
+        else -> ThinkingLevel.MEDIUM
+      }
       val orchestrator = AiOrchestrator(registry, catalog.router, diagnostics, config = config(request.surface), usageSink = usage)
       val input = AskInput(
         question = question,
         mode = request.mode,
         language = "it",
-        settings = settings,
+        settings = settings.copy(thinking = thinking),
         providers = ordered,
         toolContext = toolContext,
         systemPrompt = prompt,
         conversation = conversation,
         actionsEnabled = settings.actionsEnabled,
-        preselectedGroups = if (pre.confident) pre.groups else null,
-        routerHint = if (pre.confident) emptySet() else pre.groups,
-        deepRequested = pre.deep,
+        preselectedGroups = when {
+          pre.confident -> pre.groups + pluginGroups
+          pluginGroups.isNotEmpty() -> pluginGroups.toSet()
+          else -> null
+        },
+        routerHint = if (pre.confident) emptySet() else pre.groups + pluginGroups,
+        deepRequested = deep,
         chipFilter = { chip -> AriaChips.accepts(chip) },
         attachmentFallback = { part -> attachments.fallbackText(part) },
         attachments = parts,

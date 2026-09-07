@@ -55,6 +55,10 @@ data class AssistantRequest(
   val override: ProviderOverride? = null,
   /** Rigenera: il messaggio dell'assistente da sostituire (la domanda resta quella salvata). */
   val regenerateMessageId: Long? = null,
+  /** Il plugin scelto nel composer (id di categoria): si salva sulla conversazione e guida il primo giro. */
+  val plugin: String? = null,
+  /** "Pensa piu' a fondo": livello profondo e ragionamento alto per questa domanda. */
+  val deep: Boolean = false,
 )
 
 /** Cosa e' successo a un ascolto che non ha prodotto una domanda: la barra decide cosa fare. */

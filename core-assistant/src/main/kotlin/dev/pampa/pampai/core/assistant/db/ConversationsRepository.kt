@@ -39,6 +39,8 @@ data class Conversation(
   val pinned: Boolean,
   val loadedGroups: List<String>,
   val autoTitled: Boolean,
+  /** L'id della categoria scelta come plugin, o null. */
+  val plugin: String? = null,
 )
 
 data class Attachment(
@@ -204,6 +206,11 @@ class ConversationsRepository @Inject constructor(
     conversationDao.update(conversation.copy(pinned = pinned))
   }
 
+  suspend fun setPlugin(conversationId: Long, plugin: String?) {
+    val conversation = conversationDao.get(conversationId) ?: return
+    if (conversation.plugin != plugin) conversationDao.update(conversation.copy(plugin = plugin))
+  }
+
   suspend fun setLoadedGroups(conversationId: Long, groupIds: List<String>) {
     val conversation = conversationDao.get(conversationId) ?: return
     val encoded = json.encodeToString(groupIds)
@@ -336,6 +343,7 @@ class ConversationsRepository @Inject constructor(
     lastProvider = ProviderId.fromId(lastProvider), source = source, pinned = pinned,
     loadedGroups = loadedGroupsJson?.let { runCatching { json.decodeFromString<List<String>>(it) }.getOrNull() } ?: emptyList(),
     autoTitled = autoTitled,
+    plugin = plugin,
   )
 
   private fun AttachmentEntity.toModel() = Attachment(id, messageId, AttachmentKind.entries.firstOrNull { it.name == kind } ?: AttachmentKind.DOCUMENT, mime, name, path, bytes)
