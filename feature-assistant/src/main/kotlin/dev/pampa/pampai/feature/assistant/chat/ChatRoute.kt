@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Check
@@ -46,6 +47,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
@@ -322,18 +324,18 @@ private fun Modifier.chatWash(): Modifier {
   val cool = MaterialTheme.colorScheme.tertiary
   return this.drawBehind {
     // Un velo verticale dall'alto, poi due aloni ai due angoli che il testo non occupa mai.
-    drawRect(Brush.verticalGradient(listOf(warm.copy(alpha = 0.10f), Color.Transparent), startY = 0f, endY = size.height * 0.55f))
+    drawRect(Brush.verticalGradient(listOf(warm.copy(alpha = 0.14f), Color.Transparent), startY = 0f, endY = size.height * 0.55f))
     val topCentre = Offset(size.width * 0.88f, size.height * 0.08f)
     val topRadius = size.width * 0.95f
     drawCircle(
-      brush = Brush.radialGradient(listOf(warm.copy(alpha = 0.16f), Color.Transparent), center = topCentre, radius = topRadius),
+      brush = Brush.radialGradient(listOf(warm.copy(alpha = 0.22f), Color.Transparent), center = topCentre, radius = topRadius),
       radius = topRadius,
       center = topCentre,
     )
     val bottomCentre = Offset(size.width * 0.06f, size.height * 0.82f)
     val bottomRadius = size.width * 1.05f
     drawCircle(
-      brush = Brush.radialGradient(listOf(cool.copy(alpha = 0.13f), Color.Transparent), center = bottomCentre, radius = bottomRadius),
+      brush = Brush.radialGradient(listOf(cool.copy(alpha = 0.18f), Color.Transparent), center = bottomCentre, radius = bottomRadius),
       radius = bottomRadius,
       center = bottomCentre,
     )
@@ -768,13 +770,18 @@ private fun Composer(
       modifier = Modifier
         .fillMaxWidth()
         .onGloballyPositioned { composerRect = it.boundsInRoot() }
+        // `Modal`, con riserva. La lente e' la stessa del `Floating` (20/28 dp contro 19/29): cambia
+        // la sfocatura, 3.5 contro 1.8. Il `Floating` sarebbe il ruolo giusto per una capsula che
+        // galleggia sulla chat, ma sull'emulatore ogni build con `Floating` su una superficie di
+        // questa misura e' finita in ANR nel disegno, e quelle con `Modal` no. Le tracce dicono
+        // "main thread affamato", non un loop: sul telefono va provato `Floating`, ed e' una parola.
         .glassSurface(state = backdrop, tint = GlassDefaults.modalTint(), shape = ContinuousCornerShape(26.dp), role = GlassRole.Modal)
         .padding(start = 8.dp, end = 8.dp, top = 6.dp, bottom = 8.dp),
     ) {
       if (listening || transcribing) {
         VoiceVisualizer(micLevel = micLevel, partial = partial, transcribing = transcribing, onTap = onCancelVoice, modifier = Modifier.fillMaxWidth().height(44.dp))
       } else {
-        FluidTextField(
+        ComposerField(
           value = text,
           onValueChange = { text = it },
           placeholder = when {
@@ -783,11 +790,8 @@ private fun Composer(
             editing != null -> "Modifica e rinvia..."
             else -> "Chiedi ad Aria..."
           },
-          singleLine = false,
-          maxLines = 6,
           enabled = !busy && state.enabled,
-          keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-          keyboardActions = KeyboardActions(onSend = { submit() }),
+          onSend = { submit() },
           modifier = Modifier.fillMaxWidth().focusRequester(focus),
         )
       }
@@ -866,6 +870,45 @@ private fun Composer(
       },
     )
   }
+}
+
+/**
+ * Il campo del composer: le parole direttamente sul vetro.
+ *
+ * `FluidTextField` disegna un pozzo grigio sotto il testo, giusto in un modulo e sbagliato qui: un
+ * rettangolo pieno dentro una capsula di vetro e' quello che fa leggere il vetro come "una
+ * trasparenza". Nelle chat che si usano il testo sta sulla superficie, e il bordo della capsula e'
+ * l'unico contorno.
+ */
+@Composable
+private fun ComposerField(
+  value: String,
+  onValueChange: (String) -> Unit,
+  placeholder: String,
+  enabled: Boolean,
+  onSend: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val scheme = MaterialTheme.colorScheme
+  BasicTextField(
+    value = value,
+    onValueChange = onValueChange,
+    enabled = enabled,
+    maxLines = 6,
+    textStyle = MaterialTheme.typography.bodyLarge.copy(color = scheme.onSurface),
+    cursorBrush = SolidColor(scheme.primary),
+    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+    keyboardActions = KeyboardActions(onSend = { onSend() }),
+    modifier = modifier.padding(horizontal = 10.dp, vertical = 12.dp),
+    decorationBox = { inner ->
+      Box {
+        if (value.isEmpty()) {
+          Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant.copy(alpha = 0.75f))
+        }
+        inner()
+      }
+    },
+  )
 }
 
 /** L'etichetta del chip: il modello che risponde adesso e quanto ci pensa. */
