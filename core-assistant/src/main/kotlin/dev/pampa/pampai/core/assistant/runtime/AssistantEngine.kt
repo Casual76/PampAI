@@ -293,9 +293,12 @@ class AssistantEngine @Inject constructor(
   }
 
   private fun config(surface: Surface): AiOrchestratorConfig = when (surface) {
-    // Una card sopra un'altra app vive un minuto e mezzo; la chat, con il service, quattro.
+    // Una card sopra un'altra app vive un minuto e mezzo e si legge in tre righe; la chat, con il
+    // service dietro, quattro minuti e tutto lo spazio che serve.
     Surface.SESSION -> AiOrchestratorConfig(maxRounds = 8, maxOpens = 4, toolTimeoutMillis = 90_000L, totalBudgetMillis = 90_000L, finalReserveMillis = 15_000L, toolTextChars = 4_000, maxOutputTokens = 1_200)
-    Surface.APP -> AiOrchestratorConfig(maxRounds = 12, maxMoreTools = 4, maxOpens = 6, toolTimeoutMillis = 90_000L, totalBudgetMillis = 240_000L, finalReserveMillis = 25_000L, toolTextChars = 4_000, maxOutputTokens = 2_000)
+    // 4000 token di risposta, non 2000: una spiegazione lunga o un file di codice tagliato a meta'
+    // non e' una risposta piu' concisa, e' una risposta rotta.
+    Surface.APP -> AiOrchestratorConfig(maxRounds = 12, maxMoreTools = 4, maxOpens = 6, toolTimeoutMillis = 90_000L, totalBudgetMillis = 240_000L, finalReserveMillis = 40_000L, toolTextChars = 4_000, maxOutputTokens = 4_000)
   }
 
   private suspend fun rebuild(conversationId: Long, now: Long, registry: ToolRegistry<PampaiToolContext>): Conversation {

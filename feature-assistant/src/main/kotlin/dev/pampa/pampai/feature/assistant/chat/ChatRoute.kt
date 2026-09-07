@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Menu
@@ -79,10 +80,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mikepenz.markdown.compose.components.markdownComponents
+import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
+import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
+import dev.antigravity.fluidengine.ui.fluid.FluidGlassModalPortal
+import dev.antigravity.fluidengine.ui.fluid.FluidGlassModalPresentation
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.glassBackdropSource
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
+import dev.antigravity.fluidengine.ui.theme.FluidListDivider
+import dev.antigravity.fluidengine.ui.theme.FluidListGroup
+import dev.antigravity.fluidengine.ui.theme.FluidListRow
+import dev.antigravity.fluidengine.ui.theme.FluidTone
 import dev.pampa.pampai.core.assistant.chat.Greetings
 import dev.pampa.pampai.core.assistant.runtime.VoiceEvent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -116,6 +126,7 @@ import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageRole
 import dev.pampa.pampai.core.assistant.db.MessageStatus
 import dev.pampa.pampai.core.assistant.db.Run
+import dev.pampa.pampai.feature.assistant.settings.label
 import java.time.LocalTime
 import java.util.Locale
 import kotlin.random.Random
@@ -253,6 +264,8 @@ fun ChatRoute(
         onAttach = viewModel::attach,
         onRemoveAttachment = viewModel::removeAttachment,
         onOpenSettings = onOpenSettings,
+        onProvider = viewModel::useProvider,
+        onThinking = viewModel::setThinking,
       )
     }
   }
@@ -586,7 +599,14 @@ fun ConfirmationRow(pending: PendingConfirmation, onResolve: (Long, Boolean) -> 
 /** Il Markdown completo delle risposte, con i colori e la tipografia del tema. */
 @Composable
 fun MarkdownBody(markdown: String) {
-  Markdown(content = markdown, colors = markdownColor(), typography = markdownTypography())
+  val components = remember {
+    markdownComponents(
+      codeFence = { AriaCodeBlock(it) },
+      codeBlock = { AriaCodeBlock(it) },
+      table = { AriaTable(it) },
+    )
+  }
+  Markdown(content = markdown, colors = markdownColor(), typography = markdownTypography(), components = components)
 }
 
 /** La telemetria di uno scambio in una riga: strumenti, servizio, tempo, token, costo. */
@@ -637,6 +657,8 @@ private fun Composer(
   onAttach: (android.net.Uri) -> Unit,
   onRemoveAttachment: (Int) -> Unit,
   onOpenSettings: () -> Unit,
+  onProvider: (ProviderId) -> Unit,
+  onThinking: (ThinkingLevel) -> Unit,
 ) {
   val context = LocalContext.current
   var text by rememberSaveable { mutableStateOf("") }
@@ -658,6 +680,7 @@ private fun Composer(
   val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(3)) { uris -> uris.forEach(onAttach) }
   val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> uris.forEach(onAttach) }
   var attachMenu by remember { mutableStateOf(false) }
+  var modelSheet by remember { mutableStateOf(false) }
 
   fun submit() {
     val query = text.trim()
@@ -679,48 +702,131 @@ private fun Composer(
         FluidChip(label = "File o PDF", selected = false, onClick = { attachMenu = false; filePicker.launch(arrayOf("application/pdf", "text/*", "image/*")) }, leading = { Icon(Icons.Rounded.AttachFile, contentDescription = null, modifier = Modifier.size(16.dp)) })
       }
     }
-    Row(
+    Column(
       modifier = Modifier
         .fillMaxWidth()
-        .glassSurface(state = backdrop, tint = GlassDefaults.modalTint(), shape = FluidCapsuleShape, role = GlassRole.Modal)
-        .padding(start = 6.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
-      verticalAlignment = Alignment.CenterVertically,
+        .glassSurface(state = backdrop, tint = GlassDefaults.modalTint(), shape = ContinuousCornerShape(FluidRadius.Sheet), role = GlassRole.Modal)
+        .padding(horizontal = 6.dp, vertical = 6.dp),
     ) {
-      BarIcon(icon = if (attachMenu) Icons.Rounded.Close else Icons.Rounded.Add, description = "Allega", onClick = { attachMenu = !attachMenu })
       if (listening || transcribing) {
-        VoiceVisualizer(micLevel = micLevel, partial = partial, transcribing = transcribing, onTap = onCancelVoice, modifier = Modifier.weight(1f))
+        VoiceVisualizer(micLevel = micLevel, partial = partial, transcribing = transcribing, onTap = onCancelVoice, modifier = Modifier.fillMaxWidth().height(44.dp))
       } else {
         FluidTextField(
           value = text,
           onValueChange = { text = it },
           placeholder = when {
             !state.enabled -> "Aggiungi una chiave nelle impostazioni"
-            busy -> "Sto rispondendo…"
-            editing != null -> "Modifica e rinvia…"
-            else -> "Chiedi ad Aria…"
+            busy -> "Sto rispondendo..."
+            editing != null -> "Modifica e rinvia..."
+            else -> "Chiedi ad Aria..."
           },
           singleLine = false,
-          maxLines = 5,
+          maxLines = 6,
           enabled = !busy && state.enabled,
           keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
           keyboardActions = KeyboardActions(onSend = { submit() }),
-          modifier = Modifier.weight(1f).focusRequester(focus),
+          modifier = Modifier.fillMaxWidth().focusRequester(focus),
         )
       }
-      Spacer(Modifier.width(4.dp))
-      when {
-        !state.enabled -> BarIcon(icon = Icons.Rounded.ArrowUpward, description = "Impostazioni", onClick = onOpenSettings)
-        listening -> Box(Modifier.size(40.dp).glassControlSurface(backdrop = backdrop, shape = FluidCapsuleShape).fluidPressable(onClick = onStopVoice, role = Role.Button), contentAlignment = Alignment.Center) {
-          Icon(Icons.Rounded.Stop, contentDescription = "Smetti di ascoltare", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        BarIcon(icon = if (attachMenu) Icons.Rounded.Close else Icons.Rounded.Add, description = "Allega", onClick = { attachMenu = !attachMenu })
+        // Chi risponde e quanto ci pensa, a portata di pollice: si cambia guardando la risposta
+        // che non va, non tre schermate piu' in la'.
+        FluidChip(label = modelLabel(state), selected = false, onClick = { modelSheet = true })
+        Spacer(Modifier.weight(1f))
+        when {
+          !state.enabled -> BarIcon(icon = Icons.Rounded.ArrowUpward, description = "Impostazioni", onClick = onOpenSettings)
+          listening -> Box(Modifier.size(40.dp).glassControlSurface(backdrop = backdrop, shape = FluidCapsuleShape).fluidPressable(onClick = onStopVoice, role = Role.Button), contentAlignment = Alignment.Center) {
+            Icon(Icons.Rounded.Stop, contentDescription = "Smetti di ascoltare", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+          }
+          busy -> Box(Modifier.size(40.dp).glassControlSurface(backdrop = backdrop, shape = FluidCapsuleShape).fluidPressable(onClick = onStop, role = Role.Button), contentAlignment = Alignment.Center) {
+            Icon(Icons.Rounded.Stop, contentDescription = "Ferma", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
+          }
+          speaking && text.isBlank() -> BarIcon(icon = Icons.Rounded.VolumeOff, description = "Zitta", onClick = onStopSpeaking)
+          text.isBlank() && state.attachments.isEmpty() -> BarIcon(icon = Icons.Rounded.Mic, description = "Parla", onClick = { if (micGranted) onVoice() else micLauncher.launch(Manifest.permission.RECORD_AUDIO) })
+          else -> BarIcon(icon = Icons.Rounded.ArrowUpward, description = "Invia", onClick = { submit() }, primary = true)
         }
-        busy -> Box(Modifier.size(40.dp).glassControlSurface(backdrop = backdrop, shape = FluidCapsuleShape).fluidPressable(onClick = onStop, role = Role.Button), contentAlignment = Alignment.Center) {
-          Icon(Icons.Rounded.Stop, contentDescription = "Ferma", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
-        }
-        speaking && text.isBlank() -> BarIcon(icon = Icons.Rounded.VolumeOff, description = "Zitta", onClick = onStopSpeaking)
-        text.isBlank() && state.attachments.isEmpty() -> BarIcon(icon = Icons.Rounded.Mic, description = "Parla", onClick = { if (micGranted) onVoice() else micLauncher.launch(Manifest.permission.RECORD_AUDIO) })
-        else -> BarIcon(icon = Icons.Rounded.ArrowUpward, description = "Invia", onClick = { submit() }, primary = true)
       }
     }
+  }
+
+  ModelSheet(
+    open = modelSheet,
+    state = state,
+    onProvider = { onProvider(it); modelSheet = false },
+    onThinking = onThinking,
+    onDismiss = { modelSheet = false },
+  )
+}
+
+/** L'etichetta del chip: il modello che risponde adesso e quanto ci pensa. */
+private fun modelLabel(state: ChatUiState): String {
+  val provider = state.settings.chatOrder.firstOrNull { state.keys[it]?.verified == true }
+    ?: state.settings.chatOrder.firstOrNull()
+    ?: return "Nessun modello"
+  val id = state.settings.chatModel(provider)
+  val name = id?.let { state.catalogues[provider]?.chat(it)?.displayName ?: it.substringAfterLast('/') } ?: provider.label
+  return name.take(22) + " \u00b7 " + state.settings.thinking.label()
+}
+
+/**
+ * Il foglio del modello: chi risponde, e quanto ci pensa.
+ *
+ * Non e' il picker delle impostazioni, che sceglie un modello per ogni livello di ogni servizio.
+ * Qui si risponde alla domanda che uno si fa davanti a una risposta storta -- "e se lo chiedo a un
+ * altro?" -- e le leve sono queste due.
+ */
+@Composable
+private fun ModelSheet(
+  open: Boolean,
+  state: ChatUiState,
+  onProvider: (ProviderId) -> Unit,
+  onThinking: (ThinkingLevel) -> Unit,
+  onDismiss: () -> Unit,
+) {
+  FluidGlassModalPortal(
+    item = if (open) Unit else null,
+    onDismissRequest = onDismiss,
+    presentation = FluidGlassModalPresentation.Sheet,
+    paneTitle = "Modello",
+  ) {
+    val first = state.settings.chatOrder.firstOrNull { state.keys[it]?.verified == true }
+    Text("Chi risponde", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp))
+    Text(
+      "Gli altri restano la riserva, nell'ordine, quando il primo e' al limite o non risponde.",
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      modifier = Modifier.padding(horizontal = 4.dp),
+    )
+    Spacer(Modifier.height(8.dp))
+    FluidListGroup {
+      state.settings.chatOrder.forEachIndexed { index, provider ->
+        if (index > 0) FluidListDivider()
+        val verified = state.keys[provider]?.verified == true
+        val id = state.settings.chatModel(provider)
+        FluidListRow(
+          title = provider.label,
+          subtitle = if (!verified) "Serve una chiave verificata." else (id?.let { state.catalogues[provider]?.chat(it)?.displayName ?: it } ?: "modello predefinito"),
+          tone = if (provider == first) FluidTone.Primary else FluidTone.Neutral,
+          onClick = if (verified) ({ onProvider(provider) }) else null,
+        )
+      }
+    }
+    Spacer(Modifier.height(16.dp))
+    Text("Impegno", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 4.dp))
+    Text(
+      "Quanto il modello pensa prima di rispondere: piu' alto, piu' lento e piu' preciso.",
+      style = MaterialTheme.typography.bodySmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      modifier = Modifier.padding(horizontal = 4.dp),
+    )
+    Spacer(Modifier.height(8.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(horizontal = 4.dp)) {
+      ThinkingLevel.entries.forEach { level ->
+        FluidChip(label = level.label(), selected = state.settings.thinking == level, onClick = { onThinking(level) })
+      }
+    }
+    Spacer(Modifier.height(16.dp))
   }
 }
 

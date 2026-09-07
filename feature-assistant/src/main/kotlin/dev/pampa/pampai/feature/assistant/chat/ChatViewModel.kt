@@ -12,6 +12,7 @@ import dev.antigravity.fluidengine.ai.keys.AiSettingsStore
 import dev.antigravity.fluidengine.ai.keys.KeyState
 import dev.antigravity.fluidengine.ai.keys.AiKeyStore
 import dev.antigravity.fluidengine.ai.keys.ModelCatalogStore
+import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
 import dev.antigravity.fluidengine.ai.orchestrator.AskMode
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.PendingConfirmation
@@ -97,6 +98,23 @@ class ChatViewModel @Inject constructor(
   val suggestionsSeen: StateFlow<Boolean> = pampaiSettings.settings
     .map { it.suggestionsSeen }
     .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+  /**
+   * Chi risponde e quanto ci pensa, dal composer.
+   *
+   * Scrivono le impostazioni vere, non un'eccezione per questa conversazione: chi cambia modello
+   * a meta' chat lo fa perche' ha cambiato idea su quale vuole, non per un messaggio solo.
+   */
+  fun useProvider(provider: ProviderId) {
+    viewModelScope.launch {
+      val order = settingsStore.current().chatOrder
+      settingsStore.setChatOrder(listOf(provider) + order.filter { it != provider })
+    }
+  }
+
+  fun setThinking(level: ThinkingLevel) {
+    viewModelScope.launch { settingsStore.setThinking(level) }
+  }
 
   /** Chiamato dalla schermata quando gli esempi sono stati mostrati per la prima volta. */
   fun markSuggestionsSeen() {
