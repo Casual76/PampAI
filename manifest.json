@@ -1,6 +1,5 @@
 {
   "_commento": "Il manifest ospitato di PampAI: la sezione app e' quella del Pampa Store, la sezione engine governa flag, versione minima e kill switch delle build installate. Vedi engine/docs/04-config-remota.md.",
-
   "app": {
     "id": "pampai",
     "name": "PampAI",
@@ -12,13 +11,28 @@
       "repoOwner": "Casual76",
       "repoName": "PampAI",
       "manifestPath": "manifest.json",
-      "ref": ""
+      "ref": "main"
     },
-    "stable": null,
-    "beta": null,
-    "history": []
+    "stable": {
+      "version": "1.0.0",
+      "releaseDate": "2026-09-07",
+      "changelog": "Prima release di PampAI: Aria, la chat con voce, memoria e strumenti; assistente di sistema dal tasto di accensione; strumenti federati per ClasseViva, Fluid Weather, Fluid Transit, Fluidify, Convert to it! e Pampa Store.",
+      "releaseTag": "stable-pampai-v1.0.0",
+      "apkAsset": "pampai-1.0.0.apk",
+      "sizeBytes": 13262517
+    },
+    "beta": {
+      "version": "1.0.0",
+      "releaseDate": "2026-09-07",
+      "changelog": "Prima release di PampAI: Aria, la chat con voce, memoria e strumenti; assistente di sistema dal tasto di accensione; strumenti federati per ClasseViva, Fluid Weather, Fluid Transit, Fluidify, Convert to it! e Pampa Store.",
+      "releaseTag": "stable-pampai-v1.0.0",
+      "apkAsset": "pampai-1.0.0.apk",
+      "sizeBytes": 13262517
+    },
+    "history": [],
+    "iconUrl": "",
+    "screenshots": []
   },
-
   "engine": {
     "schema": 1,
     "minimumVersion": "1.27.0",
