@@ -31,6 +31,7 @@ import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
 import dev.pampa.pampai.core.assistant.runtime.ContextEstimate
 import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
 import dev.pampa.pampai.core.assistant.tools.Surface
+import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -80,10 +81,27 @@ class ChatViewModel @Inject constructor(
   private val settingsStore: AiSettingsStore,
   private val keyStore: AiKeyStore,
   private val catalogs: ModelCatalogStore,
+  private val pampaiSettings: PampaiSettingsStore,
 ) : ViewModel() {
 
   private val pendingAttachments = MutableStateFlow<List<PendingAttachment>>(emptyList())
   private val contextEstimate = MutableStateFlow<ContextEstimate?>(null)
+
+  /**
+   * Gli esempi della prima chat: una volta e basta.
+   *
+   * Sta fuori da [state] apposta. Quel `combine` e' gia' al limite dei suoi argomenti, e questo e'
+   * un valore che cambia una volta sola nella vita dell'app: non ha niente da fare in un flusso
+   * ricalcolato a ogni token della risposta.
+   */
+  val suggestionsSeen: StateFlow<Boolean> = pampaiSettings.settings
+    .map { it.suggestionsSeen }
+    .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+  /** Chiamato dalla schermata quando gli esempi sono stati mostrati per la prima volta. */
+  fun markSuggestionsSeen() {
+    viewModelScope.launch { pampaiSettings.setSuggestionsSeen() }
+  }
 
   private val conversationFlow = runtime.activeConversationId.flatMapLatest { id ->
     if (id == null) {

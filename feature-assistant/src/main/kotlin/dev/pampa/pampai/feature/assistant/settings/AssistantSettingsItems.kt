@@ -7,12 +7,14 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -171,6 +173,27 @@ fun LazyListScope.assistantSettingsItems(
   }
 }
 
+/**
+ * Una riga di lista la cui impostazione e' una scelta fra chip.
+ *
+ * I chip **non** stanno nel `badge`: quello slot si prende la larghezza che gli serve e lascia al
+ * testo quella che avanza, cosi' con tre o quattro voci il titolo finisce spezzato una lettera per
+ * riga ("Ricono / scimen / to") e il sottotitolo una parola per riga. Vanno sotto, a tutta
+ * larghezza, e scorrono in orizzontale quando non ci stanno.
+ */
+@Composable
+private fun ChoiceRow(title: String, subtitle: String, chips: @Composable () -> Unit) {
+  FluidListRow(title = title, subtitle = subtitle)
+  Row(
+    Modifier
+      .horizontalScroll(rememberScrollState())
+      .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+    horizontalArrangement = Arrangement.spacedBy(6.dp),
+  ) {
+    chips()
+  }
+}
+
 /** Le voci "Aspetto": tema, nero assoluto, accento, aptica. Le impostazioni dell'engine. */
 fun LazyListScope.appearanceItems(viewModel: AssistantSettingsViewModel, state: AssistantSettingsUiState) {
   item {
@@ -197,40 +220,34 @@ fun LazyListScope.appearanceItems(viewModel: AssistantSettingsViewModel, state: 
         badge = { FluidSwitch(checked = state.engine.amoledEnabled, onCheckedChange = viewModel::setAmoled) },
       )
       FluidListDivider()
-      FluidListRow(
+      ChoiceRow(
         title = "Accento",
         subtitle = "Il colore dell'app: quello di PampAI, quello del telefono, o uno dei preset.",
-        badge = {
-          Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            FluidChip(
-              label = PampaiBrand.label,
-              selected = state.engine.accentMode == AccentMode.BRAND,
-              onClick = { viewModel.setAccentMode(AccentMode.BRAND) },
-            )
-            FluidChip(
-              label = "Dinamico",
-              selected = state.engine.accentMode == AccentMode.DYNAMIC,
-              onClick = { viewModel.setAccentMode(AccentMode.DYNAMIC) },
-            )
-          }
-        },
-      )
+      ) {
+        FluidChip(
+          label = PampaiBrand.label,
+          selected = state.engine.accentMode == AccentMode.BRAND,
+          onClick = { viewModel.setAccentMode(AccentMode.BRAND) },
+        )
+        FluidChip(
+          label = "Dinamico",
+          selected = state.engine.accentMode == AccentMode.DYNAMIC,
+          onClick = { viewModel.setAccentMode(AccentMode.DYNAMIC) },
+        )
+      }
       FluidListDivider()
-      FluidListRow(
+      ChoiceRow(
         title = "Preset",
         subtitle = "Un colore fisso, indipendente dal telefono.",
-        badge = {
-          Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            fluidAccentPresets.forEach { preset ->
-              FluidChip(
-                label = preset.label,
-                selected = state.engine.accentMode == AccentMode.CUSTOM_PRESET && state.engine.customAccentName == preset.name,
-                onClick = { viewModel.setCustomAccent(preset.name) },
-              )
-            }
-          }
-        },
-      )
+      ) {
+        fluidAccentPresets.forEach { preset ->
+          FluidChip(
+            label = preset.label,
+            selected = state.engine.accentMode == AccentMode.CUSTOM_PRESET && state.engine.customAccentName == preset.name,
+            onClick = { viewModel.setCustomAccent(preset.name) },
+          )
+        }
+      }
       FluidListDivider()
       FluidListRow(
         title = "Aptica",
@@ -313,17 +330,14 @@ private fun AssistantModelsSection(viewModel: AssistantSettingsViewModel, state:
 @Composable
 private fun AssistantPreferences(viewModel: AssistantSettingsViewModel, state: AssistantSettingsUiState) {
   FluidListGroup(glass = true) {
-    FluidListRow(
+    ChoiceRow(
       title = "Ragionamento",
       subtitle = "Quanto il modello pensa prima di rispondere: piu' alto, piu' lento e piu' preciso.",
-      badge = {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-          ThinkingLevel.entries.forEach { level ->
-            FluidChip(label = level.label(), selected = state.settings.thinking == level, onClick = { viewModel.setThinking(level) })
-          }
-        }
-      },
-    )
+    ) {
+      ThinkingLevel.entries.forEach { level ->
+        FluidChip(label = level.label(), selected = state.settings.thinking == level, onClick = { viewModel.setThinking(level) })
+      }
+    }
     FluidListDivider()
     FluidListRow(
       title = "Azioni",
@@ -363,17 +377,14 @@ private fun VoicePreferences(viewModel: AssistantSettingsViewModel, state: Assis
       },
     )
     FluidListDivider()
-    FluidListRow(
+    ChoiceRow(
       title = "Riconoscimento",
       subtitle = "Doppio: le parole compaiono mentre parli (sistema) e alla fine le corregge Whisper. Whisper: solo la trascrizione finale. Sistema: solo il telefono, anche senza chiavi.",
-      badge = {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-          SttMode.entries.forEach { mode ->
-            FluidChip(label = mode.label(), selected = state.pampai.sttMode == mode, onClick = { viewModel.setSttMode(mode) })
-          }
-        }
-      },
-    )
+    ) {
+      SttMode.entries.forEach { mode ->
+        FluidChip(label = mode.label(), selected = state.pampai.sttMode == mode, onClick = { viewModel.setSttMode(mode) })
+      }
+    }
     FluidListDivider()
     FluidListRow(
       title = "Parti in testo",
@@ -387,17 +398,14 @@ private fun VoicePreferences(viewModel: AssistantSettingsViewModel, state: Assis
       badge = { FluidSwitch(checked = state.settings.speakReplies, onCheckedChange = viewModel::setSpeakReplies) },
     )
     FluidListDivider()
-    FluidListRow(
+    ChoiceRow(
       title = "Voce",
       subtitle = "Chi legge: la voce del telefono, o una voce cloud (Gemini in italiano; Groq solo in inglese) con ripiego sul telefono.",
-      badge = {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-          TtsEngine.entries.forEach { engine ->
-            FluidChip(label = engine.label(), selected = state.pampai.ttsEngine == engine, onClick = { viewModel.setTtsEngine(engine) })
-          }
-        }
-      },
-    )
+    ) {
+      TtsEngine.entries.forEach { engine ->
+        FluidChip(label = engine.label(), selected = state.pampai.ttsEngine == engine, onClick = { viewModel.setTtsEngine(engine) })
+      }
+    }
   }
 }
 

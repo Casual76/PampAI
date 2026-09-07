@@ -19,7 +19,24 @@ def localPropsFile = rootProject.file('local.properties')
 if (localPropsFile.exists()) {
   localPropsFile.withInputStream { keystoreProps.load(it) }
 }
-def hasReleaseKey = keystoreProps.getProperty('pampa.storeFile') != null
+// Serve tutto: il percorso, un file che esiste davvero e le due password. Con meta' dei dati
+// gradle fallirebbe dentro keytool con "keystore password was incorrect", che non dice quale
+// riga manca; qui invece si dice, e si ripiega sulla firma di debug.
+def missingKey = []
+def keyStorePath = keystoreProps.getProperty('pampa.storeFile')
+if (keyStorePath == null || keyStorePath.trim().isEmpty()) {
+  missingKey << 'pampa.storeFile'
+} else if (!rootProject.file(keyStorePath).exists()) {
+  missingKey << "pampa.storeFile (il file ${keyStorePath} non esiste)"
+}
+['pampa.storePassword', 'pampa.keyPassword'].each {
+  def v = keystoreProps.getProperty(it)
+  if (v == null || v.trim().isEmpty()) missingKey << it
+}
+def hasReleaseKey = missingKey.isEmpty()
+if (!hasReleaseKey && keyStorePath != null) {
+  println "PampAI: firma pampa incompleta in local.properties (manca ${missingKey.join(', ')}): build firmata DEBUG, il ponte verso le app Pampa non funzionera'."
+}
 
 android {
   namespace 'dev.pampa.pampai'
@@ -38,7 +55,7 @@ android {
   signingConfigs {
     if (hasReleaseKey) {
       release {
-        storeFile file(keystoreProps.getProperty('pampa.storeFile'))
+        storeFile rootProject.file(keyStorePath)
         storePassword keystoreProps.getProperty('pampa.storePassword')
         keyAlias keystoreProps.getProperty('pampa.keyAlias', 'pampa')
         keyPassword keystoreProps.getProperty('pampa.keyPassword')

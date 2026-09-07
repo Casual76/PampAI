@@ -31,6 +31,13 @@ data class PampaiSettings(
   val ttsVoice: String? = null,
   /** I tool con conferma che l'utente ha deciso di fidarsi: non chiedono piu'. */
   val trustedActions: Set<String> = emptySet(),
+  /**
+   * Gli esempi della prima chat sono gia' stati visti.
+   *
+   * Servono una volta, per far capire cosa si puo' chiedere; dalla seconda in poi sono un muro di
+   * testo davanti a una pagina vuota, e al loro posto resta il saluto.
+   */
+  val suggestionsSeen: Boolean = false,
 )
 
 private val Context.pampaiStore: DataStore<Preferences> by preferencesDataStore(name = "pampai")
@@ -46,6 +53,7 @@ class PampaiSettingsStore(private val context: Context) {
   suspend fun setStartInText(enabled: Boolean) = edit { it[Keys.StartInText] = enabled }
   suspend fun setTtsEngine(engine: TtsEngine) = edit { it[Keys.TtsEngine] = engine.name }
   suspend fun setTtsVoice(voice: String?) = edit { if (voice == null) it.remove(Keys.TtsVoice) else it[Keys.TtsVoice] = voice }
+  suspend fun setSuggestionsSeen() = edit { it[Keys.SuggestionsSeen] = true }
   suspend fun setTrusted(tool: String, trusted: Boolean) = edit {
     val now = it[Keys.TrustedActions].orEmpty()
     it[Keys.TrustedActions] = if (trusted) now + tool else now - tool
@@ -64,6 +72,7 @@ class PampaiSettingsStore(private val context: Context) {
       ttsEngine = this[Keys.TtsEngine]?.let { name -> runCatching { TtsEngine.valueOf(name) }.getOrNull() } ?: defaults.ttsEngine,
       ttsVoice = this[Keys.TtsVoice],
       trustedActions = this[Keys.TrustedActions] ?: defaults.trustedActions,
+      suggestionsSeen = this[Keys.SuggestionsSeen] ?: defaults.suggestionsSeen,
     )
   }
 
@@ -74,5 +83,6 @@ class PampaiSettingsStore(private val context: Context) {
     val TtsEngine = stringPreferencesKey("tts_engine")
     val TtsVoice = stringPreferencesKey("tts_voice")
     val TrustedActions = stringSetPreferencesKey("trusted_actions")
+    val SuggestionsSeen = booleanPreferencesKey("suggestions_seen")
   }
 }

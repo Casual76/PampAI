@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -58,6 +60,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.pampa.pampai.core.assistant.chat.Greetings
 import dev.pampa.pampai.core.assistant.runtime.VoiceEvent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mikepenz.markdown.m3.Markdown
@@ -90,7 +93,9 @@ import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageRole
 import dev.pampa.pampai.core.assistant.db.MessageStatus
 import dev.pampa.pampai.core.assistant.db.Run
+import java.time.LocalTime
 import java.util.Locale
+import kotlin.random.Random
 
 /**
  * La chat con Aria: le domande, le risposte con la loro telemetria, e in fondo la barra per
@@ -108,6 +113,7 @@ fun ChatRoute(
   val partial by viewModel.runtimePartial.collectAsStateWithLifecycle()
   val draft by viewModel.draft.collectAsStateWithLifecycle()
   val speaking by viewModel.speaking.collectAsStateWithLifecycle()
+  val suggestionsSeen by viewModel.suggestionsSeen.collectAsStateWithLifecycle()
   val context = LocalContext.current
   val listState = rememberLazyListState()
   var editing by remember { mutableStateOf<Message?>(null) }
@@ -120,12 +126,10 @@ fun ChatRoute(
 
   val contextFacet = state.context?.let { "contesto ${(it.fraction * 100).toInt()}% di ${it.window / 1000}k" }
   FluidScreen(
-    title = state.conversation?.title?.take(40) ?: "Aria",
-    subtitle = when {
-      !state.enabled -> "Serve una chiave verificata: la aggiungi nelle impostazioni."
-      state.isNew -> "Chiedimi qualcosa: del telefono, delle tue app, del mondo."
-      else -> null
-    },
+    // In una chat nuova il nome scende al centro della pagina insieme al saluto: ripeterlo anche
+    // qui sopra lo farebbe leggere due volte in mezzo schermo vuoto.
+    title = state.conversation?.title?.take(40) ?: if (state.isNew) "" else "Aria",
+    subtitle = if (!state.enabled) "Serve una chiave verificata: la aggiungi nelle impostazioni." else null,
     titleFacets = listOfNotNull(contextFacet),
     listState = listState,
     extraBottomPadding = bottomInset + 84.dp,
@@ -172,14 +176,21 @@ fun ChatRoute(
     },
   ) {
     if (state.messages.isEmpty() && state.live == null) {
-      item(key = "hint") {
-        FluidCard(glass = true) {
-          Text(
-            "Prova con: \"che tempo fa domani?\", \"metti una sveglia alle 7\", \"quanto fa il 15% di 340?\", \"ricordati che la mia fermata e' Dalmazia\", \"cosa vuol dire 'sciatteria'?\"",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-          )
+      if (!suggestionsSeen) {
+        item(key = "hint") {
+          // Segnati come visti appena compaiono: la prima chat e' l'unica in cui servono, e
+          // aspettare che l'utente li legga davvero non e' una cosa che si puo' sapere.
+          LaunchedEffect(Unit) { viewModel.markSuggestionsSeen() }
+          FluidCard(glass = true) {
+            Text(
+              "Prova con: \"che tempo fa domani?\", \"metti una sveglia alle 7\", \"quanto fa il 15% di 340?\", \"ricordati che la mia fermata e' Dalmazia\", \"cosa vuol dire 'sciatteria'?\"",
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
+      } else {
+        item(key = "saluto") { EmptyGreeting() }
       }
     }
     state.messages.forEach { message ->
@@ -203,6 +214,42 @@ fun ChatRoute(
     // Una conversazione nuova: la domanda in corso non e' ancora su disco.
     if (state.messages.isEmpty() && state.live != null) {
       item(key = "live") { LiveBubble(state.live!!, state.pending, viewModel::resolve) }
+    }
+  }
+}
+
+/**
+ * La pagina vuota di una chat gia' aperta altre volte: il nome al centro e una frase sotto.
+ *
+ * La frase si sceglie una volta per apertura (`remember` senza chiave): rigenerarla a ogni
+ * ricomposizione la farebbe cambiare mentre si scrive, che e' esattamente il contrario di un saluto.
+ */
+@Composable
+private fun LazyItemScope.EmptyGreeting() {
+  val greeting = remember {
+    Greetings.greeting(hour = LocalTime.now().hour, pick = Random.nextLong())
+  }
+  Box(
+    Modifier
+      .fillParentMaxHeight()
+      .fillMaxWidth()
+      .padding(bottom = 96.dp),
+    contentAlignment = Alignment.Center,
+  ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+      Text(
+        "Aria",
+        style = MaterialTheme.typography.displaySmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurface,
+      )
+      Spacer(Modifier.height(8.dp))
+      Text(
+        greeting,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+      )
     }
   }
 }
