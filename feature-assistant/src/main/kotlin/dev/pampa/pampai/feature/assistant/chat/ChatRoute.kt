@@ -343,10 +343,11 @@ private fun Modifier.chatWash(): Modifier {
 /**
  * La barra in cima: il menu, il titolo della conversazione, una chat nuova.
  *
- * Una lastra di vetro a tutta larghezza che sfuma verso il basso, e la conversazione ci scorre
- * sotto. La prima versione era trasparente con due dischi di vetro per i tasti: scorrendo, il
- * testo passava sopra al titolo e ai tasti e li rendeva illeggibili. Il vetro e' cio' che tiene
- * separato quello che sta fermo da quello che si muove.
+ * Non una lastra: un blur **progressivo**, pieno dove stanno titolo e tasti e che sfuma a niente
+ * un po' piu' in basso, come le barre di iOS. La zona sfumata si prende 28 dp oltre la riga dei
+ * tasti, cosi' la sfumatura succede *sotto* il titolo e non attraverso: era quello che faceva
+ * filtrare il testo della pagina dentro alle parole. Una lastra uniforme, provata, aveva un bordo
+ * netto in fondo, e in una chat il bordo netto e' esattamente la cosa che stona.
  */
 @Composable
 private fun ChatTopBar(
@@ -359,8 +360,9 @@ private fun ChatTopBar(
   Column(
     Modifier
       .fillMaxWidth()
-      .glassSurface(state = backdrop, tint = GlassDefaults.modalTint(), shape = RectangleShape, falloff = GlassFalloff.Uniform, role = GlassRole.Bar)
-      .statusBarsPadding(),
+      .glassSurface(state = backdrop, tint = GlassDefaults.modalTint(), shape = RectangleShape, falloff = GlassFalloff.FadeDown, role = GlassRole.Bar)
+      .statusBarsPadding()
+      .padding(bottom = 28.dp),
   ) {
     Row(
       modifier = Modifier
@@ -738,6 +740,8 @@ private fun Composer(
   // L'ancora dei due pop-up e' il composer intero, non il tasto: ancorati a un tasto in fondo allo
   // schermo si aprivano addosso al campo di testo. Contro il bordo alto del composer stanno sopra.
   var composerRect by remember { mutableStateOf<Rect?>(null) }
+  // Il "+" invece si apre *su se stesso*: il menu parte dal suo rettangolo e ci ritorna.
+  var plusRect by remember { mutableStateOf<Rect?>(null) }
   // Non il rettangolo intero ma il suo bordo alto, spesso un pixel: il pop-up nasce *contro*
   // l'ancora, e contro una riga sottile vuol dire sopra il composer, non a cavallo.
   val menuAnchor: () -> Rect? = { composerRect?.let { Rect(it.left, it.top - 4f, it.right, it.top) } }
@@ -789,28 +793,36 @@ private fun Composer(
       }
       Spacer(Modifier.height(6.dp))
       Row(verticalAlignment = Alignment.CenterVertically) {
-        BarIcon(icon = Icons.Rounded.Add, description = "Allega o scegli", onClick = { pluginPage = false; plusMenu = true })
-        Spacer(Modifier.width(2.dp))
+        GlassRound(
+          icon = Icons.Rounded.Add,
+          description = "Allega o scegli",
+          backdrop = backdrop,
+          modifier = Modifier.onGloballyPositioned { plusRect = it.boundsInRoot() },
+          onClick = { pluginPage = false; plusMenu = true },
+        )
+        Spacer(Modifier.width(8.dp))
         ModelPill(label = modelLabel(state, thinkingAuto), onClick = { modelMenu = true })
         Spacer(Modifier.weight(1f))
         when {
-          !state.enabled -> BarIcon(icon = Icons.Rounded.ArrowUpward, description = "Impostazioni", onClick = onOpenSettings)
-          listening -> RoundAction(Icons.Rounded.Stop, "Smetti di ascoltare", tint = MaterialTheme.colorScheme.error, onClick = onStopVoice)
-          busy -> RoundAction(Icons.Rounded.Stop, "Ferma", tint = MaterialTheme.colorScheme.onSurface, onClick = onStop)
-          speaking && text.isBlank() -> BarIcon(icon = Icons.Rounded.VolumeOff, description = "Zitta", onClick = onStopSpeaking)
-          text.isBlank() && state.attachments.isEmpty() -> BarIcon(icon = Icons.Rounded.Mic, description = "Parla", onClick = { if (micGranted) onVoice() else micLauncher.launch(Manifest.permission.RECORD_AUDIO) })
-          else -> RoundAction(Icons.Rounded.ArrowUpward, "Invia", tint = MaterialTheme.colorScheme.onPrimary, fill = MaterialTheme.colorScheme.primary, onClick = { submit() })
+          !state.enabled -> GlassRound(Icons.Rounded.ArrowUpward, "Impostazioni", backdrop, onClick = onOpenSettings)
+          listening -> GlassRound(Icons.Rounded.Stop, "Smetti di ascoltare", backdrop, tint = MaterialTheme.colorScheme.error, onClick = onStopVoice)
+          busy -> GlassRound(Icons.Rounded.Stop, "Ferma", backdrop, onClick = onStop)
+          speaking && text.isBlank() -> GlassRound(Icons.Rounded.VolumeOff, "Zitta", backdrop, onClick = onStopSpeaking)
+          text.isBlank() && state.attachments.isEmpty() -> GlassRound(Icons.Rounded.Mic, "Parla", backdrop, onClick = { if (micGranted) onVoice() else micLauncher.launch(Manifest.permission.RECORD_AUDIO) })
+          else -> GlassRound(Icons.Rounded.ArrowUpward, "Invia", backdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
         }
       }
     }
   }
 
-  // Il menu del "+": nasce sul tasto, di vetro. Due pagine: le azioni, e la scelta del plugin.
+  // Il menu del "+": il tasto *diventa* il menu (presentazione `Expand`: parte dal suo
+  // rettangolo, cresce con le molle della Fluid-physics, e ci ritorna quando si sceglie).
+  // Due pagine: le azioni, e la scelta del plugin.
   FluidGlassModalPortal(
     visible = plusMenu,
     onDismissRequest = { plusMenu = false; pluginPage = false },
-    origin = menuAnchor,
-    presentation = FluidGlassModalPresentation.Popover,
+    origin = { plusRect },
+    presentation = FluidGlassModalPresentation.Expand,
     paneTitle = if (pluginPage) "Plugin" else "Allega",
   ) {
     Column(Modifier.width(264.dp).padding(vertical = 4.dp)) {
@@ -1003,13 +1015,23 @@ private fun Pill(icon: ImageVector, label: String, accent: Boolean = false, onCl
   }
 }
 
-/** Il tasto tondo a destra: invio pieno, o stop. */
+/**
+ * Un tasto tondo di vetro, come quelli della barra nella sessione: il "+", il microfono, l'invio,
+ * lo stop. Lo stesso disco per tutti, cambia solo l'icona e, quando serve, il colore.
+ */
 @Composable
-private fun RoundAction(icon: ImageVector, description: String, tint: Color, onClick: () -> Unit, fill: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)) {
+private fun GlassRound(
+  icon: ImageVector,
+  description: String,
+  backdrop: GlassBackdropState,
+  modifier: Modifier = Modifier,
+  tint: Color = MaterialTheme.colorScheme.onSurface,
+  onClick: () -> Unit,
+) {
   Box(
-    modifier = Modifier
-      .size(38.dp)
-      .background(fill, FluidCapsuleShape)
+    modifier = modifier
+      .size(40.dp)
+      .glassControlSurface(backdrop = backdrop, shape = FluidCapsuleShape)
       .fluidPressable(onClick = onClick, role = Role.Button),
     contentAlignment = Alignment.Center,
   ) {
