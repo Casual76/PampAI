@@ -216,7 +216,12 @@ class AssistantEngine @Inject constructor(
           usage = result.usage, toolsUsed = result.toolsUsed, durationMillis = result.log.durationMillis, tierReached = result.tierReached,
         ),
       )
-      if (stored != null && !stored.autoTitled) runtime.scope.launch { autoTitle(conversationId, question, result.answer, first) }
+      if (stored != null && !stored.autoTitled) {
+        // Prima chi ha appena risposto: se il primo della lista era al limite per la domanda,
+        // lo e' anche per il titolo, e chiederglielo lo stesso vuol dire non avere il titolo.
+        val forTitle = ordered.sortedBy { it.provider.id != result.provider }
+        runtime.scope.launch { autoTitle(conversationId, question, result.answer, forTitle) }
+      }
       ExecutionResult(conversationId, question, result.answer, null, cancelled = false)
     } catch (e: CancellationException) {
       persister.cancel()
@@ -270,23 +275,34 @@ class AssistantEngine @Inject constructor(
     return conversation
   }
 
-  /** Un titolo di poche parole dal modello del router: costa nulla ed e' il pattern delle chat vere. */
-  private suspend fun autoTitle(conversationId: Long, question: String, answer: String, ready: ReadyProvider) {
-    val title = runCatching {
-      ready.provider.complete(
-        ChatRequest(
-          model = ready.model(ModelTier.ROUTER),
-          messages = listOf(
-            Message.System("Scrivi un titolo di 3-6 parole, in italiano, senza punteggiatura finale e senza virgolette, per questa conversazione. Rispondi solo con il titolo."),
-            Message.User("Domanda: ${question.take(400)}\nRisposta: ${answer.take(600)}"),
+  /**
+   * Un titolo di poche parole dal modello del router: costa nulla ed e' il pattern delle chat vere.
+   *
+   * Prova i servizi in ordine invece di fermarsi al primo. Su un piano gratuito il primo e' spesso
+   * proprio quello che ha appena esaurito i token del minuto, e un titolo mancato lascia in
+   * cronologia la domanda troncata a meta' parola.
+   */
+  private suspend fun autoTitle(conversationId: Long, question: String, answer: String, candidates: List<ReadyProvider>) {
+    for (ready in candidates) {
+      val title = runCatching {
+        ready.provider.complete(
+          ChatRequest(
+            model = ready.model(ModelTier.ROUTER),
+            messages = listOf(
+              Message.System("Scrivi un titolo di 3-6 parole, in italiano, senza punteggiatura finale e senza virgolette, per questa conversazione. Rispondi solo con il titolo."),
+              Message.User("Domanda: ${question.take(400)}\nRisposta: ${answer.take(600)}"),
+            ),
+            reasoning = ReasoningLevel.NONE,
+            maxOutputTokens = 24,
+            temperature = 0.2,
           ),
-          reasoning = ReasoningLevel.NONE,
-          maxOutputTokens = 24,
-          temperature = 0.2,
-        ),
-      ).message.text?.trim()?.trim('"', '«', '»', '.')?.takeIf { it.isNotBlank() && it.length <= 80 }
-    }.getOrNull() ?: return
-    conversations.rename(conversationId, title, auto = true)
+        ).message.text?.trim()?.trim('"', '«', '»', '.')?.takeIf { it.isNotBlank() && it.length <= 80 }
+      }.getOrNull()
+      if (title != null) {
+        conversations.rename(conversationId, title, auto = true)
+        return
+      }
+    }
   }
 
   private fun nowLabel(zone: ZoneId): String {
