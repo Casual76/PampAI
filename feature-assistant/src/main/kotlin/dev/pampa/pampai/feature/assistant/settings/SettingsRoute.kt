@@ -44,6 +44,7 @@ class AboutViewModel @Inject constructor(val updater: AppUpdater) : ViewModel()
 fun SettingsRoute(
   bottomInset: Dp,
   onOpenConsent: () -> Unit,
+  onBack: (() -> Unit)? = null,
   onOpenUsage: () -> Unit = {},
   viewModel: AssistantSettingsViewModel = hiltViewModel(),
   about: AboutViewModel = hiltViewModel(),
@@ -52,6 +53,7 @@ fun SettingsRoute(
   FluidScreen(
     title = "Impostazioni",
     subtitle = "Aria, le chiavi, la voce, l'aspetto.",
+    onBack = onBack,
     extraBottomPadding = bottomInset,
     itemSpacing = 12.dp,
     ambient = remember { FluidAmbient(tone = FluidHeroTone.Primary, motif = FluidHeroMotif.Cards) },

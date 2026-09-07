@@ -8,23 +8,24 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,20 +35,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
-import dev.antigravity.fluidengine.ui.fluid.FluidFoldingTabBar
-import dev.antigravity.fluidengine.ui.fluid.FluidFoldingTabBarDefaults
+import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
 import dev.antigravity.fluidengine.ui.fluid.FluidGlassModalHost
 import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.FluidNotificationHost
+import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.FluidScreen
-import dev.antigravity.fluidengine.ui.fluid.FluidScrollToTopBus
-import dev.antigravity.fluidengine.ui.fluid.FluidTabItem
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidGlassModalHostState
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidNotificationHostState
-import dev.antigravity.fluidengine.ui.fluid.ProvideFluidChrome
 import dev.antigravity.fluidengine.ui.fluid.fluidGlassModalObscured
-import dev.antigravity.fluidengine.ui.fluid.rememberFluidBarFold
-import dev.antigravity.fluidengine.ui.fluid.rememberFluidChromeController
 import dev.antigravity.fluidengine.ui.fluid.rememberFluidGlassModalHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberFluidNotificationHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
@@ -57,29 +53,24 @@ import dev.pampa.pampai.feature.assistant.assist.AssistantRole
 import dev.pampa.pampai.feature.assistant.chat.ChatRoute
 import dev.pampa.pampai.feature.assistant.chat.ChatViewModel
 import dev.pampa.pampai.feature.assistant.consent.consentItems
-import dev.pampa.pampai.feature.assistant.history.HistoryRoute
+import dev.pampa.pampai.feature.assistant.history.AriaDrawer
 import dev.pampa.pampai.feature.assistant.onboarding.OnboardingRoute
 import dev.pampa.pampai.feature.assistant.settings.AssistantSettingsViewModel
 import dev.pampa.pampai.feature.assistant.settings.SettingsRoute
 import dev.pampa.pampai.feature.assistant.usage.UsageRoute
+import kotlinx.coroutines.launch
 
-/** Le rotte laterali; le tre schede della home sono stato, non rotte. */
+/**
+ * Le rotte. La home e' la chat e basta: le conversazioni di prima stanno nel cassetto, e le
+ * impostazioni sono un posto in cui si va e da cui si torna, non una scheda accanto alla chat.
+ */
 private object Routes {
   const val Onboarding = "onboarding"
   const val Home = "home"
   const val Consent = "consent"
   const val Usage = "usage"
+  const val Settings = "settings"
 }
-
-private const val TabChat = "chat"
-private const val TabHistory = "history"
-private const val TabSettings = "settings"
-
-private val Tabs = listOf(
-  FluidTabItem(route = TabChat, label = "Aria", icon = Icons.Rounded.AutoAwesome),
-  FluidTabItem(route = TabHistory, label = "Cronologia", icon = Icons.Rounded.History),
-  FluidTabItem(route = TabSettings, label = "Impostazioni", icon = Icons.Rounded.Settings),
-)
 
 /** Quanto la pagina coperta si sposta mentre quella nuova la copre. */
 private const val CoveredParallax = 0.25f
@@ -135,6 +126,16 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
     composable(Routes.Usage) {
       Page(this) { UsageRoute(onBack = { navController.popBackStack() }) }
     }
+    composable(Routes.Settings) {
+      Page(this) {
+        SettingsRoute(
+          bottomInset = 0.dp,
+          onBack = { navController.popBackStack() },
+          onOpenConsent = { navController.navigate(Routes.Consent) },
+          onOpenUsage = { navController.navigate(Routes.Usage) },
+        )
+      }
+    }
   }
 }
 
@@ -143,20 +144,23 @@ private fun Page(scope: AnimatedContentScope, content: @Composable () -> Unit) {
   FluidRouteMotionHost(animatedVisibilityScope = scope, content = content)
 }
 
-/** La home: tre schede sotto una barra di vetro che si ripiega scorrendo, con i padroni di casa di modali e notifiche. */
+/**
+ * La home: la chat, e dietro l'hamburger il cassetto delle conversazioni.
+ *
+ * Niente barra a schede in fondo. Quel posto, in una chat, e' del campo di testo, e una scheda
+ * "Cronologia" accanto alla conversazione fa sembrare la conversazione una delle pagine invece che
+ * l'app.
+ */
 @Composable
 private fun Home(navController: NavHostController, entry: EntryRequest?, chat: ChatViewModel = hiltViewModel()) {
   val context = LocalContext.current
-  var tab by rememberSaveable { mutableStateOf(TabChat) }
-  val chromeController = rememberFluidChromeController()
-  val scrollToTop = remember { FluidScrollToTopBus() }
+  val drawer = rememberDrawerState(DrawerValue.Closed)
+  val scope = rememberCoroutineScope()
   val modalHost = rememberFluidGlassModalHostState()
   val notificationHost = rememberFluidNotificationHostState()
-  val fallbackBackdrop = rememberGlassBackdrop()
-  val backdrop = chromeController.activeBackdrop.value ?: fallbackBackdrop
-  val barFold = rememberFluidBarFold()
+  val backdrop = rememberGlassBackdrop()
 
-  // Una notifica o una scorciatoia: si apre la conversazione chiesta (o la voce) nella scheda della chat.
+  // Una notifica o una scorciatoia: si apre la conversazione chiesta (o la voce).
   LaunchedEffect(entry?.stamp) {
     val request = entry ?: return@LaunchedEffect
     when {
@@ -164,7 +168,6 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
       request.last -> chat.openLast()
       request.newChat || request.sharedText != null || request.sharedUris.isNotEmpty() -> chat.newConversation()
     }
-    tab = TabChat
     request.sharedUris.forEach { chat.attach(it) }
     request.sharedText?.let { chat.draft.value = it }
     if (request.voice) chat.startVoice()
@@ -173,11 +176,11 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
   val onChip: (AnswerChip) -> Unit = { chip ->
     when (chip.id) {
       AriaChips.URL -> chip.value?.let { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }
-      AriaChips.CONVERSATION -> chip.value?.toLongOrNull()?.let { chat.open(it); tab = TabChat }
+      AriaChips.CONVERSATION -> chip.value?.toLongOrNull()?.let { chat.open(it) }
       AriaChips.SETTINGS -> when (chip.value) {
         "assistente" -> AssistantRole.openSettings(context)
         "consumi" -> navController.navigate(Routes.Usage)
-        else -> tab = TabSettings
+        else -> navController.navigate(Routes.Settings)
       }
       AriaChips.PLACE -> chip.value?.let { chat.send("E a $it?") }
       AriaChips.APP -> chip.value?.let { name -> openApp(context, name) }
@@ -189,49 +192,34 @@ private fun Home(navController: NavHostController, entry: EntryRequest?, chat: C
     LocalFluidGlassModalHostState provides modalHost,
     LocalFluidNotificationHostState provides notificationHost,
   ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-      ProvideFluidChrome(
-        controller = chromeController,
-        bottomInset = FluidFoldingTabBarDefaults.ContentInset,
-        scrollToTop = scrollToTop,
-      ) {
-        Box(
-          modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(barFold.connection)
-            .fluidGlassModalObscured(),
+    ModalNavigationDrawer(
+      drawerState = drawer,
+      drawerContent = {
+        ModalDrawerSheet(
+          drawerState = drawer,
+          drawerContainerColor = MaterialTheme.colorScheme.surface,
+          drawerShape = ContinuousCornerShape(topEnd = FluidRadius.Sheet, bottomEnd = FluidRadius.Sheet),
+          modifier = Modifier.fillMaxWidth(0.86f),
         ) {
-          when (tab) {
-            TabHistory -> HistoryRoute(bottomInset = FluidFoldingTabBarDefaults.ContentInset, onOpenConversation = { tab = TabChat })
-            TabSettings -> SettingsRoute(
-              bottomInset = FluidFoldingTabBarDefaults.ContentInset,
-              onOpenConsent = { navController.navigate(Routes.Consent) },
-              onOpenUsage = { navController.navigate(Routes.Usage) },
-            )
-            else -> ChatRoute(bottomInset = FluidFoldingTabBarDefaults.ContentInset, onChip = onChip, onOpenSettings = { tab = TabSettings }, viewModel = chat)
-          }
+          AriaDrawer(
+            onOpenConversation = { scope.launch { drawer.close() } },
+            onOpenSettings = { scope.launch { drawer.close() }; navController.navigate(Routes.Settings) },
+            onOpenUsage = { scope.launch { drawer.close() }; navController.navigate(Routes.Usage) },
+          )
         }
-      }
-
-      Box(
-        modifier = Modifier
-          .align(Alignment.BottomCenter)
-          .navigationBarsPadding()
-          .padding(horizontal = FluidFoldingTabBarDefaults.HorizontalMargin, vertical = FluidFoldingTabBarDefaults.BottomMargin),
-      ) {
-        FluidFoldingTabBar(
-          items = Tabs,
-          selectedRoute = tab,
-          onSelect = { tab = it.route },
-          onReselect = { scrollToTop.request() },
-          onExpandRequest = barFold::unfold,
-          backdrop = backdrop,
-          fold = { barFold.progress.value },
+      },
+    ) {
+      Box(modifier = Modifier.fillMaxSize().fluidGlassModalObscured()) {
+        ChatRoute(
+          bottomInset = 0.dp,
+          onChip = onChip,
+          onOpenMenu = { scope.launch { drawer.open() } },
+          onOpenSettings = { navController.navigate(Routes.Settings) },
+          viewModel = chat,
         )
+        FluidGlassModalHost(state = modalHost, backdrop = backdrop)
+        FluidNotificationHost(state = notificationHost, backdrop = backdrop, modifier = Modifier.align(Alignment.TopCenter))
       }
-
-      FluidGlassModalHost(state = modalHost, backdrop = backdrop)
-      FluidNotificationHost(state = notificationHost, backdrop = backdrop, modifier = Modifier.align(Alignment.TopCenter))
     }
   }
 }

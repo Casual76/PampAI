@@ -5,21 +5,39 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -57,9 +75,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
+import dev.antigravity.fluidengine.ui.fluid.FluidRadius
+import dev.antigravity.fluidengine.ui.fluid.glassBackdropSource
+import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.pampa.pampai.core.assistant.chat.Greetings
 import dev.pampa.pampai.core.assistant.runtime.VoiceEvent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -106,6 +129,7 @@ import kotlin.random.Random
 fun ChatRoute(
   bottomInset: Dp,
   onChip: (AnswerChip) -> Unit,
+  onOpenMenu: () -> Unit,
   onOpenSettings: () -> Unit,
   viewModel: ChatViewModel = hiltViewModel(),
 ) {
@@ -125,96 +149,205 @@ fun ChatRoute(
   }
 
   val contextFacet = state.context?.let { "contesto ${(it.fraction * 100).toInt()}% di ${it.window / 1000}k" }
-  FluidScreen(
-    // In una chat nuova il nome scende al centro della pagina insieme al saluto: ripeterlo anche
-    // qui sopra lo farebbe leggere due volte in mezzo schermo vuoto.
-    title = state.conversation?.title?.take(40) ?: if (state.isNew) "" else "Aria",
-    subtitle = if (!state.enabled) "Serve una chiave verificata: la aggiungi nelle impostazioni." else null,
-    titleFacets = listOfNotNull(contextFacet),
-    listState = listState,
-    extraBottomPadding = bottomInset + 84.dp,
-    itemSpacing = 12.dp,
-    ambient = remember { FluidAmbient(tone = FluidHeroTone.Primary, motif = FluidHeroMotif.Cards) },
-    actions = {
-      if (!state.isNew) FluidBarAction(icon = Icons.Rounded.Add, contentDescription = "Nuova conversazione", onClick = viewModel::newConversation)
-    },
-    overlay = { backdrop ->
-      Box(
-        Modifier
-          .align(Alignment.BottomCenter)
-          .navigationBarsPadding()
-          .imePadding()
-          .padding(bottom = bottomInset)
-          .padding(horizontal = 12.dp, vertical = 8.dp),
+  val backdrop = rememberGlassBackdrop()
+  val topSpace = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp
+
+  Box(Modifier.fillMaxSize()) {
+    // Il corpo e' cio' che il vetro della barra e del composer rifrange, e deve avere un fondo
+    // opaco suo: la registrazione di testo sul nulla, sotto il vetro, diventa una sbavatura.
+    Box(
+      Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)
+        .chatWash()
+        .glassBackdropSource(backdrop, frozen = { listState.isScrollInProgress }),
+    ) {
+      LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = topSpace, bottom = bottomInset + 128.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
       ) {
-        Composer(
-          backdrop = backdrop,
-          state = state,
-          editing = editing,
-          onSend = { text ->
-            val target = editing
-            editing = null
-            if (target != null) viewModel.editAndResend(target, text) else viewModel.send(text)
-          },
-          onCancelEdit = { editing = null },
-          onStop = viewModel::cancel,
-          onVoice = viewModel::startVoice,
-          onStopVoice = viewModel::stopVoice,
-          onCancelVoice = viewModel::cancelVoice,
-          onStopSpeaking = viewModel::stopSpeaking,
-          micLevel = viewModel.micLevel,
-          partial = partial,
-          speaking = speaking,
-          voiceEvents = viewModel.voiceEvents,
-          draft = draft,
-          onDraftConsumed = { viewModel.draft.value = null },
-          onAttach = viewModel::attach,
-          onRemoveAttachment = viewModel::removeAttachment,
-          onOpenSettings = onOpenSettings,
-        )
-      }
-    },
-  ) {
-    if (state.messages.isEmpty() && state.live == null) {
-      if (!suggestionsSeen) {
-        item(key = "hint") {
-          // Segnati come visti appena compaiono: la prima chat e' l'unica in cui servono, e
-          // aspettare che l'utente li legga davvero non e' una cosa che si puo' sapere.
-          LaunchedEffect(Unit) { viewModel.markSuggestionsSeen() }
-          FluidCard(glass = true) {
-            Text(
-              "Prova con: \"che tempo fa domani?\", \"metti una sveglia alle 7\", \"quanto fa il 15% di 340?\", \"ricordati che la mia fermata e' Dalmazia\", \"cosa vuol dire 'sciatteria'?\"",
-              style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        if (state.messages.isEmpty() && state.live == null) {
+          if (!suggestionsSeen) {
+            item(key = "hint") {
+              // Segnati come visti appena compaiono: la prima chat e' l'unica in cui servono, e
+              // aspettare che l'utente li legga davvero non e' una cosa che si puo' sapere.
+              LaunchedEffect(Unit) { viewModel.markSuggestionsSeen() }
+              FluidCard(glass = false) {
+                Text(
+                  "Prova con: \"che tempo fa domani?\", \"metti una sveglia alle 7\", \"quanto fa il 15% di 340?\", \"ricordati che la mia fermata e' Dalmazia\", \"cosa vuol dire 'sciatteria'?\"",
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+              }
+            }
+          } else {
+            item(key = "saluto") { EmptyGreeting() }
           }
         }
-      } else {
-        item(key = "saluto") { EmptyGreeting() }
-      }
-    }
-    state.messages.forEach { message ->
-      item(key = message.id) {
-        when (message.role) {
-          MessageRole.USER -> UserBubble(message, onEdit = { editing = message })
-          MessageRole.ASSISTANT -> AssistantBubble(
-            message = message,
-            run = state.runs[message.id],
-            live = if (message.status == MessageStatus.PENDING || message.status == MessageStatus.STREAMING) state.live else null,
-            pending = state.pending,
-            onResolve = viewModel::resolve,
-            onChip = onChip,
-            onRegenerate = { viewModel.regenerate(message) },
-            onCopy = { copy(context, message.text) },
-            onShare = { share(context, message.text) },
-          )
+        state.messages.forEach { message ->
+          item(key = message.id) {
+            when (message.role) {
+              MessageRole.USER -> UserBubble(message, onEdit = { editing = message })
+              MessageRole.ASSISTANT -> AssistantMessage(
+                message = message,
+                run = state.runs[message.id],
+                live = if (message.status == MessageStatus.PENDING || message.status == MessageStatus.STREAMING) state.live else null,
+                pending = state.pending,
+                onResolve = viewModel::resolve,
+                onChip = onChip,
+                onRegenerate = { viewModel.regenerate(message) },
+                onCopy = { copy(context, message.text) },
+                onShare = { share(context, message.text) },
+              )
+            }
+          }
+        }
+        // Una conversazione nuova: la domanda in corso non e' ancora su disco.
+        if (state.messages.isEmpty() && state.live != null) {
+          item(key = "live") { LiveBubble(state.live!!, state.pending, viewModel::resolve) }
         }
       }
     }
-    // Una conversazione nuova: la domanda in corso non e' ancora su disco.
-    if (state.messages.isEmpty() && state.live != null) {
-      item(key = "live") { LiveBubble(state.live!!, state.pending, viewModel::resolve) }
+
+    ChatTopBar(
+      title = state.conversation?.title ?: "",
+      // Il contesto e' un numero da guardare quando una conversazione e' lunga, non il primo
+      // messaggio che l'app da' a chi apre una chat vuota.
+      facet = contextFacet.takeIf { state.messages.size >= 4 },
+      backdrop = backdrop,
+      onMenu = onOpenMenu,
+      onNew = if (state.isNew) null else viewModel::newConversation,
+    )
+
+    Box(
+      Modifier
+        .align(Alignment.BottomCenter)
+        .navigationBarsPadding()
+        .imePadding()
+        .padding(bottom = bottomInset)
+        .padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+      Composer(
+        backdrop = backdrop,
+        state = state,
+        editing = editing,
+        onSend = { text ->
+          val target = editing
+          editing = null
+          if (target != null) viewModel.editAndResend(target, text) else viewModel.send(text)
+        },
+        onCancelEdit = { editing = null },
+        onStop = viewModel::cancel,
+        onVoice = viewModel::startVoice,
+        onStopVoice = viewModel::stopVoice,
+        onCancelVoice = viewModel::cancelVoice,
+        onStopSpeaking = viewModel::stopSpeaking,
+        micLevel = viewModel.micLevel,
+        partial = partial,
+        speaking = speaking,
+        voiceEvents = viewModel.voiceEvents,
+        draft = draft,
+        onDraftConsumed = { viewModel.draft.value = null },
+        onAttach = viewModel::attach,
+        onRemoveAttachment = viewModel::removeAttachment,
+        onOpenSettings = onOpenSettings,
+      )
     }
+  }
+}
+
+/**
+ * La velatura sotto la conversazione: due aloni morbidi nei colori del marchio.
+ *
+ * Il fondo di una chat deve restare fondo — il testo ci sta sopra per pagine intere — ma grigio
+ * liscio non e' questa app. Due macchie ferme, appena accennate, agli angoli che il testo non
+ * occupa mai; e stanno **dentro** la registrazione, cosi' il vetro della barra e del composer le
+ * rifrange invece di galleggiarci sopra.
+ */
+@Composable
+private fun Modifier.chatWash(): Modifier {
+  val warm = MaterialTheme.colorScheme.primary
+  val cool = MaterialTheme.colorScheme.tertiary
+  return this.drawBehind {
+    val topCentre = Offset(size.width * 0.88f, size.height * 0.06f)
+    val topRadius = size.width * 0.95f
+    drawCircle(
+      brush = Brush.radialGradient(listOf(warm.copy(alpha = 0.11f), Color.Transparent), center = topCentre, radius = topRadius),
+      radius = topRadius,
+      center = topCentre,
+    )
+    val bottomCentre = Offset(size.width * 0.06f, size.height * 0.80f)
+    val bottomRadius = size.width * 1.05f
+    drawCircle(
+      brush = Brush.radialGradient(listOf(cool.copy(alpha = 0.09f), Color.Transparent), center = bottomCentre, radius = bottomRadius),
+      radius = bottomRadius,
+      center = bottomCentre,
+    )
+  }
+}
+
+/**
+ * La barra in cima: il menu, il titolo della conversazione, una chat nuova.
+ *
+ * Trasparente, con i due tasti su due dischi di vetro. La chat scorre sotto e continua a vedersi:
+ * un'intestazione piena in cima a una conversazione ruba lo spazio che serve alle parole.
+ */
+@Composable
+private fun ChatTopBar(
+  title: String,
+  facet: String?,
+  backdrop: GlassBackdropState,
+  onMenu: () -> Unit,
+  onNew: (() -> Unit)?,
+) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .statusBarsPadding()
+      .height(56.dp)
+      .padding(horizontal = 10.dp),
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    GlassIcon(Icons.Rounded.Menu, "Conversazioni", backdrop, onMenu)
+    Column(
+      modifier = Modifier
+        .weight(1f)
+        .padding(horizontal = 8.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      if (title.isNotBlank()) {
+        Text(
+          text = title,
+          style = MaterialTheme.typography.titleSmall,
+          fontWeight = FontWeight.SemiBold,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+        )
+      }
+      facet?.let {
+        Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+      }
+    }
+    if (onNew != null) {
+      GlassIcon(Icons.Rounded.Add, "Nuova conversazione", backdrop, onNew)
+    } else {
+      Spacer(Modifier.size(40.dp))
+    }
+  }
+}
+
+@Composable
+private fun GlassIcon(icon: ImageVector, description: String, backdrop: GlassBackdropState, onClick: () -> Unit) {
+  Box(
+    modifier = Modifier
+      .size(40.dp)
+      .glassControlSurface(backdrop = backdrop, shape = FluidCapsuleShape)
+      .fluidPressable(onClick = onClick, role = Role.Button),
+    contentAlignment = Alignment.Center,
+  ) {
+    Icon(icon, contentDescription = description, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
   }
 }
 
@@ -254,29 +387,52 @@ private fun LazyItemScope.EmptyGreeting() {
   }
 }
 
+/**
+ * La domanda: una bolla colorata a destra, come in una chat.
+ *
+ * Non e' una card di vetro a tutta larghezza. In una conversazione le due voci si distinguono per
+ * forma prima che per etichetta, e una domanda che occupa la riga intera quanto la risposta toglie
+ * proprio quel segnale. La matita sta fuori, a sinistra: dentro rubava spazio a ogni messaggio.
+ */
 @Composable
 private fun UserBubble(message: Message, onEdit: () -> Unit) {
-  FluidCard(glass = true) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-      Text("Tu", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-      if (message.mode.name == "VOICE") Text("a voce", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+  BoxWithConstraints(Modifier.fillMaxWidth()) {
+    val maxBubble = maxWidth * 0.86f
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
       SmallAction(Icons.Rounded.Edit, "Modifica", onEdit)
-    }
-    Spacer(Modifier.height(4.dp))
-    Text(message.text, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
-    if (message.attachments.isNotEmpty()) {
-      Spacer(Modifier.height(8.dp))
-      FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        message.attachments.forEach { attachment ->
-          FluidChip(label = attachment.name.take(28), selected = false, onClick = {}, leading = { Icon(if (attachment.kind == AttachmentKind.IMAGE) Icons.Rounded.Image else Icons.Rounded.AttachFile, contentDescription = null, modifier = Modifier.size(16.dp)) })
+      Column(
+        modifier = Modifier
+          .widthIn(max = maxBubble)
+          .background(MaterialTheme.colorScheme.primaryContainer, ContinuousCornerShape(FluidRadius.Card))
+          .padding(horizontal = 16.dp, vertical = 12.dp),
+      ) {
+        Text(
+          text = message.text,
+          style = MaterialTheme.typography.bodyLarge,
+          color = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+        if (message.attachments.isNotEmpty()) {
+          Spacer(Modifier.height(8.dp))
+          FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            message.attachments.forEach { attachment ->
+              FluidChip(label = attachment.name.take(28), selected = false, onClick = {}, leading = { Icon(if (attachment.kind == AttachmentKind.IMAGE) Icons.Rounded.Image else Icons.Rounded.AttachFile, contentDescription = null, modifier = Modifier.size(16.dp)) })
+            }
+          }
         }
       }
     }
   }
 }
 
+/**
+ * La risposta: testo a tutta larghezza, senza card.
+ *
+ * Una risposta chiusa in un riquadro si legge come una scheda; una conversazione vuole che le
+ * parole stiano sulla pagina. Sopra, quando c'e' stato del lavoro, una riga richiudibile dice cosa
+ * ha fatto; sotto stanno le azioni e la telemetria, in piccolo, per chi la va a cercare.
+ */
 @Composable
-private fun AssistantBubble(
+private fun AssistantMessage(
   message: Message,
   run: Run?,
   live: AssistantState?,
@@ -287,23 +443,18 @@ private fun AssistantBubble(
   onCopy: () -> Unit,
   onShare: () -> Unit,
 ) {
-  FluidCard(highlighted = message.status == MessageStatus.FAILED) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-      Text("Aria", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-      if (live == null || !live.isBusy) {
-        SmallAction(Icons.Rounded.ContentCopy, "Copia", onCopy)
-        SmallAction(Icons.Rounded.Share, "Condividi", onShare)
-        SmallAction(Icons.Rounded.Refresh, "Rigenera", onRegenerate)
+  val busy = live != null && live.isBusy
+  Column(Modifier.fillMaxWidth()) {
+    run?.let { RunSteps(it) }
+    if (busy) {
+      AssistantTexts.statusLine(live!!)?.let {
+        Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
       }
+      if (pending != null) ConfirmationRow(pending, onResolve)
     }
-    Spacer(Modifier.height(4.dp))
     val liveText = (live as? AssistantState.Answering)?.partial
     val text = liveText?.takeIf { it.isNotBlank() } ?: message.text
-    if (live != null && live.isBusy) {
-      AssistantTexts.statusLine(live)?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium) }
-      if (pending != null) ConfirmationRow(pending, onResolve)
-      if (text.isNotBlank()) Spacer(Modifier.height(8.dp))
-    }
+    if (busy && text.isNotBlank()) Spacer(Modifier.height(8.dp))
     when {
       text.isNotBlank() -> MarkdownBody(text)
       message.status == MessageStatus.FAILED -> Text(message.failureKind?.let { AssistantTexts.failure(it) } ?: "Qualcosa e' andato storto.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
@@ -320,47 +471,97 @@ private fun AssistantBubble(
         message.chips.forEach { chip -> FluidChip(label = AssistantTexts.chipLabel(chip), selected = false, onClick = { onChip(chip) }) }
       }
     }
-    run?.let { r ->
-      Spacer(Modifier.height(8.dp))
-      RunSteps(r)
+    if (!busy && text.isNotBlank()) {
+      Spacer(Modifier.height(2.dp))
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        SmallAction(Icons.Rounded.ContentCopy, "Copia", onCopy)
+        SmallAction(Icons.Rounded.Share, "Condividi", onShare)
+        SmallAction(Icons.Rounded.Refresh, "Rigenera", onRegenerate)
+        run?.let {
+          Spacer(Modifier.width(4.dp))
+          Text(telemetry(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+      }
     }
   }
 }
 
-/** "Ho usato N strumenti · Groq · 6 s" e, sotto, a richiesta, i passi: cosa il modello ha chiesto a ciascuno e come ha risposto. */
+/**
+ * Cosa ha fatto Aria prima di rispondere, in una riga che si apre.
+ *
+ * Sta **sopra** la risposta, non sotto: e' il lavoro che l'ha prodotta, e leggerlo dopo vuol dire
+ * leggerlo quando non serve piu'. Chiusa dice una cosa sola ("Ho chiesto a Convert to it!");
+ * aperta mostra modelli, gruppi e ogni chiamata con i suoi argomenti.
+ */
 @Composable
 fun RunSteps(run: Run) {
   val hasDetails = run.tools.isNotEmpty() || run.error != null
+  if (!hasDetails) return
   var details by rememberSaveable(run.id) { mutableStateOf(false) }
-  Text(
-    text = telemetry(run) + if (hasDetails) (if (details) " · meno" else " · passi") else "",
-    style = MaterialTheme.typography.labelSmall,
-    color = MaterialTheme.colorScheme.onSurfaceVariant,
-    modifier = if (hasDetails) Modifier.fluidPressable(onClick = { details = !details }, pressedScale = 1f, role = Role.Button, haptic = null) else Modifier,
-  )
-  if (details) {
-    Spacer(Modifier.height(6.dp))
-    run.error?.let { Text("errore: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
-    val models = listOfNotNull(run.routerModel?.let { "router $it" }, run.chatModel?.let { "chat $it" }, run.deepModel?.takeIf { it != run.chatModel }?.let { "profondo $it" })
-    if (models.isNotEmpty()) Text(models.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    if (run.groups.isNotEmpty()) Text("gruppi: ${run.groups.joinToString(", ")}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    run.tools.forEach { trace ->
-      Spacer(Modifier.height(4.dp))
+  Column(Modifier.padding(bottom = 8.dp)) {
+    Row(
+      modifier = Modifier
+        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f), ContinuousCornerShape(FluidRadius.Control))
+        .fluidPressable(onClick = { details = !details }, pressedScale = 1f, role = Role.Button, haptic = null)
+        .padding(horizontal = 12.dp, vertical = 8.dp),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(15.dp))
+      Spacer(Modifier.width(8.dp))
       Text(
-        text = "${trace.app?.let { "$it · " } ?: ""}${trace.name} ${trace.args} · ${trace.millis} ms · ${if (trace.ok) "ok" else "errore"}",
-        style = MaterialTheme.typography.labelSmall,
-        color = if (trace.ok) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
+        text = toolSummary(run),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.weight(1f, fill = false),
       )
-      if (trace.preview.isNotBlank()) Text(trace.preview, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      Spacer(Modifier.width(6.dp))
+      Icon(
+        imageVector = if (details) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown,
+        contentDescription = if (details) "Chiudi i passi" else "Mostra i passi",
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(16.dp),
+      )
     }
+    if (details) {
+      Spacer(Modifier.height(8.dp))
+      run.error?.let { Text("errore: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+      val models = listOfNotNull(run.routerModel?.let { "router $it" }, run.chatModel?.let { "chat $it" }, run.deepModel?.takeIf { it != run.chatModel }?.let { "profondo $it" })
+      if (models.isNotEmpty()) Text(models.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      if (run.groups.isNotEmpty()) Text("gruppi: ${run.groups.joinToString(", ")}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      run.tools.forEach { trace ->
+        Spacer(Modifier.height(4.dp))
+        Text(
+          text = "${trace.app?.let { "$it · " } ?: ""}${trace.name} ${trace.args} · ${trace.millis} ms · ${if (trace.ok) "ok" else "errore"}",
+          style = MaterialTheme.typography.labelSmall,
+          color = if (trace.ok) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
+        )
+        if (trace.preview.isNotBlank()) Text(trace.preview, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      }
+    }
+  }
+}
+
+/**
+ * La riga chiusa, in italiano corrente.
+ *
+ * Quando il lavoro e' andato tutto a una sola app lo dice per nome — "Ho chiesto a Convert to it!"
+ * e' informazione, "2 strumenti" e' contabilita'.
+ */
+private fun toolSummary(run: Run): String {
+  if (run.tools.isEmpty()) return run.error?.let { "Non ci sono riuscita" } ?: "Ho risposto da sola"
+  val apps = run.tools.mapNotNull { it.app }.distinct()
+  return when {
+    apps.size == 1 && apps.first().isNotBlank() -> "Ho chiesto a ${apps.first()}"
+    run.tools.size == 1 -> "Ho usato ${run.tools.first().name.replace('_', ' ')}"
+    else -> "Ho usato ${run.tools.size} strumenti"
   }
 }
 
 @Composable
 private fun LiveBubble(live: AssistantState, pending: PendingConfirmation?, onResolve: (Long, Boolean) -> Unit) {
-  FluidCard {
-    Text("Aria", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Spacer(Modifier.height(4.dp))
+  Column(Modifier.fillMaxWidth()) {
     AssistantTexts.statusLine(live)?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = if (live is AssistantState.Failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium) }
     (live as? AssistantState.Answering)?.partial?.let {
       Spacer(Modifier.height(8.dp))
