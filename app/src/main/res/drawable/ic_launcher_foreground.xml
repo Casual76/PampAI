@@ -1,24 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Il marchio di Aria: una scintilla a quattro punte con i fianchi concavi, e una piccola accanto.
-  E' lo stesso glifo del tile e del saluto nella chat, cosi' l'icona e l'app si riconoscono a
-  vicenda. Bianco con un'ombra appena accennata: il colore lo mette il fondo.
+  Il marchio di Aria: una "a" minuscola a un piano, scritta in un tratto, la cui gamba non si
+  ferma ma scivola via in un soffio. E' una lettera, quindi e' sua e di nessun altro assistente; ed
+  e' aria, perche' la coda e' quello che fa. Bianco: il colore lo mette il fondo.
+  Stesse tre curve di AriaMark.kt (il saluto nella chat) e di ic_tile_aria.xml.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-  <!-- Un alone tenue dietro, per staccare il glifo dal gradiente. -->
+  <!-- La zona sicura di un'icona adattiva e' il cerchio centrale (raggio 33): la coda arriva a
+       x=90 e la maschera tonda la tagliava. Ridotta all'85% e spostata a sinistra ci sta tutta. -->
+  <group
+      android:scaleX="0.85"
+      android:scaleY="0.85"
+      android:pivotX="54"
+      android:pivotY="54"
+      android:translateX="-3">
+  <!-- L'anello: centro (46,59), raggio 17, aperto in alto a destra dove arriva la gamba. -->
   <path
-      android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"
-      android:fillColor="#22FFFFFF" />
-  <!-- La scintilla grande. -->
+      android:pathData="M60.7,50.5 A17,17 0 1 0 51.8,75"
+      android:strokeColor="#FFFFFFFF"
+      android:strokeWidth="9"
+      android:strokeLineCap="round"
+      android:fillColor="#00000000" />
+  <!-- La gamba, e la coda che se ne va in un soffio. -->
   <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M52,26 C53.6,42.4 58.6,47.4 75,49 C58.6,50.6 53.6,55.6 52,72 C50.4,55.6 45.4,50.6 29,49 C45.4,47.4 50.4,42.4 52,26 Z" />
-  <!-- Quella piccola, in alto a destra: il respiro. -->
-  <path
-      android:fillColor="#F2FFFFFF"
-      android:pathData="M74,28 C74.7,33.3 76.7,35.3 82,36 C76.7,36.7 74.7,38.7 74,44 C73.3,38.7 71.3,36.7 66,36 C71.3,35.3 73.3,33.3 74,28 Z" />
+      android:pathData="M66,42 L66,70 C66,80 78,80 82,72 C85,67 88,63 90,60"
+      android:strokeColor="#FFFFFFFF"
+      android:strokeWidth="9"
+      android:strokeLineCap="round"
+      android:strokeLineJoin="round"
+      android:fillColor="#00000000" />
+  </group>
 </vector>

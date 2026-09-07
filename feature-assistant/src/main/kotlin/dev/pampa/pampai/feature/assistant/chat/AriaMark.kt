@@ -6,19 +6,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Il marchio di Aria, disegnato: la scintilla a quattro punte e la piccola accanto.
+ * Il marchio di Aria, disegnato: una "a" minuscola a un piano, scritta in un tratto, la cui gamba
+ * non si ferma ma scivola via in un soffio.
  *
- * Lo stesso glifo dell'icona dell'app e del tile, con il gradiente del marchio. Sta in un Canvas
- * e non in una risorsa perche' cosi' prende i colori del tema del momento (dinamico, preset,
- * scuro) invece di quelli fissati in un XML, e perche' un vettore in un modulo senza `res/` e' una
- * cartella in piu' per un file solo.
+ * E' una lettera, quindi e' sua e di nessun altro assistente -- la scintilla a quattro punte era
+ * di tutti; ed e' aria, perche' la coda e' quello che fa. Le stesse tre curve dell'icona
+ * (`ic_launcher_foreground.xml`) e del tile, qui col gradiente del tema del momento: e' per questo
+ * che sta in un Canvas e non in una risorsa.
  */
 @Composable
 fun AriaMark(size: Dp = 72.dp, modifier: Modifier = Modifier) {
@@ -26,24 +31,22 @@ fun AriaMark(size: Dp = 72.dp, modifier: Modifier = Modifier) {
   val b = MaterialTheme.colorScheme.tertiary
   Canvas(modifier.size(size)) {
     val k = this.size.minDimension / 108f
-    val glow = Brush.radialGradient(listOf(a.copy(alpha = 0.22f), Color.Transparent), center = Offset(54f * k, 52f * k), radius = 44f * k)
-    drawCircle(brush = glow, radius = 44f * k, center = Offset(54f * k, 52f * k))
-    val fill = Brush.linearGradient(listOf(a, b), start = Offset(26f * k, 26f * k), end = Offset(82f * k, 72f * k))
-    drawPath(spark(k, cx = 52f, cy = 49f, r = 23f), brush = fill)
-    drawPath(spark(k, cx = 74f, cy = 36f, r = 8f), brush = fill, alpha = 0.95f)
-  }
-}
-
-/** Una scintilla a quattro punte coi fianchi concavi, centrata in ([cx],[cy]) con raggio [r], in coordinate 108×108 scalate di [k]. */
-private fun spark(k: Float, cx: Float, cy: Float, r: Float): Path {
-  // I fianchi si tirano verso il centro: il punto di controllo sta a un quarto del raggio.
-  val c = r * 0.28f
-  return Path().apply {
-    moveTo((cx) * k, (cy - r) * k)
-    cubicTo((cx + c * 0.25f) * k, (cy - c) * k, (cx + c) * k, (cy - c * 0.25f) * k, (cx + r) * k, cy * k)
-    cubicTo((cx + c) * k, (cy + c * 0.25f) * k, (cx + c * 0.25f) * k, (cy + c) * k, cx * k, (cy + r) * k)
-    cubicTo((cx - c * 0.25f) * k, (cy + c) * k, (cx - c) * k, (cy + c * 0.25f) * k, (cx - r) * k, cy * k)
-    cubicTo((cx - c) * k, (cy - c * 0.25f) * k, (cx - c * 0.25f) * k, (cy - c) * k, cx * k, (cy - r) * k)
-    close()
+    val glow = Brush.radialGradient(listOf(a.copy(alpha = 0.20f), Color.Transparent), center = Offset(60f * k, 58f * k), radius = 46f * k)
+    drawCircle(brush = glow, radius = 46f * k, center = Offset(60f * k, 58f * k))
+    val ink = Brush.linearGradient(listOf(a, b), start = Offset(29f * k, 42f * k), end = Offset(90f * k, 80f * k))
+    val stroke = Stroke(width = 9f * k, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    // L'anello: centro (46,59), raggio 17, aperto in alto a destra dove arriva la gamba.
+    val ring = Path().apply {
+      arcTo(Rect(Offset(46f * k, 59f * k), 17f * k), startAngleDegrees = -30f, sweepAngleDegrees = 320f, forceMoveTo = true)
+    }
+    drawPath(ring, brush = ink, style = stroke)
+    // La gamba, e la coda che se ne va.
+    val leg = Path().apply {
+      moveTo(66f * k, 42f * k)
+      lineTo(66f * k, 70f * k)
+      cubicTo(66f * k, 80f * k, 78f * k, 80f * k, 82f * k, 72f * k)
+      cubicTo(85f * k, 67f * k, 88f * k, 63f * k, 90f * k, 60f * k)
+    }
+    drawPath(leg, brush = ink, style = stroke)
   }
 }
