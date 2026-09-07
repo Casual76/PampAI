@@ -145,7 +145,8 @@ class AssistantEngine @Inject constructor(
     var estimate: ContextEstimate? = null
     try {
       val settings = settingsStore.current()
-      val ordered = orderedProviders(request, settings)
+      val parts = request.attachments.map { it.toPart() }
+      val ordered = orderedProviders(request, settings, parts)
       if (ordered.isEmpty()) throw AssistantFailure(FailureKind.NO_KEYS, null)
       val first = ordered.first()
       runtime.setState(AssistantState.Classifying(question, first.provider.id))
@@ -164,7 +165,6 @@ class AssistantEngine @Inject constructor(
         connectedPackages = { catalog.connectedPackages },
       )
       traced = toolContext
-      val parts = request.attachments.map { it.toPart() }
       val stored = conversations.conversation(conversationId)
       val prompt = PromptBuilder.build(
         PromptContext(
@@ -251,11 +251,45 @@ class AssistantEngine @Inject constructor(
   }
 
   /** I provider nell'ordine dell'utente, o quello scelto per questa domanda (rigenera con...). */
-  private suspend fun orderedProviders(request: AssistantRequest, settings: dev.antigravity.fluidengine.ai.keys.AiSettings): List<ReadyProvider> {
-    val override = request.override ?: return providers.ordered(ProviderFactory.Kind.CHAT)
-    val chosen = providers.build(override.provider, settings) ?: return providers.ordered(ProviderFactory.Kind.CHAT)
-    val ready = if (override.chatModel != null) chosen.copy(chatModel = override.chatModel) else chosen
-    return listOf(ready) + providers.ordered(ProviderFactory.Kind.CHAT).filter { it.provider.id != override.provider }
+  private suspend fun orderedProviders(
+    request: AssistantRequest,
+    settings: dev.antigravity.fluidengine.ai.keys.AiSettings,
+    attachments: List<ContentPart>,
+  ): List<ReadyProvider> {
+    val override = request.override
+    if (override != null) {
+      // Una scelta esplicita ("rigenera con...") vince su tutto: l'ha fatta l'utente adesso.
+      val chosen = providers.build(override.provider, settings)
+      if (chosen != null) {
+        val ready = if (override.chatModel != null) chosen.copy(chatModel = override.chatModel) else chosen
+        return listOf(ready) + providers.ordered(ProviderFactory.Kind.CHAT).filter { it.provider.id != override.provider }
+      }
+    }
+    return preferReader(providers.ordered(ProviderFactory.Kind.CHAT), attachments)
+  }
+
+  /**
+   * Chi sa leggere l'allegato passa davanti.
+   *
+   * L'orchestratore sa gia' salire dal modello di chat a quello profondo **dello stesso servizio**
+   * quando l'allegato lo regge solo il secondo, ma non guarda gli altri servizi. Cosi' uno
+   * screenshot mandato con Groq davanti finiva in "non riesco a leggere l'immagine con il modello
+   * che sto usando" anche con una chiave Gemini verificata due righe piu' sotto.
+   *
+   * Sposta un solo servizio, e solo se il primo non regge davvero niente: l'ordine e' una scelta
+   * dell'utente, e va rispettata in tutti i casi in cui puo' essere onorata.
+   */
+  private fun preferReader(ordered: List<ReadyProvider>, attachments: List<ContentPart>): List<ReadyProvider> {
+    if (attachments.isEmpty() || ordered.size < 2) return ordered
+    fun reads(p: ReadyProvider): Boolean {
+      val chat = p.capabilities(p.model(ModelTier.CHAT))
+      val deep = p.capabilities(p.model(ModelTier.DEEP))
+      return attachments.all { chat.accepts(it) || deep.accepts(it) }
+    }
+    if (reads(ordered.first())) return ordered
+    val index = ordered.indexOfFirst { reads(it) }
+    if (index <= 0) return ordered
+    return listOf(ordered[index]) + ordered.filterIndexed { i, _ -> i != index }
   }
 
   private fun config(surface: Surface): AiOrchestratorConfig = when (surface) {

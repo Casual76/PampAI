@@ -403,7 +403,15 @@ private fun SessionBar(
   }
   Column {
     if (attachments.isNotEmpty()) {
-      Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+      // Il vetro anche qui, come sulla barra: senza, i chip stanno su un pezzo qualunque
+      // dell'app sotto e "schermo-ritaglio.jpg" si legge sopra il testo di un'altra app.
+      Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+          .padding(bottom = 8.dp)
+          .glassSurface(state = backdrop, tint = GlassDefaults.modalTint(), shape = ContinuousCornerShape(FluidRadius.Control), role = GlassRole.Floating)
+          .padding(horizontal = 8.dp, vertical = 6.dp),
+      ) {
         attachments.forEachIndexed { index, attachment ->
           FluidChip(label = attachment.name.take(24), selected = false, onClick = { onRemoveAttachment(index) }, leading = { Icon(Icons.Rounded.Image, contentDescription = null, modifier = Modifier.size(16.dp)) })
         }
