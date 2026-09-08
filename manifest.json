@@ -14,22 +14,30 @@
       "ref": "main"
     },
     "stable": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "releaseDate": "2026-09-08",
-      "changelog": "Il vetro sfoca davvero: la barra in cima e il composer rifrangono la pagina invece di velarla di bianco, e la barra si addensa mentre scorri. Il testo delle risposte non lampeggia piu' e le parole nuove arrivano sfumando. Lo sfondo si accende di un'aurora mentre Aria lavora. L'alone della sessione torna a camminare lungo i bordi, e la sessione e' un orb con una card sola, non una chat in miniatura. Il tasto di accensione, dentro l'app, avvia il microfono nella conversazione aperta. Il selettore dei modelli in Impostazioni ora si apre davvero (l'host dei modali era dentro la home), il menu della conversazione non finisce piu' dietro al cassetto, e il chip del composer dice anche il modello profondo, quello che risponde alle domande difficili. Le domande complesse non finiscono piu' su un servizio diverso da quello scelto: la riserva automatica e' un interruttore, spento. Sveglie, timer e torcia non chiedono conferma. E ci sono le chat temporanee.",
-      "releaseTag": "stable-pampai-v1.1.0",
-      "apkAsset": "pampai-1.1.0.apk",
-      "sizeBytes": 13328050
+      "changelog": "OpenRouter torna a rispondere: PampAI non impone piu' a ogni richiesta una politica sui dati piu' stretta di quella scelta sul tuo account, che sui modelli i cui endpoint gratuiti registrano i prompt lasciava zero endpoint (\"nessun endpoint corrisponde alla tua data policy\"). La scelta ora e' una riga in Impostazioni, sotto la chiave OpenRouter. E le scelte dei modelli si riallineano al catalogo anche senza scaricarlo di nuovo: prima una correzione ai predefiniti non raggiungeva mai un telefono che aveva gia' verificato la chiave.",
+      "releaseTag": "stable-pampai-v1.1.1",
+      "apkAsset": "pampai-1.1.1.apk",
+      "sizeBytes": 13328052
     },
     "beta": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "releaseDate": "2026-09-08",
-      "changelog": "Il vetro sfoca davvero: la barra in cima e il composer rifrangono la pagina invece di velarla di bianco, e la barra si addensa mentre scorri. Il testo delle risposte non lampeggia piu' e le parole nuove arrivano sfumando. Lo sfondo si accende di un'aurora mentre Aria lavora. L'alone della sessione torna a camminare lungo i bordi, e la sessione e' un orb con una card sola, non una chat in miniatura. Il tasto di accensione, dentro l'app, avvia il microfono nella conversazione aperta. Il selettore dei modelli in Impostazioni ora si apre davvero (l'host dei modali era dentro la home), il menu della conversazione non finisce piu' dietro al cassetto, e il chip del composer dice anche il modello profondo, quello che risponde alle domande difficili. Le domande complesse non finiscono piu' su un servizio diverso da quello scelto: la riserva automatica e' un interruttore, spento. Sveglie, timer e torcia non chiedono conferma. E ci sono le chat temporanee.",
-      "releaseTag": "stable-pampai-v1.1.0",
-      "apkAsset": "pampai-1.1.0.apk",
-      "sizeBytes": 13328050
+      "changelog": "OpenRouter torna a rispondere: PampAI non impone piu' a ogni richiesta una politica sui dati piu' stretta di quella scelta sul tuo account, che sui modelli i cui endpoint gratuiti registrano i prompt lasciava zero endpoint (\"nessun endpoint corrisponde alla tua data policy\"). La scelta ora e' una riga in Impostazioni, sotto la chiave OpenRouter. E le scelte dei modelli si riallineano al catalogo anche senza scaricarlo di nuovo: prima una correzione ai predefiniti non raggiungeva mai un telefono che aveva gia' verificato la chiave.",
+      "releaseTag": "stable-pampai-v1.1.1",
+      "apkAsset": "pampai-1.1.1.apk",
+      "sizeBytes": 13328052
     },
     "history": [
+      {
+        "version": "1.1.0",
+        "releaseDate": "2026-09-08",
+        "changelog": "Il vetro sfoca davvero: la barra in cima e il composer rifrangono la pagina invece di velarla di bianco, e la barra si addensa mentre scorri. Il testo delle risposte non lampeggia piu' e le parole nuove arrivano sfumando. Lo sfondo si accende di un'aurora mentre Aria lavora. L'alone della sessione torna a camminare lungo i bordi, e la sessione e' un orb con una card sola, non una chat in miniatura. Il tasto di accensione, dentro l'app, avvia il microfono nella conversazione aperta. Il selettore dei modelli in Impostazioni ora si apre davvero (l'host dei modali era dentro la home), il menu della conversazione non finisce piu' dietro al cassetto, e il chip del composer dice anche il modello profondo, quello che risponde alle domande difficili. Le domande complesse non finiscono piu' su un servizio diverso da quello scelto: la riserva automatica e' un interruttore, spento. Sveglie, timer e torcia non chiedono conferma. E ci sono le chat temporanee.",
+        "releaseTag": "stable-pampai-v1.1.0",
+        "apkAsset": "pampai-1.1.0.apk",
+        "sizeBytes": 13328050
+      },
       {
         "version": "1.0.0",
         "releaseDate": "2026-09-07",
