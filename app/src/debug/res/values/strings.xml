@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Il nome della build di lavoro.
+
+  Convivere con quella dello store non basta: due icone identiche chiamate allo stesso modo si
+  aprono a caso, e un difetto gia' corretto sembra ancora vivo perche' si sta guardando l'altra.
+-->
+<resources>
+  <string name="app_name">PampAI debug</string>
+</resources>

@@ -72,6 +72,9 @@ android {
     debug {
       // Un suffisso, cosi' una build di lavoro convive sul telefono con quella dello store.
       applicationIdSuffix '.debug'
+      // Il nome diverso sta in `src/debug/res`: convivere non basta, due icone identiche chiamate
+      // uguale si aprono a caso, e un difetto corretto sembra ancora vivo perche' si sta guardando
+      // l'altra.
       // Firmata con la chiave vera quando c'e': i permessi `signature` del bridge devono coincidere
       // con le app installate dallo store, e la chiave di debug di Android Studio non coincide.
       if (hasReleaseKey) signingConfig signingConfigs.release
