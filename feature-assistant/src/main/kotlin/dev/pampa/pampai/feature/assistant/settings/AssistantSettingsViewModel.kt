@@ -16,6 +16,7 @@ import dev.antigravity.fluidengine.ai.orchestrator.AiRequestLog
 import dev.antigravity.fluidengine.ai.provider.ModelCatalogue
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.OpenRouterKeyInfo
+import dev.antigravity.fluidengine.ai.provider.OpenRouterDataPolicy
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.foundation.AccentMode
 import dev.antigravity.fluidengine.foundation.EngineSettings
@@ -104,7 +105,7 @@ class AssistantSettingsViewModel @Inject constructor(
   fun setModel(provider: ProviderId, tier: ModelTier, model: String?) = viewModelScope.launch { settingsStore.setModel(provider, tier, model) }
   fun setSttModel(provider: ProviderId, model: String?) = viewModelScope.launch { settingsStore.setSttModel(provider, model) }
   fun setOpenRouterFallbacks(models: List<String>) = viewModelScope.launch { settingsStore.setOpenRouterFallbacks(models) }
-  fun setOpenRouterDataCollection(allow: Boolean) = viewModelScope.launch { settingsStore.setOpenRouterAllowDataCollection(allow) }
+  fun setOpenRouterDataPolicy(policy: OpenRouterDataPolicy) = viewModelScope.launch { settingsStore.setOpenRouterDataPolicy(policy) }
 
   fun setThinking(level: ThinkingLevel) = viewModelScope.launch { settingsStore.setThinking(level) }
   fun setSpeakReplies(speak: Boolean) = viewModelScope.launch { settingsStore.setSpeakReplies(speak) }

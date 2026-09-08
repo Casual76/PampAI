@@ -30,6 +30,7 @@ import dev.antigravity.fluidengine.ai.keys.KeyState
 import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
 import dev.antigravity.fluidengine.ai.orchestrator.AiRequestLog
 import dev.antigravity.fluidengine.ai.provider.ModelTier
+import dev.antigravity.fluidengine.ai.provider.OpenRouterDataPolicy
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.foundation.AccentMode
 import dev.antigravity.fluidengine.foundation.ThemeMode
@@ -113,7 +114,7 @@ fun LazyListScope.assistantSettingsItems(
           initiallyExpanded = provider == ProviderId.GROQ && verified.isEmpty(),
         )
         if (provider == ProviderId.OPENROUTER && state.keys[provider]?.present == true) {
-          OpenRouterKeyDetails(state)
+          OpenRouterKeyDetails(state, viewModel)
         }
       }
     }
@@ -259,7 +260,7 @@ fun LazyListScope.appearanceItems(viewModel: AssistantSettingsViewModel, state: 
 }
 
 @Composable
-private fun OpenRouterKeyDetails(state: AssistantSettingsUiState) {
+private fun OpenRouterKeyDetails(state: AssistantSettingsUiState, viewModel: AssistantSettingsViewModel) {
   val info = state.keyInfo[ProviderId.OPENROUTER]
   val chosen = state.settings.chatModel(ProviderId.OPENROUTER)
   val model = state.catalogues[ProviderId.OPENROUTER]?.chat(chosen ?: "")
@@ -278,6 +279,23 @@ private fun OpenRouterKeyDetails(state: AssistantSettingsUiState) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
+  }
+  FluidListDivider()
+  // La politica sui dati e' dell'account, non dell'app: chiedere `deny` a ogni richiesta non rende
+  // niente piu' sicuro -- sovrascrive con la piu' stretta la scelta gia' fatta su openrouter.ai --
+  // e sui modelli i cui endpoint gratuiti registrano i prompt non ne lascia nessuno disponibile:
+  // "No endpoints found matching your data policy", e il modello smette di rispondere.
+  val strict = state.settings.openRouterDataPolicy == OpenRouterDataPolicy.DENY
+  ChoiceRow(
+    title = "Addestramento sui tuoi messaggi",
+    subtitle = if (strict) {
+      "Aria chiede a OpenRouter di non usarli: i modelli i cui endpoint gratuiti registrano i prompt non rispondono."
+    } else {
+      "Vale quello che hai scelto sul tuo account OpenRouter."
+    },
+  ) {
+    FluidChip(label = "Come sul mio account", selected = !strict, onClick = { viewModel.setOpenRouterDataPolicy(OpenRouterDataPolicy.ACCOUNT) })
+    FluidChip(label = "Non usarli", selected = strict, onClick = { viewModel.setOpenRouterDataPolicy(OpenRouterDataPolicy.DENY) })
   }
 }
 
