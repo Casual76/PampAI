@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -66,10 +67,26 @@ data class ChatUiState(
   val catalogues: Map<ProviderId, ModelCatalogue> = emptyMap(),
   val context: ContextEstimate? = null,
   val attachments: List<PendingAttachment> = emptyList(),
+  /**
+   * La riserva automatica di PampAI (`PampaiSettings.failoverEnabled`): il menu del modello lo
+   * dice, perche' con la riserva accesa "chi risponde" puo' non essere il servizio con la spunta.
+   */
+  val failoverEnabled: Boolean = false,
+  /**
+   * La chat aperta e' temporanea: la conversazione su disco lo dice, e prima che nasca lo dice la
+   * scelta fatta nel menu "+". La barra in cima ci mette il distintivo.
+   */
+  val temporary: Boolean = false,
 ) {
   val enabled: Boolean get() = settings.enabled && keys.any { it.value.verified }
   val isNew: Boolean get() = conversation == null
 }
+
+/** Le impostazioni che la chat legge insieme: engine, chiavi, cataloghi, e la riserva di PampAI. */
+private data class ChatSettings(val settings: AiSettings, val keys: Map<ProviderId, KeyState>, val catalogues: Map<ProviderId, ModelCatalogue>, val failoverEnabled: Boolean)
+
+/** Cio' che il composer tiene per se': allegati in attesa, anello del contesto, chat temporanea. */
+private data class ComposerState(val attachments: List<PendingAttachment>, val context: ContextEstimate?, val temporary: Boolean)
 
 /**
  * La chat con Aria: la conversazione attiva (quella del runtime), i suoi messaggi e la telemetria,
@@ -97,6 +114,15 @@ class ChatViewModel @Inject constructor(
 
   /** "Pensa piu' a fondo" armato per la prossima domanda. */
   val deepNext = MutableStateFlow(false)
+
+  /**
+   * La prossima conversazione nasce temporanea.
+   *
+   * Vive qui e non su disco perche' una chat temporanea, finche' non le si scrive dentro, non
+   * esiste: la riga in Room la crea la prima domanda, ed e' la' che il flag si posa. Da quel
+   * momento comanda la conversazione, e questo flusso la segue soltanto.
+   */
+  private val temporaryNext = MutableStateFlow(false)
 
   /** I plugin fra cui scegliere: le categorie del catalogo, app collegate e aree del telefono. */
   val plugins: StateFlow<List<PluginOption>> = registryHolder.catalog
@@ -165,7 +191,15 @@ class ChatViewModel @Inject constructor(
     }
   }
 
-  private val settingsFlow = combine(settingsStore.settings, keyStore.states, catalogs.catalogues) { s, k, c -> Triple(s, k, c) }
+  // La riserva passa da qui e non da un flow suo: e' un dettaglio dello stesso menu che mostra
+  // chiavi e cataloghi, e `distinctUntilChanged` evita di ricomporre la chat per ogni altra
+  // impostazione di PampAI che cambia.
+  private val settingsFlow = combine(
+    settingsStore.settings,
+    keyStore.states,
+    catalogs.catalogues,
+    pampaiSettings.settings.map { it.failoverEnabled }.distinctUntilChanged(),
+  ) { s, k, c, f -> ChatSettings(s, k, c, f) }
 
   /**
    * Lo stato del runtime, con un freno mentre scrive.
@@ -182,7 +216,7 @@ class ChatViewModel @Inject constructor(
       if (s is AssistantState.Answering) delay(66)
     }
 
-  val state: StateFlow<ChatUiState> = combine(conversationFlow, throttledState, runtime.pendingConfirmation, settingsFlow, combine(pendingAttachments, contextEstimate) { a, c -> a to c }) { (conversation, messages, runs), live, pending, (settings, keys, catalogues), (attachments, estimate) ->
+  val state: StateFlow<ChatUiState> = combine(conversationFlow, throttledState, runtime.pendingConfirmation, settingsFlow, combine(pendingAttachments, contextEstimate, temporaryNext) { a, c, t -> ComposerState(a, c, t) }) { (conversation, messages, runs), live, pending, (settings, keys, catalogues, failover), (attachments, estimate, temporaryChosen) ->
     ChatUiState(
       conversation = conversation,
       messages = messages,
@@ -194,6 +228,9 @@ class ChatViewModel @Inject constructor(
       catalogues = catalogues,
       context = estimate,
       attachments = attachments,
+      failoverEnabled = failover,
+      // Prima della prima domanda la conversazione non c'e' ancora: vale la scelta del menu "+".
+      temporary = conversation?.temporary ?: temporaryChosen,
     )
   }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ChatUiState())
 
@@ -211,6 +248,20 @@ class ChatViewModel @Inject constructor(
     viewModelScope.launch {
       runtime.state.collect { if (it is AssistantState.Done) contextEstimate.value = runCatching { engine.estimateContext(runtime.activeConversationId.value) }.getOrNull() }
     }
+    // La conversazione attiva puo' cambiare senza passare da qui: il cassetto, un chip
+    // [[conversazione:ID]], una notifica. Se quella nuova esiste e non e' temporanea, la chat
+    // temporanea di prima e' stata lasciata: si spegne il flag e sparisce. Il controllo su
+    // `temporary` e' anche cio' che rende sicura la cancellazione: non tocca mai la temporanea
+    // che si sta aprendo, perche' in quel caso non si cancella niente.
+    viewModelScope.launch {
+      runtime.activeConversationId.collect { id ->
+        val opened = id?.let { runCatching { conversations.conversation(it) }.getOrNull() } ?: return@collect
+        if (!opened.temporary) {
+          temporaryNext.value = false
+          engine.dropTemporary()
+        }
+      }
+    }
   }
 
   val isBusy: Boolean get() = runtime.isBusy
@@ -220,13 +271,13 @@ class ChatViewModel @Inject constructor(
     pendingAttachments.value = emptyList()
     val deep = deepNext.value
     deepNext.value = false
-    runtime.submit(AssistantRequest(runtime.activeConversationId.value, text, AskMode.TEXT, attachments, Surface.APP, plugin = plugin.value, deep = deep))
+    runtime.submit(AssistantRequest(runtime.activeConversationId.value, text, AskMode.TEXT, attachments, Surface.APP, plugin = plugin.value, deep = deep, temporary = temporaryNext.value))
   }
 
   fun startVoice() {
     val attachments = pendingAttachments.value
     pendingAttachments.value = emptyList()
-    runtime.startListening(runtime.activeConversationId.value, Surface.APP, attachments)
+    runtime.startListening(runtime.activeConversationId.value, Surface.APP, attachments, temporary = temporaryNext.value)
   }
 
   fun stopVoice() = runtime.stopListening()
@@ -244,16 +295,56 @@ class ChatViewModel @Inject constructor(
   fun newConversation() {
     plugin.value = null
     deepNext.value = false
+    temporaryNext.value = false
     if (runtime.isBusy) runtime.cancel()
+    dropTemporary()
     runtime.selectConversation(null)
     runtime.reset()
+  }
+
+  /**
+   * Una chat che non resta: fuori dalla cronologia, senza titolo dal modello, senza memoria, e
+   * cancellata appena la si lascia. Come una chat nuova in tutto il resto — nasce alla prima
+   * domanda, e finche' non arriva non c'e' niente su disco.
+   */
+  fun newTemporaryConversation() {
+    newConversation()
+    temporaryNext.value = true
   }
 
   fun open(conversationId: Long) {
     viewModelScope.launch { plugin.value = conversations.conversation(conversationId)?.plugin }
     if (runtime.isBusy && runtime.activeConversationId.value != conversationId) runtime.cancel()
+    // Aprire un'altra conversazione e' lasciare quella di adesso: se era temporanea, sparisce.
+    if (conversationId != runtime.activeConversationId.value) {
+      temporaryNext.value = false
+      dropTemporary()
+    }
     runtime.selectConversation(conversationId)
     runtime.reset()
+  }
+
+  /**
+   * La cancellazione delle temporanee: da disco e dalla memoria dell'engine.
+   *
+   * Sta nelle azioni che lasciano la chat (chat nuova, apertura di un'altra), cosi' avviene
+   * *prima* che la prossima possa nascere: nessuna cancellazione in ritardo puo' portarsi via la
+   * temporanea appena creata. L'osservatore in `init` copre le uscite che non passano di qui (il
+   * cassetto, un chip, una notifica) e per la stessa ragione cancella solo quando la conversazione
+   * appena aperta non e' temporanea. Chi chiude l'app e' coperto da [onCleared] e, se il processo
+   * muore, dalla pulizia all'avvio in `AssistantRuntime`.
+   */
+  private fun dropTemporary() {
+    viewModelScope.launch { engine.dropTemporary() }
+  }
+
+  override fun onCleared() {
+    // L'app chiusa per davvero (non un giro di schermo, non le impostazioni sopra la chat): la
+    // temporanea aperta se ne va. Nello scope del runtime, che a quest'ora e' l'unico ancora vivo.
+    // Non mentre sta rispondendo: cancellarle il pavimento sotto i piedi lascerebbe messaggi
+    // orfani, e al prossimo avvio ci pensa il runtime.
+    if (!runtime.isBusy) runtime.scope.launch { engine.dropTemporary() }
+    super.onCleared()
   }
 
   /** La scorciatoia "Ultima": riapre la conversazione piu' recente (o ne inizia una, se non ce ne sono). */
@@ -277,7 +368,13 @@ class ChatViewModel @Inject constructor(
     })
   }
 
-  /** Rigenera la risposta, anche con un altro servizio o modello. */
+  /**
+   * Rigenera la risposta, anche con un altro servizio o modello.
+   *
+   * Un [override] che nomina solo la chat porta con se' il profondo di quel servizio dalle
+   * impostazioni: altrimenti la domanda difficile rigenerata "con Gemini" andrebbe al modello
+   * profondo di default, non a quello che l'utente ha scelto.
+   */
   fun regenerate(message: Message, override: ProviderOverride? = null) = viewModelScope.launch {
     if (runtime.isBusy) runtime.cancel()
     val messages = state.value.messages
@@ -288,7 +385,8 @@ class ChatViewModel @Inject constructor(
     val attachments = withContext(Dispatchers.IO) {
       question.attachments.mapNotNull { a -> runCatching { PendingAttachment(a.kind, a.mime, a.name, java.io.File(a.path).readBytes()) }.getOrNull() }
     }
-    runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, attachments, Surface.APP, override, regenerateMessageId = message.id))
+    val completed = override?.let { if (it.deepModel == null) it.copy(deepModel = settingsStore.current().deepModel(it.provider)) else it }
+    runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, attachments, Surface.APP, completed, regenerateMessageId = message.id))
   }
 
   /** Un file scelto dal picker: immagini rimpicciolite, PDF e testi come documenti. */

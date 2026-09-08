@@ -125,7 +125,8 @@ class AssistantEngine @Inject constructor(
     val catalog = registryHolder.catalog.value
     val registry = catalog.registry
     val conversationId = request.conversationId?.takeIf { conversations.conversation(it) != null }
-      ?: conversations.createConversation(question, now, source = if (request.surface == Surface.SESSION) "session" else "app")
+      // La temporanea si decide qui, alla nascita: dalla domanda dopo e' la riga su disco a dirlo.
+      ?: conversations.createConversation(question, now, source = if (request.surface == Surface.SESSION) "session" else "app", temporary = request.temporary)
     runtime.setActiveConversation(conversationId)
     // Rigenera: la domanda dell'utente c'e' gia' su disco; con un id vero si riusa il messaggio
     // dell'assistente, con l'id sentinella (modifica e rinvia) se ne crea uno nuovo.
@@ -155,6 +156,9 @@ class AssistantEngine @Inject constructor(
       val conversation = memoryConversations.getOrPut(conversationId) { rebuild(conversationId, now, registry) }
       conversation.lastActivityMillis = now
       val zone = ZoneId.systemDefault()
+      // Letta prima del contesto dei tool: e' lei a dire se questa e' una chat temporanea, e il
+      // tool `ricorda` deve saperlo senza tornare su disco a ogni chiamata.
+      val stored = conversations.conversation(conversationId)
       val toolContext = PampaiToolContext(
         app = context, zone = zone, locale = Locale.getDefault(), now = System::currentTimeMillis,
         surface = request.surface, mode = request.mode, actionsEnabled = settings.actionsEnabled,
@@ -164,9 +168,9 @@ class AssistantEngine @Inject constructor(
         screen = screen.takeIf { request.surface == Surface.SESSION },
         permissions = permissions, reminders = reminders, fluidify = fluidify, usage = usage, aiSettings = settingsStore,
         connectedPackages = { catalog.connectedPackages },
+        temporary = stored?.temporary == true,
       )
       traced = toolContext
-      val stored = conversations.conversation(conversationId)
 
       // Il plugin: scelto adesso nel composer, o gia' sulla conversazione. Si salva, e i suoi
       // strumenti entrano nel primo giro senza passare dal router.
@@ -196,6 +200,7 @@ class AssistantEngine @Inject constructor(
           attachmentsNote = parts.takeIf { it.isNotEmpty() }?.let { list -> "l'utente ha allegato " + list.joinToString(", ") { it.displayName ?: "testo" } },
           conversationTitle = stored?.title?.takeIf { stored.autoTitled },
           pluginLabel = pluginCategory?.label,
+          temporary = stored?.temporary == true,
         ),
       )
       val pre = PreRouter(catalog.preRules).decide(question, settings.actionsEnabled, parts.isNotEmpty())
@@ -203,8 +208,9 @@ class AssistantEngine @Inject constructor(
       // Quanto pensare lo decide la domanda, non un interruttore: alto quando e' profonda o quando
       // l'utente ha chiesto "pensa piu' a fondo", basso su una domanda secca che finisce in uno
       // strumento, medio nel mezzo. A meno che l'utente non abbia scelto un livello fisso.
+      val pampai = pampaiSettings.current()
       val thinking = when {
-        !pampaiSettings.current().thinkingAuto -> settings.thinking
+        !pampai.thinkingAuto -> settings.thinking
         deep -> ThinkingLevel.HIGH
         pre.confident && parts.isEmpty() && question.length < 90 -> ThinkingLevel.LOW
         else -> ThinkingLevel.MEDIUM
@@ -230,6 +236,9 @@ class AssistantEngine @Inject constructor(
         chipFilter = { chip -> AriaChips.accepts(chip) },
         attachmentFallback = { part -> attachments.fallbackText(part) },
         attachments = parts,
+        // Il servizio scelto resta quello: si cambia solo con la riserva automatica accesa, e mai
+        // quando l'utente l'ha scelto lui per questa domanda ("rigenera con...").
+        pinProvider = request.override != null || !pampai.failoverEnabled,
       )
       estimate = ContextMeter.estimate(prompt, conversation, if (first.provider.id == dev.antigravity.fluidengine.ai.provider.ProviderId.GROQ) 5_000 else 60_000, registry.specsFor(conversation.loadedGroups), parts, first)
       val result = orchestrator.ask(input, runtime.mutableState())
@@ -246,7 +255,9 @@ class AssistantEngine @Inject constructor(
           usage = result.usage, toolsUsed = result.toolsUsed, durationMillis = result.log.durationMillis, tierReached = result.tierReached,
         ),
       )
-      if (stored != null && !stored.autoTitled) {
+      // Il titolo dal modello serve a ritrovare una conversazione in cronologia: una temporanea in
+      // cronologia non ci finisce, e le resta la domanda troncata finche' e' aperta.
+      if (stored != null && !stored.autoTitled && !stored.temporary) {
         // Prima chi ha appena risposto: se il primo della lista era al limite per la domanda,
         // lo e' anche per il titolo, e chiederglielo lo stesso vuol dire non avere il titolo.
         val forTitle = ordered.sortedBy { it.provider.id != result.provider }
@@ -291,7 +302,7 @@ class AssistantEngine @Inject constructor(
       // Una scelta esplicita ("rigenera con...") vince su tutto: l'ha fatta l'utente adesso.
       val chosen = providers.build(override.provider, settings)
       if (chosen != null) {
-        val ready = if (override.chatModel != null) chosen.copy(chatModel = override.chatModel) else chosen
+        val ready = chosen.copy(chatModel = override.chatModel ?: chosen.chatModel, deepModel = override.deepModel ?: chosen.deepModel)
         return listOf(ready) + providers.ordered(ProviderFactory.Kind.CHAT).filter { it.provider.id != override.provider }
       }
     }
@@ -391,6 +402,17 @@ class AssistantEngine @Inject constructor(
   /** Dimentica la conversazione in memoria: dopo una cancellazione, o una modifica che ne cambia la storia. */
   fun forget(conversationId: Long) {
     memoryConversations.remove(conversationId)
+  }
+
+  /**
+   * Lasciare una chat temporanea la fa sparire: da disco e dalla memoria di questo processo.
+   *
+   * Le due cose insieme, e in un posto solo, perche' dimenticare l'una senza l'altra e' un buco:
+   * SQLite puo' riassegnare l'id appena liberato, e gli scambi rimasti in memoria su quell'id
+   * finirebbero nel prompt della prossima conversazione.
+   */
+  suspend fun dropTemporary() {
+    runCatching { conversations.deleteTemporary() }.getOrDefault(emptyList()).forEach { forget(it) }
   }
 }
 

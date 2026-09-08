@@ -66,6 +66,11 @@ class PampaiToolContext(
   val aiSettings: AiSettingsStore,
   /** I pacchetti collegati via bridge (Fase B): vuoto finche' non c'e' il bridge. */
   val connectedPackages: () -> Set<String> = { emptySet() },
+  /**
+   * La conversazione di adesso e' una chat temporanea: sparisce quando la si lascia, quindi non
+   * puo' lasciare tracce altrove. Chi scrive fuori dalla conversazione (`ricorda`) si ferma qui.
+   */
+  val temporary: Boolean = false,
 ) {
   private val traceList = java.util.Collections.synchronizedList(mutableListOf<PampaiToolTrace>())
 
@@ -91,4 +96,11 @@ class PampaiToolContext(
       else -> ToolOutput(PampaiConfirmationGate.outcomeText(outcome))
     }
   }
+
+  /**
+   * Per le azioni reversibili che restano sul telefono (una sveglia, un timer, la torcia): niente
+   * conferma -- chiederla a ogni "mettimi un timer" e' quello che rende un assistente inutile --
+   * ma l'interruttore "Azioni" delle impostazioni vale lo stesso.
+   */
+  fun requireActions(): ToolOutput? = if (!actionsEnabled) ToolOutput(ACTIONS_OFF) else null
 }

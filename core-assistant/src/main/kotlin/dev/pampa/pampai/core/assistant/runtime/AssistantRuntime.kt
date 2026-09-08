@@ -42,8 +42,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** Con quale servizio e modello rispondere, quando l'utente lo sceglie per una singola domanda (rigenera con...). */
-data class ProviderOverride(val provider: ProviderId, val chatModel: String?)
+/**
+ * Con quale servizio e modello rispondere, quando l'utente lo sceglie per una singola domanda
+ * (rigenera con...). [deepModel] e' il profondo per quella domanda, se scelto: null = quello delle
+ * impostazioni. Una scelta esplicita fissa anche il servizio: nessuna riserva per quella domanda.
+ */
+data class ProviderOverride(val provider: ProviderId, val chatModel: String?, val deepModel: String? = null)
 
 /** Una domanda da far partire: in quale conversazione (null = nuova), cosa, come e' arrivata, con cosa. */
 data class AssistantRequest(
@@ -59,6 +63,11 @@ data class AssistantRequest(
   val plugin: String? = null,
   /** "Pensa piu' a fondo": livello profondo e ragionamento alto per questa domanda. */
   val deep: Boolean = false,
+  /**
+   * Chat temporanea: vale solo quando la conversazione nasce adesso ([conversationId] nullo), ed e'
+   * la riga su disco a portarsela dietro per tutte le domande dopo.
+   */
+  val temporary: Boolean = false,
 )
 
 /** Cosa e' successo a un ascolto che non ha prodotto una domanda: la barra decide cosa fare. */
@@ -135,6 +144,11 @@ class AssistantRuntime @Inject constructor(
 
   init {
     scope.launch { runCatching { conversations.failStale() } }
+    // Una chat temporanea non sopravvive al processo. Di solito la cancella chi la lascia (il
+    // ChatViewModel), ma un'app uccisa dal sistema mentre la chat era aperta non passa di li':
+    // qui, prima che qualunque domanda possa partire, il disco torna pulito. Non serve avvisare
+    // l'engine: la sua memoria per processo e' ancora vuota.
+    scope.launch { runCatching { conversations.deleteTemporary() } }
     voiceConfirmation.attach(lastModeFlow)
     // Un'azione che aspetta il si': lo stato lo dice — la card mostra Conferma/Annulla — e quando
     // la risposta arriva (o scade) si torna a com'era.
@@ -244,7 +258,7 @@ class AssistantRuntime @Inject constructor(
    * se fosse stata scritta. Se nessuno parla nei primi secondi esce [VoiceEvent.InitialSilence] e la
    * barra passa al testo; se si e' parlato senza esito, [VoiceEvent.HeardNothing].
    */
-  fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList()) {
+  fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList(), temporary: Boolean = false) {
     if (isBusy) cancel()
     speaker.stop()
     activeConversation.value = conversationId
@@ -270,7 +284,7 @@ class AssistantRuntime @Inject constructor(
           mirror.cancel()
         }
         when {
-          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface))
+          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface, temporary = temporary))
           stt.state.value == SttState.InitialSilence -> {
             stateFlow.value = AssistantState.Idle
             stt.reset()

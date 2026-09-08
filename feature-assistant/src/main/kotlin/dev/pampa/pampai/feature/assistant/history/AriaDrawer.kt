@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -38,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
 import dev.antigravity.fluidengine.ui.fluid.FluidContextAction
+import dev.antigravity.fluidengine.ui.fluid.FluidContextMenuController
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.FluidTextField
 import dev.antigravity.fluidengine.ui.fluid.fluidContextMenuAnchor
@@ -72,6 +74,10 @@ fun AriaDrawer(
   val today = LocalDate.now(zone)
   val pinned = items.filter { it.pinned }
   val grouped = items.filter { !it.pinned }.groupBy { Instant.ofEpochMilli(it.updatedAtMillis).atZone(zone).toLocalDate() }
+  // Un menu alla volta. L'host di radice mette lo scrim anche sopra il cassetto, quindi una
+  // seconda pressione lunga non arriva a nessuna riga finche' il primo e' aperto; questo chiude
+  // comunque quello aperto prima di alzarne un altro, per non dipendere da chi mangia i tocchi.
+  val menuSlot = remember { MenuSlot() }
 
   Column(
     Modifier
@@ -112,7 +118,7 @@ fun AriaDrawer(
       if (pinned.isNotEmpty()) {
         item(key = "pin-h") { SectionLabel("Fissate") }
         pinned.forEach { conversation ->
-          item(key = "pin-${conversation.id}") { ConversationRow(conversation, active, viewModel, onOpenConversation) }
+          item(key = "pin-${conversation.id}") { ConversationRow(conversation, active, viewModel, onOpenConversation, menuSlot) }
         }
       }
       grouped.forEach { (day, conversations) ->
@@ -126,7 +132,7 @@ fun AriaDrawer(
           )
         }
         conversations.forEach { conversation ->
-          item(key = "c-${conversation.id}") { ConversationRow(conversation, active, viewModel, onOpenConversation) }
+          item(key = "c-${conversation.id}") { ConversationRow(conversation, active, viewModel, onOpenConversation, menuSlot) }
         }
       }
       if (items.isEmpty()) {
@@ -181,12 +187,22 @@ private fun NavRow(icon: ImageVector, label: String, onClick: () -> Unit) {
   }
 }
 
+/**
+ * Il menu aperto in questo momento, se c'e'. Ogni riga tiene il proprio controller (e' cosi' che
+ * l'engine registra l'ancora e la ripresa della riga), e il cassetto tiene solo il riferimento a
+ * quello alzato per ultimo: e' quello da chiudere prima di alzarne un altro.
+ */
+private class MenuSlot {
+  var open: FluidContextMenuController? = null
+}
+
 @Composable
 private fun ConversationRow(
   conversation: dev.pampa.pampai.core.assistant.db.Conversation,
   active: Long?,
   viewModel: HistoryViewModel,
   onOpen: () -> Unit,
+  menuSlot: MenuSlot,
 ) {
   val menu = rememberFluidContextMenu(actions = {
     listOf(
@@ -200,7 +216,10 @@ private fun ConversationRow(
     selected = conversation.id == active,
     onClick = { viewModel.open(conversation.id); onOpen() },
     modifier = Modifier.fluidContextMenuAnchor(menu),
-    onLongClick = { menu.open() },
+    onLongClick = {
+      menuSlot.open?.takeIf { it !== menu }?.dismiss()
+      if (menu.open()) menuSlot.open = menu
+    },
   )
 }
 

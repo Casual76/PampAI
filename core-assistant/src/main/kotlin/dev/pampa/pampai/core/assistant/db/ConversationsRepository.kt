@@ -41,6 +41,8 @@ data class Conversation(
   val autoTitled: Boolean,
   /** L'id della categoria scelta come plugin, o null. */
   val plugin: String? = null,
+  /** La chat temporanea: fuori dalla cronologia, senza titolo automatico, cancellata quando la si lascia. */
+  val temporary: Boolean = false,
 )
 
 data class Attachment(
@@ -100,10 +102,19 @@ data class Run(
   val error: String?,
   val contextTokens: Int?,
   val contextWindow: Int?,
+  /**
+   * Tutti i modelli che hanno risposto, nell'ordine in cui l'hanno fatto (engine 1.29.0): con un
+   * cambio di servizio [routerModel]/[chatModel]/[deepModel] tengono solo l'ultimo per livello,
+   * qui si legge "Gemini pro, poi la chat di OpenRouter". Vuoto per le righe salvate prima.
+   */
+  val models: List<RunModel> = emptyList(),
 ) {
   val totalTokens: Int? get() = if (promptTokens == null && completionTokens == null) null else (promptTokens ?: 0) + (completionTokens ?: 0)
   val durationMillis: Long? get() = finishedAtMillis?.let { it - startedAtMillis }
 }
+
+/** Un modello che ha risposto in un passaggio: quale servizio, a quale livello, quale modello. */
+data class RunModel(val provider: ProviderId, val tier: ModelTier, val model: String)
 
 data class Totals(val conversations: Int, val runs: Int, val tokens: Long, val costUsd: Double)
 
@@ -115,6 +126,17 @@ private data class ChipJson(val id: String, val value: String? = null)
 
 @Serializable
 private data class TraceJson(val name: String, val millis: Long, val ok: Boolean, val chars: Int, val args: String = "", val preview: String = "", val app: String? = null)
+
+@Serializable
+private data class RunModelJson(val provider: String, val tier: String, val model: String)
+
+/**
+ * Cosa sta nella colonna `groupsJson` di un passaggio: i gruppi, e dall'engine 1.29.0 anche i
+ * modelli usati in ordine. Un oggetto in quella colonna, e non una colonna nuova, perche' non vale
+ * una migrazione di Room: le righe vecchie (una lista di stringhe) si leggono come prima.
+ */
+@Serializable
+private data class GroupsJson(val groups: List<String> = emptyList(), val models: List<RunModelJson> = emptyList())
 
 /**
  * Le conversazioni su disco: una riga per conversazione, una per messaggio, una per allegato,
@@ -152,8 +174,8 @@ class ConversationsRepository @Inject constructor(
 
   suspend fun latest(): Conversation? = conversationDao.latest()?.toModel()
 
-  suspend fun createConversation(title: String, nowMillis: Long, source: String = "app"): Long =
-    conversationDao.insert(ConversationEntity(title = title.take(80), createdAtMillis = nowMillis, updatedAtMillis = nowMillis, source = source))
+  suspend fun createConversation(title: String, nowMillis: Long, source: String = "app", temporary: Boolean = false): Long =
+    conversationDao.insert(ConversationEntity(title = title.take(80), createdAtMillis = nowMillis, updatedAtMillis = nowMillis, source = source, temporary = temporary))
 
   suspend fun addUserMessage(conversationId: Long, text: String, nowMillis: Long, mode: AskMode): Long =
     messageDao.insert(MessageEntity(conversationId = conversationId, role = MessageRole.USER.name, text = text, status = MessageStatus.DONE.name, createdAtMillis = nowMillis, mode = mode.name))
@@ -197,7 +219,9 @@ class ConversationsRepository @Inject constructor(
 
   suspend fun rename(conversationId: Long, title: String, auto: Boolean) {
     val conversation = conversationDao.get(conversationId) ?: return
-    if (auto && conversation.autoTitled) return
+    // Una temporanea non chiede niente al modello per un titolo che nessuno leggera' in cronologia:
+    // le resta la domanda troncata. Rinominarla a mano, se mai capitasse, resta possibile.
+    if (auto && (conversation.autoTitled || conversation.temporary)) return
     conversationDao.update(conversation.copy(title = title.take(80), autoTitled = auto || conversation.autoTitled))
   }
 
@@ -230,7 +254,7 @@ class ConversationsRepository @Inject constructor(
         chatModel = log.models[ModelTier.CHAT] ?: log.model,
         deepModel = log.models[ModelTier.DEEP],
         tierReached = log.tierReached.name,
-        groupsJson = json.encodeToString(log.groups),
+        groupsJson = json.encodeToString(GroupsJson(log.groups, log.modelsUsed.map { RunModelJson(it.provider.id, it.tier.name, it.model) })),
         promptTokens = log.usage?.promptTokens,
         completionTokens = log.usage?.completionTokens,
         costUsd = log.usage?.costUsd,
@@ -294,6 +318,9 @@ class ConversationsRepository @Inject constructor(
       .take(limit)
     return found.mapNotNull { message ->
       val conversation = conversationDao.get(message.conversationId) ?: return@mapNotNull null
+      // La chat temporanea non si cerca: non esiste per il cassetto e non deve esistere nemmeno
+      // per il tool `conversazioni_cerca`, che altrimenti la ripescherebbe finche' e' aperta.
+      if (conversation.temporary) return@mapNotNull null
       val index = message.text.indexOf(words.first(), ignoreCase = true).coerceAtLeast(0)
       val start = (index - 80).coerceAtLeast(0)
       val end = (index + 120).coerceAtMost(message.text.length)
@@ -327,6 +354,21 @@ class ConversationsRepository @Inject constructor(
     conversationDao.delete(conversationId)
   }
 
+  /**
+   * Butta le chat temporanee: la conversazione, i suoi messaggi, gli allegati (anche i file) e i
+   * passaggi. Non ci sono chiavi esterne in questo database, quindi niente cascata: si passa da
+   * [delete], che l'ordine giusto ce l'ha gia'.
+   *
+   * @return gli id cancellati, cosi' chi chiama puo' dimenticarli anche dalla memoria del processo
+   *   (SQLite riusa il ROWID piu' alto dopo una cancellazione: una conversazione in memoria rimasta
+   *   su quell'id finirebbe dentro la prossima chat).
+   */
+  suspend fun deleteTemporary(): List<Long> {
+    val ids = conversationDao.temporaryIds()
+    ids.forEach { delete(it) }
+    return ids
+  }
+
   suspend fun deleteAll() {
     withContext(Dispatchers.IO) { File(context.filesDir, "attachments").deleteRecursively() }
     attachmentDao.deleteAll()
@@ -344,6 +386,7 @@ class ConversationsRepository @Inject constructor(
     loadedGroups = loadedGroupsJson?.let { runCatching { json.decodeFromString<List<String>>(it) }.getOrNull() } ?: emptyList(),
     autoTitled = autoTitled,
     plugin = plugin,
+    temporary = temporary,
   )
 
   private fun AttachmentEntity.toModel() = Attachment(id, messageId, AttachmentKind.entries.firstOrNull { it.name == kind } ?: AttachmentKind.DOCUMENT, mime, name, path, bytes)
@@ -361,13 +404,26 @@ class ConversationsRepository @Inject constructor(
     attachments = attachments,
   )
 
-  private fun RunEntity.toModel() = Run(
-    id = id, conversationId = conversationId, messageId = messageId, startedAtMillis = startedAtMillis, finishedAtMillis = finishedAtMillis,
-    steps = steps, provider = ProviderId.fromId(provider), routerModel = routerModel, chatModel = chatModel, deepModel = deepModel,
-    tierReached = tierReached?.let { name -> ModelTier.entries.firstOrNull { it.name == name } },
-    groups = groupsJson?.let { runCatching { json.decodeFromString<List<String>>(it) }.getOrNull() } ?: emptyList(),
-    promptTokens = promptTokens, completionTokens = completionTokens, costUsd = costUsd, waitedSeconds = waitedSeconds,
-    tools = toolTracesJson?.let { runCatching { json.decodeFromString<List<TraceJson>>(it) }.getOrNull() }?.map { PampaiToolTrace(it.name, it.args, it.millis, it.ok, it.chars, it.preview, it.app) } ?: emptyList(),
-    outcome = outcome, error = error, contextTokens = contextTokens, contextWindow = contextWindow,
-  )
+  private fun RunEntity.toModel(): Run {
+    val stored = groupsJson?.let { decodeGroups(it) }
+    return Run(
+      id = id, conversationId = conversationId, messageId = messageId, startedAtMillis = startedAtMillis, finishedAtMillis = finishedAtMillis,
+      steps = steps, provider = ProviderId.fromId(provider), routerModel = routerModel, chatModel = chatModel, deepModel = deepModel,
+      tierReached = tierReached?.let { name -> ModelTier.entries.firstOrNull { it.name == name } },
+      groups = stored?.groups ?: emptyList(),
+      models = stored?.models?.mapNotNull { m ->
+        val provider = ProviderId.fromId(m.provider) ?: return@mapNotNull null
+        val tier = ModelTier.entries.firstOrNull { it.name == m.tier } ?: return@mapNotNull null
+        RunModel(provider, tier, m.model)
+      } ?: emptyList(),
+      promptTokens = promptTokens, completionTokens = completionTokens, costUsd = costUsd, waitedSeconds = waitedSeconds,
+      tools = toolTracesJson?.let { runCatching { json.decodeFromString<List<TraceJson>>(it) }.getOrNull() }?.map { PampaiToolTrace(it.name, it.args, it.millis, it.ok, it.chars, it.preview, it.app) } ?: emptyList(),
+      outcome = outcome, error = error, contextTokens = contextTokens, contextWindow = contextWindow,
+    )
+  }
+
+  /** Le due forme di `groupsJson`: l'oggetto di adesso, o la lista di stringhe di prima. */
+  private fun decodeGroups(raw: String): GroupsJson? =
+    runCatching { json.decodeFromString<GroupsJson>(raw) }.getOrNull()
+      ?: runCatching { GroupsJson(groups = json.decodeFromString<List<String>>(raw)) }.getOrNull()
 }

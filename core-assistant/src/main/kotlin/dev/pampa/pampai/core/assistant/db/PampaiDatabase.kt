@@ -35,6 +35,12 @@ data class ConversationEntity(
    * partenza e lo dice al modello, che resta libero di usare altro se la domanda e' altro.
    */
   val plugin: String? = null,
+  /**
+   * La chat temporanea: non compare in cronologia, non prende un titolo dal modello, non entra
+   * nella memoria a lungo termine, e sparisce quando la si lascia. Il nome della colonna e' una
+   * parola chiave di SQLite, quindi nelle query scritte a mano va fra apici inversi.
+   */
+  val temporary: Boolean = false,
 )
 
 @Entity(tableName = "messages", indices = [Index("conversationId")])
@@ -135,9 +141,13 @@ data class ReminderEntity(
   val lastFiredAtMillis: Long? = null,
 )
 
+/**
+ * La cronologia esclude sempre le temporanee (`observeAll`, `latest`, `observeCount`): una chat
+ * temporanea esiste solo finche' e' aperta, e chi la sta guardando la chiede per id.
+ */
 @Dao
 interface ConversationDao {
-  @Query("SELECT * FROM conversations ORDER BY pinned DESC, updatedAtMillis DESC")
+  @Query("SELECT * FROM conversations WHERE `temporary` = 0 ORDER BY pinned DESC, updatedAtMillis DESC")
   fun observeAll(): Flow<List<ConversationEntity>>
 
   @Query("SELECT * FROM conversations WHERE id = :id")
@@ -146,11 +156,15 @@ interface ConversationDao {
   @Query("SELECT * FROM conversations WHERE id = :id")
   suspend fun get(id: Long): ConversationEntity?
 
-  @Query("SELECT * FROM conversations ORDER BY updatedAtMillis DESC LIMIT 1")
+  @Query("SELECT * FROM conversations WHERE `temporary` = 0 ORDER BY updatedAtMillis DESC LIMIT 1")
   suspend fun latest(): ConversationEntity?
 
-  @Query("SELECT COUNT(*) FROM conversations")
+  @Query("SELECT COUNT(*) FROM conversations WHERE `temporary` = 0")
   fun observeCount(): Flow<Int>
+
+  /** Gli id delle temporanee da buttare: i loro messaggi, allegati e passaggi li toglie il repository. */
+  @Query("SELECT id FROM conversations WHERE `temporary` = 1")
+  suspend fun temporaryIds(): List<Long>
 
   @Insert
   suspend fun insert(entity: ConversationEntity): Long
@@ -319,9 +333,16 @@ interface ReminderDao {
   suspend fun delete(id: Long)
 }
 
+/**
+ * La versione dello schema. Costante e non un numero dentro l'annotazione perche' le migrazioni
+ * (in `DatabaseModule`) devono arrivare esattamente fin qui, e un test lo verifica: alzare la
+ * versione senza scrivere la migrazione vuol dire buttare le conversazioni dell'utente.
+ */
+const val PAMPAI_DB_VERSION = 3
+
 @Database(
   entities = [ConversationEntity::class, MessageEntity::class, AttachmentEntity::class, RunEntity::class, UsageEventEntity::class, MemoryEntity::class, ReminderEntity::class],
-  version = 2,
+  version = PAMPAI_DB_VERSION,
   exportSchema = false,
 )
 abstract class PampaiDatabase : RoomDatabase() {

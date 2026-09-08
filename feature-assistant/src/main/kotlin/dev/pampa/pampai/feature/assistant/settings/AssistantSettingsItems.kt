@@ -120,7 +120,7 @@ fun LazyListScope.assistantSettingsItems(
   }
 
   if (verified.size > 1) {
-    item { FluidSectionHeader(title = "Ordine dei servizi", detail = "Il primo risponde; gli altri sono la riserva quando e' al limite o non risponde.") }
+    item { FluidSectionHeader(title = "Ordine dei servizi", detail = "Il primo risponde; gli altri fanno da riserva se la riserva automatica e' accesa nelle preferenze.") }
     item {
       Text("Chat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp))
       ProviderOrderList(order = state.settings.chatOrder, available = verified, onReorder = viewModel::setChatOrder)
@@ -345,6 +345,12 @@ private fun AssistantPreferences(viewModel: AssistantSettingsViewModel, state: A
       subtitle = "Sveglie, chiamate, eventi, installazioni, azioni nelle app collegate. Quelle che contano chiedono conferma; le fidate le scegli tu.",
       badge = { FluidSwitch(checked = state.settings.actionsEnabled, onCheckedChange = viewModel::setActionsEnabled) },
     )
+    FluidListDivider()
+    FluidListRow(
+      title = "Riserva automatica",
+      subtitle = "Se il servizio scelto e' al limite o non risponde, Aria passa al successivo. Spenta, resta su quello scelto e aspetta.",
+      badge = { FluidSwitch(checked = state.pampai.failoverEnabled, onCheckedChange = viewModel::setFailoverEnabled) },
+    )
   }
 }
 
@@ -412,8 +418,17 @@ private fun VoicePreferences(viewModel: AssistantSettingsViewModel, state: Assis
 
 @Composable
 private fun RecentRequestRow(log: AiRequestLog) {
+  // Chi ha risposto, in ordine (1.29.0): "Gemini gemini-2.5-flash → OpenRouter minimax-m2.5" dice
+  // anche il cambio di servizio, cosa che la mappa per livello nasconde. Senza la lista (una
+  // domanda finita prima di qualunque risposta) resta la vecchia forma: servizio e modelli.
+  val chain = log.modelsUsed
+    .fold(mutableListOf<String>()) { acc, use -> "${use.provider.label} ${use.model}".let { if (acc.lastOrNull() != it) acc += it }; acc }
+    .joinToString(" → ")
+  val who = chain.ifEmpty {
+    "${log.provider.label}${if (log.switchedTo.isNotEmpty()) " → ${log.switchedTo.joinToString(", ") { it.label }}" else ""} · ${log.models.values.distinct().joinToString(", ")}"
+  }
   val details = buildList {
-    add("${log.provider.label}${if (log.switchedTo.isNotEmpty()) " → ${log.switchedTo.joinToString(", ") { it.label }}" else ""} · ${log.models.values.distinct().joinToString(", ")} · ${log.steps} passi · ${log.durationMillis / 1000} s")
+    add("$who · ${log.steps} passi · ${log.durationMillis / 1000} s")
     if (log.groups.isNotEmpty()) add("gruppi: ${log.groups.joinToString(", ")}")
     if (log.tools.isNotEmpty()) add("strumenti: ${log.tools.joinToString(", ") { "${it.name} ${it.millis} ms${if (it.ok) "" else " ✕"}" }}")
     log.usage?.let { usage ->

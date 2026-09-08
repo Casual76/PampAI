@@ -52,14 +52,19 @@ class HistoryViewModel @Inject constructor(
     queryFlow.value = query
   }
 
+  // Aprire un'altra conversazione, o cominciarne una, vuol dire lasciare quella di adesso: se era
+  // una chat temporanea, e' qui che sparisce. La lista e la ricerca non ne mostrano mai una,
+  // quindi non si sta mai cancellando cio' che si sta aprendo.
   fun open(id: Long) {
     if (runtime.isBusy && runtime.activeConversationId.value != id) runtime.cancel()
+    viewModelScope.launch { engine.dropTemporary() }
     runtime.selectConversation(id)
     runtime.reset()
   }
 
   fun newConversation() {
     if (runtime.isBusy) runtime.cancel()
+    viewModelScope.launch { engine.dropTemporary() }
     runtime.selectConversation(null)
     runtime.reset()
   }
@@ -81,6 +86,9 @@ class HistoryViewModel @Inject constructor(
     if (runtime.isBusy) runtime.cancel()
     runtime.selectConversation(null)
     items.value.forEach { engine.forget(it.id) }
+    // La lista non contiene le temporanee, ma `deleteAll` le cancella comunque: cosi' l'engine non
+    // resta con la loro storia in memoria su un id che SQLite puo' riassegnare.
+    engine.dropTemporary()
     conversations.deleteAll()
   }
 }

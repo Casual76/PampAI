@@ -52,7 +52,8 @@ class SvegliaCreaTool : AiTool<PampaiToolContext> {
     required = listOf("ora"),
   )
   override val isAction = true
-  override val needsConfirmation = true
+  /** Reversibile e resta sul telefono: niente conferma, vale solo l'interruttore "Azioni". */
+  override val needsConfirmation = false
 
   override suspend fun describe(args: JsonObject, ctx: PampaiToolContext): ConfirmationText? {
     val time = Dates.parseTime(args.str("ora")) ?: return null
@@ -62,8 +63,7 @@ class SvegliaCreaTool : AiTool<PampaiToolContext> {
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     val time = Dates.parseTime(args.str("ora")) ?: return ToolOutput.error("ora non capita: usa \"7\", \"6:30\", \"6 e mezza\"")
-    val confirmation = describe(args, ctx)!!
-    ctx.confirm(name, confirmation.title, confirmation.detail)?.let { return it }
+    ctx.requireActions()?.let { return it }
     val intent = Intent(AlarmClock.ACTION_SET_ALARM)
       .putExtra(AlarmClock.EXTRA_HOUR, time.hour)
       .putExtra(AlarmClock.EXTRA_MINUTES, time.minute)
@@ -171,7 +171,8 @@ class TimerCreaTool : AiTool<PampaiToolContext> {
     required = listOf("durata"),
   )
   override val isAction = true
-  override val needsConfirmation = true
+  /** Reversibile e resta sul telefono: niente conferma, vale solo l'interruttore "Azioni". */
+  override val needsConfirmation = false
 
   override suspend fun describe(args: JsonObject, ctx: PampaiToolContext): ConfirmationText? {
     val seconds = Durations.parseSeconds(args.str("durata")) ?: return null
@@ -181,8 +182,7 @@ class TimerCreaTool : AiTool<PampaiToolContext> {
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     val seconds = Durations.parseSeconds(args.str("durata")) ?: return ToolOutput.error("durata non capita: usa \"10 minuti\", \"1 ora e 30\", \"45 secondi\"")
     if (seconds <= 0 || seconds > 24 * 3600) return ToolOutput.error("la durata deve stare fra 1 secondo e 24 ore")
-    val confirmation = describe(args, ctx)!!
-    ctx.confirm(name, confirmation.title, confirmation.detail)?.let { return it }
+    ctx.requireActions()?.let { return it }
     val intent = Intent(AlarmClock.ACTION_SET_TIMER).putExtra(AlarmClock.EXTRA_LENGTH, seconds).putExtra(AlarmClock.EXTRA_SKIP_UI, true)
     args.str("etichetta")?.let { intent.putExtra(AlarmClock.EXTRA_MESSAGE, it) }
     if (!Device.launch(ctx, intent)) return ToolOutput.error("nessuna app Orologio risponde ai timer su questo telefono")

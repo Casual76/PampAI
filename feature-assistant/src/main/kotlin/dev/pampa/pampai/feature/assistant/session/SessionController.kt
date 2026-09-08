@@ -64,8 +64,13 @@ class SessionController(
   /** Vero mentre il dito sta ritagliando lo schermo. */
   val selecting = MutableStateFlow(false)
 
-  /** Un avviso breve nella card (lo schermo che manca, il ritaglio troppo piccolo). */
+  /** Un avviso breve sopra la barra (lo schermo che manca, il ritaglio troppo piccolo). */
   val notice = MutableStateFlow<String?>(null)
+
+  /** Un tocco sulla nota la manda via: e' una riga di servizio, non qualcosa da leggere due volte. */
+  fun dismissNotice() {
+    notice.value = null
+  }
 
   /** Quante volte si e' mostrata: la UI la usa per far ripartire l'entrata (orb → barra). */
   val shownStamp = MutableStateFlow(0L)

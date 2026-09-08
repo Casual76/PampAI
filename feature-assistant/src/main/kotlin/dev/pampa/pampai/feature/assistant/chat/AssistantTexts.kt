@@ -3,16 +3,29 @@ package dev.pampa.pampai.feature.assistant.chat
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.FailureKind
+import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.pampa.pampai.core.assistant.prompt.AriaChips
 import dev.pampa.pampai.core.assistant.service.AssistantNotifications
 
 /** Da chiavi di stato, errori e chip alle parole: l'unico posto in cui la UI di Aria sceglie una frase. */
 object AssistantTexts {
 
-  fun failure(kind: FailureKind, retryAfterSec: Int? = null): String = when (kind) {
+  /**
+   * La frase di un fallimento.
+   *
+   * Per il limite di richieste nomina il servizio se chi chiama lo sa ([provider]: lo stato
+   * `Failed` dell'engine non lo porta) e ricorda la riserva automatica: con la riserva spenta
+   * (il default) Aria aspetta e poi si arrende, e chi legge "riprova fra 40 s" deve sapere che
+   * esiste l'alternativa di passare a un altro servizio.
+   */
+  fun failure(kind: FailureKind, retryAfterSec: Int? = null, provider: ProviderId? = null): String = when (kind) {
     FailureKind.NO_KEYS -> "Nessuna chiave verificata: aggiungine una nelle impostazioni."
     FailureKind.UNAUTHORIZED -> "La chiave non e' piu' valida: controllala nelle impostazioni."
-    FailureKind.RATE_LIMITED -> if (retryAfterSec != null) "Il servizio e' al limite: riprova fra $retryAfterSec s." else "Il servizio e' al limite di richieste: riprova fra poco."
+    FailureKind.RATE_LIMITED -> {
+      val who = provider?.label ?: "Il servizio"
+      if (retryAfterSec != null) "$who e' al limite: riprova fra $retryAfterSec s (o accendi la riserva automatica nelle impostazioni)."
+      else "$who e' al limite di richieste: riprova fra poco (o accendi la riserva automatica nelle impostazioni)."
+    }
     FailureKind.NETWORK -> "Niente rete."
     FailureKind.TIMEOUT -> "Ci ho messo troppo: riprova con una domanda piu' semplice."
     FailureKind.BLOCKED -> "Il servizio ha rifiutato la richiesta."
@@ -22,7 +35,8 @@ object AssistantTexts {
     FailureKind.UNKNOWN -> "Qualcosa e' andato storto."
   }
 
-  fun statusLine(state: AssistantState): String? = when (state) {
+  /** La riga di stato; [provider] e' chi stava rispondendo, per nominarlo in un fallimento per limite. */
+  fun statusLine(state: AssistantState, provider: ProviderId? = null): String? = when (state) {
     is AssistantState.Listening -> "Ti ascolto…"
     AssistantState.Transcribing -> "Trascrivo…"
     is AssistantState.Classifying -> "Capisco cosa serve…"
@@ -35,7 +49,7 @@ object AssistantTexts {
     is AssistantState.Answering -> "Rispondo…"
     is AssistantState.AwaitingConfirmation -> "Serve una conferma"
     AssistantState.HeardNothing -> "Non ho sentito niente"
-    is AssistantState.Failed -> failure(state.kind, state.retryAfterSec)
+    is AssistantState.Failed -> failure(state.kind, state.retryAfterSec, provider)
     is AssistantState.Cancelled -> "Fermata"
     is AssistantState.Done -> null
     AssistantState.Idle -> null

@@ -38,8 +38,16 @@ class RicordaTool : AiTool<PampaiToolContext> {
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     val text = args.str("testo") ?: return ToolOutput.error("manca il testo")
+    // Da una chat temporanea non esce niente: e' l'unica promessa che fa. Non un `errore:` da
+    // correggere e riprovare -- non c'e' niente da correggere -- ma una riga da riferire.
+    if (ctx.temporary) return ToolOutput(TEMPORARY_NO_MEMORY)
     ctx.memory.add(text, ctx.conversationId, ctx.now())
     return ToolText.output { line("fatto", "ricordato: $text") }
+  }
+
+  private companion object {
+    const val TEMPORARY_NO_MEMORY =
+      "questa e' una chat temporanea: non lascia tracce, quindi non si puo' ricordare niente da qui. Dillo all'utente in una riga: se vuole che tu lo ricordi, deve chiederlo in una chat normale."
   }
 }
 

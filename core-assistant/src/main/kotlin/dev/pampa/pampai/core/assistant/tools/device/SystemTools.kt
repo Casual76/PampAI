@@ -33,13 +33,14 @@ class TorciaTool : AiTool<PampaiToolContext> {
   override val description = "Accende o spegne la torcia (il flash). Per \"accendi la torcia\", \"spegni la luce\"."
   override val parameters = Schema.obj(mapOf("stato" to Schema.str("on o off", enum = listOf("on", "off"))), required = listOf("stato"))
   override val isAction = true
-  override val needsConfirmation = true
+  /** Reversibile e resta sul telefono: niente conferma, vale solo l'interruttore "Azioni". */
+  override val needsConfirmation = false
 
   override suspend fun describe(args: JsonObject, ctx: PampaiToolContext): ConfirmationText? = ConfirmationText(if (onOff(args.str("stato")) == true) "Accendere la torcia?" else "Spegnere la torcia?", null)
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     val on = onOff(args.str("stato")) ?: return ToolOutput.error("stato: on o off")
-    ctx.confirm(name, if (on) "Accendere la torcia?" else "Spegnere la torcia?", null)?.let { return it }
+    ctx.requireActions()?.let { return it }
     val camera = ctx.app.getSystemService(CameraManager::class.java) ?: return ToolOutput.error("nessuna fotocamera")
     val id = runCatching { camera.cameraIdList.firstOrNull { camera.getCameraCharacteristics(it).get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true } }.getOrNull()
       ?: return ToolOutput.error("questo telefono non ha un flash")

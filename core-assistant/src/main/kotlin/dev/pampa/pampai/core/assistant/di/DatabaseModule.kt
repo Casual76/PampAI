@@ -27,7 +27,7 @@ object DatabaseModule {
   @Singleton
   fun provideDatabase(@ApplicationContext context: Context): PampaiDatabase =
     Room.databaseBuilder(context, PampaiDatabase::class.java, "pampai.db")
-      .addMigrations(MIGRATION_1_2)
+      .addMigrations(*PAMPAI_MIGRATIONS)
       // Solo per gli schemi che nessuna migrazione conosce: le conversazioni dell'utente non
       // sono un dato che si butta perche' e' cambiata una colonna.
       .fallbackToDestructiveMigration(dropAllTables = true)
@@ -47,8 +47,28 @@ object DatabaseModule {
 }
 
 /** 1 -> 2: il plugin scelto per la conversazione. Una colonna in piu', tutto il resto uguale. */
-private val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
+internal val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
   override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
     db.execSQL("ALTER TABLE conversations ADD COLUMN plugin TEXT")
   }
 }
+
+/**
+ * Il comando della 2 -> 3, a parte perche' un test lo legge: `temporary` e' una parola chiave di
+ * SQLite e va fra apici inversi, e il `DEFAULT 0` e' cio' che rende la migrazione innocua — le
+ * conversazioni gia' su disco restano dove sono, semplicemente non sono temporanee.
+ */
+internal const val SQL_ADD_TEMPORARY = "ALTER TABLE conversations ADD COLUMN `temporary` INTEGER NOT NULL DEFAULT 0"
+
+/** 2 -> 3: la chat temporanea. Una colonna in piu', e le vecchie righe valgono 0 (non temporanee). */
+internal val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
+  override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+    db.execSQL(SQL_ADD_TEMPORARY)
+  }
+}
+
+/**
+ * Tutte le migrazioni, in ordine: devono coprire ogni passo fino a PAMPAI_DB_VERSION, perche'
+ * il buco lo raccoglie `fallbackToDestructiveMigration`, e li' le conversazioni si perdono.
+ */
+internal val PAMPAI_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)

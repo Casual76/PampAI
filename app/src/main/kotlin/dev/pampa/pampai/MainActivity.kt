@@ -91,6 +91,11 @@ class MainActivity : ComponentActivity() {
     super.onStop()
   }
 
+  /**
+   * Legge la richiesta e la toglie dall'intent. Una rotazione ricrea l'Activity con lo stesso
+   * intent: senza questo ogni giro produrrebbe uno stamp nuovo, e il microfono ripartirebbe (o il
+   * testo condiviso si riallegherebbe) da solo.
+   */
   private fun entryOf(intent: Intent?): EntryRequest? {
     intent ?: return null
     val conversation = intent.getLongExtra(AssistantNotifications.EXTRA_CONVERSATION, -1L).takeIf { it > 0 }
@@ -99,6 +104,8 @@ class MainActivity : ComponentActivity() {
     val last = intent.getBooleanExtra(EXTRA_LAST, false)
     val shared = sharedOf(intent)
     if (conversation == null && !voice && !newChat && !last && shared == null) return null
+    listOf(AssistantNotifications.EXTRA_CONVERSATION, EXTRA_VOICE, EXTRA_NEW, EXTRA_LAST, Intent.EXTRA_TEXT, Intent.EXTRA_STREAM)
+      .forEach(intent::removeExtra)
     return EntryRequest(
       conversationId = conversation,
       voice = voice,

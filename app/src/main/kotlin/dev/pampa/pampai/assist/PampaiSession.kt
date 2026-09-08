@@ -46,14 +46,40 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
   private val entry = EntryPointAccessors.fromApplication(context.applicationContext, SessionEntryPoint::class.java)
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
   private val screen = entry.screen()
+  private val runtime = entry.runtime()
   private lateinit var host: SessionComposeHost
   private lateinit var controller: SessionController
+
+  /**
+   * Deciso in [onPrepareShow] e valido fino a [onHide]: questa apparizione non mostra niente e
+   * manda il microfono nella chat aperta. Una sola decisione per apparizione, perche' se la UI e'
+   * spenta e poi non si reindirizza non si vede nulla.
+   */
+  private var redirecting = false
 
   override fun onCreate() {
     super.onCreate()
     setTheme(R.style.Theme_PampAI_Session)
     setUiEnabled(true)
-    controller = SessionController(entry.runtime(), entry.conversations(), screen, scope)
+    controller = SessionController(runtime, entry.conversations(), screen, scope)
+  }
+
+  /**
+   * Vero quando l'app e' davanti e sbloccata: il tasto di accensione tenuto premuto dentro Aria non
+   * deve aprire Aria sopra Aria, deve accendere il microfono nella conversazione che si sta
+   * guardando. Con lo schermo bloccato la sessione resta quella normale.
+   */
+  private fun redirectToApp(): Boolean {
+    val keyguard = context.getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
+    return runtime.appInForeground && !keyguard
+  }
+
+  override fun onPrepareShow(args: Bundle?, showFlags: Int) {
+    super.onPrepareShow(args, showFlags)
+    // Prima che esista una finestra: con la UI spenta doShow() non la crea e non la mostra, quindi
+    // non c'e' nemmeno un fotogramma di scrim sopra l'app.
+    redirecting = redirectToApp()
+    setUiEnabled(!redirecting)
   }
 
   override fun onCreateContentView(): View {
@@ -82,6 +108,22 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
 
   override fun onShow(args: Bundle?, showFlags: Int) {
     super.onShow(args, showFlags)
+    if (redirecting) {
+      // Niente EXTRA_NEW: la conversazione aperta continua, e una seconda pressione mentre ascolta
+      // la ferma (lo decide la home). L'activity e' singleTask e gia' davanti: arriva in onNewIntent.
+      //
+      // Un lancio normale, non startAssistantActivity: quello apre un task di tipo "assistant", e
+      // un'activity singleTask non riusa un task di tipo diverso — sul telefono nasceva una
+      // seconda MainActivity con la sua splash screen, e l'onStop della prima spegneva
+      // appInForeground con la seconda gia' davanti. L'app e' visibile, quindi il lancio dal
+      // servizio e' consentito (BAL_ALLOW_VISIBLE_WINDOW).
+      val intent = Intent(context, MainActivity::class.java)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        .putExtra(MainActivity.EXTRA_VOICE, true)
+      runCatching { context.startActivity(intent) }
+      hide()
+      return
+    }
     val source = args?.getString(PampaiInteractionService.EXTRA_SOURCE) ?: PampaiInteractionService.SOURCE_ASSIST
     val keyguard = context.getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
     screen.beginShow(
@@ -112,7 +154,11 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
   }
 
   override fun onHide() {
-    controller.onHide()
+    // Reindirizzata: il microfono lo ha acceso la chat, e controller.onHide() lo spegnerebbe
+    // (cancelListening) in corsa con l'intent appena partito. Lo store dello schermo si svuota
+    // comunque: la struttura e lo screenshot possono arrivare anche a UI spenta.
+    if (!redirecting) controller.onHide()
+    redirecting = false
     screen.clear()
     if (::host.isInitialized) host.pause()
     super.onHide()
@@ -138,8 +184,18 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
   private fun expandToApp(conversationId: Long?) {
     val intent = Intent(context, MainActivity::class.java)
       .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-    if (conversationId != null) intent.putExtra(AssistantNotifications.EXTRA_CONVERSATION, conversationId) else intent.putExtra(MainActivity.EXTRA_NEW, true)
-    runCatching { startAssistantActivity(intent) }.onFailure { runCatching { context.startActivity(intent) } }
+    when {
+      conversationId != null -> intent.putExtra(AssistantNotifications.EXTRA_CONVERSATION, conversationId)
+      // Una domanda in volo senza id noto: l'app apre l'ultima conversazione, non una nuova, cosi'
+      // la risposta arriva dove si guarda invece di sparire dietro una chat vuota.
+      runtime.isBusy -> intent.putExtra(MainActivity.EXTRA_LAST, true)
+      else -> intent.putExtra(MainActivity.EXTRA_NEW, true)
+    }
+    // Lancio normale anche qui, per lo stesso motivo del reindirizzamento in onShow: una sola
+    // MainActivity, nel suo task. Con startAssistantActivity l'app espansa viveva in un task
+    // "assistant" a parte, e da li' il tasto di accensione non trovava piu' la chat davanti. Il
+    // servizio di sessione e' legato dal sistema con il permesso di aprire activity dallo sfondo.
+    runCatching { context.startActivity(intent) }
     hide()
   }
 

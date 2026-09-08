@@ -119,7 +119,7 @@ class AssistantNotifications @Inject constructor(@ApplicationContext private val
   fun failureText(kind: FailureKind): String = when (kind) {
     FailureKind.NO_KEYS -> "Nessuna chiave verificata: apri le impostazioni."
     FailureKind.UNAUTHORIZED -> "La chiave non e' piu' valida: controllala nelle impostazioni."
-    FailureKind.RATE_LIMITED -> "Il servizio e' al limite di richieste: riprova fra poco."
+    FailureKind.RATE_LIMITED -> "Il servizio e' al limite di richieste: riprova fra poco (o accendi la riserva automatica nelle impostazioni)."
     FailureKind.NETWORK -> "Niente rete."
     FailureKind.TIMEOUT -> "Ci ha messo troppo: riprova con una domanda piu' semplice."
     FailureKind.BLOCKED -> "Il servizio ha rifiutato la richiesta."
