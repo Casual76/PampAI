@@ -14,22 +14,30 @@
       "ref": "main"
     },
     "stable": {
-      "version": "1.1.1",
-      "releaseDate": "2026-09-08",
-      "changelog": "OpenRouter torna a rispondere: PampAI non impone piu' a ogni richiesta una politica sui dati piu' stretta di quella scelta sul tuo account, che sui modelli i cui endpoint gratuiti registrano i prompt lasciava zero endpoint (\"nessun endpoint corrisponde alla tua data policy\"). La scelta ora e' una riga in Impostazioni, sotto la chiave OpenRouter. E le scelte dei modelli si riallineano al catalogo anche senza scaricarlo di nuovo: prima una correzione ai predefiniti non raggiungeva mai un telefono che aveva gia' verificato la chiave.",
-      "releaseTag": "stable-pampai-v1.1.1",
-      "apkAsset": "pampai-1.1.1.apk",
+      "version": "1.1.2",
+      "releaseDate": "2026-09-19",
+      "changelog": "Gli interruttori sono quelli di vetro vero.\n\nIl pomello e' l'unica lastra del controllo: a riposo e' bianco pieno, e tenuto premuto il bianco sparisce e sotto si apre una copia schiacciata della pista, con la frangia cromatica sul bordo. Si commutano con un tocco in qualunque punto, oppure trascinando il pomello, e prendono il colore d'accento dell'app.\n\nFluid Engine 2.3.2.",
+      "releaseTag": "stable-pampai-v1.1.2",
+      "apkAsset": "pampai-1.1.2.apk",
       "sizeBytes": 13328052
     },
     "beta": {
-      "version": "1.1.1",
-      "releaseDate": "2026-09-08",
-      "changelog": "OpenRouter torna a rispondere: PampAI non impone piu' a ogni richiesta una politica sui dati piu' stretta di quella scelta sul tuo account, che sui modelli i cui endpoint gratuiti registrano i prompt lasciava zero endpoint (\"nessun endpoint corrisponde alla tua data policy\"). La scelta ora e' una riga in Impostazioni, sotto la chiave OpenRouter. E le scelte dei modelli si riallineano al catalogo anche senza scaricarlo di nuovo: prima una correzione ai predefiniti non raggiungeva mai un telefono che aveva gia' verificato la chiave.",
-      "releaseTag": "stable-pampai-v1.1.1",
-      "apkAsset": "pampai-1.1.1.apk",
+      "version": "1.1.2",
+      "releaseDate": "2026-09-19",
+      "changelog": "Gli interruttori sono quelli di vetro vero.\n\nIl pomello e' l'unica lastra del controllo: a riposo e' bianco pieno, e tenuto premuto il bianco sparisce e sotto si apre una copia schiacciata della pista, con la frangia cromatica sul bordo. Si commutano con un tocco in qualunque punto, oppure trascinando il pomello, e prendono il colore d'accento dell'app.\n\nFluid Engine 2.3.2.",
+      "releaseTag": "stable-pampai-v1.1.2",
+      "apkAsset": "pampai-1.1.2.apk",
       "sizeBytes": 13328052
     },
     "history": [
+      {
+        "version": "1.1.1",
+        "releaseDate": "2026-09-08",
+        "changelog": "OpenRouter torna a rispondere: PampAI non impone piu' a ogni richiesta una politica sui dati piu' stretta di quella scelta sul tuo account, che sui modelli i cui endpoint gratuiti registrano i prompt lasciava zero endpoint (\"nessun endpoint corrisponde alla tua data policy\"). La scelta ora e' una riga in Impostazioni, sotto la chiave OpenRouter. E le scelte dei modelli si riallineano al catalogo anche senza scaricarlo di nuovo: prima una correzione ai predefiniti non raggiungeva mai un telefono che aveva gia' verificato la chiave.",
+        "releaseTag": "stable-pampai-v1.1.1",
+        "apkAsset": "pampai-1.1.1.apk",
+        "sizeBytes": 13328052
+      },
       {
         "version": "1.1.0",
         "releaseDate": "2026-09-08",
