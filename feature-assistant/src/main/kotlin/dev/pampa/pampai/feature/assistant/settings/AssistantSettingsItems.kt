@@ -369,6 +369,12 @@ private fun AssistantPreferences(viewModel: AssistantSettingsViewModel, state: A
       subtitle = "Se il servizio scelto e' al limite o non risponde, Aria passa al successivo. Spenta, resta su quello scelto e aspetta.",
       badge = { FluidSwitch(checked = state.pampai.failoverEnabled, onCheckedChange = viewModel::setFailoverEnabled) },
     )
+    FluidListDivider()
+    FluidListRow(
+      title = "Comandi rapidi",
+      subtitle = "\"Timer di 10 minuti\", \"accendi la torcia\", \"che ore sono\": eseguiti subito sul telefono, senza chiedere all'IA. Istantanei e gratis, anche offline.",
+      badge = { FluidSwitch(checked = state.pampai.quickCommands, onCheckedChange = viewModel::setQuickCommands) },
+    )
   }
 }
 

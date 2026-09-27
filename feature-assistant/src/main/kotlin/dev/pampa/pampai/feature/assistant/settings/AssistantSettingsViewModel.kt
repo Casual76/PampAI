@@ -130,6 +130,7 @@ class AssistantSettingsViewModel @Inject constructor(
   fun setStartInText(enabled: Boolean) = viewModelScope.launch { pampaiStore.setStartInText(enabled) }
   fun setThinkingAuto(auto: Boolean) = viewModelScope.launch { pampaiStore.setThinkingAuto(auto) }
   fun setFailoverEnabled(enabled: Boolean) = viewModelScope.launch { pampaiStore.setFailoverEnabled(enabled) }
+  fun setQuickCommands(enabled: Boolean) = viewModelScope.launch { pampaiStore.setQuickCommands(enabled) }
   fun setTtsEngine(engine: TtsEngine) = viewModelScope.launch { pampaiStore.setTtsEngine(engine) }
   fun setOnboardingDone() = viewModelScope.launch { pampaiStore.setOnboardingDone(true) }
 

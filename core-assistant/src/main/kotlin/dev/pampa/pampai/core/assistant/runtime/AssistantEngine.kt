@@ -1,6 +1,7 @@
 package dev.pampa.pampai.core.assistant.runtime
 
 import android.content.Context
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.ai.keys.AiSettingsStore
 import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
@@ -14,10 +15,13 @@ import dev.antigravity.fluidengine.ai.orchestrator.AskMode
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantFailure
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.Conversation
+import dev.antigravity.fluidengine.ai.orchestrator.Exchange
 import dev.antigravity.fluidengine.ai.orchestrator.FailureKind
 import dev.antigravity.fluidengine.ai.provider.ChatRequest
 import dev.antigravity.fluidengine.ai.provider.ContentPart
 import dev.antigravity.fluidengine.ai.provider.Message
+import dev.antigravity.fluidengine.ai.provider.ModelCapabilities
+import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderFactory
 import dev.antigravity.fluidengine.ai.provider.ReadyProvider
@@ -30,6 +34,7 @@ import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.db.MemoryRepository
 import dev.pampa.pampai.core.assistant.prompt.AriaChips
 import dev.pampa.pampai.core.assistant.prompt.PreRouter
+import dev.pampa.pampai.core.assistant.prompt.QuickCommands
 import dev.pampa.pampai.core.assistant.prompt.PromptBuilder
 import dev.pampa.pampai.core.assistant.prompt.PromptContext
 import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
@@ -62,6 +67,13 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+
+/** L'esito di una domanda risolta da un comando rapido, senza modello: la UI lo mostra come tale. */
+const val LOCAL_OUTCOME = "local"
+
+private const val TAG = "AssistantEngine"
 
 /** Com'e' finita una domanda, per la notifica e per chi ha chiamato. */
 data class ExecutionResult(val conversationId: Long, val question: String, val answer: String?, val failure: FailureKind?, val cancelled: Boolean)
@@ -147,6 +159,15 @@ class AssistantEngine @Inject constructor(
     var estimate: ContextEstimate? = null
     try {
       val settings = settingsStore.current()
+      // Il comando rapido prima di tutto, anche prima dei servizi: "timer di 10 minuti" non ha
+      // bisogno di un modello, e deve funzionare pure senza chiavi e senza rete.
+      if (request.attachments.isEmpty() && request.regenerateMessageId == null && request.override == null && pampaiSettings.current().quickCommands) {
+        val quick = runQuick(request, conversationId, messageId, settings.actionsEnabled, registry, now)
+        if (quick != null) {
+          persister.cancelAndJoin()
+          return@coroutineScope quick
+        }
+      }
       val parts = request.attachments.map { it.toPart() }
       val ordered = orderedProviders(request, settings, parts)
       if (ordered.isEmpty()) throw AssistantFailure(FailureKind.NO_KEYS, null)
@@ -240,7 +261,7 @@ class AssistantEngine @Inject constructor(
         // quando l'utente l'ha scelto lui per questa domanda ("rigenera con...").
         pinProvider = request.override != null || !pampai.failoverEnabled,
       )
-      estimate = ContextMeter.estimate(prompt, conversation, if (first.provider.id == dev.antigravity.fluidengine.ai.provider.ProviderId.GROQ) 5_000 else 60_000, registry.specsFor(conversation.loadedGroups), parts, first)
+      estimate = ContextMeter.estimate(prompt, conversation, if (first.provider.id == ProviderId.GROQ) 5_000 else 60_000, registry.specsFor(conversation.loadedGroups), parts, first)
       val result = orchestrator.ask(input, runtime.mutableState())
       // Aspettarlo, non solo fermarlo: `cancel()` torna prima che la sua ultima scrittura sia finita.
       persister.cancelAndJoin()
@@ -289,6 +310,59 @@ class AssistantEngine @Inject constructor(
       runtime.setState(AssistantState.Failed(question, FailureKind.UNKNOWN, e as? AiError, null, null))
       ExecutionResult(conversationId, question, null, FailureKind.UNKNOWN, cancelled = false)
     }
+  }
+
+  /**
+   * Un comando rapido ([QuickCommands]): lo strumento gira qui, senza orchestratore, e la risposta
+   * e' una frase fatta. Torna `null` se la domanda non e' un comando o lo strumento non e' riuscito
+   * in modo pulito: allora la domanda prosegue verso il modello, che sa spiegare l'errore.
+   */
+  private suspend fun runQuick(
+    request: AssistantRequest,
+    conversationId: Long,
+    messageId: Long,
+    actionsEnabled: Boolean,
+    registry: ToolRegistry<PampaiToolContext>,
+    startedAt: Long,
+  ): ExecutionResult? {
+    val match = QuickCommands.match(request.question) ?: return null
+    val tool = match.tool?.let { name -> registry.find(name) ?: return null }
+    // Dal telefono bloccato solo quello che non tocca dati personali: aprire un'app no.
+    if (request.surface == Surface.SESSION && screen.current?.lockscreen == true && match.kind == QuickCommands.Kind.OPEN_APP) return null
+    val zone = ZoneId.systemDefault()
+    val ctx = PampaiToolContext(
+      app = context, zone = zone, locale = Locale.getDefault(), now = System::currentTimeMillis,
+      surface = request.surface, mode = request.mode, actionsEnabled = actionsEnabled,
+      gate = gate, memory = memory, conversations = conversations, settings = pampaiSettings, http = http,
+      provider = null, deepCapabilities = ModelCapabilities(vision = false, documents = false),
+      conversationId = conversationId,
+      permissions = permissions, reminders = reminders, fluidify = fluidify, usage = usage, aiSettings = settingsStore,
+    )
+    val args = buildJsonObject { match.args.forEach { (key, value) -> put(key, value) } }
+    val output = if (tool == null) null else try {
+      tool.run(args, ctx)
+    } catch (e: CancellationException) {
+      throw e
+    } catch (e: Throwable) {
+      Log.w(TAG, "comando rapido ${match.tool} fallito", e)
+      return null
+    }
+    val answer = QuickCommands.reply(match, output?.text, ZonedDateTime.now(zone)) ?: return null
+    val finished = System.currentTimeMillis()
+    conversations.complete(messageId, answer, emptyList())
+    conversations.addFailedRun(conversationId, messageId, startedAt, finished, LOCAL_OUTCOME, null, ctx.traces)
+    conversations.touch(conversationId, finished, null)
+    // Lo scambio entra anche nella memoria della conversazione: "e allungalo di 5 minuti" deve
+    // sapere di quale timer si parla.
+    val provider = providers.ordered(ProviderFactory.Kind.CHAT).firstOrNull()?.provider?.id ?: ProviderId.GROQ
+    memoryConversations[conversationId]?.let { it.exchanges += Exchange(request.question, answer, emptyList(), provider, finished) }
+    runtime.setState(
+      AssistantState.Done(
+        question = request.question, answer = answer, chips = emptyList(), provider = provider, mode = request.mode,
+        usage = null, toolsUsed = listOfNotNull(match.tool), durationMillis = finished - startedAt,
+      ),
+    )
+    return ExecutionResult(conversationId, request.question, answer, null, cancelled = false)
   }
 
   /** I provider nell'ordine dell'utente, o quello scelto per questa domanda (rigenera con...). */
@@ -396,7 +470,7 @@ class AssistantEngine @Inject constructor(
     val prompt = PromptBuilder.build(
       PromptContext(nowLabel(ZoneId.systemDefault()), "it", memory.promptBlock(), catalog.summary, Surface.APP, AskMode.TEXT, true, conversation.loadedCategories.map { it.id }, 12, null, null, null),
     )
-    return ContextMeter.estimate(prompt, conversation, if (ready.provider.id == dev.antigravity.fluidengine.ai.provider.ProviderId.GROQ) 5_000 else 60_000, catalog.registry.specsFor(conversation.loadedGroups), emptyList(), ready)
+    return ContextMeter.estimate(prompt, conversation, if (ready.provider.id == ProviderId.GROQ) 5_000 else 60_000, catalog.registry.specsFor(conversation.loadedGroups), emptyList(), ready)
   }
 
   /** Dimentica la conversazione in memoria: dopo una cancellazione, o una modifica che ne cambia la storia. */

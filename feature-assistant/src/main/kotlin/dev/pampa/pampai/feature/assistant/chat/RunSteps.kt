@@ -37,6 +37,7 @@ import dev.antigravity.fluidengine.ui.fluid.FluidButtonStyle
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.fluidPressable
 import dev.pampa.pampai.core.assistant.db.Run
+import dev.pampa.pampai.core.assistant.runtime.LOCAL_OUTCOME
 import java.util.Locale
 
 /**
@@ -52,6 +53,8 @@ import java.util.Locale
  */
 @Composable
 fun RunSteps(run: Run) {
+  // Un comando rapido non ha passi da raccontare: la risposta e' gia' tutto.
+  if (run.outcome == LOCAL_OUTCOME) return
   val hasDetails = run.tools.isNotEmpty() || run.error != null || modelsLine(run) != null
   if (!hasDetails) return
   var details by rememberSaveable(run.id) { mutableStateOf(false) }
@@ -203,7 +206,7 @@ fun ConfirmationRow(pending: PendingConfirmation, onResolve: (Long, Boolean) -> 
 }
 
 /** La telemetria di uno scambio in una riga: strumenti, servizio (e se e' cambiato, da chi a chi), tempo, token, costo. */
-fun telemetry(run: Run): String = buildList {
+fun telemetry(run: Run): String = if (run.outcome == LOCAL_OUTCOME) "comando rapido · senza IA" else buildList {
   add(if (run.tools.isEmpty()) "nessuno strumento" else "${run.tools.size} ${if (run.tools.size == 1) "strumento" else "strumenti"}")
   providerLine(run)?.let { add(it) }
   run.durationMillis?.let { add("${it / 1000} s") }

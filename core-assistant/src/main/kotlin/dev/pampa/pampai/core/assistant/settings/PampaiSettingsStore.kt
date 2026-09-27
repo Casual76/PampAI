@@ -46,12 +46,17 @@ data class PampaiSettings(
   val thinkingAuto: Boolean = true,
   /**
    * Riserva automatica: se il servizio scelto e' al limite o non risponde, Aria passa al
-   * successivo nell'ordine. Spenta (il default), resta su quello scelto e aspetta il suo
-   * `retry-after`: un 429 sul profondo di Gemini non deve far rispondere il profondo di OpenRouter
-   * al posto suo, o "la selezione del modello non ha effetto". Con "rigenera con..." e' comunque
-   * spenta per quella domanda: la scelta e' esplicita.
+   * successivo nell'ordine invece di far aspettare o fallire la domanda. Accesa di default: su un
+   * piano gratuito il limite al minuto arriva presto, e "riprova fra 40 secondi" e' la risposta
+   * peggiore che un assistente possa dare. Chi vuole un solo servizio la spegne; con "rigenera
+   * con..." e' comunque spenta per quella domanda, perche' la scelta e' esplicita.
    */
-  val failoverEnabled: Boolean = false,
+  val failoverEnabled: Boolean = true,
+  /**
+   * I comandi rapidi ("timer di 10 minuti", "accendi la torcia", "che ore sono") si eseguono
+   * subito, senza chiedere al modello: istantanei, gratuiti, funzionano anche offline.
+   */
+  val quickCommands: Boolean = true,
 )
 
 private val Context.pampaiStore: DataStore<Preferences> by preferencesDataStore(name = "pampai")
@@ -70,6 +75,7 @@ class PampaiSettingsStore(private val context: Context) {
   suspend fun setSuggestionsSeen() = edit { it[Keys.SuggestionsSeen] = true }
   suspend fun setThinkingAuto(auto: Boolean) = edit { it[Keys.ThinkingAuto] = auto }
   suspend fun setFailoverEnabled(enabled: Boolean) = edit { it[Keys.FailoverEnabled] = enabled }
+  suspend fun setQuickCommands(enabled: Boolean) = edit { it[Keys.QuickCommands] = enabled }
   suspend fun setTrusted(tool: String, trusted: Boolean) = edit {
     val now = it[Keys.TrustedActions].orEmpty()
     it[Keys.TrustedActions] = if (trusted) now + tool else now - tool
@@ -91,6 +97,7 @@ class PampaiSettingsStore(private val context: Context) {
       suggestionsSeen = this[Keys.SuggestionsSeen] ?: defaults.suggestionsSeen,
       thinkingAuto = this[Keys.ThinkingAuto] ?: defaults.thinkingAuto,
       failoverEnabled = this[Keys.FailoverEnabled] ?: defaults.failoverEnabled,
+      quickCommands = this[Keys.QuickCommands] ?: defaults.quickCommands,
     )
   }
 
@@ -104,5 +111,6 @@ class PampaiSettingsStore(private val context: Context) {
     val SuggestionsSeen = booleanPreferencesKey("suggestions_seen")
     val ThinkingAuto = booleanPreferencesKey("thinking_auto")
     val FailoverEnabled = booleanPreferencesKey("failover_enabled")
+    val QuickCommands = booleanPreferencesKey("quick_commands")
   }
 }
