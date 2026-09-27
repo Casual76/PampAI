@@ -67,10 +67,11 @@ import kotlin.random.Random
  * ricomposizione la farebbe cambiare mentre si scrive, che e' esattamente il contrario di un saluto.
  */
 @Composable
-internal fun LazyItemScope.EmptyGreeting() {
+internal fun LazyItemScope.EmptyGreeting(onSuggestion: (String) -> Unit = {}) {
   val greeting = remember {
     Greetings.greeting(hour = LocalTime.now().hour, pick = Random.nextLong())
   }
+  val suggestions = remember { Greetings.suggestions(Greetings.band(LocalTime.now().hour)) }
   Box(
     Modifier
       .fillParentMaxHeight()
@@ -94,6 +95,14 @@ internal fun LazyItemScope.EmptyGreeting() {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
       )
+      Spacer(Modifier.height(24.dp))
+      FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
+      ) {
+        suggestions.forEach { suggestion -> FluidChip(label = suggestion, selected = false, onClick = { onSuggestion(suggestion) }) }
+      }
     }
   }
 }
@@ -103,17 +112,30 @@ internal fun LazyItemScope.EmptyGreeting() {
  *
  * Non e' una card di vetro a tutta larghezza. In una conversazione le due voci si distinguono per
  * forma prima che per etichetta, e una domanda che occupa la riga intera quanto la risposta toglie
- * proprio quel segnale. La matita sta fuori, a sinistra: dentro rubava spazio a ogni messaggio.
+ * proprio quel segnale.
+ *
+ * La matita sta fuori, a sinistra, e solo sull'ultima domanda ([showEdit]): una matita accanto a
+ * ogni bolla era rumore, e correggere una domanda vecchia e' raro. Per tutte le altre c'e' la
+ * pressione lunga sulla bolla (Copia, Modifica), che TalkBack elenca fra le azioni.
  */
 @Composable
-internal fun UserBubble(message: Message, onEdit: () -> Unit, onOpenAttachment: (Attachment) -> Unit = {}) {
+internal fun UserBubble(message: Message, onEdit: () -> Unit, onOpenAttachment: (Attachment) -> Unit = {}, showEdit: Boolean = true) {
+  val context = androidx.compose.ui.platform.LocalContext.current
+  val menu = rememberFluidContextMenu(actions = {
+    listOf(
+      FluidContextAction("Copia", Icons.Rounded.ContentCopy) { copy(context, message.text) },
+      FluidContextAction("Modifica e rinvia", Icons.Rounded.Edit, onClick = onEdit),
+    )
+  })
   BoxWithConstraints(Modifier.fillMaxWidth()) {
     val maxBubble = maxWidth * 0.86f
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-      SmallAction(Icons.Rounded.Edit, "Modifica", onEdit)
+      if (showEdit) SmallAction(Icons.Rounded.Edit, "Modifica", onEdit)
       Column(
         modifier = Modifier
           .widthIn(max = maxBubble)
+          .fluidContextMenuAnchor(menu)
+          .fluidPressable(onLongClick = { menu.open() }, pressedScale = 1f, haptic = null)
           .background(MaterialTheme.colorScheme.primaryContainer, ContinuousCornerShape(FluidRadius.Card))
           .padding(horizontal = 16.dp, vertical = 12.dp),
       ) {

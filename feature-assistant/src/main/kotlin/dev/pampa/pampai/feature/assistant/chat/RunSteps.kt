@@ -117,7 +117,8 @@ private fun toolSummary(run: Run): String {
       val apps = run.tools.mapNotNull { it.app }.distinct()
       when {
         apps.size == 1 && apps.first().isNotBlank() -> "Ho chiesto a ${apps.first()}"
-        run.tools.size == 1 -> "Ho usato ${run.tools.first().name.replace('_', ' ')}"
+        run.tools.size == 1 -> ToolPhrases[run.tools.first().name] ?: "Ho usato ${run.tools.first().name.replace('_', ' ')}"
+        run.tools.all { it.name == run.tools.first().name } -> (ToolPhrases[run.tools.first().name] ?: "Ho usato ${run.tools.first().name.replace('_', ' ')}") + " (${run.tools.size} volte)"
         else -> "Ho usato ${run.tools.size} strumenti"
       }
     }
@@ -125,6 +126,32 @@ private fun toolSummary(run: Run): String {
   val answerer = if (run.error == null) answeredBy(run) else null
   return if (answerer != null) "$work · $answerer" else work
 }
+
+/** Gli strumenti di tutti i giorni detti come li direbbe una persona, non con il loro nome tecnico. */
+private val ToolPhrases = mapOf(
+  "cerca_web" to "Ho cercato sul web",
+  "leggi_pagina" to "Ho letto la pagina",
+  "calcola" to "Ho fatto il calcolo",
+  "converti_unita" to "Ho fatto la conversione",
+  "fuso_orario" to "Ho guardato il fuso orario",
+  "data_calcola" to "Ho contato i giorni",
+  "sveglia_crea" to "Ho impostato la sveglia",
+  "timer_crea" to "Ho avviato il timer",
+  "promemoria_crea" to "Ho creato il promemoria",
+  "promemoria_elenco" to "Ho guardato i promemoria",
+  "ricorda" to "Me lo sono segnato",
+  "eventi_calendario" to "Ho guardato il calendario",
+  "notifiche_recenti" to "Ho letto le notifiche",
+  "traduci_schermo" to "Ho tradotto lo schermo",
+  "batteria" to "Ho guardato la batteria",
+  "torcia" to "Ho usato la torcia",
+  "volume" to "Ho regolato il volume",
+  "apri_app" to "Ho aperto l'app",
+  "schermo_leggi" to "Ho letto lo schermo",
+  "schermo_guarda" to "Ho guardato lo schermo",
+  "musica_riproduci" to "Ho messo la musica",
+  "musica_controllo" to "Ho comandato la musica",
+)
 
 /** L'id di un modello senza il fornitore davanti e senza il ":free" in coda: "minimax/minimax-m2.5" diventa "minimax-m2.5". */
 private fun shortModel(id: String): String = id.substringAfterLast('/').removeSuffix(":free")

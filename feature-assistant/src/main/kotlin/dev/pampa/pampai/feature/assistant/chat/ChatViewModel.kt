@@ -27,6 +27,8 @@ import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageRole
 import dev.pampa.pampai.core.assistant.db.Run
+import dev.pampa.pampai.core.assistant.remote.RemoteStatus
+import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
 import dev.pampa.pampai.core.assistant.runtime.AssistantEngine
 import dev.pampa.pampai.core.assistant.runtime.AssistantRequest
 import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
@@ -109,7 +111,12 @@ class ChatViewModel @Inject constructor(
   private val catalogs: ModelCatalogStore,
   private val pampaiSettings: PampaiSettingsStore,
   registryHolder: RegistryHolder,
+  remote: RemoteSwitches,
 ) : ViewModel() {
+
+  /** Il file di controllo remoto: kill switch e aggiornamenti, per il banner in cima alla chat. */
+  val remoteStatus: StateFlow<RemoteStatus> = remote.status.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RemoteStatus())
+
 
   /** Il plugin scelto nel composer per la prossima conversazione (o quella aperta). */
   val plugin = MutableStateFlow<String?>(null)
@@ -153,17 +160,6 @@ class ChatViewModel @Inject constructor(
   private val contextEstimate = MutableStateFlow<ContextEstimate?>(null)
 
   /**
-   * Gli esempi della prima chat: una volta e basta.
-   *
-   * Sta fuori da [state] apposta. Quel `combine` e' gia' al limite dei suoi argomenti, e questo e'
-   * un valore che cambia una volta sola nella vita dell'app: non ha niente da fare in un flusso
-   * ricalcolato a ogni token della risposta.
-   */
-  val suggestionsSeen: StateFlow<Boolean> = pampaiSettings.settings
-    .map { it.suggestionsSeen }
-    .stateIn(viewModelScope, SharingStarted.Eagerly, true)
-
-  /**
    * Chi risponde e quanto ci pensa, dal composer.
    *
    * Scrivono le impostazioni vere, non un'eccezione per questa conversazione: chi cambia modello
@@ -178,11 +174,6 @@ class ChatViewModel @Inject constructor(
 
   fun setThinking(level: ThinkingLevel) {
     viewModelScope.launch { settingsStore.setThinking(level) }
-  }
-
-  /** Chiamato dalla schermata quando gli esempi sono stati mostrati per la prima volta. */
-  fun markSuggestionsSeen() {
-    viewModelScope.launch { pampaiSettings.setSuggestionsSeen() }
   }
 
   private val conversationFlow = runtime.activeConversationId.flatMapLatest { id ->

@@ -23,6 +23,19 @@ object Greetings {
     else -> Band.NOTTE
   }
 
+  /**
+   * Tre spunti toccabili sotto il saluto, adatti all'ora: uno per il telefono (che parte subito,
+   * senza modello), uno per le app, uno per ragionare. Fanno vedere cosa si puo' chiedere senza
+   * un muro di esempi, e restano utili anche dopo la prima chat.
+   */
+  fun suggestions(band: Band): List<String> = when (band) {
+    Band.MATTINA -> listOf("Che tempo fa oggi?", "Timer di 10 minuti", "Spiegami un argomento in 5 punti")
+    Band.MEZZOGIORNO -> listOf("Timer di 12 minuti per la pasta", "Che tempo fa nel pomeriggio?", "Idee veloci per il pranzo")
+    Band.POMERIGGIO -> listOf("Aiutami con i compiti", "Timer di 25 minuti", "Che tempo fa domani?")
+    Band.SERA -> listOf("Svegliami alle 7", "Che tempo fa domani?", "Consigliami un film")
+    Band.NOTTE -> listOf("Svegliami alle 7:30", "Spegni la torcia", "Raccontami una curiosita'")
+  }
+
   fun lines(band: Band): List<String> = when (band) {
     Band.MATTINA -> listOf(
       "Cosa facciamo questa mattina?",

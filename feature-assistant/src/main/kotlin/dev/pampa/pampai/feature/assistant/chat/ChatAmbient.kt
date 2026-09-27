@@ -1,17 +1,26 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.PowerManager
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidGlassQuality
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy
@@ -32,8 +41,7 @@ import dev.pampa.pampai.feature.assistant.halo.rememberHaloClock
 
 /**
  * Quanto puo' costare l'aurora: piena, in economia (meno macchie, un fotogramma si' e uno no), o
- * spenta. [Off] non lo produce nessuna misura automatica: e' il valore per chi, un giorno, vorra'
- * un interruttore nelle impostazioni, e passa da qui invece che da un `if` nella rotta.
+ * spenta. [Off] arriva con il risparmio energetico del telefono (vedi [rememberChatAmbientEconomy]).
  */
 enum class ChatAmbientEconomy { Full, Economy, Off }
 
@@ -98,13 +106,38 @@ private fun HaloMood.lightsAurora(): Boolean = this == HaloMood.LISTENING || thi
 @Composable
 fun rememberChatAmbientEconomy(): ChatAmbientEconomy {
   val quality = LocalFluidGlassQuality.current
+  val powerSave by rememberPowerSaveMode()
   val economy by remember(quality) {
     derivedStateOf {
       val level = quality?.level ?: 1f
-      if (level < EconomyQualityThreshold) ChatAmbientEconomy.Economy else ChatAmbientEconomy.Full
+      when {
+        // Con il risparmio energetico l'aurora non parte: e' un fotogramma al 60 Hz per tutto il
+        // tempo in cui Aria lavora, cioe' batteria spesa in decorazione.
+        powerSave -> ChatAmbientEconomy.Off
+        level < EconomyQualityThreshold -> ChatAmbientEconomy.Economy
+        else -> ChatAmbientEconomy.Full
+      }
     }
   }
   return economy
+}
+
+/** Il risparmio energetico del telefono, aggiornato quando cambia. */
+@Composable
+private fun rememberPowerSaveMode(): State<Boolean> {
+  val context = LocalContext.current
+  val power = remember(context) { context.getSystemService(PowerManager::class.java) }
+  val state = remember(power) { mutableStateOf(power?.isPowerSaveMode == true) }
+  DisposableEffect(context, power) {
+    val receiver = object : BroadcastReceiver() {
+      override fun onReceive(context: Context?, intent: Intent?) {
+        state.value = power?.isPowerSaveMode == true
+      }
+    }
+    runCatching { context.registerReceiver(receiver, IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)) }
+    onDispose { runCatching { context.unregisterReceiver(receiver) } }
+  }
+  return state
 }
 
 /**

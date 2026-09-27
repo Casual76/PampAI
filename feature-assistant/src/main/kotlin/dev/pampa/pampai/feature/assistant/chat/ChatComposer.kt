@@ -244,11 +244,13 @@ internal fun Composer(
             onValueChange = { text = it },
             placeholder = when {
               !state.enabled -> "Aggiungi una chiave nelle impostazioni"
-              busy -> "Sto rispondendo..."
+              busy -> "Intanto scrivi la prossima..."
               editing != null -> "Modifica e rinvia..."
               else -> "Chiedi ad Aria..."
             },
-            enabled = !busy && state.enabled,
+            // Si scrive anche mentre Aria risponde: la prossima domanda si prepara leggendo questa.
+            // Parte con Invio (o col tasto) quando la risposta e' finita.
+            enabled = state.enabled,
             onSend = { submit() },
             modifier = Modifier.fillMaxWidth().focusRequester(focus),
           )

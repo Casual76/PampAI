@@ -32,6 +32,7 @@ import dev.antigravity.fluidengine.ui.theme.FluidListGroup
 import dev.antigravity.fluidengine.ui.theme.FluidListRow
 import dev.antigravity.fluidengine.ui.theme.FluidTone
 import dev.pampa.pampai.core.assistant.db.Memory
+import dev.pampa.pampai.core.assistant.db.ReminderEntity
 import dev.pampa.pampai.core.assistant.reminders.ReminderRepeat
 import java.time.Instant
 import java.time.LocalDate
@@ -51,6 +52,33 @@ private data class Editing(val id: Long?, val text: String)
 fun MemoryRoute(onBack: () -> Unit, viewModel: MemoryViewModel = hiltViewModel()) {
   val memories by viewModel.memories.collectAsStateWithLifecycle()
   val upcoming by viewModel.upcoming.collectAsStateWithLifecycle()
+  MemoryScreen(
+    memories = memories,
+    upcoming = upcoming,
+    onBack = onBack,
+    actions = MemoryActions(
+      add = { viewModel.add(it) },
+      update = { id, text -> viewModel.update(id, text) },
+      remove = { viewModel.remove(it) },
+      setPinned = { id, pinned -> viewModel.setPinned(id, pinned) },
+      clear = { viewModel.clearMemory() },
+      removeReminder = { viewModel.removeReminder(it) },
+    ),
+  )
+}
+
+/** Cosa la pagina puo' chiedere di fare: separato dal ViewModel, cosi' la pagina si prova da sola. */
+internal class MemoryActions(
+  val add: (String) -> Unit,
+  val update: (Long, String) -> Unit,
+  val remove: (Long) -> Unit,
+  val setPinned: (Long, Boolean) -> Unit,
+  val clear: () -> Unit,
+  val removeReminder: (Long) -> Unit,
+)
+
+@Composable
+internal fun MemoryScreen(memories: List<Memory>?, upcoming: List<ReminderEntity>?, onBack: () -> Unit, actions: MemoryActions) {
   var editing by remember { mutableStateOf<Editing?>(null) }
   var confirmClear by remember { mutableStateOf(false) }
   var deletingReminder by remember { mutableStateOf<Long?>(null) }
@@ -85,8 +113,8 @@ fun MemoryRoute(onBack: () -> Unit, viewModel: MemoryViewModel = hiltViewModel()
             MemoryRow(
               memory = memory,
               onEdit = { editing = Editing(memory.id, memory.text) },
-              onPin = { viewModel.setPinned(memory.id, !memory.pinned) },
-              onDelete = { viewModel.remove(memory.id) },
+              onPin = { actions.setPinned(memory.id, !memory.pinned) },
+              onDelete = { actions.remove(memory.id) },
             )
           }
         }
@@ -136,7 +164,7 @@ fun MemoryRoute(onBack: () -> Unit, viewModel: MemoryViewModel = hiltViewModel()
       actions = listOf(
         FluidAlertAction("Annulla", { editing = null }),
         FluidAlertAction("Salva", {
-          if (current.id == null) viewModel.add(text) else viewModel.update(current.id, text)
+          if (current.id == null) actions.add(text) else actions.update(current.id, text)
           editing = null
         }, FluidAlertAction.Emphasis.Preferred, enabled = text.isNotBlank()),
       ),
@@ -151,7 +179,7 @@ fun MemoryRoute(onBack: () -> Unit, viewModel: MemoryViewModel = hiltViewModel()
       message = "Aria non sapra' piu' niente di quello che le hai chiesto di ricordare.",
       actions = listOf(
         FluidAlertAction("Annulla", { confirmClear = false }),
-        FluidAlertAction("Dimentica", { viewModel.clearMemory(); confirmClear = false }, FluidAlertAction.Emphasis.Destructive),
+        FluidAlertAction("Dimentica", { actions.clear(); confirmClear = false }, FluidAlertAction.Emphasis.Destructive),
       ),
     )
   }
@@ -162,7 +190,7 @@ fun MemoryRoute(onBack: () -> Unit, viewModel: MemoryViewModel = hiltViewModel()
       message = upcoming?.firstOrNull { it.id == id }?.text,
       actions = listOf(
         FluidAlertAction("Annulla", { deletingReminder = null }),
-        FluidAlertAction("Elimina", { viewModel.removeReminder(id); deletingReminder = null }, FluidAlertAction.Emphasis.Destructive),
+        FluidAlertAction("Elimina", { actions.removeReminder(id); deletingReminder = null }, FluidAlertAction.Emphasis.Destructive),
       ),
     )
   }

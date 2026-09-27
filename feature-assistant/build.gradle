@@ -34,6 +34,23 @@ android {
     main.java.setSrcDirs(["src/main/kotlin"])
     test.java.setSrcDirs(["src/test/kotlin"])
   }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+      // Gli screenshot delle schermate (Robolectric + Roborazzi) girano solo a richiesta, perche'
+      // scaricano un'immagine di Android da 200 MB e ci mettono un minuto:
+      //   gradlew :feature-assistant:testDebugUnitTest -Pscreenshots
+      // I PNG finiscono in feature-assistant/build/screenshots.
+      all {
+        systemProperty "robolectric.pixelCopyRenderMode", "hardware"
+        systemProperty "roborazzi.test.record", "true"
+        if (!project.hasProperty("screenshots")) {
+          exclude "**/*Screenshots*"
+        }
+      }
+    }
+  }
 }
 
 dependencies {
@@ -59,4 +76,10 @@ dependencies {
 
   testImplementation libs.junit4
   testImplementation libs.kotlinx.coroutines.test
+  testImplementation "org.robolectric:robolectric:4.16"
+  testImplementation platform(libs.compose.bom)
+  testImplementation "androidx.compose.ui:ui-test-junit4"
+  testImplementation "io.github.takahirom.roborazzi:roborazzi:1.46.1"
+  testImplementation "io.github.takahirom.roborazzi:roborazzi-compose:1.46.1"
+  debugImplementation "androidx.compose.ui:ui-test-manifest"
 }

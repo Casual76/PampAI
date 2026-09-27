@@ -7,10 +7,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.compose.Markdown
 import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
+import com.mikepenz.markdown.model.markdownPadding
 
 /**
  * Il Markdown completo delle risposte, con i colori e la tipografia del tema.
@@ -53,6 +55,9 @@ fun MarkdownBody(markdown: String) {
       inlineCode = code,
     ),
     components = components,
+    // Elenchi compatti: con i default fra una voce e l'altra c'era lo spazio di un paragrafo, e
+    // tre punti di un elenco occupavano mezza schermata.
+    padding = markdownPadding(block = 6.dp, list = 4.dp, listItemTop = 1.dp, listItemBottom = 1.dp),
     retainState = true,
     immediate = true,
   )

@@ -4,9 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -34,6 +36,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
+import dev.antigravity.fluidengine.foundation.EngineCompatibility
+import dev.antigravity.fluidengine.ui.fluid.FluidButton
+import dev.antigravity.fluidengine.ui.fluid.FluidButtonSize
+import dev.antigravity.fluidengine.ui.fluid.FluidButtonStyle
 import dev.antigravity.fluidengine.ui.fluid.FluidNotification
 import dev.antigravity.fluidengine.ui.fluid.FluidScreenDefaults
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidGlassQuality
@@ -48,6 +54,8 @@ import dev.pampa.pampai.core.assistant.db.AttachmentKind
 import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageRole
 import dev.pampa.pampai.core.assistant.db.MessageStatus
+import dev.pampa.pampai.core.assistant.remote.RemoteStatus
+import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
 import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
 import dev.pampa.pampai.feature.assistant.halo.HaloMood
 import dev.pampa.pampai.feature.assistant.halo.haloMood
@@ -74,15 +82,16 @@ fun ChatRoute(
   val partial by viewModel.runtimePartial.collectAsStateWithLifecycle()
   val draft by viewModel.draft.collectAsStateWithLifecycle()
   val speaking by viewModel.speaking.collectAsStateWithLifecycle()
-  val suggestionsSeen by viewModel.suggestionsSeen.collectAsStateWithLifecycle()
   val plugins by viewModel.plugins.collectAsStateWithLifecycle()
   val plugin by viewModel.plugin.collectAsStateWithLifecycle()
   val deepNext by viewModel.deepNext.collectAsStateWithLifecycle()
   val thinkingAuto by viewModel.thinkingAuto.collectAsStateWithLifecycle()
+  val remote by viewModel.remoteStatus.collectAsStateWithLifecycle()
   val context = LocalContext.current
   val listState = rememberLazyListState()
   var editing by remember { mutableStateOf<Message?>(null) }
   var viewing by remember { mutableStateOf<Attachment?>(null) }
+  val lastUserId = remember(state.messages) { state.messages.lastOrNull { it.role == MessageRole.USER }?.id }
   // I servizi pronti per "Rigenera con…", nell'ordine dell'utente.
   val readyProviders = remember(state.settings.chatOrder, state.keys) { state.settings.chatOrder.filter { state.keys[it]?.verified == true } }
   val notifications = LocalFluidNotificationHostState.current
@@ -161,29 +170,28 @@ fun ChatRoute(
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = topSpace, bottom = bottomInset + 128.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
       ) {
-        if (state.messages.isEmpty() && state.live == null) {
-          if (!suggestionsSeen) {
-            item(key = "hint") {
-              // Segnati come visti appena compaiono: la prima chat e' l'unica in cui servono, e
-              // aspettare che l'utente li legga davvero non e' una cosa che si puo' sapere.
-              LaunchedEffect(Unit) { viewModel.markSuggestionsSeen() }
-              FluidCard(glass = false) {
-                Text(
-                  "Prova con: \"che tempo fa domani?\", \"metti una sveglia alle 7\", \"quanto fa il 15% di 340?\", \"ricordati che la mia fermata e' Dalmazia\", \"cosa vuol dire 'sciatteria'?\"",
-                  style = MaterialTheme.typography.bodyMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+        remoteBanner(remote)?.let { banner ->
+          item(key = "remoto") {
+            FluidCard(glass = false) {
+              Text(banner.title, style = MaterialTheme.typography.titleSmall, color = if (banner.urgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+              Spacer(Modifier.height(4.dp))
+              Text(banner.message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+              if (banner.update) {
+                Spacer(Modifier.height(10.dp))
+                FluidButton(text = "Cerca l'aggiornamento", onClick = onOpenSettings, style = FluidButtonStyle.Tinted, size = FluidButtonSize.Small)
               }
             }
-          } else {
-            item(key = "saluto") { EmptyGreeting() }
           }
+        }
+        if (state.messages.isEmpty() && state.live == null) {
+          item(key = "saluto") { EmptyGreeting(onSuggestion = { if (state.enabled) viewModel.send(it) else onOpenSettings() }) }
         }
         state.messages.forEach { message ->
           item(key = message.id) {
             when (message.role) {
               MessageRole.USER -> UserBubble(
                 message,
+                showEdit = message.id == lastUserId,
                 onEdit = { editing = message },
                 onOpenAttachment = { attachment -> if (attachment.kind == AttachmentKind.IMAGE) viewing = attachment else AttachmentFiles.open(context, attachment) },
               )
@@ -284,4 +292,17 @@ fun ChatRoute(
 private fun smoothStep(value: Float): Float {
   val t = value.coerceIn(0f, 1f)
   return t * t * (3f - 2f * t)
+}
+
+private data class RemoteBanner(val title: String, val message: String, val urgent: Boolean, val update: Boolean)
+
+/**
+ * Cosa dire in cima alla chat quando il file di controllo ha qualcosa da dire: Aria ferma, una
+ * versione troppo vecchia, un avviso. Prima tutto questo finiva nel log e nessuno lo vedeva.
+ */
+private fun remoteBanner(status: RemoteStatus): RemoteBanner? = when {
+  status.stopped -> RemoteBanner("Aria e' in pausa", status.message ?: RemoteSwitches.DEFAULT_STOP, urgent = true, update = true)
+  status.compatibility == EngineCompatibility.UPDATE_REQUIRED -> RemoteBanner("Serve un aggiornamento", "Questa versione di PampAI e' troppo vecchia: alcune cose potrebbero non funzionare. Aggiorna dal Pampa Store.", urgent = true, update = true)
+  status.compatibility == EngineCompatibility.UPDATE_RECOMMENDED -> RemoteBanner("C'e' un aggiornamento", status.notice ?: "Una versione nuova di PampAI e' pronta nel Pampa Store.", urgent = false, update = true)
+  else -> status.notice?.takeIf { it.isNotBlank() }?.let { RemoteBanner("Avviso", it, urgent = false, update = false) }
 }
