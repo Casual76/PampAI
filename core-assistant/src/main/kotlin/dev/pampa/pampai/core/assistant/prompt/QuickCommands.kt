@@ -3,6 +3,7 @@ package dev.pampa.pampai.core.assistant.prompt
 import dev.pampa.pampai.core.assistant.tools.Dates
 import dev.pampa.pampai.core.assistant.tools.Text
 import dev.pampa.pampai.core.assistant.tools.device.Durations
+import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -78,17 +79,24 @@ object QuickCommands {
   private val time = Regex("^(?:che ore sono|che ora e|che ora sono|dimmi l'ora|dimmi l ora|mi dici che ore sono|sai che ore sono|ora esatta|l'ora|che ore si sono fatte)$")
   private val date = Regex("^(?:che giorno e(?: oggi)?|oggi che giorno e|che data e(?: oggi)?|qual e la data di oggi|quanti ne abbiamo(?: oggi)?|che giorno e della settimana|la data di oggi|che giorno siamo(?: oggi)?)$")
 
-  private val musicPause = Regex("^(?:metti\\s+)?(?:in\\s+)?pausa(?:\\s+(?:la musica|la canzone|il brano))?$|^(?:ferma|stoppa|interrompi)\\s+(?:la musica|la canzone|il brano)$|^metti in pausa(?:\\s+(?:la musica|la canzone|il brano))?$")
-  private val musicPlay = Regex("^(?:riprendi|fai ripartire|riparti con|rimetti)(?:\\s+(?:la musica|la canzone|il brano))?$|^play$")
-  private val musicNext = Regex("^(?:(?:metti|passa a|passa alla|vai alla|vai al)\\s+)?(?:la\\s+)?(?:prossima|successiva)(?:\\s+(?:canzone|brano|traccia))?$|^(?:prossim[oa]|successiv[oa])\\s+(?:canzone|brano|traccia)$|^(?:salta|cambia)(?:\\s+(?:questa\\s+)?(?:canzone|brano|traccia))?$|^(?:canzone|brano|traccia)\\s+successiv[oa]$")
-  private val musicPrevious = Regex("^(?:(?:metti|torna a|torna alla|vai alla)\\s+)?(?:la\\s+)?(?:precedente)(?:\\s+(?:canzone|brano|traccia))?$|^(?:canzone|brano|traccia)\\s+precedente$|^torna (?:al brano|alla canzone) (?:di )?prima$")
+  // La musica solo con un nome che dica "musica": "la prossima", "salta", "pausa" da soli in una
+  // conversazione sono la prossima domanda di un quiz o una pausa dallo studio, non un brano.
+  private const val TRACK = "(?:la musica|la canzone|il brano|la traccia|questa canzone|questo brano)"
+  private val musicPause = Regex("^(?:metti\\s+)?in\\s+pausa\\s+$TRACK$|^(?:ferma|stoppa|interrompi)\\s+$TRACK$|^pausa\\s+$TRACK$")
+  private val musicPlay = Regex("^(?:riprendi|fai ripartire|riparti con|rimetti)\\s+$TRACK$")
+  private val musicNext = Regex("^(?:(?:metti|passa a|passa alla|vai alla|vai al)\\s+)?(?:la\\s+|il\\s+)?(?:prossim[oa]|successiv[oa])\\s+(?:canzone|brano|traccia)$|^(?:canzone|brano|traccia)\\s+successiv[oa]$|^(?:salta|cambia)\\s+(?:questa\\s+|questo\\s+)?(?:canzone|brano|traccia)$")
+  private val musicPrevious = Regex("^(?:(?:metti|torna a|torna alla|torna al|vai alla|vai al)\\s+)?(?:la\\s+|il\\s+)?(?:canzone|brano|traccia)\\s+(?:precedente|di prima)$")
 
   private val calcPrefix = Regex("^(?:quanto fa|quanto e|calcola|calcolami|fammi il calcolo|risultato di)\\s+", RegexOption.IGNORE_CASE)
   private val calcBody = Regex("^[0-9+\\-*/x×÷^().,%\\s]+$")
   private val strongOperator = Regex("[+*×÷^]|\\d\\s*x\\s*\\d")
 
-  /** La domanda e' un comando rapido? `null` = no, se ne occupa il modello. */
-  fun match(question: String): Match? {
+  /**
+   * La domanda e' un comando rapido? `null` = no, se ne occupa il modello. [now] serve alle
+   * sveglie: "svegliami domani alle 11" detto alle 10 non si puo' fare con l'app Orologio (che
+   * imposta la prossima occorrenza di quell'ora, cioe' oggi), quindi lo decide il modello.
+   */
+  fun match(question: String, now: LocalTime = LocalTime.now()): Match? {
     // "Aria, ..." e' un vocativo, non una seconda richiesta: la virgola dopo il nome non conta.
     val raw = question.trim().trimEnd('?', '!', '.', ' ').replace(vocative, "")
     if (raw.isEmpty() || raw.length > MAX_CHARS || raw.contains('\n')) return null
@@ -112,6 +120,8 @@ object QuickCommands {
       val parsed = Dates.parseTime(spoken) ?: return null
       // "alle 7 di sera" o "alle 3 del pomeriggio": parseTime lo sa gia'. "Stasera" no.
       val hour = if (m.groupValues[2] == "stasera" && parsed.hour < 12) parsed.hour + 12 else parsed.hour
+      val tomorrow = Regex("\\b(domani|domattina)\\b").containsMatchIn(text)
+      if (tomorrow && LocalTime.of(hour, parsed.minute).isAfter(now)) return null
       return Match(Kind.ALARM, "sveglia_crea", mapOf("ora" to "%02d:%02d".format(hour, parsed.minute)))
     }
     if (nextAlarm.matches(text)) return Match(Kind.NEXT_ALARM, "sveglia_prossima")

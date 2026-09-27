@@ -69,6 +69,12 @@ data class AssistantRequest(
    * la riga su disco a portarsela dietro per tutte le domande dopo.
    */
   val temporary: Boolean = false,
+  /**
+   * La domanda e' stata fatta dal telefono bloccato. Deciso quando la si fa, non quando parte:
+   * la sessione che si chiude azzera lo stato dello schermo, e una domanda partita un attimo dopo
+   * avrebbe avuto tutti gli strumenti e la memoria.
+   */
+  val locked: Boolean = false,
 )
 
 /** Cosa e' successo a un ascolto che non ha prodotto una domanda: la barra decide cosa fare. */
@@ -296,7 +302,7 @@ class AssistantRuntime @Inject constructor(
    * se fosse stata scritta. Se nessuno parla nei primi secondi esce [VoiceEvent.InitialSilence] e la
    * barra passa al testo; se si e' parlato senza esito, [VoiceEvent.HeardNothing].
    */
-  fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList(), temporary: Boolean = false) {
+  fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList(), temporary: Boolean = false, locked: Boolean = false) {
     if (isBusy) cancel()
     speaker.stop()
     track(surface, conversationId)
@@ -322,7 +328,7 @@ class AssistantRuntime @Inject constructor(
           mirror.cancel()
         }
         when {
-          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface, temporary = temporary))
+          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface, temporary = temporary, locked = locked))
           stt.state.value == SttState.InitialSilence -> {
             stateFlow.value = AssistantState.Idle
             stt.reset()

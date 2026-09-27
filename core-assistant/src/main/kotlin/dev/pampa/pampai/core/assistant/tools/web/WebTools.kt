@@ -249,7 +249,8 @@ internal object SafeFetch {
   class Refused(message: String) : Exception(message)
 
   fun document(url: String): Document {
-    var current = url
+    // Gli spazi e i caratteri che il modello lascia negli URL: Jsoup li codificava da se', `URI` no.
+    var current = url.trim().replace(" ", "%20").replace("|", "%7C").replace("\"", "%22")
     repeat(MAX_REDIRECTS + 1) {
       check(current)
       val response = Jsoup.connect(current)

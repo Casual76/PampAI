@@ -16,11 +16,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,6 +78,13 @@ class AriaSpeaker @Inject constructor(
   private val pendingSystem = mutableListOf<String>()
   private val player = SpeechPlayer()
   private var cloudJob: Job? = null
+
+  /**
+   * Il padre delle sintesi cloud della risposta di adesso. Fermare la voce le cancella tutte: prima
+   * continuavano in volo, tenevano occupati i due posti del semaforo e contavano nei consumi, e la
+   * risposta dopo, in coda dietro di loro, scadeva e finiva tutta sulla voce del telefono.
+   */
+  private var cloudTasks: Job? = null
   private var cloudQueue: Channel<Pair<String, Deferred<TtsAudio?>>>? = null
   private var cloudBroken = false
 
@@ -151,6 +158,8 @@ class AriaSpeaker @Inject constructor(
       pendingSystem.clear()
       cloudJob?.cancel()
       cloudJob = null
+      cloudTasks?.cancel()
+      cloudTasks = null
       cloudQueue?.close()
       cloudQueue = null
     }
@@ -180,6 +189,7 @@ class AriaSpeaker @Inject constructor(
   private fun enqueueCloud(cloud: CloudTts, sentence: String, language: String) {
     val queue = cloudQueue ?: Channel<Pair<String, Deferred<TtsAudio?>>>(Channel.UNLIMITED).also { channel ->
       cloudQueue = channel
+      cloudTasks = SupervisorJob()
       cloudJob = scope.launch {
         for ((text, deferred) in channel) {
           if (cloudBroken) {
@@ -202,13 +212,20 @@ class AriaSpeaker @Inject constructor(
             continue
           }
           speakingFlow.value = true
-          runCatching { player.play(audio) }
-          speakingFlow.value = false
+          try {
+            player.play(audio)
+          } catch (e: CancellationException) {
+            throw e
+          } catch (e: Throwable) {
+            // Un file audio che non si riproduce: si passa alla frase dopo.
+          } finally {
+            speakingFlow.value = false
+          }
         }
       }
     }
     val started = System.currentTimeMillis()
-    val deferred = scope.async(Dispatchers.IO) {
+    val deferred = scope.async(Dispatchers.IO + (cloudTasks ?: SupervisorJob().also { cloudTasks = it })) {
       inFlight.withPermit {
         val audio = cloud.synthesize(sentence, language)
         usage.recordSpeech(cloud.provider, "tts", 0.0, System.currentTimeMillis() - started, if (audio == null) "nessun audio" else null)

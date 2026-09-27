@@ -1,6 +1,7 @@
 package dev.pampa.pampai.core.assistant.prompt
 
 import dev.pampa.pampai.core.assistant.prompt.QuickCommands.Kind
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import org.junit.Assert.assertEquals
@@ -41,7 +42,9 @@ class QuickCommandsTest {
     assertEquals("06:30", QuickCommands.match("sveglia alle 6 e mezza")?.args?.get("ora"))
     assertEquals("06:45", QuickCommands.match("metti una sveglia alle 6:45")?.args?.get("ora"))
     assertEquals("19:00", QuickCommands.match("imposta una sveglia alle 7 di sera")?.args?.get("ora"))
-    assertEquals("07:15", QuickCommands.match("svegliami domani alle 7.15")?.args?.get("ora"))
+    assertEquals("07:15", QuickCommands.match("svegliami domani alle 7.15", LocalTime.of(22, 0))?.args?.get("ora"))
+    // Alle 10 "domani alle 11" non e' la prossima occorrenza delle 11: lo fa il modello.
+    assertNull(QuickCommands.match("svegliami domani alle 11", LocalTime.of(10, 0)))
     assertEquals(Kind.NEXT_ALARM, kind("a che ora suona la sveglia?"))
     assertEquals(Kind.NEXT_ALARM, kind("ho una sveglia per domani?"))
   }
@@ -61,7 +64,9 @@ class QuickCommandsTest {
     assertEquals(Kind.TIME, kind("che ore sono?"))
     assertEquals(Kind.DATE, kind("che giorno è oggi"))
     assertEquals(Kind.BATTERY, kind("quanta batteria ho?"))
-    assertEquals("pausa", QuickCommands.match("metti in pausa")?.args?.get("azione"))
+    assertEquals("pausa", QuickCommands.match("metti in pausa la musica")?.args?.get("azione"))
+    assertEquals("riproduci", QuickCommands.match("riprendi la musica")?.args?.get("azione"))
+    assertEquals("indietro", QuickCommands.match("canzone precedente")?.args?.get("azione"))
     assertEquals("avanti", QuickCommands.match("prossima canzone")?.args?.get("azione"))
     assertEquals("whatsapp", QuickCommands.match("apri WhatsApp")?.args?.get("nome"))
     assertEquals("calcolatrice", QuickCommands.match("apri la calcolatrice")?.args?.get("nome"))
@@ -96,6 +101,11 @@ class QuickCommandsTest {
       "metti una sveglia",
       "spiegami come funziona la batteria del telefono",
       "avvisami alle 18",
+      "la prossima",
+      "prossima",
+      "salta",
+      "pausa",
+      "riprendi",
       "lancia una moneta",
       "",
     ).forEach { assertNull(it, QuickCommands.match(it)) }

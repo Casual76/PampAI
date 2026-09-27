@@ -76,6 +76,9 @@ class SessionController(
   val shownStamp = MutableStateFlow(0L)
 
   private var hiddenAt = 0L
+
+  /** L'ultima apparizione e' sul telefono bloccato: le domande di adesso lo portano con se'. */
+  private var locked = false
   private var eventsJob: Job? = null
 
   /**
@@ -84,6 +87,10 @@ class SessionController(
    */
   fun onShow(startVoice: Boolean, startInText: Boolean, locked: Boolean = false) {
     val now = System.currentTimeMillis()
+    this.locked = locked
+    // Una risposta dell'overlay ancora in corso, chiesta a telefono sbloccato, non si mostra su
+    // quello bloccato: si ferma.
+    if (locked && runtime.isBusy && runtime.liveOwner.value.surface == Surface.SESSION) runtime.cancel()
     val continues = !locked && hiddenAt > 0L && now - hiddenAt < CONTINUE_WINDOW_MILLIS && conversationId.value != null
     if (!continues) runtime.selectSessionConversation(null)
     attachmentsFlow.value = emptyList()
@@ -130,7 +137,7 @@ class SessionController(
     val attached = attachmentsFlow.value
     attachmentsFlow.value = emptyList()
     notice.value = null
-    runtime.submit(AssistantRequest(conversationId.value, question, AskMode.TEXT, attached, Surface.SESSION))
+    runtime.submit(AssistantRequest(conversationId.value, question, AskMode.TEXT, attached, Surface.SESSION, locked = locked))
   }
 
   fun startVoice() {
@@ -138,7 +145,7 @@ class SessionController(
     notice.value = null
     val attached = attachmentsFlow.value
     attachmentsFlow.value = emptyList()
-    runtime.startListening(conversationId.value, Surface.SESSION, attached)
+    runtime.startListening(conversationId.value, Surface.SESSION, attached, locked = locked)
   }
 
   fun stopVoice() = runtime.stopListening()

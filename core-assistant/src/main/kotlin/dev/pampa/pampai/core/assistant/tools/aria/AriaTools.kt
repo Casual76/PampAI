@@ -53,7 +53,7 @@ class RicordaTool : AiTool<PampaiToolContext> {
 
   private companion object {
     /** Gli strumenti che portano dentro testo scritto da altri. */
-    val EXTERNAL_READERS = setOf("cerca_web", "leggi_pagina", "notifiche_recenti", "schermo_leggi", "schermo_guarda", "traduci_schermo")
+    val EXTERNAL_READERS = setOf("cerca_web", "leggi_pagina", "wikipedia", "definizione", "notifiche_recenti", "eventi_calendario", "schermo_leggi", "schermo_guarda", "traduci_schermo")
 
     const val TEMPORARY_NO_MEMORY =
       "questa e' una chat temporanea: non lascia tracce, quindi non si puo' ricordare niente da qui. Dillo all'utente in una riga: se vuole che tu lo ricordi, deve chiederlo in una chat normale."

@@ -57,6 +57,7 @@ import dev.pampa.pampai.core.assistant.db.AttachmentKind
 import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageStatus
 import dev.pampa.pampai.core.assistant.db.Run
+import dev.pampa.pampai.core.assistant.runtime.LOCAL_OUTCOME
 import java.time.LocalTime
 import kotlin.random.Random
 
@@ -235,7 +236,8 @@ internal fun AssistantMessage(
       Row(verticalAlignment = Alignment.CenterVertically) {
         SmallAction(Icons.Rounded.ContentCopy, "Copia", onCopy)
         SmallAction(Icons.Rounded.Share, "Condividi", onShare)
-        RegenerateAction(regenerateWith, onRegenerate, onRegenerateWith)
+        // Un comando rapido non si rigenera: rifarlo con il modello vorrebbe dire un secondo timer.
+        if (run?.outcome != LOCAL_OUTCOME) RegenerateAction(regenerateWith, onRegenerate, onRegenerateWith)
         run?.let {
           Spacer(Modifier.width(4.dp))
           Text(telemetry(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)

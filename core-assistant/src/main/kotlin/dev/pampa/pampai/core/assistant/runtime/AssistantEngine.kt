@@ -75,6 +75,9 @@ import kotlinx.serialization.json.put
 /** L'esito di una domanda risolta da un comando rapido, senza modello: la UI lo mostra come tale. */
 const val LOCAL_OUTCOME = "local"
 
+/** L'esito di una domanda fermata dal kill switch remoto. */
+const val STOPPED_OUTCOME = "sospesa"
+
 private const val TAG = "AssistantEngine"
 
 /** Com'e' finita una domanda, per la notifica e per chi ha chiamato. */
@@ -139,7 +142,7 @@ class AssistantEngine @Inject constructor(
     val question = request.question
     val catalog = registryHolder.catalog.value
     // Dal telefono bloccato solo gli strumenti che non toccano dati personali (LockscreenPolicy).
-    val locked = request.surface == Surface.SESSION && screen.current?.lockscreen == true
+    val locked = request.surface == Surface.SESSION && (request.locked || screen.current?.lockscreen == true)
     val registry = if (locked) LockscreenPolicy.restrict(catalog.registry) else catalog.registry
     val conversationId = request.conversationId?.takeIf { conversations.conversation(it) != null }
       // La temporanea si decide qui, alla nascita: dalla domanda dopo e' la riga su disco a dirlo.
@@ -166,7 +169,7 @@ class AssistantEngine @Inject constructor(
       // Il kill switch remoto: una build che fa danni si ferma qui, con una frase che dice perche'.
       remote.stopMessage()?.let { message ->
         persister.cancelAndJoin()
-        return@coroutineScope answerLocally(request, conversationId, messageId, now, message, toolsUsed = emptyList(), traces = emptyList())
+        return@coroutineScope answerLocally(request, conversationId, messageId, now, message, toolsUsed = emptyList(), traces = emptyList(), outcome = STOPPED_OUTCOME)
       }
       val settings = settingsStore.current()
       // Il comando rapido prima di tutto, anche prima dei servizi: "timer di 10 minuti" non ha
@@ -340,10 +343,10 @@ class AssistantEngine @Inject constructor(
     registry: ToolRegistry<PampaiToolContext>,
     startedAt: Long,
   ): ExecutionResult? {
-    val match = QuickCommands.match(request.question) ?: return null
+    val match = QuickCommands.match(request.question, java.time.LocalTime.now()) ?: return null
     val tool = match.tool?.let { name -> registry.find(name) ?: return null }
     // Dal telefono bloccato solo quello che non tocca dati personali: aprire un'app no.
-    if (request.surface == Surface.SESSION && screen.current?.lockscreen == true && match.kind == QuickCommands.Kind.OPEN_APP) return null
+    if (request.surface == Surface.SESSION && (request.locked || screen.current?.lockscreen == true) && match.kind == QuickCommands.Kind.OPEN_APP) return null
     val zone = ZoneId.systemDefault()
     val ctx = PampaiToolContext(
       app = context, zone = zone, locale = Locale.getDefault(), now = System::currentTimeMillis,
@@ -375,10 +378,11 @@ class AssistantEngine @Inject constructor(
     answer: String,
     toolsUsed: List<String>,
     traces: List<dev.pampa.pampai.core.assistant.tools.PampaiToolTrace>,
+    outcome: String = LOCAL_OUTCOME,
   ): ExecutionResult {
     val finished = System.currentTimeMillis()
     conversations.complete(messageId, answer, emptyList())
-    conversations.addFailedRun(conversationId, messageId, startedAt, finished, LOCAL_OUTCOME, null, traces)
+    conversations.addFailedRun(conversationId, messageId, startedAt, finished, outcome, null, traces)
     conversations.touch(conversationId, finished, null)
     // Lo scambio entra anche nella memoria della conversazione: "e allungalo di 5 minuti" deve
     // sapere di quale timer si parla.

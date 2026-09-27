@@ -153,7 +153,7 @@ internal fun Composer(
       onDraftConsumed()
     }
   }
-  val busy = state.live?.isBusy == true
+  val busy = state.live?.isBusy == true || state.busyElsewhere
   val listening = state.live is AssistantState.Listening
   val transcribing = state.live is AssistantState.Transcribing
   // L'alone mentre ascolta: l'orologio segue il microfono (letto nel loop di frame, non in

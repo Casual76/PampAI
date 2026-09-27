@@ -81,6 +81,11 @@ data class ChatUiState(
    * scelta fatta nel menu "+". La barra in cima ci mette il distintivo.
    */
   val temporary: Boolean = false,
+  /**
+   * Aria sta lavorando per l'overlay di sistema: la chat non lo mostra, ma il composer deve
+   * saperlo, perche' una domanda mandata adesso fermerebbe quella dell'overlay.
+   */
+  val busyElsewhere: Boolean = false,
 ) {
   val enabled: Boolean get() = settings.enabled && keys.any { it.value.verified }
   val isNew: Boolean get() = conversation == null
@@ -90,7 +95,7 @@ data class ChatUiState(
 private data class ChatSettings(val settings: AiSettings, val keys: Map<ProviderId, KeyState>, val catalogues: Map<ProviderId, ModelCatalogue>, val failoverEnabled: Boolean)
 
 /** Cio' che il composer tiene per se': allegati in attesa, anello del contesto, chat temporanea. */
-private data class ComposerState(val attachments: List<PendingAttachment>, val context: ContextEstimate?, val temporary: Boolean)
+private data class ComposerState(val attachments: List<PendingAttachment>, val context: ContextEstimate?, val temporary: Boolean, val busy: Boolean)
 
 /**
  * La chat con Aria: la conversazione attiva (quella del runtime), i suoi messaggi e la telemetria,
@@ -212,7 +217,7 @@ class ChatViewModel @Inject constructor(
       if (s is AssistantState.Answering) delay(66)
     }
 
-  val state: StateFlow<ChatUiState> = combine(conversationFlow, throttledState, runtime.pendingConfirmation, settingsFlow, combine(pendingAttachments, contextEstimate, temporaryNext) { a, c, t -> ComposerState(a, c, t) }) { (conversation, messages, runs), live, pending, (settings, keys, catalogues, failover), (attachments, estimate, temporaryChosen) ->
+  val state: StateFlow<ChatUiState> = combine(conversationFlow, throttledState, runtime.pendingConfirmation, settingsFlow, combine(pendingAttachments, contextEstimate, temporaryNext, runtime.state.map { it.isBusy }.distinctUntilChanged()) { a, c, t, b -> ComposerState(a, c, t, b) }) { (conversation, messages, runs), live, pending, (settings, keys, catalogues, failover), (attachments, estimate, temporaryChosen, runtimeBusy) ->
     ChatUiState(
       conversation = conversation,
       messages = messages,
@@ -227,6 +232,7 @@ class ChatViewModel @Inject constructor(
       failoverEnabled = failover,
       // Prima della prima domanda la conversazione non c'e' ancora: vale la scelta del menu "+".
       temporary = conversation?.temporary ?: temporaryChosen,
+      busyElsewhere = runtimeBusy && live == AssistantState.Idle,
     )
   }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ChatUiState())
 
@@ -310,7 +316,9 @@ class ChatViewModel @Inject constructor(
 
   fun open(conversationId: Long) {
     viewModelScope.launch { plugin.value = conversations.conversation(conversationId)?.plugin }
-    if (runtime.isBusy && runtime.activeConversationId.value != conversationId) runtime.cancel()
+    // Si ferma solo il lavoro su un'altra conversazione: aprire nell'app quella dell'overlay (il
+    // gesto "espandi", una notifica) deve lasciarla finire, non interromperla.
+    if (runtime.isBusy && runtime.liveOwner.value.conversationId != conversationId) runtime.cancel()
     // Aprire un'altra conversazione e' lasciare quella di adesso: se era temporanea, sparisce.
     if (conversationId != runtime.activeConversationId.value) {
       temporaryNext.value = false
