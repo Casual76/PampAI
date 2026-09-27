@@ -136,7 +136,6 @@ internal fun Composer(
   onPlugin: (String?) -> Unit,
   deepNext: Boolean,
   onToggleDeep: () -> Unit,
-  onAttachImage: (ByteArray, String) -> Unit,
   temporary: Boolean,
   onToggleTemporary: () -> Unit,
   resampleIntervalMillis: Long = 0L,
@@ -180,14 +179,15 @@ internal fun Composer(
   val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) onVoice() }
   val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(3)) { uris -> uris.forEach(onAttach) }
   val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> uris.forEach(onAttach) }
-  // L'anteprima basta: e' una foto per il modello, non per l'album. E non vuole ne' il permesso
-  // della fotocamera ne' un FileProvider.
-  val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-    if (bitmap != null) {
-      val out = java.io.ByteArrayOutputStream()
-      bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, out)
-      onAttachImage(out.toByteArray(), "foto.jpg")
-    }
+  // La foto intera, non l'anteprima: l'anteprima e' una miniatura di pochi pixel, e una pagina di
+  // libro o uno scontrino fotografati cosi' non si leggono. Il file lo riempie l'app della
+  // fotocamera (senza permesso della fotocamera per noi) e poi passa dalla via degli allegati,
+  // che la rimpicciolisce a una misura buona per il modello.
+  var cameraUri by rememberSaveable { mutableStateOf<android.net.Uri?>(null) }
+  val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
+    val uri = cameraUri
+    if (saved && uri != null) onAttach(uri)
+    cameraUri = null
   }
   var plusMenu by remember { mutableStateOf(false) }
   var pluginPage by remember { mutableStateOf(false) }
@@ -290,7 +290,7 @@ internal fun Composer(
   ) {
     Column(Modifier.width(264.dp).padding(vertical = 4.dp)) {
       if (!pluginPage) {
-        MenuRow(Icons.Rounded.PhotoCamera, "Fotocamera") { plusMenu = false; cameraLauncher.launch(null) }
+        MenuRow(Icons.Rounded.PhotoCamera, "Fotocamera") { plusMenu = false; runCatching { AttachmentFiles.newCameraUri(context).also { cameraUri = it } }.getOrNull()?.let { cameraLauncher.launch(it) } }
         MenuRow(Icons.Rounded.Image, "Foto") { plusMenu = false; photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
         MenuRow(Icons.Rounded.AttachFile, "File") { plusMenu = false; filePicker.launch(arrayOf("application/pdf", "text/*", "image/*")) }
         MenuDivider()

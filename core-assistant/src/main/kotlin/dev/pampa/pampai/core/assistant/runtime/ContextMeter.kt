@@ -30,6 +30,16 @@ object ContextMeter {
     return ContextEstimate(tokens, window(ready))
   }
 
+  /**
+   * Quanta storia l'anello conta per questo servizio: poca su Groq, dove il limite di token al
+   * minuto del piano gratuito e' il vero tetto, larga altrove. Un posto solo, invece di due
+   * costanti ripetute nell'engine di PampAI.
+   */
+  fun historyBudget(ready: ReadyProvider): Int = when (ready.provider.id) {
+    ProviderId.GROQ -> 5_000
+    ProviderId.GEMINI, ProviderId.OPENROUTER -> 60_000
+  }
+
   fun window(ready: ReadyProvider): Int {
     val model = ready.model(ModelTier.CHAT)
     return ready.catalogue?.chat(model)?.contextWindow ?: when (ready.provider.id) {

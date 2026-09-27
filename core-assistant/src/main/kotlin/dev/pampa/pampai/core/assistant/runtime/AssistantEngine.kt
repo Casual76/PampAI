@@ -21,9 +21,9 @@ import dev.antigravity.fluidengine.ai.provider.ChatRequest
 import dev.antigravity.fluidengine.ai.provider.ContentPart
 import dev.antigravity.fluidengine.ai.provider.Message
 import dev.antigravity.fluidengine.ai.provider.ModelCapabilities
-import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderFactory
+import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ai.provider.ReadyProvider
 import dev.antigravity.fluidengine.ai.provider.ReasoningLevel
 import dev.antigravity.fluidengine.ai.provider.displayName
@@ -32,17 +32,17 @@ import dev.antigravity.fluidengine.ai.tools.resolvedCategory
 import dev.pampa.pampai.core.assistant.attachments.AttachmentReader
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.db.MemoryRepository
-import dev.pampa.pampai.core.assistant.prompt.AriaChips
-import dev.pampa.pampai.core.assistant.prompt.PreRouter
-import dev.pampa.pampai.core.assistant.prompt.QuickCommands
-import dev.pampa.pampai.core.assistant.remote.PampaiFlags
-import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
-import dev.pampa.pampai.core.assistant.prompt.PromptBuilder
-import dev.pampa.pampai.core.assistant.prompt.PromptContext
-import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
 import dev.pampa.pampai.core.assistant.music.FluidifyClient
 import dev.pampa.pampai.core.assistant.permissions.PermissionGate
+import dev.pampa.pampai.core.assistant.prompt.AriaChips
+import dev.pampa.pampai.core.assistant.prompt.PreRouter
+import dev.pampa.pampai.core.assistant.prompt.PromptBuilder
+import dev.pampa.pampai.core.assistant.prompt.PromptContext
+import dev.pampa.pampai.core.assistant.prompt.QuickCommands
 import dev.pampa.pampai.core.assistant.reminders.ReminderRepository
+import dev.pampa.pampai.core.assistant.remote.PampaiFlags
+import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
+import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import dev.pampa.pampai.core.assistant.tools.Dates
 import dev.pampa.pampai.core.assistant.tools.PampaiToolContext
@@ -272,7 +272,7 @@ class AssistantEngine @Inject constructor(
         // quando l'utente l'ha scelto lui per questa domanda ("rigenera con...").
         pinProvider = request.override != null || !pampai.failoverEnabled,
       )
-      estimate = ContextMeter.estimate(prompt, conversation, if (first.provider.id == ProviderId.GROQ) 5_000 else 60_000, registry.specsFor(conversation.loadedGroups), parts, first)
+      estimate = ContextMeter.estimate(prompt, conversation, ContextMeter.historyBudget(first), registry.specsFor(conversation.loadedGroups), parts, first)
       val result = orchestrator.ask(input, runtime.mutableState())
       // Aspettarlo, non solo fermarlo: `cancel()` torna prima che la sua ultima scrittura sia finita.
       persister.cancelAndJoin()
@@ -494,7 +494,7 @@ class AssistantEngine @Inject constructor(
     val prompt = PromptBuilder.build(
       PromptContext(nowLabel(ZoneId.systemDefault()), "it", memory.promptBlock(), catalog.summary, Surface.APP, AskMode.TEXT, true, conversation.loadedCategories.map { it.id }, 12, null, null, null),
     )
-    return ContextMeter.estimate(prompt, conversation, if (ready.provider.id == ProviderId.GROQ) 5_000 else 60_000, catalog.registry.specsFor(conversation.loadedGroups), emptyList(), ready)
+    return ContextMeter.estimate(prompt, conversation, ContextMeter.historyBudget(ready), catalog.registry.specsFor(conversation.loadedGroups), emptyList(), ready)
   }
 
   /** Dimentica la conversazione in memoria: dopo una cancellazione, o una modifica che ne cambia la storia. */

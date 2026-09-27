@@ -268,6 +268,9 @@ interface RunDao {
   @Query("SELECT * FROM runs WHERE conversationId = :conversationId ORDER BY startedAtMillis ASC")
   fun observeByConversation(conversationId: Long): Flow<List<RunEntity>>
 
+  @Query("SELECT * FROM runs WHERE conversationId = :conversationId ORDER BY startedAtMillis ASC")
+  suspend fun listByConversation(conversationId: Long): List<RunEntity>
+
   @Query("SELECT * FROM runs ORDER BY startedAtMillis DESC LIMIT :limit")
   fun observeRecent(limit: Int): Flow<List<RunEntity>>
 

@@ -3,14 +3,15 @@ package dev.pampa.pampai.feature.assistant.chat
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.antigravity.fluidengine.ai.keys.AiKeyStore
 import dev.antigravity.fluidengine.ai.keys.AiSettings
 import dev.antigravity.fluidengine.ai.keys.AiSettingsStore
 import dev.antigravity.fluidengine.ai.keys.KeyState
-import dev.antigravity.fluidengine.ai.keys.AiKeyStore
 import dev.antigravity.fluidengine.ai.keys.ModelCatalogStore
 import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
 import dev.antigravity.fluidengine.ai.orchestrator.AskMode
@@ -31,23 +32,24 @@ import dev.pampa.pampai.core.assistant.runtime.AssistantRequest
 import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
 import dev.pampa.pampai.core.assistant.runtime.ContextEstimate
 import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
+import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import dev.pampa.pampai.core.assistant.tools.RegistryHolder
 import dev.pampa.pampai.core.assistant.tools.Surface
-import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -401,15 +403,20 @@ class ChatViewModel @Inject constructor(
     runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, attachments, Surface.APP, completed, regenerateMessageId = message.id))
   }
 
+  /**
+   * Avvisi brevi per chi usa la chat (un allegato troppo grande, uno di troppo): prima questi casi
+   * finivano nel nulla, e il file scelto semplicemente non compariva.
+   */
+  val notices = MutableSharedFlow<String>(extraBufferCapacity = 4)
+
   /** Un file scelto dal picker: immagini rimpicciolite, PDF e testi come documenti. */
   fun attach(uri: Uri) = viewModelScope.launch {
+    if (pendingAttachments.value.size >= MAX_ATTACHMENTS) {
+      notices.tryEmit("Al massimo $MAX_ATTACHMENTS allegati per messaggio.")
+      return@launch
+    }
     val attachment = withContext(Dispatchers.IO) { load(uri) } ?: return@launch
     pendingAttachments.value = (pendingAttachments.value + attachment).take(MAX_ATTACHMENTS)
-  }
-
-  fun attachImage(bytes: ByteArray, name: String) = viewModelScope.launch {
-    val shrunk = reader.shrinkImage(bytes)
-    pendingAttachments.value = (pendingAttachments.value + PendingAttachment(AttachmentKind.IMAGE, "image/jpeg", name, shrunk)).take(MAX_ATTACHMENTS)
   }
 
   fun removeAttachment(index: Int) {
@@ -422,8 +429,25 @@ class ChatViewModel @Inject constructor(
     val name = runCatching {
       resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
     }.getOrNull() ?: uri.lastPathSegment ?: "allegato"
-    val bytes = runCatching { resolver.openInputStream(uri)?.use { it.readBytes() } }.getOrNull() ?: return null
-    if (bytes.size > MAX_BYTES) return null
+    val size = runCatching {
+      resolver.query(uri, arrayOf(OpenableColumns.SIZE), null, null, null)?.use { cursor -> if (cursor.moveToFirst() && !cursor.isNull(0)) cursor.getLong(0) else null }
+    }.getOrNull()
+    // Prima di leggerlo tutto in memoria: un video da un giga non deve arrivare a readBytes().
+    if (size != null && size > MAX_BYTES) {
+      notices.tryEmit("\"$name\" e' troppo grande: il limite e' ${MAX_BYTES / 1024 / 1024} MB.")
+      return null
+    }
+    val bytes = runCatching { resolver.openInputStream(uri)?.use { it.readBytes() } }
+      .onFailure { Log.w(TAG, "allegato illeggibile: $uri", it) }
+      .getOrNull()
+    if (bytes == null) {
+      notices.tryEmit("Non riesco a leggere \"$name\".")
+      return null
+    }
+    if (bytes.size > MAX_BYTES) {
+      notices.tryEmit("\"$name\" e' troppo grande: il limite e' ${MAX_BYTES / 1024 / 1024} MB.")
+      return null
+    }
     return if (mime.startsWith("image/")) {
       PendingAttachment(AttachmentKind.IMAGE, "image/jpeg", name, reader.shrinkImage(bytes))
     } else {
@@ -432,6 +456,7 @@ class ChatViewModel @Inject constructor(
   }
 
   companion object {
+    private const val TAG = "ChatViewModel"
     const val MAX_ATTACHMENTS = 5
     const val MAX_BYTES = 25 * 1024 * 1024
 

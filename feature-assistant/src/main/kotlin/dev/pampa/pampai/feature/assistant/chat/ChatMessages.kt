@@ -20,9 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AttachFile
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,21 +30,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.PendingConfirmation
+import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
 import dev.antigravity.fluidengine.ui.fluid.FluidChip
+import dev.antigravity.fluidengine.ui.fluid.FluidContextAction
 import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
+import dev.antigravity.fluidengine.ui.fluid.fluidContextMenuAnchor
 import dev.antigravity.fluidengine.ui.fluid.fluidPressable
+import dev.antigravity.fluidengine.ui.fluid.rememberFluidContextMenu
 import dev.pampa.pampai.core.assistant.chat.Greetings
+import dev.pampa.pampai.core.assistant.db.Attachment
 import dev.pampa.pampai.core.assistant.db.AttachmentKind
 import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageStatus
@@ -98,7 +106,7 @@ internal fun LazyItemScope.EmptyGreeting() {
  * proprio quel segnale. La matita sta fuori, a sinistra: dentro rubava spazio a ogni messaggio.
  */
 @Composable
-internal fun UserBubble(message: Message, onEdit: () -> Unit) {
+internal fun UserBubble(message: Message, onEdit: () -> Unit, onOpenAttachment: (Attachment) -> Unit = {}) {
   BoxWithConstraints(Modifier.fillMaxWidth()) {
     val maxBubble = maxWidth * 0.86f
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
@@ -118,7 +126,26 @@ internal fun UserBubble(message: Message, onEdit: () -> Unit) {
           Spacer(Modifier.height(8.dp))
           FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             message.attachments.forEach { attachment ->
-              FluidChip(label = attachment.name.take(28), selected = false, onClick = {}, leading = { Icon(if (attachment.kind == AttachmentKind.IMAGE) Icons.Rounded.Image else Icons.Rounded.AttachFile, contentDescription = null, modifier = Modifier.size(16.dp)) })
+              if (attachment.kind == AttachmentKind.IMAGE) {
+                // La foto si vede: una miniatura vera, e un tocco la apre grande.
+                AsyncImage(
+                  model = java.io.File(attachment.path),
+                  contentDescription = "Immagine allegata: ${attachment.name}",
+                  contentScale = ContentScale.Crop,
+                  modifier = Modifier
+                    .size(88.dp)
+                    .clip(ContinuousCornerShape(FluidRadius.Control))
+                    .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.08f))
+                    .fluidPressable(onClick = { onOpenAttachment(attachment) }, role = Role.Image, haptic = null),
+                )
+              } else {
+                FluidChip(
+                  label = attachment.name.take(28),
+                  selected = false,
+                  onClick = { onOpenAttachment(attachment) },
+                  leading = { Icon(Icons.Rounded.AttachFile, contentDescription = "Documento", modifier = Modifier.size(16.dp)) },
+                )
+              }
             }
           }
         }
@@ -145,6 +172,9 @@ internal fun AssistantMessage(
   onRegenerate: () -> Unit,
   onCopy: () -> Unit,
   onShare: () -> Unit,
+  /** I servizi con una chiave verificata, per "Rigenera con…": vuoto, il tasto rigenera e basta. */
+  regenerateWith: List<ProviderId> = emptyList(),
+  onRegenerateWith: (ProviderId) -> Unit = {},
 ) {
   val busy = live != null && live.isBusy
   // Chi stava rispondendo: l'ultimo modello che ha parlato, o il servizio del passaggio. Serve
@@ -183,7 +213,7 @@ internal fun AssistantMessage(
       Row(verticalAlignment = Alignment.CenterVertically) {
         SmallAction(Icons.Rounded.ContentCopy, "Copia", onCopy)
         SmallAction(Icons.Rounded.Share, "Condividi", onShare)
-        SmallAction(Icons.Rounded.Refresh, "Rigenera", onRegenerate)
+        RegenerateAction(regenerateWith, onRegenerate, onRegenerateWith)
         run?.let {
           Spacer(Modifier.width(4.dp))
           Text(telemetry(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -274,27 +304,52 @@ private fun ResponseBody(text: String, streaming: Boolean, live: Boolean, memo: 
   }
 }
 
+/**
+ * Le azioni sotto un messaggio: 44 dp di bersaglio (erano 32, sotto il minimo per un dito) e
+ * icone leggibili, non un grigio al 55% che si perdeva sul fondo.
+ */
 @Composable
-private fun SmallAction(icon: ImageVector, description: String, onClick: () -> Unit) {
+private fun SmallAction(icon: ImageVector, description: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
   Box(
-    modifier = Modifier
-      .size(32.dp)
+    modifier = modifier
+      .size(44.dp)
       .fluidPressable(onClick = onClick, role = Role.Button, haptic = null),
     contentAlignment = Alignment.Center,
   ) {
-    Icon(icon, contentDescription = description, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), modifier = Modifier.size(16.dp))
+    Icon(icon, contentDescription = description, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
   }
+}
+
+/**
+ * Rigenera, e "rigenera con…": con piu' di un servizio pronto il tocco apre un menu con lo stesso
+ * servizio e gli altri. Una risposta sbagliata di un modello e' spesso giusta per un altro, e
+ * prima per provarlo bisognava cambiare l'ordine nelle impostazioni.
+ */
+@Composable
+private fun RegenerateAction(providers: List<ProviderId>, onRegenerate: () -> Unit, onRegenerateWith: (ProviderId) -> Unit) {
+  if (providers.size < 2) {
+    SmallAction(Icons.Rounded.Refresh, "Rigenera", onRegenerate)
+    return
+  }
+  val menu = rememberFluidContextMenu(actions = {
+    listOf(FluidContextAction("Rigenera", Icons.Rounded.Refresh, onClick = onRegenerate)) +
+      providers.map { provider -> FluidContextAction("Rigenera con ${provider.label}", Icons.Rounded.SwapHoriz) { onRegenerateWith(provider) } }
+  })
+  SmallAction(Icons.Rounded.Refresh, "Rigenera, anche con un altro servizio", onClick = { menu.open() }, modifier = Modifier.fluidContextMenuAnchor(menu))
 }
 
 internal fun copy(context: android.content.Context, text: String) {
   val clipboard = context.getSystemService(android.content.ClipboardManager::class.java) ?: return
   clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Aria", text))
+  // Da Android 13 la conferma la mostra il sistema; prima no, e il tocco sembrava non fare niente.
+  if (android.os.Build.VERSION.SDK_INT < 33) android.widget.Toast.makeText(context, "Copiato", android.widget.Toast.LENGTH_SHORT).show()
 }
 
+/** Condivide la risposta come testo semplice: gli asterischi e i cancelletti del Markdown in un messaggio sono rumore. */
 internal fun share(context: android.content.Context, text: String) {
   val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
     type = "text/plain"
-    putExtra(android.content.Intent.EXTRA_TEXT, text)
+    putExtra(android.content.Intent.EXTRA_TEXT, MarkdownLite.plainText(text))
   }
   runCatching { context.startActivity(android.content.Intent.createChooser(intent, "Condividi la risposta").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }

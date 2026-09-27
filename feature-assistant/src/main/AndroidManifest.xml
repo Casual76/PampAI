@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <application>
+    <!-- Le foto della fotocamera a piena risoluzione (per leggere un testo serve ben piu' di
+         un'anteprima) e gli allegati salvati, aperti con l'app giusta dal fumetto della domanda. -->
+    <provider
+        android:name="androidx.core.content.FileProvider"
+        android:authorities="${applicationId}.files"
+        android:exported="false"
+        android:grantUriPermissions="true">
+      <meta-data
+          android:name="android.support.FILE_PROVIDER_PATHS"
+          android:resource="@xml/pampai_files" />
+    </provider>
+  </application>
+</manifest>

@@ -1,7 +1,7 @@
 package dev.pampa.pampai.core.assistant.db
 
-import androidx.room.withTransaction
 import android.content.Context
+import androidx.room.withTransaction
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.ai.orchestrator.AiRequestLog
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
@@ -286,6 +286,10 @@ class ConversationsRepository @Inject constructor(
    */
   suspend fun exchanges(conversationId: Long, limit: Int): List<Exchange> {
     val messages = messageDao.listByConversation(conversationId)
+    // Chi ha risposto davvero a ciascuna domanda, dai passaggi salvati: prima era "Groq" per tutte,
+    // e l'engine lo usa per decidere come riproporre la storia al modello.
+    val fallbackProvider = conversationDao.get(conversationId)?.lastProvider?.let { ProviderId.fromId(it) } ?: ProviderId.defaultOrder.first()
+    val providerByMessage = runDao.listByConversation(conversationId).mapNotNull { run -> ProviderId.fromId(run.provider)?.let { run.messageId to it } }.toMap()
     val exchanges = mutableListOf<Pair<Exchange, Long>>()
     var pendingQuestion: MessageEntity? = null
     messages.forEach { message ->
@@ -294,7 +298,7 @@ class ConversationsRepository @Inject constructor(
         MessageRole.ASSISTANT.name -> {
           val question = pendingQuestion
           if (question != null && message.status == MessageStatus.DONE.name && message.text.isNotBlank()) {
-            exchanges += Exchange(question.text, message.text, decodeChips(message.chipsJson), ProviderId.GROQ, message.createdAtMillis) to question.id
+            exchanges += Exchange(question.text, message.text, decodeChips(message.chipsJson), providerByMessage[message.id] ?: fallbackProvider, message.createdAtMillis) to question.id
           }
           pendingQuestion = null
         }

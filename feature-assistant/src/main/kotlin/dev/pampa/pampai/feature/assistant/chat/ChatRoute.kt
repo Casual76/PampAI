@@ -34,16 +34,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
+import dev.antigravity.fluidengine.ui.fluid.FluidNotification
 import dev.antigravity.fluidengine.ui.fluid.FluidScreenDefaults
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidGlassQuality
+import dev.antigravity.fluidengine.ui.fluid.LocalFluidNotificationHostState
 import dev.antigravity.fluidengine.ui.fluid.fluidGlassQualityScrollConnection
 import dev.antigravity.fluidengine.ui.fluid.glassBackdropSource
 import dev.antigravity.fluidengine.ui.fluid.rememberFluidGlassQuality
 import dev.antigravity.fluidengine.ui.theme.FluidCard
 import dev.antigravity.fluidengine.ui.theme.LocalRouteMotionSignals
+import dev.pampa.pampai.core.assistant.db.Attachment
+import dev.pampa.pampai.core.assistant.db.AttachmentKind
 import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageRole
 import dev.pampa.pampai.core.assistant.db.MessageStatus
+import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
 import dev.pampa.pampai.feature.assistant.halo.HaloMood
 import dev.pampa.pampai.feature.assistant.halo.haloMood
 
@@ -77,6 +82,17 @@ fun ChatRoute(
   val context = LocalContext.current
   val listState = rememberLazyListState()
   var editing by remember { mutableStateOf<Message?>(null) }
+  var viewing by remember { mutableStateOf<Attachment?>(null) }
+  // I servizi pronti per "Rigenera con…", nell'ordine dell'utente.
+  val readyProviders = remember(state.settings.chatOrder, state.keys) { state.settings.chatOrder.filter { state.keys[it]?.verified == true } }
+  val notifications = LocalFluidNotificationHostState.current
+  LaunchedEffect(viewModel) {
+    viewModel.notices.collect { text ->
+      val host = notifications
+      if (host != null) host.show(FluidNotification(id = "chat-${System.nanoTime()}", title = "Aria", message = text, durationMillis = 3_500L))
+      else android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_SHORT).show()
+    }
+  }
 
   FollowStreaming(
     listState = listState,
@@ -166,7 +182,11 @@ fun ChatRoute(
         state.messages.forEach { message ->
           item(key = message.id) {
             when (message.role) {
-              MessageRole.USER -> UserBubble(message, onEdit = { editing = message })
+              MessageRole.USER -> UserBubble(
+                message,
+                onEdit = { editing = message },
+                onOpenAttachment = { attachment -> if (attachment.kind == AttachmentKind.IMAGE) viewing = attachment else AttachmentFiles.open(context, attachment) },
+              )
               MessageRole.ASSISTANT -> AssistantMessage(
                 message = message,
                 run = state.runs[message.id],
@@ -175,6 +195,8 @@ fun ChatRoute(
                 onResolve = viewModel::resolve,
                 onChip = onChip,
                 onRegenerate = { viewModel.regenerate(message) },
+                regenerateWith = readyProviders,
+                onRegenerateWith = { provider -> viewModel.regenerate(message, ProviderOverride(provider, chatModel = null)) },
                 onCopy = { copy(context, message.text) },
                 onShare = { share(context, message.text) },
               )
@@ -242,7 +264,6 @@ fun ChatRoute(
           onPlugin = viewModel::setPlugin,
           deepNext = deepNext,
           onToggleDeep = viewModel::toggleDeepNext,
-          onAttachImage = viewModel::attachImage,
           temporary = state.temporary,
           // Acceso: una chat nuova che non restera'. Spento: si esce dalla temporanea, e uscire
           // vuol dire che quella di prima non c'e' piu' — in entrambi i casi si riparte da bianco.
@@ -252,6 +273,7 @@ fun ChatRoute(
       }
     }
   }
+  viewing?.let { attachment -> ImageViewer(attachment, onDismiss = { viewing = null }) }
 }
 
 /**
