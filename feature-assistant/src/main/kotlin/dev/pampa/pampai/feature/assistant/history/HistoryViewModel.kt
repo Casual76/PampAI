@@ -52,23 +52,6 @@ class HistoryViewModel @Inject constructor(
     queryFlow.value = query
   }
 
-  // Aprire un'altra conversazione, o cominciarne una, vuol dire lasciare quella di adesso: se era
-  // una chat temporanea, e' qui che sparisce. La lista e la ricerca non ne mostrano mai una,
-  // quindi non si sta mai cancellando cio' che si sta aprendo.
-  fun open(id: Long) {
-    if (runtime.isBusy && runtime.activeConversationId.value != id) runtime.cancel()
-    viewModelScope.launch { engine.dropTemporary() }
-    runtime.selectConversation(id)
-    runtime.reset()
-  }
-
-  fun newConversation() {
-    if (runtime.isBusy) runtime.cancel()
-    viewModelScope.launch { engine.dropTemporary() }
-    runtime.selectConversation(null)
-    runtime.reset()
-  }
-
   fun pin(id: Long, pinned: Boolean) = viewModelScope.launch { conversations.setPinned(id, pinned) }
 
   fun rename(id: Long, title: String) = viewModelScope.launch { conversations.rename(id, title, auto = false) }

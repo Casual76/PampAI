@@ -58,3 +58,19 @@ internal object Device {
     "gmail" to "com.google.android.gm", "instagram" to "com.instagram.android", "impostazioni" to "com.android.settings",
   )
 }
+
+/** Per la UI (il chip `[[apri:...]]`): apre l'app chiamata cosi', con le stesse regole di `apri_app`. */
+object AppLauncher {
+  /** L'intent di avvio dell'app che somiglia di piu' a [name] (un nome o un pacchetto), o null. */
+  fun intentFor(context: android.content.Context, name: String): Intent? {
+    val pm = context.packageManager
+    val packageName = Device.findApp(pm, name)?.second ?: name.trim().takeIf { it.contains('.') } ?: return null
+    return pm.getLaunchIntentForPackage(packageName)
+  }
+
+  /** Vero se l'app si e' aperta. */
+  fun open(context: android.content.Context, name: String): Boolean {
+    val intent = intentFor(context, name) ?: return false
+    return runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); true }.getOrDefault(false)
+  }
+}

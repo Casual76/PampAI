@@ -206,6 +206,7 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
       AriaChips.CONVERSATION -> chip.value?.toLongOrNull()?.let { expandToApp(it) }
       AriaChips.SETTINGS -> if (chip.value == "assistente") { AssistantRole.openSettings(context); hide() } else expandToApp(null)
       AriaChips.PLACE -> chip.value?.let { controller.ask("E a $it?") }
+      AriaChips.REMINDER -> expandToApp(null)
       else -> Unit
     }
   }

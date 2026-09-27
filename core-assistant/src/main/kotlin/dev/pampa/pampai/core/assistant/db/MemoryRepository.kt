@@ -32,6 +32,12 @@ class MemoryRepository @Inject constructor(private val dao: MemoryDao) {
 
   suspend fun remove(id: Long) = dao.delete(id)
 
+  /** Corregge il testo di un ricordo (dalla pagina Memoria): la data e la fissatura restano. */
+  suspend fun update(id: Long, text: String) {
+    val clean = text.trim().take(MAX_CHARS).takeIf { it.isNotEmpty() } ?: return
+    dao.listAll().firstOrNull { it.id == id }?.let { dao.update(it.copy(text = clean)) }
+  }
+
   /** Cancella i fatti che contengono queste parole: torna quanti. */
   suspend fun removeMatching(query: String): Int {
     val matches = dao.listAll().filter { Text.matches(query, it.text) }

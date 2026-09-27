@@ -25,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /** Come si ripete un promemoria. */
 enum class ReminderRepeat(val label: String) {
@@ -89,13 +88,33 @@ class ReminderRepository @Inject constructor(
   suspend fun remove(id: Long): Boolean {
     val entity = dao.get(id) ?: return false
     scheduler.cancel(entity.id)
+    scheduler.cancelSnooze(entity.id)
     dao.delete(id)
     return true
   }
 
+  /** Sposta un promemoria a un altro momento, tenendo la sua ripetizione (dalla pagina Promemoria). */
+  suspend fun reschedule(id: Long, atMillis: Long) {
+    val entity = dao.get(id) ?: return
+    val updated = entity.copy(atMillis = atMillis, enabled = true)
+    dao.update(updated)
+    scheduler.cancelSnooze(id)
+    scheduler.schedule(updated)
+  }
+
+  /**
+   * "Fra 10 minuti". Per un promemoria che si ripete e' una sveglia a parte, una tantum: l'orario
+   * della ripetizione non si tocca. Spostarlo (come si faceva) trascinava con se' le occorrenze
+   * successive: un "ogni giorno alle 8" rimandato una volta diventava "ogni giorno alle 8:10".
+   */
   suspend fun snooze(id: Long, minutes: Int) {
     val entity = dao.get(id) ?: return
-    val updated = entity.copy(atMillis = System.currentTimeMillis() + minutes * 60_000L, enabled = true)
+    val at = System.currentTimeMillis() + minutes * 60_000L
+    if (ReminderRepeat.valueOf(entity.repeat) != ReminderRepeat.NONE && entity.enabled) {
+      scheduler.scheduleSnooze(entity.id, at)
+      return
+    }
+    val updated = entity.copy(atMillis = at, enabled = true)
     dao.update(updated)
     scheduler.schedule(updated)
   }
@@ -148,10 +167,25 @@ class ReminderScheduler(private val context: Context) {
     alarms?.cancel(pendingIntent(id))
   }
 
-  private fun pendingIntent(id: Long): PendingIntent = PendingIntent.getBroadcast(
+  /** Il rinvio di un promemoria ricorrente: suona una volta, senza toccare la ripetizione. */
+  fun scheduleSnooze(id: Long, atMillis: Long) {
+    val manager = alarms ?: return
+    val pending = pendingIntent(id, ReminderReceiver.ACTION_SNOOZED_FIRE)
+    runCatching {
+      if (exactAllowed) manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMillis, pending)
+      else manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMillis, pending)
+    }
+  }
+
+  fun cancelSnooze(id: Long) {
+    alarms?.cancel(pendingIntent(id, ReminderReceiver.ACTION_SNOOZED_FIRE))
+  }
+
+  // L'azione fa parte dell'identita' del PendingIntent: il rinvio e la ripetizione convivono.
+  private fun pendingIntent(id: Long, action: String = ReminderReceiver.ACTION_FIRE): PendingIntent = PendingIntent.getBroadcast(
     context,
     id.toInt(),
-    Intent(context, ReminderReceiver::class.java).setAction(ReminderReceiver.ACTION_FIRE).putExtra(ReminderReceiver.EXTRA_ID, id),
+    Intent(context, ReminderReceiver::class.java).setAction(action).putExtra(ReminderReceiver.EXTRA_ID, id),
     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
   )
 }
@@ -174,6 +208,8 @@ class ReminderReceiver : BroadcastReceiver() {
             notify(context, entity)
             reminders.fired(id)
           }
+          // Un rinvio di un ricorrente: si suona e basta, la prossima occorrenza e' gia' in coda.
+          ACTION_SNOOZED_FIRE -> reminders.get(id)?.let { notify(context, it) }
           ACTION_DONE -> context.getSystemService(NotificationManager::class.java)?.cancel(TAG, id.toInt())
           ACTION_SNOOZE -> {
             context.getSystemService(NotificationManager::class.java)?.cancel(TAG, id.toInt())
@@ -216,6 +252,7 @@ class ReminderReceiver : BroadcastReceiver() {
     const val ACTION_FIRE = "dev.pampa.pampai.reminder.FIRE"
     const val ACTION_DONE = "dev.pampa.pampai.reminder.DONE"
     const val ACTION_SNOOZE = "dev.pampa.pampai.reminder.SNOOZE"
+    const val ACTION_SNOOZED_FIRE = "dev.pampa.pampai.reminder.SNOOZED_FIRE"
     const val EXTRA_ID = "dev.pampa.pampai.reminder.ID"
     const val CHANNEL = "promemoria"
     const val TAG = "promemoria"
@@ -244,6 +281,3 @@ class BootReceiver : BroadcastReceiver() {
 
 /** Per i test JVM: quale sarebbe la prossima occorrenza, senza Android. */
 internal fun nextOccurrenceForTest(repeat: ReminderRepeat, atMillis: Long, from: Long, zone: ZoneId): Long? = ReminderRepeat.next(repeat, atMillis, from, zone)
-
-@Suppress("unused")
-private fun keepRunBlockingImport() = runBlocking { }

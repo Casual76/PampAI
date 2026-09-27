@@ -59,6 +59,7 @@ import dev.antigravity.fluidengine.ui.fluid.rememberFluidNotificationHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.antigravity.fluidengine.ui.theme.FluidRouteMotionHost
 import dev.pampa.pampai.core.assistant.prompt.AriaChips
+import dev.pampa.pampai.core.assistant.tools.device.AppLauncher
 import dev.pampa.pampai.feature.assistant.assist.AssistantRole
 import dev.pampa.pampai.feature.assistant.chat.ChatBackdrops
 import dev.pampa.pampai.feature.assistant.chat.ChatRoute
@@ -66,6 +67,7 @@ import dev.pampa.pampai.feature.assistant.chat.ChatViewModel
 import dev.pampa.pampai.feature.assistant.chat.rememberChatBackdrops
 import dev.pampa.pampai.feature.assistant.consent.consentItems
 import dev.pampa.pampai.feature.assistant.history.AriaDrawer
+import dev.pampa.pampai.feature.assistant.memory.MemoryRoute
 import dev.pampa.pampai.feature.assistant.onboarding.OnboardingRoute
 import dev.pampa.pampai.feature.assistant.settings.AssistantSettingsViewModel
 import dev.pampa.pampai.feature.assistant.settings.SettingsRoute
@@ -82,6 +84,7 @@ private object Routes {
   const val Consent = "consent"
   const val Usage = "usage"
   const val Settings = "settings"
+  const val Memory = "memory"
 }
 
 /** Quanto la pagina coperta si sposta mentre quella nuova la copre. */
@@ -188,6 +191,9 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
             composable(Routes.Usage) {
               Page(this) { UsageRoute(onBack = { navController.popBackStack() }) }
             }
+            composable(Routes.Memory) {
+              Page(this) { MemoryRoute(onBack = { navController.popBackStack() }) }
+            }
             composable(Routes.Settings) {
               Page(this) {
                 SettingsRoute(
@@ -195,6 +201,7 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
                   onBack = { navController.popBackStack() },
                   onOpenConsent = { navController.navigate(Routes.Consent) },
                   onOpenUsage = { navController.navigate(Routes.Usage) },
+                  onOpenMemory = { navController.navigate(Routes.Memory) },
                 )
               }
             }
@@ -266,6 +273,7 @@ private fun Home(
       }
       AriaChips.PLACE -> chip.value?.let { chat.send("E a $it?") }
       AriaChips.APP -> chip.value?.let { name -> openApp(context, name) }
+      AriaChips.REMINDER -> navController.navigate(Routes.Memory)
       else -> Unit
     }
   }
@@ -295,6 +303,9 @@ private fun Home(
             onOpenConversation = { scope.launch { drawer.close() } },
             onOpenSettings = { scope.launch { drawer.close() }; navController.navigate(Routes.Settings) },
             onOpenUsage = { scope.launch { drawer.close() }; navController.navigate(Routes.Usage) },
+            onOpen = chat::open,
+            onNewChat = chat::newConversation,
+            onOpenMemory = { scope.launch { drawer.close() }; navController.navigate(Routes.Memory) },
           )
         }
       }
@@ -313,18 +324,15 @@ private fun Home(
   }
 }
 
-/** Apre un'app per nome (le app Pampa hanno i loro package; le altre si cercano per etichetta). */
+/**
+ * Apre un'app per nome: le app Pampa per il loro nome breve, le altre per etichetta, come fa lo
+ * strumento `apri_app`. Prima qui c'era una tabella a parte, e un chip `[[apri:WhatsApp]]` cercava
+ * un pacchetto chiamato "WhatsApp" e non apriva niente. Se l'app non c'e' lo dice.
+ */
 fun openApp(context: android.content.Context, name: String) {
-  val known = mapOf(
-    "classeviva" to "dev.antigravity.classevivaexpressive", "cv" to "dev.antigravity.classevivaexpressive",
-    "meteo" to "dev.pampa.fluidweather", "fluidweather" to "dev.pampa.fluidweather",
-    "bus" to "dev.antigravity.fluidtransit", "transit" to "dev.antigravity.fluidtransit",
-    "convert" to "com.p2r3.convert", "conv" to "com.p2r3.convert",
-    "store" to "com.pampa.store", "musica" to "dev.pampa.fluidify", "fluidify" to "dev.pampa.fluidify",
-  )
-  val packageName = known[name.lowercase().trim()] ?: name
-  val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return
-  runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+  if (!AppLauncher.open(context, name)) {
+    android.widget.Toast.makeText(context, "Non trovo l'app \"$name\" su questo telefono", android.widget.Toast.LENGTH_SHORT).show()
+  }
 }
 
 /** La pagina di consenso a se', raggiunta dall'interruttore "Aria" delle impostazioni. */

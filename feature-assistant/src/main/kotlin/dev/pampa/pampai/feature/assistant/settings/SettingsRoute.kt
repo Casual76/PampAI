@@ -46,6 +46,7 @@ fun SettingsRoute(
   onOpenConsent: () -> Unit,
   onBack: (() -> Unit)? = null,
   onOpenUsage: () -> Unit = {},
+  onOpenMemory: () -> Unit = {},
   viewModel: AssistantSettingsViewModel = hiltViewModel(),
   about: AboutViewModel = hiltViewModel(),
 ) {
@@ -69,6 +70,12 @@ fun SettingsRoute(
           title = "Consumi",
           subtitle = "Richieste, token e costo stimato per servizio e modello; limiti e avvisi.",
           onClick = onOpenUsage,
+        )
+        FluidListDivider()
+        FluidListRow(
+          title = "Memoria e promemoria",
+          subtitle = "Cosa Aria ricorda di te e i promemoria in arrivo: vedili, correggili, cancellali.",
+          onClick = onOpenMemory,
         )
       }
     }
