@@ -45,7 +45,7 @@ class SessionController(
   val speaking = runtime.speaking
   val screenState = screen.state
 
-  val conversationId: StateFlow<Long?> = runtime.activeConversationId
+  val conversationId: StateFlow<Long?> = runtime.sessionConversationId
 
   val messages: StateFlow<List<Message>> = conversationId
     .flatMapLatest { id -> if (id == null) flowOf(emptyList()) else conversations.observeMessages(id) }
@@ -78,10 +78,14 @@ class SessionController(
   private var hiddenAt = 0L
   private var eventsJob: Job? = null
 
-  fun onShow(startVoice: Boolean, startInText: Boolean) {
+  /**
+   * [locked]: il telefono e' bloccato. Allora si parte sempre da una conversazione nuova: chi
+   * prende in mano un telefono bloccato non deve ritrovare sullo schermo la domanda di prima.
+   */
+  fun onShow(startVoice: Boolean, startInText: Boolean, locked: Boolean = false) {
     val now = System.currentTimeMillis()
-    val continues = hiddenAt > 0L && now - hiddenAt < CONTINUE_WINDOW_MILLIS && conversationId.value != null
-    if (!continues) runtime.selectConversation(null)
+    val continues = !locked && hiddenAt > 0L && now - hiddenAt < CONTINUE_WINDOW_MILLIS && conversationId.value != null
+    if (!continues) runtime.selectSessionConversation(null)
     attachmentsFlow.value = emptyList()
     notice.value = null
     selecting.value = false

@@ -5,29 +5,14 @@ import android.util.Log
 import dagger.hilt.android.HiltAndroidApp
 import dev.antigravity.fluidengine.config.EngineRemoteConfig
 import dev.antigravity.fluidengine.foundation.EngineCompatibility
-import dev.antigravity.fluidengine.foundation.EngineFlag
 import dev.pampa.pampai.core.assistant.bridge.RemoteCatalogs
+import dev.pampa.pampai.core.assistant.remote.PampaiFlags
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
-/** I flag remoti, dichiarati con il valore con cui la build e' stata provata. */
-object Flags {
-  /** La sessione di sistema (tasto di accensione). */
-  val AssistantSession = EngineFlag(key = "assistant_session", default = true)
-
-  /** I tool delle app collegate attraverso il bridge. */
-  val FederatedTools = EngineFlag(key = "federated_tools", default = true)
-
-  /** La voce cloud per leggere le risposte. */
-  val CloudTts = EngineFlag(key = "cloud_tts", default = true)
-
-  /** La ricerca web attraverso il provider. */
-  val WebSearch = EngineFlag(key = "web_search", default = true)
-}
 
 @HiltAndroidApp
 class PampaiApplication : Application() {
@@ -49,12 +34,12 @@ class PampaiApplication : Application() {
 
     // Le app collegate: si cercano subito e a ogni pacchetto che cambia (se il flag remoto non le spegne).
     applicationScope.launch {
-      val enabled = runCatching { remoteConfig.flag(Flags.FederatedTools).first() }.getOrDefault(true)
+      val enabled = runCatching { remoteConfig.flag(PampaiFlags.FederatedTools).first() }.getOrDefault(true)
       if (enabled) remoteCatalogs.start()
     }
 
-    // Cosa fare se questa build e' rimasta indietro: per ora lo si scrive nel log; la UI lo
-    // mostrera' nelle impostazioni, e il kill switch ferma le domande.
+    // Cosa fare se questa build e' rimasta indietro: la chat lo mostra (RemoteSwitches), il kill
+    // switch ferma le domande nell'engine. Qui resta la riga nel log per chi fa il debug.
     applicationScope.launch {
       runCatching {
         when (remoteConfig.compatibility()) {

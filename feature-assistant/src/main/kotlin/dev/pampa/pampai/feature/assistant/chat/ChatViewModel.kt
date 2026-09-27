@@ -210,7 +210,10 @@ class ChatViewModel @Inject constructor(
    * mentre chi lo legge e' fermo, e si sta fermi 66 ms soltanto dopo un `Answering`: gli altri
    * stati passano subito.
    */
-  private val throttledState = runtime.state
+  private val throttledState = combine(runtime.state, runtime.liveOwner, runtime.activeConversationId) { s, owner, active ->
+    // Il lavoro dell'overlay di sistema resta suo, finche' la sua conversazione non e' aperta qui.
+    if (owner.surface == Surface.APP || (owner.conversationId != null && owner.conversationId == active)) s else AssistantState.Idle
+  }
     .transform { s ->
       emit(s)
       if (s is AssistantState.Answering) delay(66)
@@ -356,16 +359,25 @@ class ChatViewModel @Inject constructor(
   /** Un testo arrivato da fuori ("Condividi con Aria"): finisce nel campo, e l'utente lo manda quando vuole. */
   val draft = MutableStateFlow<String?>(null)
 
-  /** Modifica e rinvia: cade tutto cio' che segue, e la domanda riparte con il nuovo testo. */
+  /**
+   * Modifica e rinvia: cade tutto cio' che segue, e la domanda riparte con il nuovo testo.
+   *
+   * Gli allegati restano: sono ancora sul messaggio dell'utente, e si rileggono dal disco per il
+   * modello. Prima partivano vuoti, e "cosa c'e' in questa foto?" corretto in "…in questa
+   * immagine?" arrivava al modello senza immagine.
+   */
   fun editAndResend(message: Message, newText: String) = viewModelScope.launch {
     if (runtime.isBusy) runtime.cancel()
     conversations.updateUserText(message.id, newText)
     conversations.truncateAfter(message.conversationId, message.id)
     engine.forget(message.conversationId)
-    runtime.submit(AssistantRequest(message.conversationId, newText, AskMode.TEXT, emptyList(), Surface.APP, regenerateMessageId = null).let { request ->
-      // Il messaggio dell'utente c'e' gia' (modificato): la domanda riparte senza riscriverlo.
-      request.copy(regenerateMessageId = REGENERATE_AFTER_EDIT)
-    })
+    val attachments = readAttachments(message)
+    // Il messaggio dell'utente c'e' gia' (modificato): la domanda riparte senza riscriverlo.
+    runtime.submit(AssistantRequest(message.conversationId, newText, AskMode.TEXT, attachments, Surface.APP, regenerateMessageId = REGENERATE_AFTER_EDIT))
+  }
+
+  private suspend fun readAttachments(message: Message): List<PendingAttachment> = withContext(Dispatchers.IO) {
+    message.attachments.mapNotNull { a -> runCatching { PendingAttachment(a.kind, a.mime, a.name, java.io.File(a.path).readBytes()) }.getOrNull() }
   }
 
   /**
@@ -378,13 +390,13 @@ class ChatViewModel @Inject constructor(
   fun regenerate(message: Message, override: ProviderOverride? = null) = viewModelScope.launch {
     if (runtime.isBusy) runtime.cancel()
     val messages = state.value.messages
-    val index = messages.indexOfFirst { it.id == message.id }
+    // Un messaggio che non e' (piu') nella lista, per esempio dopo un cambio di conversazione a
+    // meta' tocco: niente da rigenerare. `take(-1)` qui lanciava.
+    val index = messages.indexOfFirst { it.id == message.id }.takeIf { it >= 0 } ?: return@launch
     val question = messages.take(index).lastOrNull { it.role == MessageRole.USER } ?: return@launch
     conversations.truncateAfter(message.conversationId, message.id)
     engine.forget(message.conversationId)
-    val attachments = withContext(Dispatchers.IO) {
-      question.attachments.mapNotNull { a -> runCatching { PendingAttachment(a.kind, a.mime, a.name, java.io.File(a.path).readBytes()) }.getOrNull() }
-    }
+    val attachments = readAttachments(question)
     val completed = override?.let { if (it.deepModel == null) it.copy(deepModel = settingsStore.current().deepModel(it.provider)) else it }
     runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, attachments, Surface.APP, completed, regenerateMessageId = message.id))
   }

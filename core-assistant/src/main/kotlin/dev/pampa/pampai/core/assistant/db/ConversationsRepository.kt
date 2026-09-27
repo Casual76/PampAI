@@ -1,5 +1,6 @@
 package dev.pampa.pampai.core.assistant.db
 
+import androidx.room.withTransaction
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.ai.orchestrator.AiRequestLog
@@ -152,6 +153,7 @@ class ConversationsRepository @Inject constructor(
   private val attachmentDao: AttachmentDao,
   private val runDao: RunDao,
   private val json: Json,
+  private val db: PampaiDatabase,
 ) {
 
   fun observeConversations(): Flow<List<Conversation>> = conversationDao.observeAll().map { list -> list.map { it.toModel() } }
@@ -212,28 +214,24 @@ class ConversationsRepository @Inject constructor(
   /** Al riavvio: una risposta rimasta aperta non e' piu' "in corso". */
   suspend fun failStale() = messageDao.failStale(MessageStatus.FAILED.name, FailureKind.UNKNOWN.name, listOf(MessageStatus.PENDING.name, MessageStatus.STREAMING.name))
 
-  suspend fun touch(conversationId: Long, nowMillis: Long, provider: ProviderId?) {
-    val conversation = conversationDao.get(conversationId) ?: return
-    conversationDao.update(conversation.copy(updatedAtMillis = nowMillis, lastProvider = provider?.id ?: conversation.lastProvider))
-  }
+  suspend fun touch(conversationId: Long, nowMillis: Long, provider: ProviderId?) = conversationDao.touch(conversationId, nowMillis, provider?.id)
 
+  /**
+   * Il titolo. Quello del modello arriva solo se non ce n'e' gia' uno (e mai a una temporanea: le
+   * resta la domanda troncata). Quello scritto a mano vince sempre, anche su un titolo automatico
+   * che arriva dopo: prima una rinomina fatta in fretta veniva sovrascritta dal modello.
+   */
   suspend fun rename(conversationId: Long, title: String, auto: Boolean) {
-    val conversation = conversationDao.get(conversationId) ?: return
-    // Una temporanea non chiede niente al modello per un titolo che nessuno leggera' in cronologia:
-    // le resta la domanda troncata. Rinominarla a mano, se mai capitasse, resta possibile.
-    if (auto && (conversation.autoTitled || conversation.temporary)) return
-    conversationDao.update(conversation.copy(title = title.take(80), autoTitled = auto || conversation.autoTitled))
+    val clean = title.trim().take(80).ifEmpty { return }
+    if (auto) conversationDao.renameAuto(conversationId, clean) else conversationDao.renameManual(conversationId, clean)
   }
 
-  suspend fun setPinned(conversationId: Long, pinned: Boolean) {
-    val conversation = conversationDao.get(conversationId) ?: return
-    conversationDao.update(conversation.copy(pinned = pinned))
-  }
+  suspend fun setPinned(conversationId: Long, pinned: Boolean) = conversationDao.setPinned(conversationId, pinned)
 
-  suspend fun setPlugin(conversationId: Long, plugin: String?) {
-    val conversation = conversationDao.get(conversationId) ?: return
-    if (conversation.plugin != plugin) conversationDao.update(conversation.copy(plugin = plugin))
-  }
+  suspend fun setPlugin(conversationId: Long, plugin: String?) = conversationDao.setPlugin(conversationId, plugin)
+
+  /** Manutenzione all'avvio: le tracce dei passaggi piu' vecchi di un mese si alleggeriscono. */
+  suspend fun compact(nowMillis: Long) = runDao.dropOldTraces(nowMillis - TRACE_RETENTION_MILLIS)
 
   suspend fun setLoadedGroups(conversationId: Long, groupIds: List<String>) {
     val conversation = conversationDao.get(conversationId) ?: return
@@ -334,10 +332,14 @@ class ConversationsRepository @Inject constructor(
     val after = messageDao.listByConversation(conversationId).filter { it.createdAtMillis > message.createdAtMillis || (it.createdAtMillis == message.createdAtMillis && it.id > message.id) }
     val ids = after.map { it.id }
     if (ids.isNotEmpty()) {
-      attachmentDao.listByConversation(conversationId).filter { it.messageId in ids }.forEach { runCatching { File(it.path).delete() } }
-      attachmentDao.deleteByMessages(ids)
-      runDao.deleteByMessages(ids)
-      messageDao.deleteAfter(conversationId, message.createdAtMillis, message.id)
+      val files = attachmentDao.listByConversation(conversationId).filter { it.messageId in ids }.map { it.path }
+      // Tutto o niente: un processo ucciso a meta' non deve lasciare risposte senza domanda.
+      db.withTransaction {
+        attachmentDao.deleteByMessages(ids)
+        runDao.deleteByMessages(ids)
+        messageDao.deleteAfter(conversationId, message.createdAtMillis, message.id)
+      }
+      withContext(Dispatchers.IO) { files.forEach { runCatching { File(it).delete() } } }
     }
   }
 
@@ -347,11 +349,14 @@ class ConversationsRepository @Inject constructor(
   }
 
   suspend fun delete(conversationId: Long) {
-    withContext(Dispatchers.IO) { attachmentDao.listByConversation(conversationId).forEach { runCatching { File(it.path).delete() } } }
-    attachmentDao.deleteByConversation(conversationId)
-    runDao.deleteByConversation(conversationId)
-    messageDao.deleteByConversation(conversationId)
-    conversationDao.delete(conversationId)
+    val files = attachmentDao.listByConversation(conversationId).map { it.path }
+    db.withTransaction {
+      attachmentDao.deleteByConversation(conversationId)
+      runDao.deleteByConversation(conversationId)
+      messageDao.deleteByConversation(conversationId)
+      conversationDao.delete(conversationId)
+    }
+    withContext(Dispatchers.IO) { files.forEach { runCatching { File(it).delete() } } }
   }
 
   /**
@@ -370,11 +375,13 @@ class ConversationsRepository @Inject constructor(
   }
 
   suspend fun deleteAll() {
+    db.withTransaction {
+      attachmentDao.deleteAll()
+      runDao.deleteAll()
+      messageDao.deleteAll()
+      conversationDao.deleteAll()
+    }
     withContext(Dispatchers.IO) { File(context.filesDir, "attachments").deleteRecursively() }
-    attachmentDao.deleteAll()
-    runDao.deleteAll()
-    messageDao.deleteAll()
-    conversationDao.deleteAll()
   }
 
   private fun decodeChips(raw: String?): List<AnswerChip> =
@@ -427,3 +434,6 @@ class ConversationsRepository @Inject constructor(
     runCatching { json.decodeFromString<GroupsJson>(raw) }.getOrNull()
       ?: runCatching { GroupsJson(groups = json.decodeFromString<List<String>>(raw)) }.getOrNull()
 }
+
+/** Quanto restano le tracce complete degli strumenti di un passaggio. */
+private const val TRACE_RETENTION_MILLIS = 30L * 24 * 60 * 60 * 1000

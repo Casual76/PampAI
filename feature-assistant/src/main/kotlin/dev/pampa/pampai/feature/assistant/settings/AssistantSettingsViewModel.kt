@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 data class AssistantSettingsUiState(
@@ -114,11 +115,18 @@ class AssistantSettingsViewModel @Inject constructor(
   fun refreshCatalogue(provider: ProviderId) = viewModelScope.launch { runCatching { verifier.refreshIfStale(provider, force = true) } }
 
   // Voce.
-  /** I tool con conferma che si possono fidare: nome e descrizione, dal catalogo di adesso. */
-  val trustable: List<Pair<String, String>> = registryHolder.catalog.value.registry.tools
-    .filter { it.needsConfirmation && PampaiConfirmationGate.canTrust(it.name) }
-    .map { it.name to it.description }
-    .sortedBy { it.first }
+  /**
+   * I tool con conferma che si possono fidare: nome e descrizione. Segue il catalogo: le app
+   * collegate si montano dopo l'avvio, e una lista letta una volta sola non le vedeva mai.
+   */
+  val trustable: StateFlow<List<Pair<String, String>>> = registryHolder.catalog
+    .map { catalog ->
+      catalog.registry.tools
+        .filter { it.needsConfirmation && PampaiConfirmationGate.canTrust(it.name) }
+        .map { it.name to it.description }
+        .sortedBy { it.first }
+    }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
   val connected = remoteCatalogs.state
   val connectedRefreshing = remoteCatalogs.isRefreshing

@@ -36,12 +36,20 @@ android {
   }
 }
 
+// Lo schema di Room finisce nel repo a ogni versione: e' la storia contro cui scrivere (e
+// verificare) la prossima migrazione, invece di scoprire il buco sul telefono di qualcuno.
+ksp {
+  arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
   // Il trasporto e l'orchestrazione senza dominio stanno nell'engine; qui c'e' il dominio di Aria.
   api project(":engine-ai")
   api project(":engine-ai-bridge")
   api project(":engine-storage")
   implementation project(":engine-net")
+  // Il file di controllo remoto: kill switch e flag, letti da chi deve obbedire.
+  implementation project(":engine-config")
 
   implementation libs.androidx.core.ktx
   implementation libs.hilt.android

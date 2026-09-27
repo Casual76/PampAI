@@ -175,6 +175,26 @@ interface ConversationDao {
   @Query("DELETE FROM conversations WHERE id = :id")
   suspend fun delete(id: Long)
 
+  // Aggiornamenti di un campo solo, in SQL: leggere la riga, copiarla e riscriverla perdeva le
+  // scritture concorrenti (il titolo automatico che arriva mentre si fissa la conversazione).
+
+  @Query("UPDATE conversations SET updatedAtMillis = :nowMillis, lastProvider = COALESCE(:provider, lastProvider) WHERE id = :id")
+  suspend fun touch(id: Long, nowMillis: Long, provider: String?)
+
+  /** Il titolo scritto a mano: da qui in poi il modello non lo sostituisce piu'. */
+  @Query("UPDATE conversations SET title = :title, autoTitled = 1 WHERE id = :id")
+  suspend fun renameManual(id: Long, title: String)
+
+  /** Il titolo dal modello: solo se nessuno ne ha gia' dato uno, e mai a una temporanea. */
+  @Query("UPDATE conversations SET title = :title, autoTitled = 1 WHERE id = :id AND autoTitled = 0 AND `temporary` = 0")
+  suspend fun renameAuto(id: Long, title: String)
+
+  @Query("UPDATE conversations SET pinned = :pinned WHERE id = :id")
+  suspend fun setPinned(id: Long, pinned: Boolean)
+
+  @Query("UPDATE conversations SET plugin = :plugin WHERE id = :id")
+  suspend fun setPlugin(id: Long, plugin: String?)
+
   @Query("DELETE FROM conversations")
   suspend fun deleteAll()
 }
@@ -271,6 +291,10 @@ interface RunDao {
 
   @Query("DELETE FROM runs")
   suspend fun deleteAll()
+
+  /** Le tracce degli strumenti pesano: oltre una certa eta' si tengono costi e modelli, non i dettagli. */
+  @Query("UPDATE runs SET toolTracesJson = NULL WHERE startedAtMillis < :beforeMillis AND toolTracesJson IS NOT NULL")
+  suspend fun dropOldTraces(beforeMillis: Long)
 }
 
 @Dao
@@ -343,7 +367,7 @@ const val PAMPAI_DB_VERSION = 3
 @Database(
   entities = [ConversationEntity::class, MessageEntity::class, AttachmentEntity::class, RunEntity::class, UsageEventEntity::class, MemoryEntity::class, ReminderEntity::class],
   version = PAMPAI_DB_VERSION,
-  exportSchema = false,
+  exportSchema = true,
 )
 abstract class PampaiDatabase : RoomDatabase() {
   abstract fun conversations(): ConversationDao

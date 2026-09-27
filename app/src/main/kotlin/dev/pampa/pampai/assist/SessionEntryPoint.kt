@@ -5,6 +5,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.antigravity.fluidengine.storage.EngineSettingsStore
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
+import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
 import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
 import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
@@ -18,4 +19,5 @@ interface SessionEntryPoint {
   fun screen(): ScreenContextStore
   fun pampaiSettings(): PampaiSettingsStore
   fun engineSettings(): EngineSettingsStore
+  fun remote(): RemoteSwitches
 }

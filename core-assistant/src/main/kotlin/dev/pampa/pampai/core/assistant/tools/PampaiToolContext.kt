@@ -71,6 +71,8 @@ class PampaiToolContext(
    * puo' lasciare tracce altrove. Chi scrive fuori dalla conversazione (`ricorda`) si ferma qui.
    */
   val temporary: Boolean = false,
+  /** La ricerca web passa dal provider (flag remoto `web_search`); spento, si va dritti al motore pubblico. */
+  val webSearchViaProvider: Boolean = true,
 ) {
   private val traceList = java.util.Collections.synchronizedList(mutableListOf<PampaiToolTrace>())
 

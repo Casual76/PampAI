@@ -35,6 +35,8 @@ import dev.pampa.pampai.core.assistant.db.MemoryRepository
 import dev.pampa.pampai.core.assistant.prompt.AriaChips
 import dev.pampa.pampai.core.assistant.prompt.PreRouter
 import dev.pampa.pampai.core.assistant.prompt.QuickCommands
+import dev.pampa.pampai.core.assistant.remote.PampaiFlags
+import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
 import dev.pampa.pampai.core.assistant.prompt.PromptBuilder
 import dev.pampa.pampai.core.assistant.prompt.PromptContext
 import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
@@ -103,6 +105,7 @@ class AssistantEngine @Inject constructor(
   private val permissions: PermissionGate,
   private val reminders: ReminderRepository,
   private val fluidify: FluidifyClient,
+  private val remote: RemoteSwitches,
 ) {
 
   internal fun screenNote(request: AssistantRequest): String? = screenNoteOf(screen.current, request) { pkg ->
@@ -139,7 +142,7 @@ class AssistantEngine @Inject constructor(
     val conversationId = request.conversationId?.takeIf { conversations.conversation(it) != null }
       // La temporanea si decide qui, alla nascita: dalla domanda dopo e' la riga su disco a dirlo.
       ?: conversations.createConversation(question, now, source = if (request.surface == Surface.SESSION) "session" else "app", temporary = request.temporary)
-    runtime.setActiveConversation(conversationId)
+    runtime.setActiveConversation(conversationId, request.surface)
     // Rigenera: la domanda dell'utente c'e' gia' su disco; con un id vero si riusa il messaggio
     // dell'assistente, con l'id sentinella (modifica e rinvia) se ne crea uno nuovo.
     val skipUser = request.regenerateMessageId != null
@@ -158,10 +161,17 @@ class AssistantEngine @Inject constructor(
     var traced: PampaiToolContext? = null
     var estimate: ContextEstimate? = null
     try {
+      // Il kill switch remoto: una build che fa danni si ferma qui, con una frase che dice perche'.
+      remote.stopMessage()?.let { message ->
+        persister.cancelAndJoin()
+        return@coroutineScope answerLocally(request, conversationId, messageId, now, message, toolsUsed = emptyList(), traces = emptyList())
+      }
       val settings = settingsStore.current()
       // Il comando rapido prima di tutto, anche prima dei servizi: "timer di 10 minuti" non ha
       // bisogno di un modello, e deve funzionare pure senza chiavi e senza rete.
-      if (request.attachments.isEmpty() && request.regenerateMessageId == null && request.override == null && pampaiSettings.current().quickCommands) {
+      // Una domanda nuova o corretta ("modifica e rinvia"), non un "rigenera", che chiede il modello.
+      val fresh = (request.regenerateMessageId ?: 0L) <= 0L
+      if (request.attachments.isEmpty() && fresh && request.override == null && pampaiSettings.current().quickCommands) {
         val quick = runQuick(request, conversationId, messageId, settings.actionsEnabled, registry, now)
         if (quick != null) {
           persister.cancelAndJoin()
@@ -190,6 +200,7 @@ class AssistantEngine @Inject constructor(
         permissions = permissions, reminders = reminders, fluidify = fluidify, usage = usage, aiSettings = settingsStore,
         connectedPackages = { catalog.connectedPackages },
         temporary = stored?.temporary == true,
+        webSearchViaProvider = remote.isEnabled(PampaiFlags.WebSearch),
       )
       traced = toolContext
 
@@ -348,9 +359,22 @@ class AssistantEngine @Inject constructor(
       return null
     }
     val answer = QuickCommands.reply(match, output?.text, ZonedDateTime.now(zone)) ?: return null
+    return answerLocally(request, conversationId, messageId, startedAt, answer, listOfNotNull(match.tool), ctx.traces)
+  }
+
+  /** Una risposta scritta qui e non dal modello (comando rapido, kill switch): su disco, in memoria, nello stato. */
+  private suspend fun answerLocally(
+    request: AssistantRequest,
+    conversationId: Long,
+    messageId: Long,
+    startedAt: Long,
+    answer: String,
+    toolsUsed: List<String>,
+    traces: List<dev.pampa.pampai.core.assistant.tools.PampaiToolTrace>,
+  ): ExecutionResult {
     val finished = System.currentTimeMillis()
     conversations.complete(messageId, answer, emptyList())
-    conversations.addFailedRun(conversationId, messageId, startedAt, finished, LOCAL_OUTCOME, null, ctx.traces)
+    conversations.addFailedRun(conversationId, messageId, startedAt, finished, LOCAL_OUTCOME, null, traces)
     conversations.touch(conversationId, finished, null)
     // Lo scambio entra anche nella memoria della conversazione: "e allungalo di 5 minuti" deve
     // sapere di quale timer si parla.
@@ -359,7 +383,7 @@ class AssistantEngine @Inject constructor(
     runtime.setState(
       AssistantState.Done(
         question = request.question, answer = answer, chips = emptyList(), provider = provider, mode = request.mode,
-        usage = null, toolsUsed = listOfNotNull(match.tool), durationMillis = finished - startedAt,
+        usage = null, toolsUsed = toolsUsed, durationMillis = finished - startedAt,
       ),
     )
     return ExecutionResult(conversationId, request.question, answer, null, cancelled = false)

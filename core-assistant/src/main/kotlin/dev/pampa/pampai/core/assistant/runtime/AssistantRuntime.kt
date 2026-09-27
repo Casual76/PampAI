@@ -20,6 +20,7 @@ import dev.pampa.pampai.core.assistant.attachments.PendingAttachment
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.service.AssistantForegroundService
 import dev.pampa.pampai.core.assistant.tools.Surface
+import dev.pampa.pampai.core.assistant.usage.UsageRepository
 import dev.pampa.pampai.core.assistant.voice.AriaSpeaker
 import dev.pampa.pampai.core.assistant.voice.DualSttEngine
 import dev.pampa.pampai.core.assistant.voice.SttState
@@ -95,6 +96,7 @@ class AssistantRuntime @Inject constructor(
   private val conversations: ConversationsRepository,
   private val stt: DualSttEngine,
   private val speaker: AriaSpeaker,
+  private val usage: UsageRepository,
   voiceConfirmation: VoiceConfirmation,
 ) {
 
@@ -121,7 +123,26 @@ class AssistantRuntime @Inject constructor(
   val speaking: StateFlow<Boolean> = speaker.speaking
 
   private val activeConversation = MutableStateFlow<Long?>(null)
+
+  /** La conversazione della chat dell'app. */
   val activeConversationId: StateFlow<Long?> = activeConversation
+
+  /**
+   * La conversazione dell'overlay di sistema, separata da quella dell'app.
+   *
+   * Erano la stessa: aprire Aria sopra un'altra app faceva `selectConversation(null)` e, tornando
+   * nell'app, la chat che si stava leggendo era sparita dietro una pagina vuota.
+   */
+  private val sessionConversation = MutableStateFlow<Long?>(null)
+  val sessionConversationId: StateFlow<Long?> = sessionConversation
+
+  /**
+   * Di chi e' lo stato vivo: da quale superficie e' partita la domanda e su quale conversazione.
+   * La chat dell'app mostra il lavoro in corso solo se e' suo, cosi' una risposta dell'overlay non
+   * compare come una bolla in una chat nuova dell'app.
+   */
+  private val liveOwnerFlow = MutableStateFlow(LiveOwner(Surface.APP, null))
+  val liveOwner: StateFlow<LiveOwner> = liveOwnerFlow
 
   val pendingConfirmation: StateFlow<PendingConfirmation?> = gate.current
 
@@ -144,6 +165,12 @@ class AssistantRuntime @Inject constructor(
 
   init {
     scope.launch { runCatching { conversations.failStale() } }
+    // Manutenzione: senza, consumi e tracce crescevano per sempre.
+    scope.launch {
+      val now = System.currentTimeMillis()
+      runCatching { conversations.compact(now) }
+      runCatching { usage.prune(now) }
+    }
     // Una chat temporanea non sopravvive al processo. Di solito la cancella chi la lascia (il
     // ChatViewModel), ma un'app uccisa dal sistema mentre la chat era aperta non passa di li':
     // qui, prima che qualunque domanda possa partire, il disco torna pulito. Non serve avvisare
@@ -211,7 +238,7 @@ class AssistantRuntime @Inject constructor(
     speaker.stop()
     pending = request.copy(question = text.ifEmpty { "Guarda l'allegato." })
     lastModeFlow.value = request.mode
-    activeConversation.value = request.conversationId
+    track(request.surface, request.conversationId)
     stateFlow.value = AssistantState.Working(text, 0, 1, "thinking", 0, ProviderId.defaultOrder.first())
     ContextCompat.startForegroundService(context, Intent(context, AssistantForegroundService::class.java))
   }
@@ -226,12 +253,23 @@ class AssistantRuntime @Inject constructor(
     stateFlow.value = state
   }
 
-  /** Quale conversazione continua la prossima domanda; null = se ne apre una nuova. */
+  /** Quale conversazione continua la prossima domanda dell'app; null = se ne apre una nuova. */
   fun selectConversation(id: Long?) {
     activeConversation.value = id
   }
 
-  internal fun setActiveConversation(id: Long?) = selectConversation(id)
+  /** Come [selectConversation], per l'overlay di sistema. */
+  fun selectSessionConversation(id: Long?) {
+    sessionConversation.value = id
+  }
+
+  /** La domanda di [surface] lavora su [id]: la superficie la segue, e lo stato vivo e' suo. */
+  internal fun setActiveConversation(id: Long?, surface: Surface) = track(surface, id)
+
+  private fun track(surface: Surface, id: Long?) {
+    if (surface == Surface.SESSION) sessionConversation.value = id else activeConversation.value = id
+    liveOwnerFlow.value = LiveOwner(surface, id)
+  }
 
   fun resolveConfirmation(id: Long, confirmed: Boolean) = gate.resolve(id, confirmed)
 
@@ -261,7 +299,7 @@ class AssistantRuntime @Inject constructor(
   fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList(), temporary: Boolean = false) {
     if (isBusy) cancel()
     speaker.stop()
-    activeConversation.value = conversationId
+    track(surface, conversationId)
     voiceJob = scope.launch {
       try {
         stateFlow.value = AssistantState.Listening(0L)
@@ -343,3 +381,6 @@ class AssistantRuntime @Inject constructor(
     const val HINT = "Domande a un assistente per il telefono e le app Pampa: meteo, autobus, registro scolastico, musica, sveglie, promemoria."
   }
 }
+
+/** Chi possiede lo stato vivo del runtime: la superficie della domanda e la sua conversazione. */
+data class LiveOwner(val surface: Surface, val conversationId: Long?)

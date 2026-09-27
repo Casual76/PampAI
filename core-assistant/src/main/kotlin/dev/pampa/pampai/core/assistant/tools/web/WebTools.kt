@@ -22,11 +22,23 @@ import dev.pampa.pampai.core.assistant.tools.PampaiGroup
 import dev.pampa.pampai.core.assistant.tools.PampaiToolContext
 import dev.pampa.pampai.core.assistant.tools.Text
 import dev.pampa.pampai.core.assistant.tools.calc.pretty
+import java.net.Inet6Address
+import java.net.InetAddress
+import java.net.URI
 import java.net.URLEncoder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
+import org.jsoup.Connection
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
-private const val USER_AGENT = "Mozilla/5.0 (Linux; Android 14) PampAI/0.1 (assistente; +https://github.com/Casual76/PampAI)"
+private const val USER_AGENT = "Mozilla/5.0 (Linux; Android 14) PampAI/1.2 (assistente; +https://github.com/Casual76/PampAI)"
+
+/** Oltre questo una pagina non e' un articolo: si tronca il download, non la memoria del telefono. */
+private const val MAX_BODY_BYTES = 3 * 1024 * 1024
+
+private const val MAX_REDIRECTS = 5
 
 /**
  * La ricerca sul web con il meccanismo del provider in uso (Google Search su Gemini, plugin web su
@@ -41,7 +53,8 @@ class CercaWebTool : AiTool<PampaiToolContext> {
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     val query = args.str("domanda") ?: return ToolOutput.error("manca la domanda")
-    val ready = ctx.provider
+    // Il flag remoto `web_search` puo' spegnere la ricerca attraverso il provider: resta il motore pubblico.
+    val ready = ctx.provider?.takeIf { ctx.webSearchViaProvider }
     if (ready != null) {
       try {
         val turn = ready.provider.complete(
@@ -79,9 +92,11 @@ class CercaWebTool : AiTool<PampaiToolContext> {
     return duckDuckGo(query)
   }
 
-  private fun duckDuckGo(query: String): ToolOutput {
-    val doc = runCatching {
-      Jsoup.connect("https://html.duckduckgo.com/html/?q=" + URLEncoder.encode(query, "UTF-8")).userAgent(USER_AGENT).timeout(10_000).get()
+  private suspend fun duckDuckGo(query: String): ToolOutput {
+    val doc = withContext(Dispatchers.IO) {
+      runCatching {
+        Jsoup.connect("https://html.duckduckgo.com/html/?q=" + URLEncoder.encode(query, "UTF-8")).userAgent(USER_AGENT).timeout(10_000).maxBodySize(MAX_BODY_BYTES).get()
+      }
     }.getOrElse { return ToolOutput.error("ricerca non riuscita: ${it.message ?: "rete"}") }
     val results = doc.select("div.result").take(6).mapNotNull { element ->
       val link = element.selectFirst("a.result__a") ?: return@mapNotNull null
@@ -106,10 +121,10 @@ class LeggiPaginaTool : AiTool<PampaiToolContext> {
   override val parameters = Schema.obj(mapOf("url" to Schema.str("l'indirizzo completo, con https://"), "pagina" to Schema.int("quale pezzo del testo", 1, 50)), required = listOf("url"))
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
-    val url = args.str("url")?.let { if (it.startsWith("http")) it else "https://$it" } ?: return ToolOutput.error("manca l'url")
+    val url = args.str("url")?.trim()?.let { if (it.startsWith("http://", true) || it.startsWith("https://", true)) it else "https://$it" } ?: return ToolOutput.error("manca l'url")
     val page = (args.int("pagina") ?: 1).coerceAtLeast(1)
-    val doc = runCatching { Jsoup.connect(url).userAgent(USER_AGENT).timeout(12_000).followRedirects(true).get() }
-      .getOrElse { return ToolOutput.error("pagina non raggiungibile: ${it.message ?: "rete"}") }
+    val doc = withContext(Dispatchers.IO) { runCatching { SafeFetch.document(url) } }
+      .getOrElse { return ToolOutput.error(if (it is SafeFetch.Refused) it.message ?: "indirizzo non consentito" else "pagina non raggiungibile: ${it.message ?: "rete"}") }
     doc.select("script, style, nav, footer, header, aside, noscript, iframe, form, svg, [role=navigation], [aria-hidden=true]").remove()
     val main = doc.selectFirst("article") ?: doc.selectFirst("main") ?: doc.body()
     val text = main?.text()?.replace(Regex("\\s{2,}"), " ")?.trim().orEmpty()
@@ -222,3 +237,65 @@ object Currencies {
 }
 
 fun webTools(): List<AiTool<PampaiToolContext>> = listOf(CercaWebTool(), LeggiPaginaTool(), WikipediaTool(), DefinizioneTool(), ValutaTool())
+
+/**
+ * Scaricare una pagina che ha scelto il modello, cioe' un URL che puo' venire da un testo di terzi
+ * (una pagina letta prima, una notifica, uno screenshot). Quindi solo web pubblico: http/https,
+ * nessun indirizzo della rete di casa o del telefono stesso (router, stampanti, servizi su
+ * localhost), controllato a ogni redirect e dopo la risoluzione DNS; e un tetto alla dimensione.
+ */
+internal object SafeFetch {
+
+  class Refused(message: String) : Exception(message)
+
+  fun document(url: String): Document {
+    var current = url
+    repeat(MAX_REDIRECTS + 1) {
+      check(current)
+      val response = Jsoup.connect(current)
+        .userAgent(USER_AGENT)
+        .timeout(12_000)
+        .maxBodySize(MAX_BODY_BYTES)
+        .followRedirects(false)
+        .ignoreHttpErrors(true)
+        .method(Connection.Method.GET)
+        .execute()
+      val status = response.statusCode()
+      if (status in 300..399) {
+        val location = response.header("Location") ?: throw Refused("redirect senza destinazione")
+        current = URI(current).resolve(location).toString()
+        return@repeat
+      }
+      if (status >= 400) throw IllegalStateException("il sito ha risposto $status")
+      return response.parse()
+    }
+    throw Refused("troppi redirect")
+  }
+
+  fun check(url: String) {
+    val uri = runCatching { URI(url) }.getOrNull() ?: throw Refused("indirizzo non valido")
+    val scheme = uri.scheme?.lowercase()
+    if (scheme != "http" && scheme != "https") throw Refused("solo indirizzi http o https")
+    val host = uri.host ?: throw Refused("indirizzo senza host")
+    val addresses = runCatching { InetAddress.getAllByName(host).toList() }.getOrNull() ?: throw IllegalStateException("host sconosciuto: $host")
+    if (addresses.any { isPrivate(it) }) throw Refused("indirizzo della rete locale o del telefono: non si legge")
+  }
+
+  fun isPrivate(address: InetAddress): Boolean {
+    if (address.isAnyLocalAddress || address.isLoopbackAddress || address.isLinkLocalAddress || address.isSiteLocalAddress || address.isMulticastAddress) return true
+    val bytes = address.address
+    if (address is Inet6Address) {
+      // fc00::/7, gli indirizzi unici locali: IPv6 li chiama cosi', Java non li conta fra i "site local".
+      if ((bytes[0].toInt() and 0xfe) == 0xfc) return true
+      // ::ffff:a.b.c.d, un IPv4 travestito: vale quello che c'e' dentro.
+      if (bytes.size == 16 && bytes.take(10).all { it.toInt() == 0 } && bytes[10].toInt() == -1 && bytes[11].toInt() == -1) {
+        return isPrivate(InetAddress.getByAddress(bytes.copyOfRange(12, 16)))
+      }
+      return false
+    }
+    val first = bytes[0].toInt() and 0xff
+    val second = bytes[1].toInt() and 0xff
+    // 100.64.0.0/10 (CGNAT) e 0.0.0.0/8: non sono "site local" per Java, ma non sono web pubblico.
+    return first == 0 || (first == 100 && second in 64..127)
+  }
+}

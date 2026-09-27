@@ -1,5 +1,6 @@
 package dev.pampa.pampai.feature.assistant.settings
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -120,8 +121,9 @@ fun PermissionsSection() {
 @Composable
 fun TrustedActionsSection(viewModel: AssistantSettingsViewModel, state: AssistantSettingsUiState) {
   val trusted = state.pampai.trustedActions
+  val trustable by viewModel.trustable.collectAsStateWithLifecycle()
   FluidCard {
-    if (viewModel.trustable.isEmpty()) {
+    if (trustable.isEmpty()) {
       Text("Nessuna azione da fidare per ora.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
       return@FluidCard
     }
@@ -133,7 +135,7 @@ fun TrustedActionsSection(viewModel: AssistantSettingsViewModel, state: Assistan
         modifier = Modifier.padding(bottom = 10.dp),
       )
       FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        viewModel.trustable.forEach { (name, _) ->
+        trustable.forEach { (name, _) ->
           FluidChip(label = name.replace('_', ' '), selected = name in trusted, onClick = { viewModel.setTrusted(name, name !in trusted) })
         }
       }

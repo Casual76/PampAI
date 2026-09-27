@@ -28,9 +28,10 @@ object DatabaseModule {
   fun provideDatabase(@ApplicationContext context: Context): PampaiDatabase =
     Room.databaseBuilder(context, PampaiDatabase::class.java, "pampai.db")
       .addMigrations(*PAMPAI_MIGRATIONS)
-      // Solo per gli schemi che nessuna migrazione conosce: le conversazioni dell'utente non
-      // sono un dato che si butta perche' e' cambiata una colonna.
-      .fallbackToDestructiveMigration(dropAllTables = true)
+      // Solo all'indietro (una versione vecchia installata sopra una nuova) si ricomincia da zero.
+      // In avanti ogni versione ha la sua migrazione, verificata sugli schemi in core-assistant/schemas:
+      // un buco deve fallire in sviluppo, non cancellare in silenzio le conversazioni dell'utente.
+      .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
       .build()
 
   @Provides fun conversations(db: PampaiDatabase): ConversationDao = db.conversations()
@@ -69,6 +70,6 @@ internal val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
 
 /**
  * Tutte le migrazioni, in ordine: devono coprire ogni passo fino a PAMPAI_DB_VERSION, perche'
- * il buco lo raccoglie `fallbackToDestructiveMigration`, e li' le conversazioni si perdono.
+ * un buco fa fallire l'apertura del database: meglio in sviluppo che con i dati di qualcuno.
  */
 internal val PAMPAI_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)

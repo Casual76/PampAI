@@ -45,6 +45,9 @@ class UsageRepository @Inject constructor(private val dao: UsageEventDao) : AiUs
 
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+  /** Gli eventi piu' vecchi del periodo piu' lungo che la pagina Consumi mostra non servono a nessuno. */
+  suspend fun prune(nowMillis: Long) = dao.prune(nowMillis - RETENTION_MILLIS)
+
   override fun onTurn(event: AiUsageEvent) {
     scope.launch {
       dao.insert(
@@ -141,3 +144,6 @@ object CostTable {
     return audioSeconds / 3600.0 * perHour
   }
 }
+
+/** 90 giorni: il triplo del periodo piu' lungo della pagina Consumi. */
+private const val RETENTION_MILLIS = 90L * 24 * 60 * 60 * 1000

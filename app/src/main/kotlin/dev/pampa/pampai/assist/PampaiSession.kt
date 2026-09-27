@@ -27,6 +27,7 @@ import dev.pampa.pampai.feature.assistant.session.PampaiSessionOverlay
 import dev.pampa.pampai.feature.assistant.session.SessionActions
 import dev.pampa.pampai.feature.assistant.session.SessionComposeHost
 import dev.pampa.pampai.feature.assistant.session.SessionController
+import dev.pampa.pampai.core.assistant.remote.PampaiFlags
 import dev.pampa.pampai.feature.assistant.theme.PampaiTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -134,8 +135,13 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
     )
     if (::host.isInitialized) host.resume()
     scope.launch {
+      // Il flag remoto `assistant_session` spegne l'overlay: si apre l'app, che funziona comunque.
+      if (!entry.remote().isEnabled(PampaiFlags.AssistantSession)) {
+        expandToApp(null)
+        return@launch
+      }
       val settings = entry.pampaiSettings().settings.first()
-      controller.onShow(startVoice = source != PampaiInteractionService.SOURCE_TEXT, startInText = settings.startInText)
+      controller.onShow(startVoice = source != PampaiInteractionService.SOURCE_TEXT, startInText = settings.startInText, locked = keyguard)
     }
   }
 
