@@ -65,6 +65,7 @@ class QuickCommandsTest {
     assertEquals("avanti", QuickCommands.match("prossima canzone")?.args?.get("azione"))
     assertEquals("whatsapp", QuickCommands.match("apri WhatsApp")?.args?.get("nome"))
     assertEquals("calcolatrice", QuickCommands.match("apri la calcolatrice")?.args?.get("nome"))
+    assertEquals("spotify", QuickCommands.match("puoi aprire spotify?")?.args?.get("nome"))
   }
 
   @Test
@@ -94,6 +95,8 @@ class QuickCommandsTest {
       "timer",
       "metti una sveglia",
       "spiegami come funziona la batteria del telefono",
+      "avvisami alle 18",
+      "lancia una moneta",
       "",
     ).forEach { assertNull(it, QuickCommands.match(it)) }
   }

@@ -68,7 +68,7 @@ object QuickCommands {
 
   private val dnd = Regex("^(attiv\\w*|accend\\w*|mett\\w*|disattiv\\w*|speg\\w*|togli\\w*)\\s+(?:il\\s+|la\\s+modalita\\s+)?non disturbare$")
 
-  private val openApp = Regex("^(?:apri\\w*|lanci\\w*|avvi\\w*)\\s+(?:l'app\\s+|l app\\s+|app\\s+|l'applicazione\\s+|la\\s+|il\\s+|lo\\s+|l')?([a-z0-9][a-z0-9 .'&+-]{1,28})$")
+  private val openApp = Regex("^(?:apri|aprimi|aprire|apra|lancia|lanciami|lanciare|avvia|avviami|avviare)\\s+(?:l'app\\s+|l app\\s+|app\\s+|l'applicazione\\s+|la\\s+|il\\s+|lo\\s+|l')?([a-z0-9][a-z0-9 .'&+-]{1,28})$")
 
   /** Parole che dicono "non un'app": una pagina, un link, un file, un contatto. */
   private val notAnApp = Regex("\\b(pagina|sito|link|file|documento|foto|immagine|chat|conversazione|messaggio|mail|email|notific\\w*|impostazion\\w*|impostazioni|porta|finestra|questo|questa|quello|quella|http|www|un|una|il mio|la mia|mappa di|ultima|ultimo|musica|timer|sveglia|canzone|brano|playlist|radio|torcia|volume)\\b")
