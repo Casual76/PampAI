@@ -41,11 +41,20 @@ class RicordaTool : AiTool<PampaiToolContext> {
     // Da una chat temporanea non esce niente: e' l'unica promessa che fa. Non un `errore:` da
     // correggere e riprovare -- non c'e' niente da correggere -- ma una riga da riferire.
     if (ctx.temporary) return ToolOutput(TEMPORARY_NO_MEMORY)
+    // Se in questa domanda Aria ha letto testo scritto da altri (una pagina, una notifica, lo
+    // schermo, un'app collegata), il "ricorda" potrebbe venire da li' e non dall'utente: quel
+    // testo entrerebbe in ogni conversazione futura. Allora decide l'utente, con un tasto.
+    if (ctx.traces.any { it.app != null || it.name in EXTERNAL_READERS }) {
+      ctx.confirm(name, "Ricordare questo?", text)?.let { return it }
+    }
     ctx.memory.add(text, ctx.conversationId, ctx.now())
     return ToolText.output { line("fatto", "ricordato: $text") }
   }
 
   private companion object {
+    /** Gli strumenti che portano dentro testo scritto da altri. */
+    val EXTERNAL_READERS = setOf("cerca_web", "leggi_pagina", "notifiche_recenti", "schermo_leggi", "schermo_guarda", "traduci_schermo")
+
     const val TEMPORARY_NO_MEMORY =
       "questa e' una chat temporanea: non lascia tracce, quindi non si puo' ricordare niente da qui. Dillo all'utente in una riga: se vuole che tu lo ricordi, deve chiederlo in una chat normale."
   }

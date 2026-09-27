@@ -138,7 +138,9 @@ class AssistantEngine @Inject constructor(
     val now = System.currentTimeMillis()
     val question = request.question
     val catalog = registryHolder.catalog.value
-    val registry = catalog.registry
+    // Dal telefono bloccato solo gli strumenti che non toccano dati personali (LockscreenPolicy).
+    val locked = request.surface == Surface.SESSION && screen.current?.lockscreen == true
+    val registry = if (locked) LockscreenPolicy.restrict(catalog.registry) else catalog.registry
     val conversationId = request.conversationId?.takeIf { conversations.conversation(it) != null }
       // La temporanea si decide qui, alla nascita: dalla domanda dopo e' la riga su disco a dirlo.
       ?: conversations.createConversation(question, now, source = if (request.surface == Surface.SESSION) "session" else "app", temporary = request.temporary)
@@ -221,7 +223,8 @@ class AssistantEngine @Inject constructor(
         PromptContext(
           nowLabel = nowLabel(zone),
           language = "it",
-          memoryBlock = memory.promptBlock(),
+          // La memoria parla del proprietario: dal telefono bloccato non entra nel prompt.
+          memoryBlock = if (locked) "" else memory.promptBlock(),
           connectedApps = catalog.summary,
           surface = request.surface,
           mode = request.mode,
@@ -233,6 +236,7 @@ class AssistantEngine @Inject constructor(
           conversationTitle = stored?.title?.takeIf { stored.autoTitled },
           pluginLabel = pluginCategory?.label,
           temporary = stored?.temporary == true,
+          lockscreen = locked,
         ),
       )
       val pre = PreRouter(catalog.preRules).decide(question, settings.actionsEnabled, parts.isNotEmpty())

@@ -10,14 +10,22 @@ Keystore, e viaggiano solo verso il servizio a cui appartengono.
 
 ## Cosa sa fare
 
-- **Chat con memoria.** Le conversazioni restano, si riprendono, si cercano. Sotto ogni risposta c'è
-  la riga degli strumenti usati, apribile: cosa ha chiesto a chi, quanto ci ha messo, quanti token.
+- **Comandi rapidi.** "Timer di 10 minuti", "svegliami alle 7", "accendi la torcia", "alza il volume",
+  "che ore sono", "quanta batteria ho", "quanto fa 12*7", "apri WhatsApp", "metti in pausa": si
+  eseguono subito sul telefono, senza chiedere all'IA. Istantanei, gratis, anche offline. Una frase
+  che chiede più cose, o che va ragionata, passa invece al modello.
+- **Chat con memoria.** Le conversazioni restano, si riprendono, si cercano, si rinominano. Sotto ogni
+  risposta c'è la riga degli strumenti usati, apribile, e "Rigenera con…" per rifare la domanda con
+  un altro servizio.
+- **Memoria e promemoria in chiaro.** Una pagina mostra cosa Aria ricorda di te e i promemoria in
+  arrivo: si correggono e si cancellano con un tocco.
 - **Voce doppia.** Mentre parli le parole compaiono subito (il riconoscitore del telefono), e alla
   fine la trascrizione di Whisper le sostituisce. Le risposte si fanno leggere ad alta voce, con la
   voce di sistema o una voce cloud.
 - **Assistente di sistema.** Dal tasto di accensione compare sopra l'app che stai usando: legge lo
   schermo se glielo chiedi, ne ritaglia una porzione col dito, e la conversazione continua nell'app
-  trascinando la card in alto.
+  trascinando la card in alto. Dal telefono bloccato fa solo cose che non riguardano i tuoi dati
+  (sveglie, timer, torcia, calcoli, web, musica).
 - **Il telefono.** Sveglie, timer, promemoria, calendario, contatti, chiamate, messaggi da rileggere
   prima di inviare, notifiche, torcia, volume, luminosità, Non disturbare, app da aprire, batteria,
   posizione.
@@ -76,8 +84,22 @@ modelli, orchestratore degli strumenti e il modulo `engine-ai-bridge` che regge 
 
 ```bash
 git submodule update --init --recursive
-./gradlew.bat :app:assembleDebug :core-assistant:testDebugUnitTest
+./gradlew.bat :app:assembleDebug :core-assistant:testDebugUnitTest   # Windows
+./gradlew :app:assembleDebug :core-assistant:testDebugUnitTest       # Linux / macOS
 ```
+
+Gli screenshot delle schermate principali (chat, chat vuota, memoria; tema chiaro e scuro) si
+generano senza telefono, con Robolectric e Roborazzi. Sono fuori dai test normali perché la prima
+volta scaricano un'immagine di Android da circa 200 MB:
+
+```bash
+./gradlew :feature-assistant:testDebugUnitTest -Pscreenshots
+# i PNG finiscono in feature-assistant/build/screenshots
+```
+
+Lo schema del database Room è esportato in `core-assistant/schemas/`: a ogni cambio di versione va
+aggiunta la migrazione in `DatabaseModule.kt`. Un aggiornamento senza migrazione fa fallire
+l'apertura del database invece di cancellare le conversazioni.
 
 Serve un `local.properties` con `sdk.dir`. Se la cartella del progetto è sincronizzata da un servizio
 cloud, conviene spostare le cartelle di build fuori: `pampai.buildRoot=C:/percorso/fuori/dal/cloud`.

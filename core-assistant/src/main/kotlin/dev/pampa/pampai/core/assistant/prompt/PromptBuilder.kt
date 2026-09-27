@@ -27,6 +27,8 @@ data class PromptContext(
   val pluginLabel: String? = null,
   /** La chat temporanea: non resta in cronologia e non alimenta la memoria a lungo termine. */
   val temporary: Boolean = false,
+  /** L'overlay e' aperto sul telefono bloccato: chi parla potrebbe non essere il proprietario. */
+  val lockscreen: Boolean = false,
 )
 
 /**
@@ -84,6 +86,7 @@ object PromptBuilder {
     if (p.loadedCategories.isNotEmpty()) appendLine("Categorie gia' aperte in questa conversazione: ${p.loadedCategories.joinToString(", ")}")
     appendLine("Azioni: ${if (p.actionsEnabled) "abilitate" else "disabilitate dall'utente (puoi solo leggere: se ti chiede di fare, digli di riattivarle nelle impostazioni)"}")
     p.conversationTitle?.let { appendLine("Conversazione: $it") }
+    if (p.lockscreen) appendLine("Il telefono e' BLOCCATO e chi ti parla potrebbe non essere il proprietario: hai solo gli strumenti che non toccano dati personali (sveglie, timer, torcia, volume, batteria, calcoli, web, musica). Notifiche, contatti, calendario, promemoria, memoria, conversazioni passate e app collegate non li hai: se te li chiedono, di' di sbloccare il telefono e riprovare. Non riferire niente di personale che ricordi dalla conversazione.")
     if (p.temporary) appendLine("Questa e' una chat temporanea: non resta nella cronologia e non entra nella memoria. Non usare `ricorda` (rifiuta), e se l'utente ti chiede di ricordare qualcosa digli che da qui non puoi.")
     p.pluginLabel?.let { appendLine("Plugin scelto dall'utente per questa conversazione: $it. I suoi strumenti sono gia' aperti: parti da quelli e dai per scontato che le domande riguardino quello, a meno che non sia evidente il contrario. Non e' un vincolo: se serve altro, usa altro.") }
     if (p.memoryBlock.isNotBlank()) {

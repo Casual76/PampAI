@@ -36,7 +36,7 @@ class PampaiConfirmationGate @Inject constructor(
 
   companion object {
     /** I tool che non si possono mai mettere fra le azioni fidate. */
-    val NEVER_TRUSTED: Set<String> = setOf("chiama", "store_installa", "store_aggiorna_tutto", "evento_elimina", "dimentica")
+    val NEVER_TRUSTED: Set<String> = setOf("chiama", "store_installa", "store_aggiorna_tutto", "evento_elimina", "dimentica", "ricorda")
 
     fun canTrust(tool: String): Boolean =
       tool !in NEVER_TRUSTED && !tool.endsWith("_elimina") && !tool.endsWith("_rimuovi") && !tool.endsWith("_installa")
