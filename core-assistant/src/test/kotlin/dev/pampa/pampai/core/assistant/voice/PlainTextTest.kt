@@ -43,6 +43,35 @@ class PlainTextTest {
   }
 
   @Test
+  fun aPeriodAtTheEndOfAStreamingPartialIsNotASentenceEndYet() {
+    // "3." e poi "5 gradi": letto subito, la voce diceva due frasi.
+    val (early, consumed) = PlainText.newSentences("Fuori ci sono 3.", spokenChars = 0, final = false)
+    assertTrue(early.isEmpty())
+    assertEquals(0, consumed)
+    val (later, _) = PlainText.newSentences("Fuori ci sono 3.5 gradi. Domani", spokenChars = consumed, final = false)
+    assertEquals(listOf("Fuori ci sono 3.5 gradi."), later)
+    // Alla fine della risposta il punto in fondo chiude, come sempre.
+    assertEquals(listOf("Fuori ci sono 3."), PlainText.newSentences("Fuori ci sono 3.", spokenChars = 0, final = true).first)
+  }
+
+  @Test
+  fun advanceRestartsWhenANewAnswerReplacesThePreamble() {
+    // Un preambolo letto, poi uno strumento, poi la risposta vera: si legge dall'inizio di questa.
+    val (preamble, spoken) = PlainText.advance("Ok, guardo. Controllo il meteo", spoken = "", final = false)
+    assertEquals(listOf("Ok, guardo."), preamble)
+    assertEquals("Ok, guardo.", spoken)
+    val (answer, read) = PlainText.advance("Domani piove a Firenze. Porta", spoken, final = false)
+    assertEquals(listOf("Domani piove a Firenze."), answer)
+    assertEquals("Domani piove a Firenze.", read)
+    // La stessa risposta che continua non si rilegge.
+    val (tail, end) = PlainText.advance("Domani piove a Firenze. Porta l'ombrello.", read, final = true)
+    assertEquals(listOf("Porta l'ombrello."), tail)
+    assertEquals("Domani piove a Firenze. Porta l'ombrello.", end)
+    // Un testo che si accorcia e' un'altra risposta.
+    assertEquals(listOf("Ciao."), PlainText.advance("Ciao.", end, final = true).first)
+  }
+
+  @Test
   fun newSentencesSplitsOnLineBreaksAndSkipsBlank() {
     val (sentences, _) = PlainText.newSentences("- Uno\n- Due\n\n", spokenChars = 0, final = true)
     assertEquals(listOf("Uno", "Due"), sentences)

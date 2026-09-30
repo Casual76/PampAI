@@ -2,6 +2,7 @@ package dev.pampa.pampai.core.assistant.runtime
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.ai.keys.AiKeyStore
@@ -17,8 +18,10 @@ import dev.antigravity.fluidengine.ai.orchestrator.PendingConfirmation
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ai.speech.Transcriber
 import dev.pampa.pampai.core.assistant.attachments.PendingAttachment
+import dev.pampa.pampai.core.assistant.db.Anchor
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.service.AssistantForegroundService
+import dev.pampa.pampai.core.assistant.service.AssistantNotifications
 import dev.pampa.pampai.core.assistant.tools.Surface
 import dev.pampa.pampai.core.assistant.usage.UsageRepository
 import dev.pampa.pampai.core.assistant.voice.AriaSpeaker
@@ -32,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,8 +62,12 @@ data class AssistantRequest(
   val attachments: List<PendingAttachment> = emptyList(),
   val surface: Surface = Surface.APP,
   val override: ProviderOverride? = null,
-  /** Rigenera: il messaggio dell'assistente da sostituire (la domanda resta quella salvata). */
-  val regenerateMessageId: Long? = null,
+  /**
+   * Dove si attacca nell'albero dei messaggi: in fondo al ramo mostrato ([Anchor.Continue]), come
+   * versione nuova di una domanda ([Anchor.Edit], "modifica e rinvia") o di una risposta
+   * ([Anchor.Regenerate]). Con "rigenera" la domanda (testo e allegati) e' quella salvata.
+   */
+  val anchor: Anchor = Anchor.Continue,
   /** Il plugin scelto nel composer (id di categoria): si salva sulla conversazione e guida il primo giro. */
   val plugin: String? = null,
   /** "Pensa piu' a fondo": livello profondo e ragionamento alto per questa domanda. */
@@ -86,12 +94,21 @@ sealed interface VoiceEvent {
   data object HeardNothing : VoiceEvent
 }
 
+/** Una domanda in coda per il service, con la generazione ([AssistantRuntime]) a cui appartiene. */
+internal class QueuedRequest(val request: AssistantRequest, val token: Long)
+
 /**
  * Lo stato di Aria per tutto il processo: la UI lo osserva, il service lo alimenta. Vive quanto
  * l'app; una domanda parte da qui ([submit]) e viene eseguita dal service in primo piano, cosi'
  * sopravvive alla chiusura dell'app. La voce si ascolta qui ([startListening], con
  * [DualSttEngine]) e si legge qui ([AriaSpeaker], solo per le domande fatte a voce), perche' il
  * microfono e l'altoparlante hanno senso solo con l'app (o la sessione) davanti.
+ *
+ * Lo stato vivo ha un padrone solo, la **generazione**: cresce a ogni domanda accodata, a ogni
+ * ascolto, a ogni "ferma". Chi scrive lo stato porta la sua ([publish]), e se nel frattempo e'
+ * cresciuta la scrittura non passa. Cosi' le pulizie di un lavoro fermato (il Cancelled di una
+ * domanda vecchia, l'Idle di un ascolto chiuso) non coprono mai quello nuovo: prima "Nuova chat"
+ * durante una risposta lasciava nella chat vuota la bolla "fermata" della domanda di prima.
  */
 @Singleton
 class AssistantRuntime @Inject constructor(
@@ -103,6 +120,7 @@ class AssistantRuntime @Inject constructor(
   private val stt: DualSttEngine,
   private val speaker: AriaSpeaker,
   private val usage: UsageRepository,
+  private val notifications: AssistantNotifications,
   voiceConfirmation: VoiceConfirmation,
 ) {
 
@@ -150,6 +168,16 @@ class AssistantRuntime @Inject constructor(
   private val liveOwnerFlow = MutableStateFlow(LiveOwner(Surface.APP, null))
   val liveOwner: StateFlow<LiveOwner> = liveOwnerFlow
 
+  /**
+   * Le tre cose qui sopra in un valore solo, scritto in un colpo: chi le confronta fra loro (il
+   * filtro dello stato vivo della chat e dell'overlay) deve leggere questa, perche' tre flussi
+   * separati si possono vedere a meta' di un cambio (il padrone nuovo con la conversazione vecchia).
+   * Le proprieta' separate restano per chi ne legge una sola, e per il `.value` letto subito dopo
+   * un [selectConversation].
+   */
+  private val liveTrackFlow = MutableStateFlow(LiveTrack(null, null, LiveOwner(Surface.APP, null)))
+  val liveTrack: StateFlow<LiveTrack> = liveTrackFlow
+
   val pendingConfirmation: StateFlow<PendingConfirmation?> = gate.current
 
   /** Come e' arrivata l'ultima domanda: la lettura ad alta voce vale solo per quelle a voce. */
@@ -164,10 +192,14 @@ class AssistantRuntime @Inject constructor(
   /** Vero mentre un'Activity dell'app e' davanti: decide se la risposta va anche in notifica. */
   @Volatile var appInForeground: Boolean = false
 
-  @Volatile private var pending: AssistantRequest? = null
-  @Volatile internal var currentJob: Job? = null
+  /** Generazione, stato, coda, lavoro corrente e ascolto cambiano insieme, sotto questo lucchetto. */
+  private val lock = Any()
+  private var generation = 0L
+  private var pending: QueuedRequest? = null
+  private var running: Job? = null
+  private var beforeConfirmation: AssistantState? = null
   @Volatile private var voiceJob: Job? = null
-  @Volatile private var quietCancel = false
+  private var voiceToken = -1L
 
   init {
     scope.launch { runCatching { conversations.failStale() } }
@@ -186,17 +218,18 @@ class AssistantRuntime @Inject constructor(
     // Un'azione che aspetta il si': lo stato lo dice — la card mostra Conferma/Annulla — e quando
     // la risposta arriva (o scade) si torna a com'era.
     scope.launch {
-      var before: AssistantState? = null
-      gate.current.collect { pending ->
-        val current = stateFlow.value
-        if (pending != null) {
-          if (current !is AssistantState.AwaitingConfirmation && current.isBusy) {
-            before = current
-            stateFlow.value = AssistantState.AwaitingConfirmation(current.questionOrEmpty(), pending, current.providerOrNull() ?: ProviderId.defaultOrder.first())
+      gate.current.collect { asked ->
+        synchronized(lock) {
+          val current = stateFlow.value
+          if (asked != null) {
+            if (current !is AssistantState.AwaitingConfirmation && current.isBusy) {
+              beforeConfirmation = current
+              stateFlow.value = AssistantState.AwaitingConfirmation(current.questionOrEmpty(), asked, current.providerOrNull() ?: ProviderId.defaultOrder.first())
+            }
+          } else if (current is AssistantState.AwaitingConfirmation) {
+            stateFlow.value = beforeConfirmation ?: AssistantState.Working(current.question, 0, 1, "thinking", 0, current.provider)
+            beforeConfirmation = null
           }
-        } else if (current is AssistantState.AwaitingConfirmation) {
-          stateFlow.value = before ?: AssistantState.Working(current.question, 0, 1, "thinking", 0, current.provider)
-          before = null
         }
       }
     }
@@ -238,55 +271,134 @@ class AssistantRuntime @Inject constructor(
     enqueue(request)
   }
 
-  private fun enqueue(request: AssistantRequest) {
+  /**
+   * Accoda [request] con una generazione nuova e avvia il service. Con [expected] (una domanda
+   * uscita da un ascolto) parte solo se la generazione e' ancora quella dell'ascolto: un "ferma"
+   * arrivato mentre si trascriveva vince.
+   *
+   * @return false se non e' partita (vuota, superata, o il service non si e' avviato).
+   */
+  private fun enqueue(request: AssistantRequest, expected: Long? = null): Boolean {
     val text = request.question.trim()
-    if (text.isEmpty() && request.attachments.isEmpty()) return
+    if (text.isEmpty() && request.attachments.isEmpty()) return false
+    val queued = synchronized(lock) {
+      if (expected != null && expected != generation) return false
+      val made = QueuedRequest(request.copy(question = text.ifEmpty { "Guarda l'allegato." }), ++generation)
+      pending = made
+      beforeConfirmation = null
+      lastModeFlow.value = request.mode
+      track(request.surface, request.conversationId)
+      stateFlow.value = AssistantState.Working(text, 0, 1, "thinking", 0, ProviderId.defaultOrder.first())
+      made
+    }
     speaker.stop()
-    pending = request.copy(question = text.ifEmpty { "Guarda l'allegato." })
-    lastModeFlow.value = request.mode
-    track(request.surface, request.conversationId)
-    stateFlow.value = AssistantState.Working(text, 0, 1, "thinking", 0, ProviderId.defaultOrder.first())
-    ContextCompat.startForegroundService(context, Intent(context, AssistantForegroundService::class.java))
+    val started = runCatching { ContextCompat.startForegroundService(context, Intent(context, AssistantForegroundService::class.java)) }
+    val error = started.exceptionOrNull() ?: return true
+    notStarted(queued, error)
+    return false
   }
 
-  internal fun takePendingRequest(): AssistantRequest? {
-    val request = pending
+  /**
+   * Il service non e' partito: succede quando una trascrizione finisce con l'app gia' in secondo
+   * piano (da Android 12 un service in primo piano non parte da li'). La domanda non si perde in
+   * silenzio: lo stato lo dice e una notifica la riporta, da rifare con l'app aperta.
+   */
+  private fun notStarted(queued: QueuedRequest, error: Throwable) {
+    Log.w(TAG, "il service non e' partito", error)
+    synchronized(lock) {
+      if (pending === queued) pending = null
+      if (generation == queued.token) stateFlow.value = AssistantState.Failed(queued.request.question, FailureKind.UNKNOWN, null, null, null)
+    }
+    notifications.showNotStarted(queued.request.question)
+  }
+
+  /** Il service prende la domanda in coda (una sola: l'ultima accodata). */
+  internal fun takePendingRequest(): QueuedRequest? = synchronized(lock) {
+    val queued = pending
     pending = null
-    return request
+    queued
   }
 
-  internal fun setState(state: AssistantState) {
-    stateFlow.value = state
+  /**
+   * Lo stato della generazione [token]: passa solo se e' ancora quella di adesso. Mentre la card
+   * chiede una conferma, uno stato di lavoro che arriva resta da parte e torna dopo il si' o il no.
+   *
+   * @return false se la scrittura e' stata scartata perche' [token] e' superato.
+   */
+  internal fun publish(token: Long, state: AssistantState): Boolean = synchronized(lock) {
+    if (token != generation) return false
+    val shown = stateFlow.value
+    if (shown is AssistantState.AwaitingConfirmation && gate.current.value != null && state.isBusy && state !is AssistantState.AwaitingConfirmation) {
+      beforeConfirmation = state
+    } else {
+      stateFlow.value = state
+    }
+    true
+  }
+
+  /** Il lavoro della domanda [token] comincia: false se nel frattempo e' stata fermata o superata. */
+  internal fun attach(token: Long, job: Job): Boolean = synchronized(lock) {
+    if (token != generation) return false
+    running = job
+    true
+  }
+
+  internal fun detach(job: Job) {
+    synchronized(lock) { if (running === job) running = null }
   }
 
   /** Quale conversazione continua la prossima domanda dell'app; null = se ne apre una nuova. */
   fun selectConversation(id: Long?) {
-    activeConversation.value = id
+    synchronized(lock) {
+      activeConversation.value = id
+      liveTrackFlow.value = liveTrackFlow.value.copy(app = id)
+    }
   }
 
   /** Come [selectConversation], per l'overlay di sistema. */
   fun selectSessionConversation(id: Long?) {
-    sessionConversation.value = id
+    synchronized(lock) {
+      sessionConversation.value = id
+      liveTrackFlow.value = liveTrackFlow.value.copy(session = id)
+    }
   }
 
-  /** La domanda di [surface] lavora su [id]: la superficie la segue, e lo stato vivo e' suo. */
-  internal fun setActiveConversation(id: Long?, surface: Surface) = track(surface, id)
+  /** La domanda [token] di [surface] lavora su [id]: la superficie la segue, e lo stato vivo e' suo. */
+  internal fun setActiveConversation(id: Long?, surface: Surface, token: Long) {
+    synchronized(lock) { if (token == generation) track(surface, id) }
+  }
 
+  /** Da chiamare sotto [lock]. */
   private fun track(surface: Surface, id: Long?) {
+    val owner = LiveOwner(surface, id)
     if (surface == Surface.SESSION) sessionConversation.value = id else activeConversation.value = id
-    liveOwnerFlow.value = LiveOwner(surface, id)
+    liveOwnerFlow.value = owner
+    liveTrackFlow.value = if (surface == Surface.SESSION) liveTrackFlow.value.copy(session = id, owner = owner) else liveTrackFlow.value.copy(app = id, owner = owner)
   }
 
   fun resolveConfirmation(id: Long, confirmed: Boolean) = gate.resolve(id, confirmed)
 
-  /** Ferma tutto: ascolto, lettura, domanda in corso, conferma in attesa. Lo stato lo scrive chi viene fermato. */
+  /**
+   * Ferma tutto: ascolto, lettura, domanda in coda o in corso, conferma in attesa. Lo stato
+   * "fermata" lo scrive subito questo tasto, con il testo parziale che si vedeva; chi viene fermato
+   * scrive su disco, ma il suo stato non passa piu' (la generazione e' cresciuta).
+   */
   fun cancel() {
+    val job = synchronized(lock) {
+      generation++
+      pending = null
+      beforeConfirmation = null
+      val shown = stateFlow.value
+      if (shown.isBusy) stateFlow.value = AssistantState.Cancelled(shown.questionOrEmpty().ifEmpty { null }, (shown as? AssistantState.Answering)?.partial)
+      val job = running
+      running = null
+      job
+    }
     stt.stopNow()
     voiceJob?.cancel()
     speaker.stop()
     gate.cancel()
-    currentJob?.cancel(CancellationException("fermato dall'utente"))
-    if (stateFlow.value.isBusy && currentJob == null) stateFlow.value = AssistantState.Cancelled(null, null)
+    job?.cancel(CancellationException("fermato dall'utente"))
   }
 
   /** Zittisce la lettura, senza toccare la domanda. */
@@ -294,7 +406,7 @@ class AssistantRuntime @Inject constructor(
 
   /** Torna al silenzio: dopo una risposta letta, un errore visto, una card chiusa. */
   fun reset() {
-    if (!isBusy) stateFlow.value = AssistantState.Idle
+    synchronized(lock) { if (!stateFlow.value.isBusy) stateFlow.value = AssistantState.Idle }
   }
 
   /**
@@ -305,19 +417,25 @@ class AssistantRuntime @Inject constructor(
   fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList(), temporary: Boolean = false, locked: Boolean = false) {
     if (isBusy) cancel()
     speaker.stop()
-    track(surface, conversationId)
+    val previous = voiceJob
+    val token = synchronized(lock) {
+      val token = ++generation
+      voiceToken = token
+      beforeConfirmation = null
+      track(surface, conversationId)
+      stateFlow.value = AssistantState.Listening(0L)
+      token
+    }
     voiceJob = scope.launch {
+      // Un microfono solo: l'ascolto di prima si chiude del tutto (pulizie comprese) prima che
+      // questo cominci, cosi' non tocca il motore della voce mentre lavora per quello nuovo.
+      previous?.cancelAndJoin()
       try {
-        stateFlow.value = AssistantState.Listening(0L)
         val mirror = launch {
           stt.state.collect { s ->
             when (s) {
-              is SttState.Listening -> {
-                val elapsed = s.elapsedMillis / 1000 * 1000
-                val shown = stateFlow.value
-                if (shown !is AssistantState.Listening || shown.elapsedMillis != elapsed) stateFlow.value = AssistantState.Listening(elapsed)
-              }
-              is SttState.Transcribing -> stateFlow.value = AssistantState.Transcribing
+              is SttState.Listening -> publish(token, AssistantState.Listening(s.elapsedMillis / 1000 * 1000))
+              is SttState.Transcribing -> publish(token, AssistantState.Transcribing)
               else -> Unit
             }
           }
@@ -328,26 +446,25 @@ class AssistantRuntime @Inject constructor(
           mirror.cancel()
         }
         when {
-          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface, temporary = temporary, locked = locked))
-          stt.state.value == SttState.InitialSilence -> {
-            stateFlow.value = AssistantState.Idle
+          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface, temporary = temporary, locked = locked), expected = token)
+          stt.state.value == SttState.InitialSilence -> if (publish(token, AssistantState.Idle)) {
             stt.reset()
             voiceEventsFlow.tryEmit(VoiceEvent.InitialSilence)
           }
-          else -> {
-            stateFlow.value = AssistantState.HeardNothing
+          else -> if (publish(token, AssistantState.HeardNothing)) {
             stt.reset()
             voiceEventsFlow.tryEmit(VoiceEvent.HeardNothing)
           }
         }
       } catch (e: CancellationException) {
-        stateFlow.value = if (quietCancel) AssistantState.Idle else AssistantState.Cancelled(null, null)
-        quietCancel = false
+        // Chi l'ha fermato ha gia' scritto lo stato (cancel, cancelListening, un ascolto nuovo che
+        // aspetta questo): qui resta solo da rimettere a riposo il motore della voce.
         stt.reset()
+        throw e
       } catch (e: AssistantFailure) {
-        stateFlow.value = AssistantState.Failed(null, e.kind, e.error, e.retryAfterSec, null)
+        publish(token, AssistantState.Failed(null, e.kind, e.error, e.retryAfterSec, null))
       } catch (e: Throwable) {
-        stateFlow.value = AssistantState.Failed(null, FailureKind.UNKNOWN, e as? AiError, null, null)
+        publish(token, AssistantState.Failed(null, FailureKind.UNKNOWN, e as? AiError, null, null))
       }
     }
   }
@@ -355,10 +472,19 @@ class AssistantRuntime @Inject constructor(
   /** Il secondo tocco mentre ascolta: si chiude la cattura e si trascrive quello che c'e'. */
   fun stopListening() = stt.stopNow()
 
-  /** Il tocco sulla barra: si smette di ascoltare senza dire niente, e torna il campo di testo. */
+  /**
+   * Il tocco sulla barra (o l'overlay che si chiude): si smette di ascoltare senza dire niente, e
+   * torna il campo di testo. Solo l'ascolto di adesso, e solo se non e' gia' diventato una domanda:
+   * chiudere l'overlay dopo una domanda a voce non tocca niente. Prima restava acceso un "zitto"
+   * che, al primo ascolto fermato dopo, faceva sparire lo stato "fermata".
+   */
   fun cancelListening() {
     val job = voiceJob ?: return
-    quietCancel = true
+    synchronized(lock) {
+      if (voiceToken != generation || !job.isActive) return
+      generation++
+      stateFlow.value = AssistantState.Idle
+    }
     job.cancel()
     stt.stopNow()
   }
@@ -384,9 +510,16 @@ class AssistantRuntime @Inject constructor(
   }
 
   private companion object {
+    const val TAG = "AssistantRuntime"
     const val HINT = "Domande a un assistente per il telefono e le app Pampa: meteo, autobus, registro scolastico, musica, sveglie, promemoria."
   }
 }
 
 /** Chi possiede lo stato vivo del runtime: la superficie della domanda e la sua conversazione. */
 data class LiveOwner(val surface: Surface, val conversationId: Long?)
+
+/**
+ * Un'istantanea coerente di chi segue cosa: la conversazione della chat dell'app, quella
+ * dell'overlay, e il padrone dello stato vivo. Scritta in un colpo solo ([AssistantRuntime.liveTrack]).
+ */
+data class LiveTrack(val app: Long?, val session: Long?, val owner: LiveOwner)

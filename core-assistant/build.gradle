@@ -33,6 +33,16 @@ android {
   sourceSets {
     main.java.setSrcDirs(["src/main/kotlin"])
     test.java.setSrcDirs(["src/test/kotlin"])
+    // Gli schemi esportati da Room, come asset dei test: MigrationTestHelper li legge da li' per
+    // creare un database alla versione di prima e controllare quello migrato.
+    test.assets.srcDirs += files("$projectDir/schemas")
+  }
+
+  testOptions {
+    unitTests {
+      // Robolectric (le migrazioni e il repository su un Room vero) vuole risorse e asset.
+      includeAndroidResources = true
+    }
   }
 }
 
@@ -74,4 +84,9 @@ dependencies {
 
   testImplementation libs.junit4
   testImplementation libs.kotlinx.coroutines.test
+  // Room vero sulla JVM: le migrazioni con MigrationTestHelper e il repository su un database in
+  // memoria. Stessa versione di Robolectric di feature-assistant, stessa di Room del resto.
+  testImplementation "org.robolectric:robolectric:4.16"
+  testImplementation "androidx.room:room-testing:${libs.versions.room.get()}"
+  testImplementation "androidx.test:core:1.6.1"
 }

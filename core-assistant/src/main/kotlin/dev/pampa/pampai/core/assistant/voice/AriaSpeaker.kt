@@ -12,6 +12,7 @@ import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import dev.pampa.pampai.core.assistant.settings.TtsEngine
 import dev.pampa.pampai.core.assistant.usage.UsageRepository
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
@@ -72,10 +73,19 @@ class AriaSpeaker @Inject constructor(
   /** La voce cloud si puo' spegnere da remoto (flag `cloud_tts`): resta quella del telefono. */
   private val cloudAllowed: StateFlow<Boolean> = remote.flag(PampaiFlags.CloudTts).stateIn(scope, SharingStarted.Eagerly, true)
 
-  private var spokenChars = 0
+  /** Il testo semplice gia' letto della risposta di adesso ([PlainText.advance]). */
+  private var spoken = ""
   private var utterance = 0
   @Volatile private var ready = false
-  private val pendingSystem = mutableListOf<String>()
+
+  /**
+   * Cresce a ogni [stop], subito e da qualunque filo. Le frasi portano quella di quando sono state
+   * chieste: una rimasta in coda sul filo della voce quando e' arrivato lo stop non si dice piu'.
+   */
+  private val epoch = AtomicInteger(0)
+
+  /** Le frasi in attesa che la voce del telefono sia pronta, con la loro [epoch]. */
+  private val pendingSystem = mutableListOf<Pair<String, Int>>()
   private val player = SpeechPlayer()
   private var cloudJob: Job? = null
 
@@ -120,17 +130,23 @@ class AriaSpeaker @Inject constructor(
     )
     val queued = pendingSystem.toList()
     pendingSystem.clear()
-    queued.forEach { speakSystem(it) }
+    queued.forEach { (text, asked) -> speakSystem(text, asked) }
   }
 
-  /** Le frasi nuove dentro [fullText] rispetto all'ultima volta, e le accoda. Chiama con lo stream parziale. */
+  /**
+   * Le frasi nuove dentro [fullText] rispetto all'ultima volta, e le accoda. Chiama con lo stream
+   * parziale. Se il testo non continua piu' quello gia' letto (dopo un preambolo e uno strumento
+   * arriva la risposta vera) si riparte dall'inizio del testo nuovo, non da meta'.
+   */
   fun speakNewSentences(fullText: String, final: Boolean, language: String = "it") {
+    val asked = epoch.get()
     scope.launch {
-      val (sentences, consumed) = PlainText.newSentences(fullText, spokenChars, final)
-      spokenChars = consumed
+      if (asked != epoch.get()) return@launch
+      val (sentences, read) = PlainText.advance(fullText, spoken, final)
+      spoken = read
       if (sentences.isEmpty()) return@launch
       val cloud = if (cloudBroken) null else cloudFor(ttsEngine.value, language)
-      if (cloud == null) sentences.forEach { speakSystem(it) } else sentences.forEach { enqueueCloud(cloud, it, language) }
+      if (cloud == null) sentences.forEach { speakSystem(it, asked) } else sentences.forEach { enqueueCloud(cloud, it, language, asked) }
     }
   }
 
@@ -144,13 +160,15 @@ class AriaSpeaker @Inject constructor(
   fun restart() {
     stop()
     scope.launch {
-      spokenChars = 0
+      spoken = ""
       cloudBroken = false
     }
   }
 
   fun stop() {
-    // Il silenzio subito, da qualunque filo; la pulizia della coda nel suo.
+    // Il silenzio subito, da qualunque filo; la pulizia della coda nel suo. L'epoca cresce per
+    // prima: le frasi gia' in coda sul filo della voce, che arrivano dopo, non parlano piu'.
+    epoch.incrementAndGet()
     player.stop()
     runCatching { tts?.stop() }
     speakingFlow.value = false
@@ -171,10 +189,11 @@ class AriaSpeaker @Inject constructor(
     TtsEngine.GROQ_EN -> if (language.startsWith("en")) GroqTts(keys) else null
   }
 
-  private fun speakSystem(text: String) {
+  private fun speakSystem(text: String, asked: Int) {
+    if (asked != epoch.get()) return
     val engine = engine()
     if (!ready) {
-      pendingSystem += text
+      pendingSystem += text to asked
       return
     }
     speakingFlow.value = true
@@ -186,15 +205,20 @@ class AriaSpeaker @Inject constructor(
    * in cui e' stata accodata; un errore o un ritardo oltre i quattro secondi manda la frase — e le
    * successive — alla voce del telefono.
    */
-  private fun enqueueCloud(cloud: CloudTts, sentence: String, language: String) {
+  private fun enqueueCloud(cloud: CloudTts, sentence: String, language: String, asked: Int) {
     val queue = cloudQueue ?: Channel<Pair<String, Deferred<TtsAudio?>>>(Channel.UNLIMITED).also { channel ->
       cloudQueue = channel
       cloudTasks = SupervisorJob()
       cloudJob = scope.launch {
         for ((text, deferred) in channel) {
+          // Uno stop arrivato mentre questa coda lavorava: niente piu' frasi, nemmeno quelle pronte.
+          if (asked != epoch.get()) {
+            deferred.cancel()
+            break
+          }
           if (cloudBroken) {
             deferred.cancel()
-            speakSystem(text)
+            speakSystem(text, asked)
             continue
           }
           val audio = try {
@@ -208,9 +232,11 @@ class AriaSpeaker @Inject constructor(
             // La frase persa la dice il telefono; le prossime pure, senza piu' provare il cloud.
             cloudBroken = true
             deferred.cancel()
-            speakSystem(text)
+            speakSystem(text, asked)
             continue
           }
+          // L'attesa della sintesi puo' essere durata: uno stop arrivato intanto vince.
+          if (asked != epoch.get()) break
           speakingFlow.value = true
           try {
             player.play(audio)

@@ -21,6 +21,7 @@ import dev.antigravity.fluidengine.ai.provider.ModelCatalogue
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.pampa.pampai.core.assistant.attachments.AttachmentReader
 import dev.pampa.pampai.core.assistant.attachments.PendingAttachment
+import dev.pampa.pampai.core.assistant.db.Anchor
 import dev.pampa.pampai.core.assistant.db.AttachmentKind
 import dev.pampa.pampai.core.assistant.db.Conversation
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
@@ -361,28 +362,20 @@ class ChatViewModel @Inject constructor(
   val draft = MutableStateFlow<String?>(null)
 
   /**
-   * Modifica e rinvia: cade tutto cio' che segue, e la domanda riparte con il nuovo testo.
+   * Modifica e rinvia: una versione nuova della domanda, sorella di quella di prima, con un ramo
+   * suo. Le risposte di prima non si cancellano: restano fra le versioni ("‹ 1/2 ›").
    *
-   * Gli allegati restano: sono ancora sul messaggio dell'utente, e si rileggono dal disco per il
-   * modello. Prima partivano vuoti, e "cosa c'e' in questa foto?" corretto in "…in questa
-   * immagine?" arrivava al modello senza immagine.
+   * Gli allegati li ricopia l'engine dalla domanda di prima, file compresi: "cosa c'e' in questa
+   * foto?" corretto in "…in questa immagine?" arriva al modello con l'immagine.
    */
-  fun editAndResend(message: Message, newText: String) = viewModelScope.launch {
+  fun editAndResend(message: Message, newText: String) {
     if (runtime.isBusy) runtime.cancel()
-    conversations.updateUserText(message.id, newText)
-    conversations.truncateAfter(message.conversationId, message.id)
-    engine.forget(message.conversationId)
-    val attachments = readAttachments(message)
-    // Il messaggio dell'utente c'e' gia' (modificato): la domanda riparte senza riscriverlo.
-    runtime.submit(AssistantRequest(message.conversationId, newText, AskMode.TEXT, attachments, Surface.APP, regenerateMessageId = REGENERATE_AFTER_EDIT))
-  }
-
-  private suspend fun readAttachments(message: Message): List<PendingAttachment> = withContext(Dispatchers.IO) {
-    message.attachments.mapNotNull { a -> runCatching { PendingAttachment(a.kind, a.mime, a.name, java.io.File(a.path).readBytes()) }.getOrNull() }
+    runtime.submit(AssistantRequest(message.conversationId, newText, AskMode.TEXT, anchor = Anchor.Edit(message.id)))
   }
 
   /**
-   * Rigenera la risposta, anche con un altro servizio o modello.
+   * Rigenera la risposta, anche con un altro servizio o modello: una versione nuova, sorella di
+   * quella di prima, alla stessa domanda (testo e allegati li rilegge l'engine dal disco).
    *
    * Un [override] che nomina solo la chat porta con se' il profondo di quel servizio dalle
    * impostazioni: altrimenti la domanda difficile rigenerata "con Gemini" andrebbe al modello
@@ -390,16 +383,18 @@ class ChatViewModel @Inject constructor(
    */
   fun regenerate(message: Message, override: ProviderOverride? = null) = viewModelScope.launch {
     if (runtime.isBusy) runtime.cancel()
-    val messages = state.value.messages
-    // Un messaggio che non e' (piu') nella lista, per esempio dopo un cambio di conversazione a
-    // meta' tocco: niente da rigenerare. `take(-1)` qui lanciava.
-    val index = messages.indexOfFirst { it.id == message.id }.takeIf { it >= 0 } ?: return@launch
-    val question = messages.take(index).lastOrNull { it.role == MessageRole.USER } ?: return@launch
-    conversations.truncateAfter(message.conversationId, message.id)
-    engine.forget(message.conversationId)
-    val attachments = readAttachments(question)
+    // La domanda e' il padre della risposta: niente ricerca per posizione nella lista, che dopo un
+    // cambio di conversazione a meta' tocco poteva non contenerla piu'.
+    val question = if (message.role == MessageRole.USER) message else message.parentId?.let { conversations.message(it) }
+    if (question == null) return@launch
     val completed = override?.let { if (it.deepModel == null) it.copy(deepModel = settingsStore.current().deepModel(it.provider)) else it }
-    runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, attachments, Surface.APP, completed, regenerateMessageId = message.id))
+    runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, emptyList(), Surface.APP, completed, anchor = Anchor.Regenerate(message.id)))
+  }
+
+  /** Le frecce delle versioni: si passa al ramo di [messageId] (una sorella di un messaggio del cammino). */
+  fun selectVersion(messageId: Long) = viewModelScope.launch {
+    val conversationId = state.value.conversation?.id ?: runtime.activeConversationId.value ?: return@launch
+    runCatching { conversations.selectVersion(conversationId, messageId) }
   }
 
   /**
@@ -424,7 +419,8 @@ class ChatViewModel @Inject constructor(
 
   private suspend fun load(uri: Uri): PendingAttachment? {
     val resolver = context.contentResolver
-    val mime = resolver.getType(uri) ?: "application/octet-stream"
+    // Un provider che lancia (permesso revocato, URI scaduto) non deve far cadere la chat.
+    val mime = runCatching { resolver.getType(uri) }.getOrNull() ?: "application/octet-stream"
     val name = runCatching {
       resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
     }.getOrNull() ?: uri.lastPathSegment ?: "allegato"
@@ -458,8 +454,5 @@ class ChatViewModel @Inject constructor(
     private const val TAG = "ChatViewModel"
     const val MAX_ATTACHMENTS = 5
     const val MAX_BYTES = 25 * 1024 * 1024
-
-    /** Un id impossibile: dice all'engine "il messaggio dell'utente c'e' gia', crea solo la risposta". */
-    const val REGENERATE_AFTER_EDIT = -1L
   }
 }

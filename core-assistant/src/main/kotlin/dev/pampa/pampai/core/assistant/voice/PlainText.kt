@@ -47,14 +47,38 @@ object PlainText {
   /** Fine di frase: punto, punto esclamativo, interrogativo o a capo, seguiti da spazio o fine. */
   val SENTENCE_END = Regex("[.!?…]+(?=\\s|$)|\\n")
 
+  /**
+   * La fine di frase mentre la risposta scorre: solo se dopo c'e' dell'altro. Il punto in fondo a un
+   * pezzo di stream puo' essere un "3." che diventera' "3.5 gradi": letto subito, la voce diceva
+   * "3" e poi "5 gradi" come due frasi.
+   */
+  private val SENTENCE_END_STREAMING = Regex("[.!?…]+(?=\\s)|\\n")
+
   /** Le frasi nuove di [fullText] oltre [spokenChars]: quelle chiuse, piu' la coda se [final]. */
-  fun newSentences(fullText: String, spokenChars: Int, final: Boolean): Pair<List<String>, Int> {
+  fun newSentences(fullText: String, spokenChars: Int, final: Boolean): Pair<List<String>, Int> =
+    sentencesFrom(of(fullText), spokenChars, final)
+
+  /**
+   * Come [newSentences], ma ricordando *cosa* si e' gia' letto ([spoken], il testo semplice) e non
+   * solo quanto: se il testo nuovo non comincia piu' con quello (un preambolo "controllo il
+   * meteo.", poi uno strumento, poi la risposta vera; o un testo che si accorcia) e' un'altra
+   * risposta, e si legge da capo invece che da meta'.
+   *
+   * @return le frasi da dire e il nuovo testo gia' letto.
+   */
+  fun advance(fullText: String, spoken: String, final: Boolean): Pair<List<String>, String> {
     val plain = of(fullText)
+    val from = if (plain.startsWith(spoken)) spoken.length else 0
+    val (sentences, consumed) = sentencesFrom(plain, from, final)
+    return sentences to plain.substring(0, consumed.coerceAtMost(plain.length))
+  }
+
+  private fun sentencesFrom(plain: String, spokenChars: Int, final: Boolean): Pair<List<String>, Int> {
     if (plain.length <= spokenChars) return emptyList<String>() to spokenChars
     val tail = plain.substring(spokenChars)
     val sentences = mutableListOf<String>()
     var start = 0
-    SENTENCE_END.findAll(tail).forEach { match ->
+    (if (final) SENTENCE_END else SENTENCE_END_STREAMING).findAll(tail).forEach { match ->
       val end = match.range.last + 1
       sentences += tail.substring(start, end).trim()
       start = end

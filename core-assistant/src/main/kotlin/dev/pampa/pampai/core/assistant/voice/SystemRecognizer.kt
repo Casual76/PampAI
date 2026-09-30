@@ -37,6 +37,17 @@ class SystemRecognizer(private val context: Context) {
 
   val isAvailable: Boolean get() = SpeechRecognizer.isRecognitionAvailable(context)
 
+  /** Il riconoscitore che sta ascoltando adesso, per [stopListening]. Si tocca solo dal main thread. */
+  private var active: SpeechRecognizer? = null
+
+  /**
+   * Chiude l'ascolto tenendo l'esito: `stopListening` e non `cancel`, cosi' le parole dette fin qui
+   * arrivano come risultato finale ([Event.Final]) invece di andare perse con il flusso annullato.
+   */
+  fun stopListening() {
+    Handler(Looper.getMainLooper()).post { runCatching { active?.stopListening() } }
+  }
+
   /**
    * Ascolta il tubo [pcm] (16 kHz mono 16 bit) se dato, altrimenti il microfono. Il flusso finisce
    * con [Event.Final] o [Event.Error]; annullarlo ferma il riconoscitore.
@@ -54,6 +65,7 @@ class SystemRecognizer(private val context: Context) {
         return@post
       }
       recognizer = created
+      active = created
       created.setRecognitionListener(
         object : RecognitionListener {
           override fun onReadyForSpeech(params: Bundle?) = Unit
@@ -101,6 +113,7 @@ class SystemRecognizer(private val context: Context) {
     }
     awaitClose {
       handler.post {
+        if (active === recognizer) active = null
         runCatching { recognizer?.cancel() }
         runCatching { recognizer?.destroy() }
       }

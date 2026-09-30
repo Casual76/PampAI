@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.pampa.pampai.core.assistant.R
@@ -216,6 +217,10 @@ class ReminderReceiver : BroadcastReceiver() {
             reminders.snooze(id, 10)
           }
         }
+      } catch (e: Throwable) {
+        // Un database che non risponde o una sveglia rifiutata: il promemoria salta (e resta nel
+        // log), ma l'app non cade dentro un ricevitore che l'utente non ha nemmeno aperto.
+        Log.w(TAG, "promemoria $id non gestito (${intent.action})", e)
       } finally {
         result.finish()
       }

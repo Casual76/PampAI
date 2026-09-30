@@ -11,13 +11,17 @@ import dev.antigravity.fluidengine.ai.orchestrator.FailureKind
 import dev.antigravity.fluidengine.ai.provider.ContentPart
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderId
+import dev.pampa.pampai.core.assistant.attachments.PendingAttachment
 import dev.pampa.pampai.core.assistant.tools.PampaiToolTrace
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -78,6 +82,40 @@ data class Message(
   val createdAtMillis: Long,
   val mode: AskMode,
   val attachments: List<Attachment> = emptyList(),
+  /** Il messaggio a cui risponde (o che continua); null = una prima domanda. */
+  val parentId: Long? = null,
+  /** Quale versione e' fra le sue sorelle ("‹ 2/3 ›"); null quando ce n'e' una sola. */
+  val version: Version? = null,
+)
+
+/**
+ * Da dove parte una domanda nell'albero delle versioni. Nessuna cancella niente: "rigenera" e
+ * "modifica e rinvia" aggiungono un fratello, e le frecce delle versioni riportano al ramo di prima.
+ */
+sealed interface Anchor {
+  /** Una domanda nuova in fondo al ramo che si sta guardando. */
+  data object Continue : Anchor
+
+  /** "Modifica e rinvia": una domanda sorella di [replacing] (un messaggio dell'utente), con un ramo tutto suo. */
+  data class Edit(val replacing: Long) : Anchor
+
+  /** "Rigenera": una risposta sorella di [replacing] (una risposta), alla stessa domanda. */
+  data class Regenerate(val replacing: Long) : Anchor
+}
+
+/**
+ * Cio' che [ConversationsRepository.startTurn] ha scritto: la domanda nuova ([userId], null per
+ * "rigenera"), la risposta in attesa, la domanda a cui risponde, la foglia che si guardava prima
+ * (per tornarci se la versione nuova si butta), e la foglia su cui finisce la storia che il
+ * modello deve conoscere (il padre della domanda).
+ */
+data class Turn(
+  val userId: Long?,
+  val assistantId: Long,
+  val questionId: Long,
+  val previousLeafId: Long?,
+  val conversationId: Long,
+  val historyLeafId: Long?,
 )
 
 /** La traccia di uno scambio: quanto e' costato, con cosa, in quanti passi. */
@@ -139,11 +177,18 @@ private data class RunModelJson(val provider: String, val tier: String, val mode
 @Serializable
 private data class GroupsJson(val groups: List<String> = emptyList(), val models: List<RunModelJson> = emptyList())
 
+/** Un allegato gia' scritto su disco, in attesa della sua riga: i file si scrivono fuori dalla transazione. */
+private class StagedFile(val kind: AttachmentKind, val mime: String, val name: String, val path: String, val bytes: Long)
+
 /**
  * Le conversazioni su disco: una riga per conversazione, una per messaggio, una per allegato,
  * una per scambio con la sua telemetria. Il traffico dei tool non si salva (si ricostruisce solo
  * la coppia domanda/risposta, con gli allegati dell'ultima); i gruppi aperti si', perche' con il
  * catalogo gerarchico valgono per tutta la conversazione.
+ *
+ * I messaggi sono un albero ([MessageTree]): chi osserva una conversazione vede il cammino attivo,
+ * con le versioni di ogni messaggio; le operazioni che lo cambiano stanno ciascuna in una
+ * transazione, cosi' un processo ucciso a meta' non lascia rami senza radice.
  */
 @Singleton
 class ConversationsRepository @Inject constructor(
@@ -160,10 +205,23 @@ class ConversationsRepository @Inject constructor(
 
   fun observeConversation(id: Long): Flow<Conversation?> = conversationDao.observe(id).map { it?.toModel() }
 
+  /**
+   * Il cammino attivo della conversazione, dalla prima domanda alla foglia scelta, con la versione
+   * di ogni messaggio. E' cio' che si mostra: gli altri rami esistono, e si raggiungono con le
+   * frecce ([selectVersion]).
+   */
   fun observeMessages(conversationId: Long): Flow<List<Message>> =
-    combine(messageDao.observeByConversation(conversationId), attachmentDao.observeByConversation(conversationId)) { messages, attachments ->
+    combine(
+      messageDao.observeByConversation(conversationId),
+      attachmentDao.observeByConversation(conversationId),
+      // Solo la foglia: la riga della conversazione cambia a ogni passaggio (updatedAtMillis), il
+      // cammino no.
+      conversationDao.observe(conversationId).map { it?.activeLeafId }.distinctUntilChanged(),
+    ) { messages, attachments, activeLeafId ->
       val byMessage = attachments.groupBy { it.messageId }
-      messages.map { entity -> entity.toModel(byMessage[entity.id].orEmpty().map { it.toModel() }) }
+      MessageTree.path(messages, activeLeafId).map { node ->
+        node.message.toModel(byMessage[node.message.id].orEmpty().map { it.toModel() }, node.version.takeIf { it.count > 1 })
+      }
     }
 
   fun observeRuns(conversationId: Long): Flow<List<Run>> = runDao.observeByConversation(conversationId).map { list -> list.map { it.toModel() } }
@@ -179,37 +237,162 @@ class ConversationsRepository @Inject constructor(
   suspend fun createConversation(title: String, nowMillis: Long, source: String = "app", temporary: Boolean = false): Long =
     conversationDao.insert(ConversationEntity(title = title.take(80), createdAtMillis = nowMillis, updatedAtMillis = nowMillis, source = source, temporary = temporary))
 
-  suspend fun addUserMessage(conversationId: Long, text: String, nowMillis: Long, mode: AskMode): Long =
-    messageDao.insert(MessageEntity(conversationId = conversationId, role = MessageRole.USER.name, text = text, status = MessageStatus.DONE.name, createdAtMillis = nowMillis, mode = mode.name))
+  /** Un messaggio solo, con i suoi allegati: la domanda di una risposta da rigenerare, per esempio. */
+  suspend fun message(id: Long): Message? {
+    val entity = messageDao.get(id) ?: return null
+    return entity.toModel(attachmentDao.listByMessage(id).map { it.toModel() }, null)
+  }
 
-  suspend fun addPendingAssistantMessage(conversationId: Long, nowMillis: Long): Long =
-    messageDao.insert(MessageEntity(conversationId = conversationId, role = MessageRole.ASSISTANT.name, text = "", status = MessageStatus.PENDING.name, createdAtMillis = nowMillis))
+  /** La foglia su cui finisce il cammino attivo (quella a cui si attacchera' la prossima domanda). */
+  suspend fun activeLeaf(conversationId: Long): Long? {
+    val conversation = conversationDao.get(conversationId) ?: return null
+    return MessageTree.leafOf(messageDao.listByConversation(conversationId), conversation.activeLeafId)
+  }
 
-  /** Copia il file dell'allegato nella cartella dell'app e lo lega al messaggio. */
-  suspend fun addAttachment(messageId: Long, kind: AttachmentKind, mime: String, name: String, bytes: ByteArray): Long = withContext(Dispatchers.IO) {
-    val dir = File(context.filesDir, "attachments").apply { mkdirs() }
-    val file = File(dir, "$messageId-${System.currentTimeMillis()}-${name.replace(Regex("[^A-Za-z0-9._-]"), "_").take(60)}")
-    file.writeBytes(bytes)
-    attachmentDao.insert(AttachmentEntity(messageId = messageId, kind = kind.name, mime = mime, name = name, path = file.absolutePath, bytes = bytes.size.toLong()))
+  /** Gli allegati di un messaggio riletti dal disco, pronti per il modello; quelli spariti si saltano. */
+  suspend fun pendingAttachmentsOf(messageId: Long): List<PendingAttachment> {
+    val rows = attachmentDao.listByMessage(messageId)
+    return withContext(Dispatchers.IO) {
+      rows.mapNotNull { row ->
+        val kind = AttachmentKind.entries.firstOrNull { it.name == row.kind } ?: AttachmentKind.DOCUMENT
+        runCatching { PendingAttachment(kind, row.mime, row.name, File(row.path).readBytes()) }.getOrNull()
+      }
+    }
+  }
+
+  /**
+   * Una domanda che parte: scrive in una transazione sola la domanda (se c'e'), i suoi allegati, la
+   * risposta in attesa e la foglia attiva, che diventa la risposta nuova.
+   *
+   * - [Anchor.Continue]: la domanda si attacca alla foglia del cammino che si sta guardando.
+   * - [Anchor.Edit]: la domanda nuova e' sorella di quella sostituita (stesso padre). Senza
+   *   [attachments] nuovi si ricopiano quelli della domanda di prima, file compresi: una riga, un
+   *   file, e cancellare un ramo non tocca mai i file di un altro.
+   * - [Anchor.Regenerate]: nessuna domanda nuova; la risposta e' sorella di quella sostituita. Un
+   *   id di una domanda (una domanda rimasta senza risposta) vale come "rispondi di nuovo a questa".
+   *
+   * @throws IllegalArgumentException se la conversazione o il messaggio sostituito non ci sono.
+   */
+  suspend fun startTurn(conversationId: Long, anchor: Anchor, question: String, mode: AskMode, attachments: List<PendingAttachment>, now: Long): Turn {
+    // I file prima della transazione: scrivere su disco la dentro terrebbe fermo il database.
+    val staged = when (anchor) {
+      Anchor.Continue -> stage(attachments, now)
+      is Anchor.Edit -> if (attachments.isNotEmpty()) stage(attachments, now) else copyAttachments(anchor.replacing, now)
+      is Anchor.Regenerate -> emptyList()
+    }
+    return try {
+      db.withTransaction {
+        val conversation = conversationDao.get(conversationId) ?: throw IllegalArgumentException("conversazione $conversationId inesistente")
+        val all = messageDao.listByConversation(conversationId)
+        val shownLeaf = MessageTree.leafOf(all, conversation.activeLeafId)
+        val known = all.associateBy { it.id }
+        val userId: Long?
+        val questionId: Long
+        val historyLeafId: Long?
+        when (anchor) {
+          Anchor.Continue -> {
+            historyLeafId = shownLeaf
+            userId = messageDao.insert(userMessage(conversationId, question, mode, now, parentId = shownLeaf))
+            questionId = userId
+          }
+          is Anchor.Edit -> {
+            val replaced = known[anchor.replacing]?.takeIf { it.role == MessageRole.USER.name }
+              ?: throw IllegalArgumentException("domanda ${anchor.replacing} inesistente")
+            // Un padre sparito vale come radice, come per MessageTree.
+            historyLeafId = replaced.parentId?.takeIf { it in known }
+            userId = messageDao.insert(userMessage(conversationId, question, mode, now, parentId = replaced.parentId))
+            questionId = userId
+          }
+          is Anchor.Regenerate -> {
+            val replaced = known[anchor.replacing] ?: throw IllegalArgumentException("messaggio ${anchor.replacing} inesistente")
+            val asked = if (replaced.role == MessageRole.USER.name) replaced else replaced.parentId?.let { known[it] }
+            if (asked == null || asked.role != MessageRole.USER.name) throw IllegalArgumentException("risposta ${anchor.replacing} senza domanda")
+            historyLeafId = asked.parentId?.takeIf { it in known }
+            userId = null
+            questionId = asked.id
+          }
+        }
+        if (userId != null) {
+          staged.forEach { attachmentDao.insert(AttachmentEntity(messageId = userId, kind = it.kind.name, mime = it.mime, name = it.name, path = it.path, bytes = it.bytes)) }
+        }
+        val assistantId = messageDao.insert(
+          MessageEntity(
+            conversationId = conversationId, role = MessageRole.ASSISTANT.name, text = "", status = MessageStatus.PENDING.name,
+            createdAtMillis = now + 1, parentId = questionId, selectedAtMillis = now,
+          ),
+        )
+        conversationDao.setActiveLeaf(conversationId, assistantId)
+        Turn(userId, assistantId, questionId, shownLeaf, conversationId, historyLeafId)
+      }
+    } catch (e: Throwable) {
+      // Le righe non ci sono (la transazione e' tornata indietro): nemmeno i file devono restare.
+      withContext(NonCancellable + Dispatchers.IO) { staged.forEach { runCatching { File(it.path).delete() } } }
+      throw e
+    }
+  }
+
+  /**
+   * Le frecce delle versioni: si passa al ramo di [siblingId], aprendo la sua foglia scelta per
+   * ultima (il punto in cui lo si era lasciato). Quella foglia diventa la piu' fresca.
+   */
+  suspend fun selectVersion(conversationId: Long, siblingId: Long, now: Long = System.currentTimeMillis()) {
+    db.withTransaction {
+      val all = messageDao.listByConversation(conversationId)
+      if (all.none { it.id == siblingId }) return@withTransaction
+      val leaf = MessageTree.bestLeaf(all, siblingId) ?: return@withTransaction
+      conversationDao.setActiveLeaf(conversationId, leaf)
+      messageDao.setSelectedAt(leaf, now)
+    }
+  }
+
+  /**
+   * Un risultato della ricerca nel cassetto: il ramo che contiene [messageId] diventa quello
+   * mostrato, cosi' aprendo la conversazione il passaggio trovato c'e'.
+   *
+   * @return la conversazione del messaggio, o null se il messaggio non c'e' piu'.
+   */
+  suspend fun activateMessage(messageId: Long, now: Long = System.currentTimeMillis()): Long? = db.withTransaction {
+    val message = messageDao.get(messageId) ?: return@withTransaction null
+    val all = messageDao.listByConversation(message.conversationId)
+    val leaf = MessageTree.bestLeaf(all, messageId) ?: return@withTransaction message.conversationId
+    conversationDao.setActiveLeaf(message.conversationId, leaf)
+    messageDao.setSelectedAt(leaf, now)
+    message.conversationId
+  }
+
+  /**
+   * Una versione nuova ("rigenera", "modifica e rinvia") fermata prima di dire qualcosa: se ne va
+   * (messaggi, passaggi, allegati e file) e si torna al ramo che si guardava. Una risposta che ha
+   * gia' del testo resta: e' una versione vera, anche se a meta'.
+   */
+  suspend fun discardVersion(turn: Turn) {
+    val files = db.withTransaction {
+      val all = messageDao.listByConversation(turn.conversationId)
+      val answer = all.firstOrNull { it.id == turn.assistantId } ?: return@withTransaction emptyList()
+      if (answer.text.isNotBlank() || answer.status == MessageStatus.DONE.name) return@withTransaction emptyList()
+      val ids = MessageTree.subtree(all, turn.userId ?: turn.assistantId).toList()
+      val paths = attachmentDao.listByMessages(ids).map { it.path }
+      attachmentDao.deleteByMessages(ids)
+      runDao.deleteByMessages(ids)
+      messageDao.deleteByIds(ids)
+      val back = turn.previousLeafId?.takeIf { previous -> previous !in ids && all.any { it.id == previous } }
+      conversationDao.setActiveLeaf(turn.conversationId, back)
+      paths
+    }
+    deleteFiles(files)
   }
 
   suspend fun updatePartial(messageId: Long, text: String) =
     messageDao.updatePartial(messageId, text, MessageStatus.STREAMING.name, listOf(MessageStatus.PENDING.name, MessageStatus.STREAMING.name))
 
-  suspend fun complete(messageId: Long, text: String, chips: List<AnswerChip>) {
-    val message = messageDao.get(messageId) ?: return
-    messageDao.update(message.copy(text = text, chipsJson = json.encodeToString(chips.map { ChipJson(it.id, it.value) }), status = MessageStatus.DONE.name, failureKind = null))
-  }
+  suspend fun complete(messageId: Long, text: String, chips: List<AnswerChip>) =
+    messageDao.complete(messageId, text, json.encodeToString(chips.map { ChipJson(it.id, it.value) }), MessageStatus.DONE.name)
 
-  suspend fun fail(messageId: Long, kind: FailureKind, partial: String?) {
-    val message = messageDao.get(messageId) ?: return
-    messageDao.update(message.copy(text = partial ?: message.text, status = MessageStatus.FAILED.name, failureKind = kind.name))
-  }
+  suspend fun fail(messageId: Long, kind: FailureKind, partial: String?) =
+    messageDao.fail(messageId, partial, MessageStatus.FAILED.name, kind.name)
 
-  suspend fun cancel(messageId: Long, partial: String?) {
-    val message = messageDao.get(messageId) ?: return
-    messageDao.update(message.copy(text = partial ?: message.text, status = MessageStatus.CANCELLED.name))
-  }
+  suspend fun cancel(messageId: Long, partial: String?) =
+    messageDao.cancel(messageId, partial, MessageStatus.CANCELLED.name)
 
   /** Al riavvio: una risposta rimasta aperta non e' piu' "in corso". */
   suspend fun failStale() = messageDao.failStale(MessageStatus.FAILED.name, FailureKind.UNKNOWN.name, listOf(MessageStatus.PENDING.name, MessageStatus.STREAMING.name))
@@ -233,11 +416,9 @@ class ConversationsRepository @Inject constructor(
   /** Manutenzione all'avvio: le tracce dei passaggi piu' vecchi di un mese si alleggeriscono. */
   suspend fun compact(nowMillis: Long) = runDao.dropOldTraces(nowMillis - TRACE_RETENTION_MILLIS)
 
-  suspend fun setLoadedGroups(conversationId: Long, groupIds: List<String>) {
-    val conversation = conversationDao.get(conversationId) ?: return
-    val encoded = json.encodeToString(groupIds)
-    if (encoded != conversation.loadedGroupsJson) conversationDao.update(conversation.copy(loadedGroupsJson = encoded))
-  }
+  /** Una colonna sola: riscrivere la riga intera riportava indietro la foglia scelta nel frattempo. */
+  suspend fun setLoadedGroups(conversationId: Long, groupIds: List<String>) =
+    conversationDao.setLoadedGroups(conversationId, json.encodeToString(groupIds))
 
   suspend fun addRun(conversationId: Long, messageId: Long, log: AiRequestLog, finishedAtMillis: Long, outcome: String, error: String?, traces: List<PampaiToolTrace>, contextTokens: Int?, contextWindow: Int?): Long =
     runDao.insert(
@@ -281,14 +462,18 @@ class ConversationsRepository @Inject constructor(
 
   /**
    * Le coppie domanda/risposta concluse, per ricostruire la conversazione in memoria del modello.
+   * Solo il cammino sopra [questionId] (la domanda esclusa): le altre versioni e la risposta che si
+   * sta rigenerando non esistono, per il modello. Con [questionId] nullo, tutto il cammino attivo.
    * Gli allegati si rileggono dal disco solo per l'ultima coppia: e' l'unica che il compattatore
    * ripropone al modello.
    */
-  suspend fun exchanges(conversationId: Long, limit: Int): List<Exchange> {
-    val messages = messageDao.listByConversation(conversationId)
+  suspend fun exchanges(conversationId: Long, questionId: Long?, limit: Int): List<Exchange> {
+    val all = messageDao.listByConversation(conversationId)
+    val stored = conversationDao.get(conversationId)
+    val messages = if (questionId != null) MessageTree.ancestors(all, questionId).dropLast(1) else MessageTree.path(all, stored?.activeLeafId).map { it.message }
     // Chi ha risposto davvero a ciascuna domanda, dai passaggi salvati: prima era "Groq" per tutte,
     // e l'engine lo usa per decidere come riproporre la storia al modello.
-    val fallbackProvider = conversationDao.get(conversationId)?.lastProvider?.let { ProviderId.fromId(it) } ?: ProviderId.defaultOrder.first()
+    val fallbackProvider = stored?.lastProvider?.let { ProviderId.fromId(it) } ?: ProviderId.defaultOrder.first()
     val providerByMessage = runDao.listByConversation(conversationId).mapNotNull { run -> ProviderId.fromId(run.provider)?.let { run.messageId to it } }.toMap()
     val exchanges = mutableListOf<Pair<Exchange, Long>>()
     var pendingQuestion: MessageEntity? = null
@@ -330,28 +515,7 @@ class ConversationsRepository @Inject constructor(
     }
   }
 
-  /** Modifica e rinvia: cade tutto cio' che segue il messaggio (la risposta e gli scambi dopo). */
-  suspend fun truncateAfter(conversationId: Long, messageId: Long) {
-    val message = messageDao.get(messageId) ?: return
-    val after = messageDao.listByConversation(conversationId).filter { it.createdAtMillis > message.createdAtMillis || (it.createdAtMillis == message.createdAtMillis && it.id > message.id) }
-    val ids = after.map { it.id }
-    if (ids.isNotEmpty()) {
-      val files = attachmentDao.listByConversation(conversationId).filter { it.messageId in ids }.map { it.path }
-      // Tutto o niente: un processo ucciso a meta' non deve lasciare risposte senza domanda.
-      db.withTransaction {
-        attachmentDao.deleteByMessages(ids)
-        runDao.deleteByMessages(ids)
-        messageDao.deleteAfter(conversationId, message.createdAtMillis, message.id)
-      }
-      withContext(Dispatchers.IO) { files.forEach { runCatching { File(it).delete() } } }
-    }
-  }
-
-  suspend fun updateUserText(messageId: Long, text: String) {
-    val message = messageDao.get(messageId) ?: return
-    messageDao.update(message.copy(text = text))
-  }
-
+  /** Una conversazione intera, con tutti i suoi rami: messaggi, passaggi, allegati e file. */
   suspend fun delete(conversationId: Long) {
     val files = attachmentDao.listByConversation(conversationId).map { it.path }
     db.withTransaction {
@@ -388,6 +552,51 @@ class ConversationsRepository @Inject constructor(
     withContext(Dispatchers.IO) { File(context.filesDir, "attachments").deleteRecursively() }
   }
 
+  private fun userMessage(conversationId: Long, text: String, mode: AskMode, now: Long, parentId: Long?) = MessageEntity(
+    conversationId = conversationId, role = MessageRole.USER.name, text = text, status = MessageStatus.DONE.name,
+    createdAtMillis = now, mode = mode.name, parentId = parentId, selectedAtMillis = now,
+  )
+
+  private fun attachmentsDir(): File = File(context.filesDir, "attachments").apply { mkdirs() }
+
+  private fun fileFor(name: String, now: Long): File =
+    File(attachmentsDir(), "$now-${UUID.randomUUID().toString().take(8)}-${name.replace(Regex("[^A-Za-z0-9._-]"), "_").take(60)}")
+
+  /** Gli allegati nuovi, scritti nella cartella dell'app prima che esista la riga del messaggio. */
+  private suspend fun stage(attachments: List<PendingAttachment>, now: Long): List<StagedFile> = withContext(Dispatchers.IO) {
+    val written = mutableListOf<StagedFile>()
+    try {
+      attachments.forEach { a ->
+        val file = fileFor(a.name, now)
+        file.writeBytes(a.bytes)
+        written += StagedFile(a.kind, a.mime, a.name, file.absolutePath, a.bytes.size.toLong())
+      }
+    } catch (e: Throwable) {
+      written.forEach { runCatching { File(it.path).delete() } }
+      throw e
+    }
+    written
+  }
+
+  /** Le copie dei file di un messaggio, per una sua versione: quelli che non si leggono piu' si saltano. */
+  private suspend fun copyAttachments(messageId: Long, now: Long): List<StagedFile> {
+    val rows = attachmentDao.listByMessage(messageId)
+    return withContext(Dispatchers.IO) {
+      rows.mapNotNull { row ->
+        runCatching {
+          val target = fileFor(row.name, now)
+          File(row.path).copyTo(target, overwrite = true)
+          StagedFile(AttachmentKind.entries.firstOrNull { it.name == row.kind } ?: AttachmentKind.DOCUMENT, row.mime, row.name, target.absolutePath, target.length())
+        }.getOrNull()
+      }
+    }
+  }
+
+  private suspend fun deleteFiles(paths: List<String>) {
+    if (paths.isEmpty()) return
+    withContext(Dispatchers.IO) { paths.forEach { runCatching { File(it).delete() } } }
+  }
+
   private fun decodeChips(raw: String?): List<AnswerChip> =
     raw?.let { runCatching { json.decodeFromString<List<ChipJson>>(it) }.getOrNull() }?.map { AnswerChip(it.id, it.value) } ?: emptyList()
 
@@ -402,7 +611,7 @@ class ConversationsRepository @Inject constructor(
 
   private fun AttachmentEntity.toModel() = Attachment(id, messageId, AttachmentKind.entries.firstOrNull { it.name == kind } ?: AttachmentKind.DOCUMENT, mime, name, path, bytes)
 
-  private fun MessageEntity.toModel(attachments: List<Attachment>) = Message(
+  private fun MessageEntity.toModel(attachments: List<Attachment>, version: Version?) = Message(
     id = id,
     conversationId = conversationId,
     role = MessageRole.entries.firstOrNull { it.name == role } ?: MessageRole.ASSISTANT,
@@ -413,6 +622,8 @@ class ConversationsRepository @Inject constructor(
     createdAtMillis = createdAtMillis,
     mode = AskMode.entries.firstOrNull { it.name == mode } ?: AskMode.TEXT,
     attachments = attachments,
+    parentId = parentId,
+    version = version,
   )
 
   private fun RunEntity.toModel(): Run {

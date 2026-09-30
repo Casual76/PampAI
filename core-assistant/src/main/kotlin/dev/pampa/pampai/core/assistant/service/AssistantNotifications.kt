@@ -98,6 +98,26 @@ class AssistantNotifications @Inject constructor(@ApplicationContext private val
     post(RESULT_ID, notification)
   }
 
+  /**
+   * Una domanda che non e' potuta partire (il service in primo piano non si avvia con l'app in
+   * secondo piano, per esempio dopo una trascrizione finita tardi): la si dice, con la domanda,
+   * cosi' non sparisce in silenzio. Il tocco riapre l'app.
+   */
+  fun showNotStarted(question: String) {
+    ensureChannel()
+    val text = "«${question.take(200)}»\nNon sono riuscita a partire: riapri Aria e chiedimelo di nuovo."
+    val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+      .setSmallIcon(R.drawable.ic_stat_aria)
+      .setContentTitle("La domanda non e' partita")
+      .setContentText(question.take(80))
+      .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+      .setAutoCancel(true)
+      .setContentIntent(openConversation(null))
+      .setCategory(NotificationCompat.CATEGORY_ERROR)
+      .build()
+    post(RESULT_ID, notification)
+  }
+
   fun cancelProgress() {
     runCatching { NotificationManagerCompat.from(context).cancel(PROGRESS_ID) }
   }

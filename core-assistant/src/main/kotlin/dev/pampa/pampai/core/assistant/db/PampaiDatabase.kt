@@ -1,5 +1,6 @@
 package dev.pampa.pampai.core.assistant.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -41,9 +42,21 @@ data class ConversationEntity(
    * parola chiave di SQLite, quindi nelle query scritte a mano va fra apici inversi.
    */
   val temporary: Boolean = false,
+  /**
+   * La foglia del ramo che si sta guardando. Con le versioni delle risposte la conversazione e' un
+   * albero, e il cammino mostrato va dalla prima domanda fino a qui (vedi [MessageTree]). Null =
+   * nessuna scelta salvata: vale la foglia scelta per ultima.
+   */
+  val activeLeafId: Long? = null,
 )
 
-@Entity(tableName = "messages", indices = [Index("conversationId")])
+/**
+ * Un messaggio e' un nodo di un albero: [parentId] e' il messaggio a cui risponde (la domanda,
+ * per una risposta) o che continua (la risposta di prima, per una domanda). I fratelli (stesso
+ * padre) sono le versioni, in ordine di (createdAtMillis, id): "rigenera" e "modifica e rinvia"
+ * aggiungono un fratello invece di cancellare quello che veniva dopo.
+ */
+@Entity(tableName = "messages", indices = [Index("conversationId"), Index("parentId")])
 data class MessageEntity(
   @PrimaryKey(autoGenerate = true) val id: Long = 0L,
   val conversationId: Long,
@@ -57,6 +70,13 @@ data class MessageEntity(
   val createdAtMillis: Long,
   /** TEXT o VOICE. */
   val mode: String = "TEXT",
+  /** Il padre nell'albero; null = una prima domanda (anche piu' d'una: le versioni della prima domanda). */
+  val parentId: Long? = null,
+  /**
+   * L'ultima volta che il ramo di questa foglia e' stato scelto. Tornando su una versione con le
+   * frecce si riapre la foglia piu' recente del suo sottoalbero: il ramo dove si era rimasti.
+   */
+  @ColumnInfo(defaultValue = "0") val selectedAtMillis: Long = 0L,
 )
 
 @Entity(tableName = "attachments", indices = [Index("messageId")])
@@ -195,6 +215,14 @@ interface ConversationDao {
   @Query("UPDATE conversations SET plugin = :plugin WHERE id = :id")
   suspend fun setPlugin(id: Long, plugin: String?)
 
+  /** Il ramo mostrato. Da solo: una risposta che finisce mentre si cambia versione non lo riporta indietro. */
+  @Query("UPDATE conversations SET activeLeafId = :leafId WHERE id = :id")
+  suspend fun setActiveLeaf(id: Long, leafId: Long?)
+
+  /** I gruppi aperti, scritti solo se cambiano: una colonna, non la riga intera. */
+  @Query("UPDATE conversations SET loadedGroupsJson = :json WHERE id = :id AND (loadedGroupsJson IS NULL OR loadedGroupsJson != :json)")
+  suspend fun setLoadedGroups(id: Long, json: String)
+
   @Query("DELETE FROM conversations")
   suspend fun deleteAll()
 }
@@ -226,8 +254,24 @@ interface MessageDao {
   @Query("UPDATE messages SET status = :status, failureKind = :failureKind WHERE status IN (:staleStatuses)")
   suspend fun failStale(status: String, failureKind: String, staleStatuses: List<String>)
 
-  @Query("DELETE FROM messages WHERE conversationId = :conversationId AND (createdAtMillis > :afterMillis OR (createdAtMillis = :afterMillis AND id > :afterId))")
-  suspend fun deleteAfter(conversationId: Long, afterMillis: Long, afterId: Long)
+  // La fine di una risposta: solo le colonne della risposta. Leggere la riga, copiarla e
+  // riscriverla (com'era) riportava indietro qualunque altra scrittura fatta nel frattempo.
+
+  @Query("UPDATE messages SET text = :text, chipsJson = :chipsJson, status = :status, failureKind = NULL WHERE id = :id")
+  suspend fun complete(id: Long, text: String, chipsJson: String?, status: String)
+
+  /** Fallita: il testo parziale, se c'e', prende il posto di quello salvato; altrimenti resta quello. */
+  @Query("UPDATE messages SET text = COALESCE(:partial, text), status = :status, failureKind = :failureKind WHERE id = :id")
+  suspend fun fail(id: Long, partial: String?, status: String, failureKind: String)
+
+  @Query("UPDATE messages SET text = COALESCE(:partial, text), status = :status WHERE id = :id")
+  suspend fun cancel(id: Long, partial: String?, status: String)
+
+  @Query("UPDATE messages SET selectedAtMillis = :atMillis WHERE id = :id")
+  suspend fun setSelectedAt(id: Long, atMillis: Long)
+
+  @Query("DELETE FROM messages WHERE id IN (:ids)")
+  suspend fun deleteByIds(ids: List<Long>)
 
   @Query("DELETE FROM messages WHERE conversationId = :conversationId")
   suspend fun deleteByConversation(conversationId: Long)
@@ -246,6 +290,9 @@ interface AttachmentDao {
 
   @Query("SELECT * FROM attachments WHERE messageId = :messageId")
   suspend fun listByMessage(messageId: Long): List<AttachmentEntity>
+
+  @Query("SELECT * FROM attachments WHERE messageId IN (:messageIds)")
+  suspend fun listByMessages(messageIds: List<Long>): List<AttachmentEntity>
 
   @Query("SELECT a.* FROM attachments a INNER JOIN messages m ON m.id = a.messageId WHERE m.conversationId = :conversationId")
   suspend fun listByConversation(conversationId: Long): List<AttachmentEntity>
@@ -365,7 +412,7 @@ interface ReminderDao {
  * (in `DatabaseModule`) devono arrivare esattamente fin qui, e un test lo verifica: alzare la
  * versione senza scrivere la migrazione vuol dire buttare le conversazioni dell'utente.
  */
-const val PAMPAI_DB_VERSION = 3
+const val PAMPAI_DB_VERSION = 4
 
 @Database(
   entities = [ConversationEntity::class, MessageEntity::class, AttachmentEntity::class, RunEntity::class, UsageEventEntity::class, MemoryEntity::class, ReminderEntity::class],

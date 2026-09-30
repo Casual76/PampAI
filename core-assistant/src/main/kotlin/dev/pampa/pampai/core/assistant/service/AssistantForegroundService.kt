@@ -4,11 +4,13 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import dev.pampa.pampai.core.assistant.runtime.AssistantEngine
 import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,7 +33,11 @@ class AssistantForegroundService : Service() {
   @Inject lateinit var engine: AssistantEngine
   @Inject lateinit var notifications: AssistantNotifications
 
-  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+  /**
+   * Un errore sfuggito al lavoro (una notifica che non si aggiorna, un bug) finisce nel log: senza
+   * questo gestore un'eccezione in una coroutine di questo scope faceva cadere tutta l'app.
+   */
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, e -> Log.e(TAG, "lavoro del service fallito", e) })
   private var work: Job? = null
 
   /** Cresce a ogni richiesta: solo il lavoro piu' recente ha il diritto di fermare il service. */
@@ -44,13 +50,17 @@ class AssistantForegroundService : Service() {
       runtime.cancel()
       return START_NOT_STICKY
     }
-    val request = runtime.takePendingRequest()
-    if (request == null) {
+    val queued = runtime.takePendingRequest()
+    if (queued == null) {
       if (work?.isActive != true) stopSelf(startId)
       return START_NOT_STICKY
     }
+    val request = queued.request
     val notification = notifications.progress(request.question, "Un momento…")
-    startForeground(AssistantNotifications.PROGRESS_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+    // Se Android non concede il primo piano la domanda gira lo stesso, finche' il processo vive:
+    // meglio che perderla qui.
+    runCatching { startForeground(AssistantNotifications.PROGRESS_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC) }
+      .onFailure { Log.w(TAG, "primo piano negato", it) }
     val mine = ++generation
     work?.cancel()
     work = scope.launch {
@@ -58,7 +68,7 @@ class AssistantForegroundService : Service() {
         runtime.state.map { notifications.statusLine(it) }.distinctUntilChanged().collect { notifications.updateProgress(request.question, it) }
       }
       val result = try {
-        engine.execute(request)
+        engine.execute(request, queued.token)
       } catch (e: CancellationException) {
         null
       } finally {
@@ -88,5 +98,6 @@ class AssistantForegroundService : Service() {
 
   companion object {
     const val ACTION_STOP = "dev.pampa.pampai.assistant.STOP"
+    private const val TAG = "AssistantService"
   }
 }
