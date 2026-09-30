@@ -14,22 +14,30 @@
       "ref": "main"
     },
     "stable": {
-      "version": "1.1.2",
-      "releaseDate": "2026-09-19",
-      "changelog": "Gli interruttori sono quelli di vetro vero.\n\nIl pomello e' l'unica lastra del controllo: a riposo e' bianco pieno, e tenuto premuto il bianco sparisce e sotto si apre una copia schiacciata della pista, con la frangia cromatica sul bordo. Si commutano con un tocco in qualunque punto, oppure trascinando il pomello, e prendono il colore d'accento dell'app.\n\nFluid Engine 2.3.2.",
-      "releaseTag": "stable-pampai-v1.1.2",
-      "apkAsset": "pampai-1.1.2.apk",
-      "sizeBytes": 13328052
+      "version": "1.2.0",
+      "releaseDate": "2026-09-30",
+      "changelog": "Piu' solida, e le risposte hanno le versioni.\n\n- Rigenera qualsiasi risposta o modifica una domanda: la nuova versione si affianca a quella di prima, e con le frecce ‹ 1/2 › le sfogli, come in ChatGPT.\n- Quando un servizio e' al limite, non risponde o sbaglia, Aria passa al successivo e lo scrive sotto la risposta. Sulle risposte fallite, \"Dettagli\" mostra cosa ha risposto il servizio.\n- Il router di Groq ritirato si sostituisce da solo, Gemini che ragiona non va piu' in timeout, e niente piu' risposte vuote.\n- Tasto di accensione: la card non salta piu' a fine risposta, il vetro sfoca davvero e ogni apertura parte pulita.\n- Voce: il silenzio non manda piu' domande inventate, e Stop ferma davvero.\n- Comandi rapidi (timer, sveglie, torcia, volume) senza passare dall'IA, e una pagina per memoria e promemoria.\n- Dal telefono bloccato Aria fa solo cose innocue.\n- Le formule si leggono (CO₂, x²), la chat non ti riporta giu' mentre leggi, la tastiera non copre piu' l'ultima riga.\n\nFluid Engine 2.9.0. Questa versione aggiorna il database delle conversazioni (con una copia di sicurezza): tornare alla 1.1.2 le cancellerebbe.",
+      "releaseTag": "stable-pampai-v1.2.0",
+      "apkAsset": "pampai-1.2.0.apk",
+      "sizeBytes": 13906574
     },
     "beta": {
-      "version": "1.1.2",
-      "releaseDate": "2026-09-19",
-      "changelog": "Gli interruttori sono quelli di vetro vero.\n\nIl pomello e' l'unica lastra del controllo: a riposo e' bianco pieno, e tenuto premuto il bianco sparisce e sotto si apre una copia schiacciata della pista, con la frangia cromatica sul bordo. Si commutano con un tocco in qualunque punto, oppure trascinando il pomello, e prendono il colore d'accento dell'app.\n\nFluid Engine 2.3.2.",
-      "releaseTag": "stable-pampai-v1.1.2",
-      "apkAsset": "pampai-1.1.2.apk",
-      "sizeBytes": 13328052
+      "version": "1.2.0",
+      "releaseDate": "2026-09-30",
+      "changelog": "Piu' solida, e le risposte hanno le versioni.\n\n- Rigenera qualsiasi risposta o modifica una domanda: la nuova versione si affianca a quella di prima, e con le frecce ‹ 1/2 › le sfogli, come in ChatGPT.\n- Quando un servizio e' al limite, non risponde o sbaglia, Aria passa al successivo e lo scrive sotto la risposta. Sulle risposte fallite, \"Dettagli\" mostra cosa ha risposto il servizio.\n- Il router di Groq ritirato si sostituisce da solo, Gemini che ragiona non va piu' in timeout, e niente piu' risposte vuote.\n- Tasto di accensione: la card non salta piu' a fine risposta, il vetro sfoca davvero e ogni apertura parte pulita.\n- Voce: il silenzio non manda piu' domande inventate, e Stop ferma davvero.\n- Comandi rapidi (timer, sveglie, torcia, volume) senza passare dall'IA, e una pagina per memoria e promemoria.\n- Dal telefono bloccato Aria fa solo cose innocue.\n- Le formule si leggono (CO₂, x²), la chat non ti riporta giu' mentre leggi, la tastiera non copre piu' l'ultima riga.\n\nFluid Engine 2.9.0. Questa versione aggiorna il database delle conversazioni (con una copia di sicurezza): tornare alla 1.1.2 le cancellerebbe.",
+      "releaseTag": "stable-pampai-v1.2.0",
+      "apkAsset": "pampai-1.2.0.apk",
+      "sizeBytes": 13906574
     },
     "history": [
+      {
+        "version": "1.1.2",
+        "releaseDate": "2026-09-19",
+        "changelog": "Gli interruttori sono quelli di vetro vero.\n\nIl pomello e' l'unica lastra del controllo: a riposo e' bianco pieno, e tenuto premuto il bianco sparisce e sotto si apre una copia schiacciata della pista, con la frangia cromatica sul bordo. Si commutano con un tocco in qualunque punto, oppure trascinando il pomello, e prendono il colore d'accento dell'app.\n\nFluid Engine 2.3.2.",
+        "releaseTag": "stable-pampai-v1.1.2",
+        "apkAsset": "pampai-1.1.2.apk",
+        "sizeBytes": 13328052
+      },
       {
         "version": "1.1.1",
         "releaseDate": "2026-09-08",
