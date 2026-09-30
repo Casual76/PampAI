@@ -1,6 +1,5 @@
 package dev.pampa.pampai.feature.assistant.chat
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +45,6 @@ import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
 import dev.antigravity.fluidengine.ui.fluid.FluidChip
 import dev.antigravity.fluidengine.ui.fluid.FluidContextAction
-import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.fluidContextMenuAnchor
 import dev.antigravity.fluidengine.ui.fluid.fluidPressable
@@ -269,62 +267,6 @@ internal fun LiveBubble(live: AssistantState, pending: PendingConfirmation?, onR
       ResponseBody(text, streaming = live is AssistantState.Answering, live = true, memo = memo)
     }
     if (pending != null) ConfirmationRow(pending, onResolve)
-  }
-}
-
-/**
- * A fine risposta il testo passa al Markdown completo (tabelle, tasto copia sul codice, link
- * veri). Se il salto al passaggio si vedesse troppo, con `false` una risposta arrivata in
- * streaming resta sui paragrafi di [RevealingParagraphs] finche' l'item vive: riaperta dalla
- * cronologia sara' comunque Markdown.
- */
-private const val HandOverToMarkdownWhenDone = true
-
-/**
- * Cio' che un item ricorda di se' fra una ricomposizione e l'altra. [freshStart]: al primo
- * passaggio non c'era testo, quindi quello che arriva sta nascendo adesso e si rivela parola per
- * parola; se invece c'era gia' (chat riaperta, cambio di chiave dell'item alla prima risposta) e'
- * gia' letto. [streamed]: e' passato di qui in streaming, per [HandOverToMarkdownWhenDone].
- */
-private class ResponseMemo(val freshStart: Boolean) {
-  var streamed = false
-}
-
-/**
- * Il testo da mostrare. Mentre risponde, il partial vivo. A `Done` il testo dello stato: Room
- * emette il messaggio completo un attimo dopo, e per quel fotogramma `message.text` e' ancora il
- * partial salvato fino a 300 ms prima (era la riga che spariva a fine risposta). Fermata o
- * fallita, il partial se c'e'; altrimenti il messaggio.
- */
-private fun responseText(message: Message, live: AssistantState?): String = when (live) {
-  is AssistantState.Answering -> live.partial.ifBlank { message.text }
-  is AssistantState.Done -> live.answer.ifBlank { message.text }
-  is AssistantState.Failed -> live.partial?.takeIf { it.isNotBlank() } ?: message.text
-  is AssistantState.Cancelled -> live.partial?.takeIf { it.isNotBlank() } ?: message.text
-  else -> message.text
-}
-
-/**
- * Il corpo della risposta: in streaming i paragrafi che si rivelano, poi il Markdown completo.
- *
- * `animateContentSize` solo sulla risposta viva: spalma la crescita sui fotogrammi, ed e' quello
- * che rende continuo il seguito della lista (che scorre di quanto il testo sporge). Sui messaggi
- * vecchi non servirebbe e costerebbe una misura in piu' ciascuno.
- */
-@Composable
-private fun ResponseBody(text: String, streaming: Boolean, live: Boolean, memo: ResponseMemo) {
-  if (streaming) memo.streamed = true
-  val reveal = streaming || (!HandOverToMarkdownWhenDone && memo.streamed)
-  val scheme = MaterialTheme.colorScheme
-  val typography = MaterialTheme.typography
-  val sizing = if (live) Modifier.animateContentSize(FluidMotion.intSize(FluidMotion.DampingChrome, FluidMotion.ResponseSnappy)) else Modifier
-  Box(Modifier.fillMaxWidth().then(sizing)) {
-    if (reveal) {
-      val blocks = remember(text, scheme, typography) { streamingBlocks(text, scheme, typography) }
-      RevealingParagraphs(blocks, animateFirst = memo.freshStart)
-    } else {
-      MarkdownBody(text)
-    }
   }
 }
 
