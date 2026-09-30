@@ -56,11 +56,20 @@ class HistoryViewModel @Inject constructor(
 
   fun rename(id: Long, title: String) = viewModelScope.launch { conversations.rename(id, title, auto = false) }
 
+  /**
+   * Un passaggio trovato cercando: il ramo che lo contiene diventa quello attivo, poi [open] apre la
+   * conversazione (passando dalla chat, che tiene plugin e temporanea). Se il messaggio non c'e'
+   * piu' si apre lo stesso la conversazione del risultato.
+   */
+  fun openHit(hit: SearchHit, open: (Long) -> Unit) = viewModelScope.launch {
+    val id = runCatching { conversations.activateMessage(hit.messageId) }.getOrNull() ?: hit.conversationId
+    open(id)
+  }
+
   fun delete(id: Long) = viewModelScope.launch {
-    if (runtime.activeConversationId.value == id) {
-      if (runtime.isBusy) runtime.cancel()
-      runtime.selectConversation(null)
-    }
+    // Si ferma solo il lavoro su questa conversazione: una risposta dell'overlay su un'altra resta.
+    if (runtime.isBusy && runtime.liveTrack.value.owner.conversationId == id) runtime.cancel()
+    if (runtime.activeConversationId.value == id) runtime.selectConversation(null)
     engine.forget(id)
     conversations.delete(id)
   }

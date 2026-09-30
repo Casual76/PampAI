@@ -39,6 +39,25 @@ object AssistantTexts {
     FailureKind.UNKNOWN -> "Qualcosa e' andato storto."
   }
 
+  /**
+   * Il fallimento in due o tre parole, per il titolo di una riga del foglio "Dettagli": la frase
+   * intera ([failure]) sta gia' sopra, e li' serve il nome della cosa, non il consiglio.
+   */
+  fun failureTitle(kind: FailureKind): String = when (kind) {
+    FailureKind.NO_KEYS -> "Nessuna chiave"
+    FailureKind.UNAUTHORIZED -> "Chiave non valida"
+    FailureKind.RATE_LIMITED -> "Limite di richieste"
+    FailureKind.NETWORK -> "Niente rete"
+    FailureKind.TIMEOUT -> "Tempo scaduto"
+    FailureKind.BLOCKED -> "Bloccata dai filtri"
+    FailureKind.PROVIDER -> "Errore del servizio"
+    FailureKind.MODEL_UNAVAILABLE -> "Modello non disponibile"
+    FailureKind.CONTEXT_TOO_LONG -> "Conversazione troppo lunga"
+    FailureKind.MICROPHONE -> "Microfono occupato"
+    FailureKind.TRANSCRIPTION -> "Trascrizione non riuscita"
+    FailureKind.UNKNOWN -> "Errore sconosciuto"
+  }
+
   /** La riga di stato; [provider] e' chi stava rispondendo, per nominarlo in un fallimento per limite. */
   fun statusLine(state: AssistantState, provider: ProviderId? = null): String? = when (state) {
     is AssistantState.Listening -> "Ti ascolto…"

@@ -47,7 +47,8 @@ import kotlin.math.sin
 // Il campo di luce di Aria: un solo orologio, un solo pittore, tre usi.
 //
 // 1. L'alone della sessione (il tasto di accensione sopra un'altra app): macchie che viaggiano
-//    lungo il bordo dello schermo. E' `AriaHalo`, in `session/`, un wrapper di `HaloField`.
+//    lungo il bordo dello schermo. E' `AriaHalo`, in `session/`; da quando `HaloField` prende il
+//    livello come lambda puo' tornare un suo wrapper.
 // 2. L'alone della capsula del composer mentre ascolta: stesso pittore, `path` diverso.
 // 3. L'aurora sullo sfondo della chat mentre Aria lavora: `drawAuroraField`, macchie larghe che
 //    vagano dentro la pagina invece che sul suo bordo.
@@ -222,12 +223,31 @@ fun rememberHaloClock(running: Boolean, speed: Float, target: () -> Float, econo
 }
 
 /**
+ * Il campo di luce con il livello del microfono come numero, letto in composizione: va bene per chi
+ * lo raccoglie gia' dentro un composable suo, piccolo. Chi ha il flusso a cinquanta hertz passi la
+ * lambda (l'altra firma), che legge solo il loop di frame.
+ */
+@Composable
+fun HaloField(
+  mood: HaloMood,
+  level: Float,
+  modifier: Modifier = Modifier,
+  spec: HaloFieldSpec = HaloFieldSpec(),
+  colours: HaloColours = HaloColours.fromTheme(),
+  path: ((Size, Density) -> Path)? = null,
+  staticWhenReduced: Boolean = true,
+) {
+  HaloField(mood = mood, level = { level }, modifier = modifier, spec = spec, colours = colours, path = path, staticWhenReduced = staticWhenReduced)
+}
+
+/**
  * Il campo di luce, completo: presenza (dissolvenza 400 ms in entrata, 600 in uscita), colori per
  * umore animati, orologio, e un canvas a schermo intero che disegna con [drawHaloField].
  *
  * `Path` e `PathMeasure` si rifanno solo quando cambia la misura; `time` e `amplitude` si leggono
- * dentro il draw. `level` arriva come parametro perche' chi ci chiama (l'overlay della sessione)
- * raccoglie il microfono dentro un composable suo, piccolo, e deve restare cosi'.
+ * dentro il draw. [level] e' una lambda e la legge **solo il loop di frame** dell'orologio: il
+ * microfono a cinquanta hertz non ricompone il campo (era il motivo per cui l'alone della sessione
+ * si era fatto un pittore suo invece di passare da qui).
  *
  * @param path la forma su cui viaggiano le macchie, se non e' il rettangolo arrotondato del canvas
  *   (la capsula del composer). Si costruisce una volta per misura.
@@ -237,7 +257,7 @@ fun rememberHaloClock(running: Boolean, speed: Float, target: () -> Float, econo
 @Composable
 fun HaloField(
   mood: HaloMood,
-  level: Float,
+  level: () -> Float,
   modifier: Modifier = Modifier,
   spec: HaloFieldSpec = HaloFieldSpec(),
   colours: HaloColours = HaloColours.fromTheme(),
@@ -250,7 +270,8 @@ fun HaloField(
   LaunchedEffect(shown) {
     presence.animateTo(if (shown) 1f else 0f, if (shown) FluidMotion.fadeIn(PresenceFadeInMs) else FluidMotion.fadeOut(PresenceFadeOutMs))
   }
-  val clock = rememberHaloClock(running = shown, speed = mood.tempo(), target = { mood.amplitudeTarget(level) })
+  // L'umore e il livello si leggono nel loop di frame (rememberHaloClock tiene l'ultima lambda).
+  val clock = rememberHaloClock(running = shown, speed = mood.tempo(), target = { mood.amplitudeTarget(level()) })
   val cycle = remember(colours, mood) { colours.cycle(mood) }
   // Sei `State<Color>`: si leggono nel draw, cosi' il cambio d'umore anima i colori senza ricomporre.
   val animated = cycle.mapIndexed { index, colour -> animateColorAsState(colour, FluidMotion.color(), label = "haloColour$index") }

@@ -9,31 +9,42 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.foundation.EngineCompatibility
@@ -79,7 +90,6 @@ fun ChatRoute(
   viewModel: ChatViewModel = hiltViewModel(),
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
-  val partial by viewModel.runtimePartial.collectAsStateWithLifecycle()
   val draft by viewModel.draft.collectAsStateWithLifecycle()
   val speaking by viewModel.speaking.collectAsStateWithLifecycle()
   val plugins by viewModel.plugins.collectAsStateWithLifecycle()
@@ -88,12 +98,9 @@ fun ChatRoute(
   val thinkingAuto by viewModel.thinkingAuto.collectAsStateWithLifecycle()
   val remote by viewModel.remoteStatus.collectAsStateWithLifecycle()
   val context = LocalContext.current
-  val listState = rememberLazyListState()
-  var editing by remember { mutableStateOf<Message?>(null) }
+  val composer = rememberComposerState()
   var viewing by remember { mutableStateOf<Attachment?>(null) }
-  val lastUserId = remember(state.messages) { state.messages.lastOrNull { it.role == MessageRole.USER }?.id }
-  // I servizi pronti per "Rigenera con…", nell'ordine dell'utente.
-  val readyProviders = remember(state.settings.chatOrder, state.keys) { state.settings.chatOrder.filter { state.keys[it]?.verified == true } }
+  var details by remember { mutableStateOf<FailureReport?>(null) }
   val notifications = LocalFluidNotificationHostState.current
   LaunchedEffect(viewModel) {
     viewModel.notices.collect { text ->
@@ -102,15 +109,74 @@ fun ChatRoute(
       else android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_SHORT).show()
     }
   }
+  // Tornando nella chat, una domanda rimasta in coda mentre l'app era dietro parte adesso: dal
+  // secondo piano il service in primo piano non si sarebbe avviato.
+  val lifecycle = LocalLifecycleOwner.current.lifecycle
+  LaunchedEffect(lifecycle, viewModel) {
+    lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { viewModel.onChatVisible() }
+  }
+  // Un testo da fuori ("Condividi con Aria", una domanda tolta dalla coda) si aggiunge al campo.
+  LaunchedEffect(draft) {
+    val incoming = draft ?: return@LaunchedEffect
+    composer.fill(incoming)
+    viewModel.draft.value = null
+  }
 
-  FollowStreaming(
-    listState = listState,
-    itemCount = state.messages.size + if (state.live != null) 1 else 0,
-    answering = state.live is AssistantState.Answering,
-  )
+  // Una lista per conversazione: si apre in fondo, e tornando dalle impostazioni resta dov'era.
+  val scrollKeys = rememberChatScrollKeys()
+  val scroll = rememberChatScroll(scrollKeys.keyFor(state.conversation?.id, liveShown = state.live != null))
+  val listState = scroll.list
+  FollowBottom(scroll)
+
+  val lastUserId = remember(state.messages) { state.messages.lastOrNull { it.role == MessageRole.USER }?.id }
+  // I servizi pronti per "Rigenera con…", nell'ordine dell'utente.
+  val readyProviders = remember(state.settings.chatOrder, state.keys) { state.settings.chatOrder.filter { state.keys[it]?.verified == true } }
+  // Le lambda della home cambiano a ogni sua ricomposizione: si legge sempre l'ultima, e le azioni
+  // restano lo stesso oggetto (altrimenti ogni item della lista si ricomporrebbe per niente).
+  val currentOnChip by rememberUpdatedState(onChip)
+  val currentOnOpenSettings by rememberUpdatedState(onOpenSettings)
+  // "Rigenera" aspetta finche' Aria lavora (qui o per l'overlay): partirebbe fermandola. Le frecce
+  // aspettano solo il lavoro su questa conversazione, che si attacca al ramo di adesso.
+  val locked = state.anyBusy
+  val versionsLocked = state.live?.isBusy == true
+  val answerActions = remember(viewModel, scroll, readyProviders, locked, versionsLocked) {
+    AnswerActions(
+      onResolve = viewModel::resolve,
+      onChip = { currentOnChip(it) },
+      // La versione nuova e' l'ultima del ramo mostrato (quelle dopo restano nel ramo di prima):
+      // si va in fondo a vederla nascere.
+      onRegenerate = { message -> viewModel.regenerate(message); scroll.revealLatest() },
+      onRegenerateWith = { message, provider -> viewModel.regenerate(message, ProviderOverride(provider, chatModel = null)); scroll.revealLatest() },
+      onCopy = { message -> copy(context, message.text) },
+      onShare = { message -> share(context, message.text) },
+      onVersion = viewModel::selectVersion,
+      onDetails = { details = it },
+      regenerateWith = readyProviders,
+      locked = locked,
+      versionsLocked = versionsLocked,
+    )
+  }
+  // A quale risposta appartiene lo stato vivo (vedi [LiveAnchor]).
+  val liveAnchor = remember { LiveAnchor() }
+  val liveId = liveAnchor.resolve(state.messages, state.live)
 
   val contextFacet = state.context?.let { "contesto ${(it.fraction * 100).toInt()}% di ${it.window / 1000}k" }
   val topSpace = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp
+
+  // Il padding in fondo alla lista e' l'area che il composer copre davvero: la sua altezza misurata
+  // (cresce con le righe, le pillole, gli allegati), piu' tastiera o barra di navigazione. Prima era
+  // un numero fisso, e con tre righe nel campo o la tastiera aperta le ultime parole finivano sotto
+  // il vetro. Si legge in misura, non in composizione: il campo che cresce non ricompone la pagina.
+  val density = LocalDensity.current
+  val composerHeight = remember { mutableIntStateOf(0) }
+  val navigationBars = WindowInsets.navigationBars
+  val ime = WindowInsets.ime
+  val belowComposer = remember(navigationBars, ime) { navigationBars.union(ime) }
+  val listPadding = remember(density, belowComposer, topSpace, bottomInset) {
+    ChatListPadding(top = topSpace, horizontal = 16.dp) {
+      with(density) { (composerHeight.intValue + belowComposer.getBottom(density)).toDp() } + bottomInset + ListBottomGap
+    }
+  }
 
   // Il vetro si assottiglia mentre la lista corre e torna intero quando si ferma, come in
   // `FluidScreen`: la velocita' e' un fatto della pagina, e sta sul `nestedScroll` del corpo cosi'
@@ -128,7 +194,6 @@ fun ChatRoute(
   // La barra in cima e' assente finche' la lista sta in cima e si addensa nei primi 64 dp di
   // scorrimento, con la zona morta e la rampa della barra di `FluidScreen`. Sopra il saluto di una
   // chat appena aperta non c'e' niente da sfocare, e una lastra li' era soltanto un film.
-  val density = LocalDensity.current
   val deadZonePx = with(density) { FluidScreenDefaults.ShieldDeadZone.toPx() }
   val rampPx = with(density) { FluidScreenDefaults.ShieldRampDistance.toPx() }
   val barIntensity = remember(listState, deadZonePx, rampPx) {
@@ -136,6 +201,34 @@ fun ChatRoute(
       val travelled = if (listState.firstVisibleItemIndex > 0) Float.MAX_VALUE else listState.firstVisibleItemScrollOffset.toFloat()
       smoothStep(((travelled - deadZonePx) / rampPx.coerceAtLeast(1f)).coerceIn(0f, 1f))
     }
+  }
+
+  val feeds = remember(viewModel) { ComposerFeeds(micLevel = viewModel.micLevel, partial = viewModel.runtimePartial, voiceEvents = viewModel.voiceEvents) }
+  val composerActions = remember(viewModel, composer, scroll) {
+    ComposerActions(
+      onSend = { text ->
+        val target = composer.editing
+        val accepted = if (target != null) viewModel.editAndResend(target, text) else viewModel.send(text)
+        if (accepted) scroll.revealLatest()
+        accepted
+      },
+      onStop = viewModel::cancel,
+      onVoice = viewModel::startVoice,
+      onStopVoice = viewModel::stopVoice,
+      onCancelVoice = viewModel::cancelVoice,
+      onStopSpeaking = viewModel::stopSpeaking,
+      onAttach = { viewModel.attach(it) },
+      onRemoveAttachment = viewModel::removeAttachment,
+      onOpenSettings = { currentOnOpenSettings() },
+      onProvider = viewModel::useProvider,
+      onThinking = viewModel::setThinking,
+      onThinkingAuto = viewModel::setThinkingAuto,
+      onPlugin = viewModel::setPlugin,
+      onToggleDeep = viewModel::toggleDeepNext,
+      // Acceso: una chat nuova che non restera'. Spento: si esce dalla temporanea, e uscire
+      // vuol dire che quella di prima non c'e' piu' — in entrambi i casi si riparte da bianco.
+      onToggleTemporary = { if (viewModel.state.value.temporary) viewModel.newConversation() else viewModel.newTemporaryConversation() },
+    )
   }
 
   CompositionLocalProvider(LocalFluidGlassQuality provides glassQuality) {
@@ -161,59 +254,76 @@ fun ChatRoute(
       // 2. Il corpo: solo la lista, trasparente sul fondale, registrata a parte e sempre. Niente
       //    `frozen`: un riflesso fermo mentre la lista scorre e' la prima cosa che si vede sotto
       //    la barra, e il costo lo tiene giu' la qualita' che scala con la velocita'.
+      //    Finche' una conversazione appena aperta non e' in fondo la lista non si disegna: sono
+      //    uno o due fotogrammi, e senza si vedeva la cima prima del salto.
       LazyColumn(
         state = listState,
         modifier = Modifier
           .fillMaxSize()
           .nestedScroll(qualityConnection)
-          .glassBackdropSource(backdrops.body),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = topSpace, bottom = bottomInset + 128.dp),
+          .glassBackdropSource(backdrops.body)
+          .drawWithContent { if (scroll.positioned) drawContent() },
+        contentPadding = listPadding,
         verticalArrangement = Arrangement.spacedBy(20.dp),
       ) {
-        remoteBanner(remote)?.let { banner ->
-          item(key = "remoto") {
-            FluidCard(glass = false) {
-              Text(banner.title, style = MaterialTheme.typography.titleSmall, color = if (banner.urgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
-              Spacer(Modifier.height(4.dp))
-              Text(banner.message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-              if (banner.update) {
-                Spacer(Modifier.height(10.dp))
-                FluidButton(text = "Cerca l'aggiornamento", onClick = onOpenSettings, style = FluidButtonStyle.Tinted, size = FluidButtonSize.Small)
-              }
-            }
+        state.recovery?.let {
+          item(key = "recupero") {
+            ChatBanner(
+              title = "Conversazioni ripartite da zero",
+              message = "Non sono riuscita a leggere le conversazioni salvate: ne ho fatto una copia e sono ripartita da zero.",
+              urgent = false,
+              action = "Ok",
+              onAction = viewModel::dismissRecovery,
+            )
           }
         }
-        if (state.messages.isEmpty() && state.live == null) {
-          item(key = "saluto") { EmptyGreeting(onSuggestion = { if (state.enabled) viewModel.send(it) else onOpenSettings() }) }
+        remoteBanner(remote)?.let { banner ->
+          item(key = "remoto") {
+            ChatBanner(banner.title, banner.message, banner.urgent, action = if (banner.update) "Cerca l'aggiornamento" else null, onAction = onOpenSettings)
+          }
+        }
+        if (state.messages.isEmpty() && state.live == null && state.queued.isEmpty()) {
+          item(key = "saluto") {
+            EmptyGreeting(
+              onSuggestion = { suggestion ->
+                // Con Aria al lavoro (anche per l'overlay) il suggerimento va nel campo: mandarlo
+                // adesso vorrebbe dire metterlo in coda senza che lo si sia scelto davvero.
+                if (viewModel.state.value.anyBusy) composer.fill(suggestion) else if (viewModel.send(suggestion)) scroll.revealLatest()
+              },
+            )
+          }
         }
         state.messages.forEach { message ->
-          item(key = message.id) {
-            when (message.role) {
-              MessageRole.USER -> UserBubble(
-                message,
-                showEdit = message.id == lastUserId,
-                onEdit = { editing = message },
-                onOpenAttachment = { attachment -> if (attachment.kind == AttachmentKind.IMAGE) viewing = attachment else AttachmentFiles.open(context, attachment) },
-              )
-              MessageRole.ASSISTANT -> AssistantMessage(
-                message = message,
-                run = state.runs[message.id],
-                live = if (message.status == MessageStatus.PENDING || message.status == MessageStatus.STREAMING) state.live else null,
-                pending = state.pending,
-                onResolve = viewModel::resolve,
-                onChip = onChip,
-                onRegenerate = { viewModel.regenerate(message) },
-                regenerateWith = readyProviders,
-                onRegenerateWith = { provider -> viewModel.regenerate(message, ProviderOverride(provider, chatModel = null)) },
-                onCopy = { copy(context, message.text) },
-                onShare = { share(context, message.text) },
-              )
+          // Una chiave per posto, non per messaggio: le versioni di un messaggio si scambiano nello
+          // stesso item (con il crossfade di MessageSlot) e la lista non salta.
+          item(key = slotKey(message), contentType = message.role) {
+            MessageSlot(message) { shown ->
+              when (shown.role) {
+                MessageRole.USER -> UserBubble(
+                  shown,
+                  showEdit = shown.id == lastUserId,
+                  onEdit = { composer.startEditing(shown) },
+                  onOpenAttachment = { attachment -> if (attachment.kind == AttachmentKind.IMAGE) viewing = attachment else AttachmentFiles.open(context, attachment) },
+                  versionsEnabled = !versionsLocked,
+                  onVersion = viewModel::selectVersion,
+                )
+                MessageRole.ASSISTANT -> AssistantMessage(
+                  message = shown,
+                  run = state.runs[shown.id],
+                  live = liveFor(shown, state.live, liveId),
+                  pending = state.pending,
+                  actions = answerActions,
+                )
+              }
             }
           }
         }
         // Una conversazione nuova: la domanda in corso non e' ancora su disco.
         if (state.messages.isEmpty() && state.live != null) {
           item(key = "live") { LiveBubble(state.live!!, state.pending, viewModel::resolve) }
+        }
+        state.queued.forEachIndexed { index, question ->
+          item(key = "coda-$index") { QueuedBubble(question, onCancel = { viewModel.unqueue(question) }) }
         }
       }
 
@@ -225,6 +335,7 @@ fun ChatRoute(
         backdrop = backdrops.chrome,
         intensity = { barIntensity.value },
         onMenu = onOpenMenu,
+        // "Nuova chat" non ferma il lavoro in corso: la risposta finisce nella sua conversazione.
         onNew = if (state.isNew) null else viewModel::newConversation,
         temporary = state.temporary,
         // Sopra un fondale animato i vetri ricampionano a intervalli, non a ogni fotogramma.
@@ -237,51 +348,80 @@ fun ChatRoute(
           .navigationBarsPadding()
           .imePadding()
           .padding(bottom = bottomInset)
+          // La misura comprende il margine attorno alla capsula: e' quanto della lista copre davvero.
+          .onSizeChanged { composerHeight.intValue = it.height }
           .padding(horizontal = 12.dp, vertical = 8.dp),
       ) {
         Composer(
           backdrop = backdrops.chrome,
           state = state,
-          editing = editing,
-          onSend = { text ->
-            val target = editing
-            editing = null
-            if (target != null) viewModel.editAndResend(target, text) else viewModel.send(text)
-          },
-          onCancelEdit = { editing = null },
-          onStop = viewModel::cancel,
-          onVoice = viewModel::startVoice,
-          onStopVoice = viewModel::stopVoice,
-          onCancelVoice = viewModel::cancelVoice,
-          onStopSpeaking = viewModel::stopSpeaking,
-          micLevel = viewModel.micLevel,
-          partial = partial,
-          speaking = speaking,
-          voiceEvents = viewModel.voiceEvents,
-          draft = draft,
-          onDraftConsumed = { viewModel.draft.value = null },
-          onAttach = viewModel::attach,
-          onRemoveAttachment = viewModel::removeAttachment,
-          onOpenSettings = onOpenSettings,
-          onProvider = viewModel::useProvider,
-          onThinking = viewModel::setThinking,
-          thinkingAuto = thinkingAuto,
-          onThinkingAuto = viewModel::setThinkingAuto,
-          plugins = plugins,
-          plugin = plugin,
-          onPlugin = viewModel::setPlugin,
-          deepNext = deepNext,
-          onToggleDeep = viewModel::toggleDeepNext,
-          temporary = state.temporary,
-          // Acceso: una chat nuova che non restera'. Spento: si esce dalla temporanea, e uscire
-          // vuol dire che quella di prima non c'e' piu' — in entrambi i casi si riparte da bianco.
-          onToggleTemporary = { if (state.temporary) viewModel.newConversation() else viewModel.newTemporaryConversation() },
+          composer = composer,
+          model = ComposerModel(
+            speaking = speaking,
+            thinkingAuto = thinkingAuto,
+            plugins = plugins,
+            plugin = plugin,
+            deepNext = deepNext,
+            temporary = state.temporary,
+          ),
+          feeds = feeds,
+          actions = composerActions,
           resampleIntervalMillis = if (aurora.present) ChatGlassResampleMillis else 0L,
         )
       }
     }
   }
   viewing?.let { attachment -> ImageViewer(attachment, onDismiss = { viewing = null }) }
+  FailureDetailsSheet(report = details, onDismiss = { details = null })
+}
+
+/** L'aria fra l'ultima riga e il bordo del composer. */
+private val ListBottomGap = 12.dp
+
+/**
+ * Il padding della lista, con il fondo letto in misura: [bottom] legge l'altezza del composer e gli
+ * inset, due stati che cambiano mentre si scrive o si apre la tastiera, e letti qui rimisurano la
+ * lista senza ricomporre la pagina.
+ */
+@Stable
+private class ChatListPadding(private val top: Dp, private val horizontal: Dp, private val bottom: () -> Dp) : PaddingValues {
+  override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = horizontal
+  override fun calculateTopPadding(): Dp = top
+  override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = horizontal
+  override fun calculateBottomPadding(): Dp = bottom()
+}
+
+/**
+ * Quale risposta sta ricevendo lo stato vivo. Lo stato non porta l'id del messaggio: e' l'ultima
+ * risposta vista in corso su disco (`PENDING`/`STREAMING`), e resta sua anche dopo che Room l'ha
+ * chiusa, finche' il runtime resta sullo stato finale — cosi' la fine della risposta anima fino in
+ * fondo invece di spegnersi al primo `DONE` salvato. Si libera quando lo stato vivo non c'e' piu'.
+ *
+ * Campi semplici: li scrive la composizione con gli stessi ingressi e lo stesso esito.
+ */
+private class LiveAnchor {
+  private var id: Long? = null
+
+  fun resolve(messages: List<Message>, live: AssistantState?): Long? {
+    if (live == null) {
+      id = null
+      return null
+    }
+    messages.lastOrNull { it.role == MessageRole.ASSISTANT && (it.status == MessageStatus.PENDING || it.status == MessageStatus.STREAMING) }?.let { id = it.id }
+    return id
+  }
+}
+
+/**
+ * Lo stato vivo da dare a [message]. A una risposta ancora aperta su disco, tutto. A una gia'
+ * chiusa, solo cio' che ne racconta la fine: `Done`, `Failed`, `Cancelled`, e l'ultimo
+ * `Answering` (Room puo' chiuderla un attimo prima che il runtime pubblichi `Done`). Mai il
+ * lavoro della domanda dopo: quello, finche' la sua risposta non e' su disco, non e' di nessuno.
+ */
+private fun liveFor(message: Message, live: AssistantState?, liveId: Long?): AssistantState? {
+  if (live == null || message.id != liveId) return null
+  val open = message.status == MessageStatus.PENDING || message.status == MessageStatus.STREAMING
+  return if (open || live is AssistantState.Answering || !live.isBusy) live else null
 }
 
 /**
@@ -292,6 +432,24 @@ fun ChatRoute(
 private fun smoothStep(value: Float): Float {
   val t = value.coerceIn(0f, 1f)
   return t * t * (3f - 2f * t)
+}
+
+/**
+ * Un avviso in cima alla chat: il file di controllo remoto, il database ripartito da zero. Una
+ * card opaca (il vetro nel contenuto qui non serve: e' testo da leggere), con un tasto se c'e'
+ * qualcosa da fare.
+ */
+@Composable
+private fun ChatBanner(title: String, message: String, urgent: Boolean, action: String?, onAction: () -> Unit) {
+  FluidCard(glass = false) {
+    Text(title, style = MaterialTheme.typography.titleSmall, color = if (urgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+    Spacer(Modifier.height(4.dp))
+    Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (action != null) {
+      Spacer(Modifier.height(10.dp))
+      FluidButton(text = action, onClick = onAction, style = FluidButtonStyle.Tinted, size = FluidButtonSize.Small)
+    }
+  }
 }
 
 private data class RemoteBanner(val title: String, val message: String, val urgent: Boolean, val update: Boolean)

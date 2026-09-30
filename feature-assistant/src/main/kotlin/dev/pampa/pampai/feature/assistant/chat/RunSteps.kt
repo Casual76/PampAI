@@ -38,6 +38,7 @@ import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.fluidPressable
 import dev.pampa.pampai.core.assistant.db.Run
 import dev.pampa.pampai.core.assistant.runtime.LOCAL_OUTCOME
+import dev.pampa.pampai.core.assistant.runtime.STOPPED_OUTCOME
 import java.util.Locale
 
 /**
@@ -53,10 +54,9 @@ import java.util.Locale
  */
 @Composable
 fun RunSteps(run: Run) {
-  // Un comando rapido non ha passi da raccontare: la risposta e' gia' tutto.
-  if (run.outcome == LOCAL_OUTCOME) return
-  val hasDetails = run.tools.isNotEmpty() || run.error != null || modelsLine(run) != null
-  if (!hasDetails) return
+  // Un comando rapido non ha passi da raccontare: la risposta e' gia' tutto. L'errore da solo
+  // resta qui per la card della sessione, che il foglio "Dettagli" non ce l'ha.
+  if (run.outcome == LOCAL_OUTCOME || (!runHasSteps(run) && run.error == null)) return
   var details by rememberSaveable(run.id) { mutableStateOf(false) }
   Column(Modifier.padding(bottom = 8.dp)) {
     Row(
@@ -88,7 +88,9 @@ fun RunSteps(run: Run) {
       Spacer(Modifier.height(8.dp))
       run.error?.let { Text("errore: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
       modelsLine(run)?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-      providerChain(run)?.let { Text("servizi: $it", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+      // Con i cambi di servizio salvati la catena la dice gia' la riga sotto la risposta ("Ha
+      // risposto Gemini: Groq era al limite"), con il perche'; qui resta per le righe di prima.
+      if (run.switches.isEmpty()) providerChain(run)?.let { Text("servizi: $it", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
       if (run.groups.isNotEmpty()) Text("gruppi: ${run.groups.joinToString(", ")}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       run.tools.forEach { trace ->
         Spacer(Modifier.height(4.dp))
@@ -102,6 +104,15 @@ fun RunSteps(run: Run) {
     }
   }
 }
+
+/**
+ * La traccia ha lavoro da raccontare? No per un comando rapido (la risposta e' gia' tutto) e per
+ * un passaggio senza strumenti ne' modelli. Nella chat un fallimento prima di qualunque modello lo
+ * spiegano il testo della risposta e il foglio "Dettagli", e un chip "Non ci sono riuscita" sopra
+ * ne era la terza copia: l'intestazione della risposta usa questo per sapere se il posto resta vuoto.
+ */
+internal fun runHasSteps(run: Run): Boolean =
+  run.outcome != LOCAL_OUTCOME && run.outcome != STOPPED_OUTCOME && (run.tools.isNotEmpty() || modelsLine(run) != null)
 
 /**
  * La riga chiusa, in italiano corrente.
@@ -215,7 +226,8 @@ private fun answeredBy(run: Run): String? {
 private fun providerLine(run: Run): String? {
   val final = run.provider ?: return null
   val first = run.models.firstOrNull()?.provider
-  if (first == null || first == final) return final.label
+  // Il cambio lo racconta gia' la riga sotto la risposta, con il perche': qui basta il nome.
+  if (first == null || first == final || run.switches.isNotEmpty()) return final.label
   val reason = if (run.waitedSeconds > 0) " (${first.label} al limite)" else ""
   return "risposto da ${final.label}$reason"
 }

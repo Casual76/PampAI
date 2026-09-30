@@ -25,8 +25,10 @@ import dev.pampa.pampai.core.assistant.db.Anchor
 import dev.pampa.pampai.core.assistant.db.AttachmentKind
 import dev.pampa.pampai.core.assistant.db.Conversation
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
+import dev.pampa.pampai.core.assistant.db.DatabaseRecovery
 import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageRole
+import dev.pampa.pampai.core.assistant.db.RecoveryNotice
 import dev.pampa.pampai.core.assistant.db.Run
 import dev.pampa.pampai.core.assistant.remote.RemoteStatus
 import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
@@ -34,7 +36,9 @@ import dev.pampa.pampai.core.assistant.runtime.AssistantEngine
 import dev.pampa.pampai.core.assistant.runtime.AssistantRequest
 import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
 import dev.pampa.pampai.core.assistant.runtime.ContextEstimate
+import dev.pampa.pampai.core.assistant.runtime.LiveTrack
 import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
+import dev.pampa.pampai.core.assistant.runtime.VoiceEvent
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import dev.pampa.pampai.core.assistant.tools.RegistryHolder
 import dev.pampa.pampai.core.assistant.tools.Surface
@@ -42,12 +46,14 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -59,6 +65,17 @@ import kotlinx.coroutines.withContext
 
 /** Un plugin scegliibile nel composer: una categoria del catalogo. */
 data class PluginOption(val id: String, val label: String, val hint: String)
+
+/**
+ * Una domanda scritta mentre Aria era ancora al lavoro: parte da sola quando il lavoro finisce.
+ * [editOf] e' la domanda che corregge, se era un "modifica e rinvia".
+ */
+data class QueuedQuestion(
+  val text: String,
+  val attachments: List<PendingAttachment> = emptyList(),
+  val deep: Boolean = false,
+  val editOf: Message? = null,
+)
 
 data class ChatUiState(
   val conversation: Conversation? = null,
@@ -83,20 +100,49 @@ data class ChatUiState(
    */
   val temporary: Boolean = false,
   /**
-   * Aria sta lavorando per l'overlay di sistema: la chat non lo mostra, ma il composer deve
-   * saperlo, perche' una domanda mandata adesso fermerebbe quella dell'overlay.
+   * Aria sta lavorando per l'overlay di sistema (o su un'altra conversazione): la chat non lo
+   * mostra, ma il composer deve saperlo, perche' una domanda mandata adesso aspetta la fine di
+   * quel lavoro invece di fermarlo.
    */
   val busyElsewhere: Boolean = false,
+  /** Le domande scritte mentre Aria lavorava, in ordine: partono una alla volta quando finisce. */
+  val queued: List<QueuedQuestion> = emptyList(),
+  /** Il database non si e' aperto ed e' ripartito da zero: la chat lo dice, finche' non si tocca "Ok". */
+  val recovery: RecoveryNotice? = null,
 ) {
-  val enabled: Boolean get() = settings.enabled && keys.any { it.value.verified }
+  /** Almeno una chiave verificata: senza, rispondono solo i comandi rapidi. */
+  val hasKeys: Boolean get() = keys.any { it.value.verified }
+
+  /**
+   * Aria e' spenta ma le chiavi ci sono: una domanda andrebbe a un servizio senza il consenso che
+   * l'interruttore rappresenta. Senza chiavi invece non parte niente verso fuori (i comandi rapidi
+   * girano sul telefono, il resto finisce in "nessuna chiave"), e il campo resta usabile.
+   */
+  val blockedByConsent: Boolean get() = !settings.enabled && hasKeys
+
+  /** Aria sta lavorando, qui o altrove: un invio adesso va in coda. */
+  val anyBusy: Boolean get() = live?.isBusy == true || busyElsewhere
+
   val isNew: Boolean get() = conversation == null
 }
 
-/** Le impostazioni che la chat legge insieme: engine, chiavi, cataloghi, e la riserva di PampAI. */
-private data class ChatSettings(val settings: AiSettings, val keys: Map<ProviderId, KeyState>, val catalogues: Map<ProviderId, ModelCatalogue>, val failoverEnabled: Boolean)
+/** Le impostazioni che la chat legge insieme: engine, chiavi, cataloghi, la riserva di PampAI e l'avviso del database. */
+private data class ChatSettings(
+  val settings: AiSettings,
+  val keys: Map<ProviderId, KeyState>,
+  val catalogues: Map<ProviderId, ModelCatalogue>,
+  val failoverEnabled: Boolean,
+  val recovery: RecoveryNotice?,
+)
 
-/** Cio' che il composer tiene per se': allegati in attesa, anello del contesto, chat temporanea. */
-private data class ComposerState(val attachments: List<PendingAttachment>, val context: ContextEstimate?, val temporary: Boolean, val busy: Boolean)
+/** Cio' che il composer tiene per se': allegati in attesa, anello del contesto, chat temporanea, coda. */
+private data class ComposerInputs(
+  val attachments: List<PendingAttachment>,
+  val context: ContextEstimate?,
+  val temporary: Boolean,
+  val busy: Boolean,
+  val queued: List<QueuedQuestion>,
+)
 
 /**
  * La chat con Aria: la conversazione attiva (quella del runtime), i suoi messaggi e la telemetria,
@@ -116,13 +162,13 @@ class ChatViewModel @Inject constructor(
   private val keyStore: AiKeyStore,
   private val catalogs: ModelCatalogStore,
   private val pampaiSettings: PampaiSettingsStore,
+  private val recovery: DatabaseRecovery,
   registryHolder: RegistryHolder,
   remote: RemoteSwitches,
 ) : ViewModel() {
 
   /** Il file di controllo remoto: kill switch e aggiornamenti, per il banner in cima alla chat. */
   val remoteStatus: StateFlow<RemoteStatus> = remote.status.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RemoteStatus())
-
 
   /** Il plugin scelto nel composer per la prossima conversazione (o quella aperta). */
   val plugin = MutableStateFlow<String?>(null)
@@ -165,6 +211,9 @@ class ChatViewModel @Inject constructor(
   private val pendingAttachments = MutableStateFlow<List<PendingAttachment>>(emptyList())
   private val contextEstimate = MutableStateFlow<ContextEstimate?>(null)
 
+  /** La coda delle domande scritte mentre Aria lavorava. Vedi [send]. */
+  private val queue = MutableStateFlow<List<QueuedQuestion>>(emptyList())
+
   /**
    * Chi risponde e quanto ci pensa, dal composer.
    *
@@ -198,50 +247,71 @@ class ChatViewModel @Inject constructor(
     keyStore.states,
     catalogs.catalogues,
     pampaiSettings.settings.map { it.failoverEnabled }.distinctUntilChanged(),
-  ) { s, k, c, f -> ChatSettings(s, k, c, f) }
+    recovery.notice,
+  ) { s, k, c, f, r -> ChatSettings(s, k, c, f, r) }
 
   /**
-   * Lo stato del runtime, con un freno mentre scrive.
+   * Lo stato del runtime che questa chat puo' mostrare, con un freno mentre scrive.
    *
-   * Ogni token che arriva e' un nuovo `Answering`, e ogni `Answering` ricompone la risposta e la
-   * ri-analizza come Markdown. Su un testo lungo sono centinaia di analisi al secondo, e si vede:
-   * lo scorrimento scatta e la tastiera arranca. Uno `StateFlow` tiene da se' solo l'ultimo valore
-   * mentre chi lo legge e' fermo, e si sta fermi 66 ms soltanto dopo un `Answering`: gli altri
-   * stati passano subito.
+   * Il padrone si legge da `liveTrack`, un valore solo scritto in un colpo: tre flussi separati si
+   * potevano vedere a meta' di un cambio. La chat mostra il lavoro vivo solo se e' sulla
+   * conversazione aperta: una domanda dell'app finita in un'altra conversazione ("Nuova chat" a
+   * meta' risposta) non lascia una bolla nella chat nuova. Il lavoro dell'overlay si vede solo se
+   * la sua conversazione e' questa (il gesto "espandi"), e mai il suo ascolto: quello e' della
+   * barra dell'overlay.
+   *
+   * Il freno: ogni token che arriva e' un nuovo `Answering`, e ogni `Answering` ricompone la
+   * risposta e la ri-analizza come Markdown. Su un testo lungo sono centinaia di analisi al
+   * secondo, e si vede: lo scorrimento scatta e la tastiera arranca. Uno `StateFlow` tiene da se'
+   * solo l'ultimo valore mentre chi lo legge e' fermo, e si sta fermi 66 ms soltanto dopo un
+   * `Answering`: gli altri stati passano subito.
    */
-  private val throttledState = combine(runtime.state, runtime.liveOwner, runtime.activeConversationId) { s, owner, active ->
-    // Il lavoro dell'overlay di sistema resta suo, finche' la sua conversazione non e' aperta qui.
-    if (owner.surface == Surface.APP || (owner.conversationId != null && owner.conversationId == active)) s else AssistantState.Idle
-  }
+  private val throttledState = combine(runtime.state, runtime.liveTrack) { s, track -> if (owns(track, s)) s else AssistantState.Idle }
     .transform { s ->
       emit(s)
       if (s is AssistantState.Answering) delay(66)
     }
 
-  val state: StateFlow<ChatUiState> = combine(conversationFlow, throttledState, runtime.pendingConfirmation, settingsFlow, combine(pendingAttachments, contextEstimate, temporaryNext, runtime.state.map { it.isBusy }.distinctUntilChanged()) { a, c, t, b -> ComposerState(a, c, t, b) }) { (conversation, messages, runs), live, pending, (settings, keys, catalogues, failover), (attachments, estimate, temporaryChosen, runtimeBusy) ->
+  val state: StateFlow<ChatUiState> = combine(
+    conversationFlow,
+    throttledState,
+    runtime.pendingConfirmation,
+    settingsFlow,
+    combine(pendingAttachments, contextEstimate, temporaryNext, runtime.state.map { it.isBusy }.distinctUntilChanged(), queue) { a, c, t, b, q -> ComposerInputs(a, c, t, b, q) },
+  ) { (conversation, messages, runs), live, pending, chat, inputs ->
     ChatUiState(
       conversation = conversation,
       messages = messages,
       runs = runs.associateBy { it.messageId },
       live = live.takeIf { it != AssistantState.Idle },
       pending = pending,
-      settings = settings,
-      keys = keys,
-      catalogues = catalogues,
-      context = estimate,
-      attachments = attachments,
-      failoverEnabled = failover,
+      settings = chat.settings,
+      keys = chat.keys,
+      catalogues = chat.catalogues,
+      context = inputs.context,
+      attachments = inputs.attachments,
+      failoverEnabled = chat.failoverEnabled,
       // Prima della prima domanda la conversazione non c'e' ancora: vale la scelta del menu "+".
-      temporary = conversation?.temporary ?: temporaryChosen,
-      busyElsewhere = runtimeBusy && live == AssistantState.Idle,
+      temporary = conversation?.temporary ?: inputs.temporary,
+      busyElsewhere = inputs.busy && live == AssistantState.Idle,
+      queued = inputs.queued,
+      recovery = chat.recovery,
     )
   }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ChatUiState())
 
   val micLevel = runtime.micLevel
   val lastMode = runtime.lastMode
   val sttState = runtime.sttState
+
+  /** Le parole mentre si parla: le raccoglie solo la riga della voce del composer, non la pagina. */
   val runtimePartial = runtime.partialTranscript
-  val voiceEvents = runtime.voiceEvents
+
+  /**
+   * Gli esiti degli ascolti partiti dall'app. Quelli dell'overlay (il tasto di accensione sopra
+   * un'altra app) non sono di questa chat: prima un silenzio nella sessione metteva il cursore nel
+   * campo dell'app rimasta dietro.
+   */
+  val voiceEvents: Flow<VoiceEvent> = runtime.voiceEvents.filter { runtime.liveTrack.value.owner.surface == Surface.APP }
   val speaking = runtime.speaking
 
   init {
@@ -250,6 +320,13 @@ class ChatViewModel @Inject constructor(
     }
     viewModelScope.launch {
       runtime.state.collect { if (it is AssistantState.Done) contextEstimate.value = runCatching { engine.estimateContext(runtime.activeConversationId.value) }.getOrNull() }
+    }
+    // La coda: quando Aria smette di lavorare parte la prossima domanda. Solo cosi', e non subito
+    // dopo il `Done` di chi e' in coda: lo stato del runtime e' uno solo, e una domanda mandata
+    // mentre ne corre un'altra la fermerebbe (era il vecchio "invio ignorato", o peggio la risposta
+    // dell'overlay interrotta da un tocco nell'app).
+    viewModelScope.launch {
+      runtime.state.collect { flushQueue(it) }
     }
     // La conversazione attiva puo' cambiare senza passare da qui: il cassetto, un chip
     // [[conversazione:ID]], una notifica. Se quella nuova esiste e non e' temporanea, la chat
@@ -269,12 +346,86 @@ class ChatViewModel @Inject constructor(
 
   val isBusy: Boolean get() = runtime.isBusy
 
-  fun send(text: String) {
+  /**
+   * Manda una domanda, o la mette in coda se Aria sta ancora lavorando (qui, nell'overlay, o su
+   * un'altra conversazione): parte da sola quando il lavoro finisce, e intanto la chat la mostra
+   * "in coda". Fermare Aria la riporta nel campo, perche' chi ferma di solito vuole cambiare
+   * qualcosa.
+   *
+   * @return false se non e' partita ne' e' in coda (vuota, o Aria spenta con le chiavi): il
+   *   composer allora tiene il testo.
+   */
+  fun send(text: String): Boolean {
     val attachments = pendingAttachments.value
+    if (text.isBlank() && attachments.isEmpty()) return false
+    if (state.value.blockedByConsent) {
+      notices.tryEmit("Aria e' spenta: accendila nelle impostazioni.")
+      return false
+    }
     pendingAttachments.value = emptyList()
     val deep = deepNext.value
     deepNext.value = false
-    runtime.submit(AssistantRequest(runtime.activeConversationId.value, text, AskMode.TEXT, attachments, Surface.APP, plugin = plugin.value, deep = deep, temporary = temporaryNext.value))
+    val question = QueuedQuestion(text, attachments, deep)
+    if (runtime.isBusy) queue.value = queue.value + question else submit(question)
+    return true
+  }
+
+  private fun submit(question: QueuedQuestion) {
+    val edited = question.editOf
+    if (edited != null) {
+      runtime.submit(AssistantRequest(edited.conversationId, question.text, AskMode.TEXT, question.attachments, Surface.APP, anchor = Anchor.Edit(edited.id)))
+    } else {
+      runtime.submit(
+        AssistantRequest(
+          runtime.activeConversationId.value, question.text, AskMode.TEXT, question.attachments, Surface.APP,
+          plugin = plugin.value, deep = question.deep, temporary = temporaryNext.value,
+        ),
+      )
+    }
+  }
+
+  /**
+   * La coda davanti a uno stato nuovo del runtime. Parte la prima domanda solo con Aria ferma e
+   * l'app davanti: un service in primo piano non si avvia dal secondo piano (da Android 12), e la
+   * domanda aspetta che si torni nella chat ([onChatVisible]). Una risposta fermata a mano rimette
+   * la coda nel campo.
+   */
+  private fun flushQueue(current: AssistantState) {
+    if (current.isBusy || queue.value.isEmpty()) return
+    if (current is AssistantState.Cancelled) {
+      releaseQueue()
+      return
+    }
+    if (!runtime.appInForeground) return
+    val next = queue.value.first()
+    queue.value = queue.value.drop(1)
+    submit(next)
+  }
+
+  /** La chat e' tornata davanti: se c'era una domanda in coda e Aria e' ferma, parte adesso. */
+  fun onChatVisible() {
+    if (!runtime.isBusy) flushQueue(runtime.state.value)
+  }
+
+  /** Toglie una domanda dalla coda e la rimette nel campo, per correggerla o per non mandarla. */
+  fun unqueue(question: QueuedQuestion) {
+    if (question !in queue.value) return
+    queue.value = queue.value - question
+    backToField(listOf(question))
+  }
+
+  /** Tutta la coda torna nel campo: una risposta fermata, un'altra conversazione aperta. */
+  private fun releaseQueue() {
+    val released = queue.value
+    if (released.isEmpty()) return
+    queue.value = emptyList()
+    backToField(released)
+  }
+
+  private fun backToField(questions: List<QueuedQuestion>) {
+    draft.value = (listOfNotNull(draft.value) + questions.map { it.text }).filter { it.isNotBlank() }.joinToString("\n\n").ifBlank { null }
+    pendingAttachments.value = (questions.flatMap { it.attachments } + pendingAttachments.value).take(MAX_ATTACHMENTS)
+    if (questions.any { it.deep }) deepNext.value = true
   }
 
   fun startVoice() {
@@ -295,11 +446,20 @@ class ChatViewModel @Inject constructor(
 
   fun resolve(id: Long, confirmed: Boolean) = runtime.resolveConfirmation(id, confirmed)
 
+  /** L'avviso del database ripartito da zero e' stato letto. I file messi da parte restano. */
+  fun dismissRecovery() = recovery.dismiss()
+
+  /**
+   * Una chat nuova. Il lavoro in corso **non** si ferma: la risposta finisce nella sua
+   * conversazione (lo stato vivo resta suo, vedi [throttledState]) e la si ritrova nel cassetto.
+   * Prima "Nuova chat" la interrompeva, anche quando era dell'overlay.
+   */
   fun newConversation() {
+    releaseQueue()
     plugin.value = null
     deepNext.value = false
+    leaveCurrent()
     temporaryNext.value = false
-    if (runtime.isBusy) runtime.cancel()
     dropTemporary()
     runtime.selectConversation(null)
     runtime.reset()
@@ -317,16 +477,34 @@ class ChatViewModel @Inject constructor(
 
   fun open(conversationId: Long) {
     viewModelScope.launch { plugin.value = conversations.conversation(conversationId)?.plugin }
-    // Si ferma solo il lavoro su un'altra conversazione: aprire nell'app quella dell'overlay (il
-    // gesto "espandi", una notifica) deve lasciarla finire, non interromperla.
-    if (runtime.isBusy && runtime.liveOwner.value.conversationId != conversationId) runtime.cancel()
-    // Aprire un'altra conversazione e' lasciare quella di adesso: se era temporanea, sparisce.
+    // Aprire un'altra conversazione e' lasciare quella di adesso: se era temporanea, sparisce. Il
+    // lavoro in corso invece continua, come per "Nuova chat": aprire nell'app quella dell'overlay
+    // (il gesto "espandi", una notifica) la lascia finire, e aprirne un'altra non la interrompe.
     if (conversationId != runtime.activeConversationId.value) {
+      releaseQueue()
+      leaveCurrent()
       temporaryNext.value = false
       dropTemporary()
     }
     runtime.selectConversation(conversationId)
     runtime.reset()
+  }
+
+  /**
+   * Cosa si ferma lasciando la chat aperta: solo cio' che non avrebbe senso altrove. L'ascolto
+   * dell'app (la domanda che ne uscirebbe finirebbe nella chat lasciata), e una risposta in una
+   * chat temporanea, che sta per sparire: cancellarle il pavimento sotto i piedi mentre scrive
+   * lascerebbe messaggi orfani.
+   */
+  private fun leaveCurrent() {
+    val track = runtime.liveTrack.value
+    val owner = track.owner
+    if (owner.surface != Surface.APP || owner.conversationId != track.app) return
+    val live = runtime.state.value
+    when {
+      live is AssistantState.Listening || live == AssistantState.Transcribing -> runtime.cancelListening()
+      live.isBusy && state.value.temporary -> runtime.cancel()
+    }
   }
 
   /**
@@ -358,7 +536,10 @@ class ChatViewModel @Inject constructor(
     if (last != null) open(last.id) else newConversation()
   }
 
-  /** Un testo arrivato da fuori ("Condividi con Aria"): finisce nel campo, e l'utente lo manda quando vuole. */
+  /**
+   * Un testo che deve finire nel campo: "Condividi con Aria", o una domanda tolta dalla coda. Lo
+   * consuma la chat, che lo aggiunge a quello che c'e' gia' scritto invece di sostituirlo.
+   */
   val draft = MutableStateFlow<String?>(null)
 
   /**
@@ -366,11 +547,20 @@ class ChatViewModel @Inject constructor(
    * suo. Le risposte di prima non si cancellano: restano fra le versioni ("‹ 1/2 ›").
    *
    * Gli allegati li ricopia l'engine dalla domanda di prima, file compresi: "cosa c'e' in questa
-   * foto?" corretto in "…in questa immagine?" arriva al modello con l'immagine.
+   * foto?" corretto in "…in questa immagine?" arriva al modello con l'immagine. Con Aria al
+   * lavoro va in coda come ogni altro invio.
+   *
+   * @return come [send]: false se non e' partita ne' e' in coda.
    */
-  fun editAndResend(message: Message, newText: String) {
-    if (runtime.isBusy) runtime.cancel()
-    runtime.submit(AssistantRequest(message.conversationId, newText, AskMode.TEXT, anchor = Anchor.Edit(message.id)))
+  fun editAndResend(message: Message, newText: String): Boolean {
+    if (newText.isBlank()) return false
+    if (state.value.blockedByConsent) {
+      notices.tryEmit("Aria e' spenta: accendila nelle impostazioni.")
+      return false
+    }
+    val question = QueuedQuestion(newText, editOf = message)
+    if (runtime.isBusy) queue.value = queue.value + question else submit(question)
+    return true
   }
 
   /**
@@ -382,6 +572,10 @@ class ChatViewModel @Inject constructor(
    * profondo di default, non a quello che l'utente ha scelto.
    */
   fun regenerate(message: Message, override: ProviderOverride? = null) = viewModelScope.launch {
+    if (state.value.blockedByConsent) {
+      notices.tryEmit("Aria e' spenta: accendila nelle impostazioni.")
+      return@launch
+    }
     if (runtime.isBusy) runtime.cancel()
     // La domanda e' il padre della risposta: niente ricerca per posizione nella lista, che dopo un
     // cambio di conversazione a meta' tocco poteva non contenerla piu'.
@@ -391,8 +585,13 @@ class ChatViewModel @Inject constructor(
     runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, emptyList(), Surface.APP, completed, anchor = Anchor.Regenerate(message.id)))
   }
 
-  /** Le frecce delle versioni: si passa al ramo di [messageId] (una sorella di un messaggio del cammino). */
+  /**
+   * Le frecce delle versioni: si passa al ramo di [messageId] (una sorella di un messaggio del
+   * cammino). Non mentre Aria lavora su questa conversazione: la domanda in corso si attacca alla
+   * foglia di adesso, e spostarla sotto i suoi piedi la farebbe finire in un altro ramo.
+   */
   fun selectVersion(messageId: Long) = viewModelScope.launch {
+    if (state.value.live?.isBusy == true) return@launch
     val conversationId = state.value.conversation?.id ?: runtime.activeConversationId.value ?: return@launch
     runCatching { conversations.selectVersion(conversationId, messageId) }
   }
@@ -454,5 +653,19 @@ class ChatViewModel @Inject constructor(
     private const val TAG = "ChatViewModel"
     const val MAX_ATTACHMENTS = 5
     const val MAX_BYTES = 25 * 1024 * 1024
+
+    /**
+     * Lo stato vivo e' di questa chat? Il padrone deve lavorare sulla conversazione aperta. Se e'
+     * l'app, basta (anche a conversazione non ancora nata: tutte e due nulle). Se e' l'overlay,
+     * solo su una conversazione che esiste, e mai con l'ascolto o la trascrizione, che sono della
+     * sua barra.
+     */
+    internal fun owns(track: LiveTrack, state: AssistantState): Boolean {
+      val owner = track.owner
+      if (owner.conversationId != track.app) return false
+      if (owner.surface == Surface.APP) return true
+      return owner.conversationId != null &&
+        state !is AssistantState.Listening && state != AssistantState.Transcribing && state != AssistantState.HeardNothing
+    }
   }
 }

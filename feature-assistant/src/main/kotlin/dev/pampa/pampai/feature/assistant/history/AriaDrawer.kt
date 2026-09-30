@@ -125,13 +125,20 @@ fun AriaDrawer(
     LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(vertical = 4.dp)) {
       if (query.length >= 3) {
         item { SectionLabel(if (hits.isEmpty()) "Niente per \"$query\"" else "${hits.size} passaggi") }
+        // La chiave e' il messaggio: conversazione e ora potevano ripetersi (due messaggi nello
+        // stesso millisecondo, una domanda e la sua risposta) e una chiave doppia fa cadere la lista.
         items@ for (hit in hits) {
-          item(key = "hit-${hit.conversationId}-${hit.atMillis}") {
+          item(key = "hit-${hit.messageId}") {
             DrawerRow(
               title = hit.conversationTitle,
               detail = "…${hit.snippet}…",
               selected = false,
-              onClick = { onOpen(hit.conversationId); onOpenConversation() },
+              // Prima il ramo che contiene il passaggio diventa quello mostrato, poi si apre: un
+              // passaggio trovato in una versione vecchia altrimenti non c'era, aprendo.
+              onClick = {
+                viewModel.openHit(hit, onOpen)
+                onOpenConversation()
+              },
             )
           }
         }

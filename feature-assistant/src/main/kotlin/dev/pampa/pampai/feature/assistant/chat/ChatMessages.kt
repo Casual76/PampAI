@@ -1,5 +1,11 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,22 +24,30 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AttachFile
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,9 +58,12 @@ import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.PendingConfirmation
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
+import dev.antigravity.fluidengine.ui.fluid.FluidCapsuleShape
 import dev.antigravity.fluidengine.ui.fluid.FluidChip
 import dev.antigravity.fluidengine.ui.fluid.FluidContextAction
+import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
+import dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy
 import dev.antigravity.fluidengine.ui.fluid.fluidContextMenuAnchor
 import dev.antigravity.fluidengine.ui.fluid.fluidPressable
 import dev.antigravity.fluidengine.ui.fluid.rememberFluidContextMenu
@@ -56,6 +74,7 @@ import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.db.MessageStatus
 import dev.pampa.pampai.core.assistant.db.Run
 import dev.pampa.pampai.core.assistant.runtime.LOCAL_OUTCOME
+import dev.pampa.pampai.core.assistant.runtime.STOPPED_OUTCOME
 import java.time.LocalTime
 import kotlin.random.Random
 
@@ -114,11 +133,22 @@ internal fun LazyItemScope.EmptyGreeting(onSuggestion: (String) -> Unit = {}) {
  * proprio quel segnale.
  *
  * La matita sta fuori, a sinistra, e solo sull'ultima domanda ([showEdit]): una matita accanto a
- * ogni bolla era rumore, e correggere una domanda vecchia e' raro. Per tutte le altre c'e' la
- * pressione lunga sulla bolla (Copia, Modifica), che TalkBack elenca fra le azioni.
+ * ogni bolla era rumore. Ma "modifica e rinvia" non cancella piu' niente (fa una versione nuova, e
+ * le frecce riportano a quella di prima), quindi vale per ogni domanda: sta nella pressione lunga
+ * sulla bolla (Copia, Modifica e rinvia), che TalkBack elenca fra le azioni insieme alle versioni.
+ *
+ * Con piu' versioni, sotto la bolla, a destra, le frecce "‹ 2/3 ›" ([VersionSwitcher]).
  */
 @Composable
-internal fun UserBubble(message: Message, onEdit: () -> Unit, onOpenAttachment: (Attachment) -> Unit = {}, showEdit: Boolean = true) {
+internal fun UserBubble(
+  message: Message,
+  onEdit: () -> Unit,
+  onOpenAttachment: (Attachment) -> Unit = {},
+  showEdit: Boolean = true,
+  /** Falso mentre Aria lavora su questa conversazione: frecce e modifica aspettano. */
+  versionsEnabled: Boolean = true,
+  onVersion: (Long) -> Unit = {},
+) {
   val context = androidx.compose.ui.platform.LocalContext.current
   val menu = rememberFluidContextMenu(actions = {
     listOf(
@@ -126,54 +156,121 @@ internal fun UserBubble(message: Message, onEdit: () -> Unit, onOpenAttachment: 
       FluidContextAction("Modifica e rinvia", Icons.Rounded.Edit, onClick = onEdit),
     )
   })
-  BoxWithConstraints(Modifier.fillMaxWidth()) {
-    val maxBubble = maxWidth * 0.86f
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-      if (showEdit) SmallAction(Icons.Rounded.Edit, "Modifica", onEdit)
-      Column(
-        modifier = Modifier
-          .widthIn(max = maxBubble)
-          .fluidContextMenuAnchor(menu)
-          .fluidPressable(onLongClick = { menu.open() }, pressedScale = 1f, haptic = null)
-          .background(MaterialTheme.colorScheme.primaryContainer, ContinuousCornerShape(FluidRadius.Card))
-          .padding(horizontal = 16.dp, vertical = 12.dp),
-      ) {
-        Text(
-          text = message.text,
-          style = MaterialTheme.typography.bodyLarge,
-          color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-        if (message.attachments.isNotEmpty()) {
-          Spacer(Modifier.height(8.dp))
-          FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            message.attachments.forEach { attachment ->
-              if (attachment.kind == AttachmentKind.IMAGE) {
-                // La foto si vede: una miniatura vera, e un tocco la apre grande.
-                AsyncImage(
-                  model = java.io.File(attachment.path),
-                  contentDescription = "Immagine allegata: ${attachment.name}",
-                  contentScale = ContentScale.Crop,
-                  modifier = Modifier
-                    .size(88.dp)
-                    .clip(ContinuousCornerShape(FluidRadius.Control))
-                    .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.08f))
-                    .fluidPressable(onClick = { onOpenAttachment(attachment) }, role = Role.Image, haptic = null),
-                )
-              } else {
-                FluidChip(
-                  label = attachment.name.take(28),
-                  selected = false,
-                  onClick = { onOpenAttachment(attachment) },
-                  leading = { Icon(Icons.Rounded.AttachFile, contentDescription = "Documento", modifier = Modifier.size(16.dp)) },
-                )
+  val talkBack = listOf(
+    CustomAccessibilityAction("Copia") { copy(context, message.text); true },
+    CustomAccessibilityAction("Modifica e rinvia") { onEdit(); true },
+  ) + versionAccessibilityActions(message.version, versionsEnabled, onVersion)
+  Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+      val maxBubble = maxWidth * 0.86f
+      Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+        if (showEdit) SmallAction(Icons.Rounded.Edit, "Modifica", onEdit)
+        Column(
+          modifier = Modifier
+            .widthIn(max = maxBubble)
+            .fluidContextMenuAnchor(menu)
+            .fluidPressable(onLongClick = { menu.open() }, pressedScale = 1f, haptic = null)
+            .semantics { customActions = talkBack }
+            .background(MaterialTheme.colorScheme.primaryContainer, ContinuousCornerShape(FluidRadius.Card))
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        ) {
+          Text(
+            text = message.text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+          )
+          if (message.attachments.isNotEmpty()) {
+            Spacer(Modifier.height(8.dp))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+              message.attachments.forEach { attachment ->
+                if (attachment.kind == AttachmentKind.IMAGE) {
+                  // La foto si vede: una miniatura vera, e un tocco la apre grande.
+                  AsyncImage(
+                    model = java.io.File(attachment.path),
+                    contentDescription = "Immagine allegata: ${attachment.name}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                      .size(88.dp)
+                      .clip(ContinuousCornerShape(FluidRadius.Control))
+                      .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.08f))
+                      .fluidPressable(onClick = { onOpenAttachment(attachment) }, role = Role.Image, haptic = null),
+                  )
+                } else {
+                  FluidChip(
+                    label = attachment.name.take(28),
+                    selected = false,
+                    onClick = { onOpenAttachment(attachment) },
+                    leading = { Icon(Icons.Rounded.AttachFile, contentDescription = "Documento", modifier = Modifier.size(16.dp)) },
+                  )
+                }
               }
             }
           }
         }
       }
     }
+    message.version?.let { version -> VersionSwitcher(version, enabled = versionsEnabled, onSelect = onVersion) }
   }
 }
+
+/**
+ * Una domanda scritta mentre Aria lavorava, che aspetta il suo turno: la bolla della domanda, piu'
+ * tenue, con sotto "In coda" e la X che la riporta nel campo. Parte da sola quando Aria finisce.
+ */
+@Composable
+internal fun QueuedBubble(question: QueuedQuestion, onCancel: () -> Unit) {
+  Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+    BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+      Column(
+        Modifier
+          .widthIn(max = maxWidth * 0.86f)
+          .alpha(QueuedAlpha)
+          .background(MaterialTheme.colorScheme.primaryContainer, ContinuousCornerShape(FluidRadius.Card))
+          .padding(horizontal = 16.dp, vertical = 12.dp),
+      ) {
+        Text(question.text, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
+        if (question.attachments.isNotEmpty()) {
+          Text("${question.attachments.size} allegati", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+        }
+      }
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Icon(Icons.Rounded.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
+      Spacer(Modifier.width(6.dp))
+      Text("In coda: parte quando Aria ha finito", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      SmallAction(Icons.Rounded.Close, "Togli dalla coda", onCancel)
+    }
+  }
+}
+
+/** Quanto e' tenue una domanda in coda: si legge, ma si vede che non e' ancora partita. */
+private const val QueuedAlpha = 0.6f
+
+/**
+ * Cosa si puo' fare con una risposta: callback e stato della conversazione, in un oggetto solo.
+ * Prima erano dieci parametri, e ogni azione nuova rompeva ogni chiamata (anche negli screenshot).
+ *
+ * @param regenerateWith i servizi con una chiave verificata, per "Rigenera con…": con meno di due
+ *   il tasto rigenera e basta.
+ * @param locked Aria sta lavorando, qui o altrove: "rigenera" aspetta, perche' partirebbe fermando
+ *   il lavoro in corso (anche quello dell'overlay).
+ * @param versionsLocked Aria sta lavorando su questa conversazione: le frecce aspettano, perche' la
+ *   domanda in corso si attacca al ramo di adesso.
+ */
+@Stable
+internal class AnswerActions(
+  val onResolve: (Long, Boolean) -> Unit = { _, _ -> },
+  val onChip: (AnswerChip) -> Unit = {},
+  val onRegenerate: (Message) -> Unit = {},
+  val onRegenerateWith: (Message, ProviderId) -> Unit = { _, _ -> },
+  val onCopy: (Message) -> Unit = {},
+  val onShare: (Message) -> Unit = {},
+  val onVersion: (Long) -> Unit = {},
+  val onDetails: (FailureReport) -> Unit = {},
+  val regenerateWith: List<ProviderId> = emptyList(),
+  val locked: Boolean = false,
+  val versionsLocked: Boolean = locked,
+)
 
 /**
  * La risposta: testo a tutta larghezza, senza card.
@@ -181,6 +278,15 @@ internal fun UserBubble(message: Message, onEdit: () -> Unit, onOpenAttachment: 
  * Una risposta chiusa in un riquadro si legge come una scheda; una conversazione vuole che le
  * parole stiano sulla pagina. Sopra, quando c'e' stato del lavoro, una riga richiudibile dice cosa
  * ha fatto; sotto stanno le azioni e la telemetria, in piccolo, per chi la va a cercare.
+ *
+ * La fine della risposta e' **un** movimento, non cinque. Prima, al `Done`, la riga di stato
+ * spariva di colpo, la traccia compariva, i paragrafi diventavano Markdown, la riga delle azioni
+ * spuntava e la misura animata si spegneva a meta'. Adesso: stato e traccia si scambiano nello
+ * stesso posto ([AnswerHeader], come nella card della sessione), le azioni sfumano dentro, e la
+ * colonna intera anima la sua misura finche' la risposta e' viva — [live] resta lo stato `Done`
+ * finche' non comincia la domanda dopo (vedi `ChatRoute`), cosi' la molla arriva in fondo.
+ *
+ * @param live lo stato del runtime se riguarda questa risposta: in corso, o appena finita.
  */
 @Composable
 internal fun AssistantMessage(
@@ -188,67 +294,137 @@ internal fun AssistantMessage(
   run: Run?,
   live: AssistantState?,
   pending: PendingConfirmation?,
-  onResolve: (Long, Boolean) -> Unit,
-  onChip: (AnswerChip) -> Unit,
-  onRegenerate: () -> Unit,
-  onCopy: () -> Unit,
-  onShare: () -> Unit,
-  /** I servizi con una chiave verificata, per "Rigenera con…": vuoto, il tasto rigenera e basta. */
-  regenerateWith: List<ProviderId> = emptyList(),
-  onRegenerateWith: (ProviderId) -> Unit = {},
+  actions: AnswerActions,
+  modifier: Modifier = Modifier,
 ) {
-  val busy = live != null && live.isBusy
-  // Chi stava rispondendo: l'ultimo modello che ha parlato, o il servizio del passaggio. Serve
-  // solo a nominarlo in un fallimento ("OpenRouter e' al limite"), che senza nome non dice a chi
-  // tornare: `AssistantState.Failed` il servizio non lo porta.
-  val answering = run?.models?.lastOrNull()?.provider ?: run?.provider
-  Column(Modifier.fillMaxWidth()) {
-    run?.let { RunSteps(it) }
-    if (busy) {
-      AssistantTexts.statusLine(live!!, answering)?.let {
-        Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
-      }
-      if (pending != null) ConfirmationRow(pending, onResolve)
-    }
-    val text = responseText(message, live)
-    val memo = remember { ResponseMemo(freshStart = text.isBlank()) }
-    if (busy && text.isNotBlank()) Spacer(Modifier.height(8.dp))
+  val reducedMotion = LocalFluidMotionPolicy.current.reducedMotion
+  val busy = live?.isBusy == true
+  // Chi stava rispondendo: l'ultimo modello che ha parlato, o il servizio del passaggio. Serve a
+  // nominarlo in un fallimento ("OpenRouter e' al limite"): con la 2.8.0 lo porta anche `Failed`.
+  val answering = run?.failure?.provider ?: (live as? AssistantState.Failed)?.provider ?: run?.models?.lastOrNull()?.provider ?: run?.provider
+  val text = responseText(message, live)
+  // Una per messaggio: una versione vecchia ritrovata con le frecce e' gia' letta, non si rivela.
+  val memo = remember(message.id) { ResponseMemo(freshStart = text.isBlank()) }
+  val header = rememberAnswerHeader(live, run, answering)
+  // Finita: nessun lavoro in corso su di lei. Una risposta rimasta aperta su disco senza nessuno
+  // che la scriva (l'app chiusa a meta') e' finita anche lei, e ha "Riprova".
+  val settled = !busy
+  val failureKind = message.failureKind ?: (live as? AssistantState.Failed)?.kind
+  val failed = message.status == MessageStatus.FAILED || live is AssistantState.Failed
+  val cancelled = message.status == MessageStatus.CANCELLED || live is AssistantState.Cancelled
+  val sizing = if (live != null && !reducedMotion) Modifier.animateContentSize(FluidMotion.intSize(FluidMotion.DampingChrome, FluidMotion.ResponseSnappy)) else Modifier
+  Column(
+    modifier
+      .fillMaxWidth()
+      .then(sizing)
+      .semantics { customActions = versionAccessibilityActions(message.version, !actions.versionsLocked, actions.onVersion) },
+  ) {
+    AnswerHeader(header)
+    if (live is AssistantState.AwaitingConfirmation && pending != null) ConfirmationRow(pending, actions.onResolve)
     when {
-      text.isNotBlank() -> ResponseBody(text, streaming = live is AssistantState.Answering, live = live != null, memo = memo)
-      message.status == MessageStatus.FAILED -> Text(message.failureKind?.let { AssistantTexts.failure(it, provider = answering) } ?: "Qualcosa e' andato storto.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-      message.status == MessageStatus.CANCELLED -> Text("Fermata prima della risposta.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-      live == null -> Text("Interrotta: l'app si e' chiusa prima della risposta.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      // `live = false`: la crescita la anima gia' la colonna qui sopra; una seconda molla dentro la
+      // prima farebbe inseguire alla colonna un'altezza che si muove, e resterebbe indietro.
+      text.isNotBlank() -> ResponseBody(text, streaming = live is AssistantState.Answering, live = false, memo = memo)
+      failed -> Text(failureKind?.let { AssistantTexts.failure(it, provider = answering) } ?: "Qualcosa e' andato storto.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+      cancelled -> Text("Fermata prima della risposta.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      // Ancora niente testo: lo dice la riga di stato qui sopra.
+      busy || live != null -> Unit
+      message.status == MessageStatus.DONE -> Text("Nessuna risposta: il servizio non ha scritto niente.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      else -> Text("Interrotta: l'app si e' chiusa prima della risposta.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    if (message.status == MessageStatus.FAILED && text.isNotBlank()) {
+    if (failed && text.isNotBlank()) {
       Spacer(Modifier.height(6.dp))
-      Text(message.failureKind?.let { AssistantTexts.failure(it, provider = answering) } ?: "Interrotta.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+      Text(failureKind?.let { AssistantTexts.failure(it, provider = answering) } ?: "Interrotta.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
     }
-    if (message.chips.isNotEmpty()) {
-      Spacer(Modifier.height(10.dp))
-      FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        message.chips.forEach { chip -> FluidChip(label = AssistantTexts.chipLabel(chip), selected = false, onClick = { onChip(chip) }) }
-      }
-    }
-    if (!busy && text.isNotBlank()) {
-      Spacer(Modifier.height(2.dp))
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        SmallAction(Icons.Rounded.ContentCopy, "Copia", onCopy)
-        SmallAction(Icons.Rounded.Share, "Condividi", onShare)
-        // Un comando rapido non si rigenera: rifarlo con il modello vorrebbe dire un secondo timer.
-        if (run?.outcome != LOCAL_OUTCOME) RegenerateAction(regenerateWith, onRegenerate, onRegenerateWith)
-        run?.let {
-          Spacer(Modifier.width(4.dp))
-          Text(telemetry(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    // I chip arrivano con il messaggio finale: sfumano dentro invece di comparire di colpo.
+    AnimatedVisibility(
+      visible = message.chips.isNotEmpty(),
+      enter = if (reducedMotion) EnterTransition.None else fadeIn(FluidMotion.fadeIn()),
+      exit = if (reducedMotion) ExitTransition.None else fadeOut(FluidMotion.fadeOut()),
+    ) {
+      Column {
+        Spacer(Modifier.height(10.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+          message.chips.forEach { chip -> FluidChip(label = AssistantTexts.chipLabel(chip), selected = false, onClick = { actions.onChip(chip) }) }
         }
       }
+    }
+    // La riserva automatica e' accesa di default: un servizio diverso da quello scelto che risponde
+    // senza dirlo e' un modello che cambia in silenzio. Dal `Done` (i cambi li porta lo stato) prima
+    // ancora che arrivi la riga del run, poi da quella.
+    val switches = run?.switches?.takeIf { it.isNotEmpty() } ?: (live as? AssistantState.Done)?.switches.orEmpty()
+    val switchLine = if (!busy && !failed && text.isNotBlank()) AssistantTexts.switchLine(switches) else null
+    if (switchLine != null) {
+      Spacer(Modifier.height(8.dp))
+      Text(switchLine, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    // Le azioni sfumano dentro a risposta finita; la misura la accompagna la colonna.
+    AnimatedVisibility(
+      visible = settled,
+      enter = if (reducedMotion) EnterTransition.None else fadeIn(FluidMotion.fadeIn()),
+      exit = if (reducedMotion) ExitTransition.None else fadeOut(FluidMotion.fadeOut()),
+    ) {
+      AnswerActionRow(
+        message = message,
+        run = run,
+        text = text,
+        failed = failed,
+        retry = failed || cancelled || text.isBlank(),
+        onDetails = { actions.onDetails(FailureReport.of(message, run, live)) },
+        actions = actions,
+      )
     }
   }
 }
 
 /**
- * La risposta in corso quando la conversazione e' nuova e non c'e' ancora un messaggio su disco.
- * Mostra anche il testo di `Done`, `Failed` e `Cancelled`: fra la fine della risposta e il primo
- * messaggio emesso da Room passa un fotogramma, e in quel fotogramma il testo non deve sparire.
+ * La riga sotto una risposta finita.
+ *
+ * Nell'ordine: le versioni (se ce n'e' piu' d'una), Copia e Condividi (se c'e' del testo), poi
+ * "Rigenera" su ogni risposta — non solo sull'ultima: rigenerarne una vecchia fa una versione
+ * nuova in quel punto, e le altre restano — e la telemetria. Una risposta fallita, fermata o vuota
+ * al posto di "Rigenera" ha "Riprova", in parole e non solo in icona, e se e' fallita "Dettagli".
+ * Un comando rapido (o il kill switch) non si rigenera: rifarlo con il modello sarebbe un secondo
+ * timer.
+ */
+@Composable
+private fun AnswerActionRow(
+  message: Message,
+  run: Run?,
+  text: String,
+  failed: Boolean,
+  retry: Boolean,
+  onDetails: () -> Unit,
+  actions: AnswerActions,
+) {
+  val local = run?.outcome == LOCAL_OUTCOME || run?.outcome == STOPPED_OUTCOME
+  val hasText = text.isNotBlank()
+  Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+    message.version?.let { version -> VersionSwitcher(version, enabled = !actions.versionsLocked, onSelect = actions.onVersion) }
+    // Una risposta fallita con qualcosa di scritto tiene Copia; Condividi resta a quelle riuscite,
+    // cosi' con le frecce, "Riprova" e "Dettagli" la riga ci sta ancora su un telefono stretto.
+    if (hasText && !(retry && message.version != null)) SmallAction(Icons.Rounded.ContentCopy, "Copia", { actions.onCopy(message) })
+    if (hasText && !retry) SmallAction(Icons.Rounded.Share, "Condividi", { actions.onShare(message) })
+    when {
+      retry -> RegenerateAction("Riprova", actions.regenerateWith, !actions.locked, pill = true, onRegenerate = { actions.onRegenerate(message) }, onRegenerateWith = { actions.onRegenerateWith(message, it) })
+      !local -> RegenerateAction("Rigenera", actions.regenerateWith, !actions.locked, pill = false, onRegenerate = { actions.onRegenerate(message) }, onRegenerateWith = { actions.onRegenerateWith(message, it) })
+    }
+    if (failed) {
+      Spacer(Modifier.width(4.dp))
+      PillAction(Icons.Rounded.Info, "Dettagli", onClick = onDetails)
+    }
+    if (!retry) run?.let {
+      Spacer(Modifier.width(4.dp))
+      Text(telemetry(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+    }
+  }
+}
+
+/**
+ * La risposta in corso quando la conversazione e' nuova e non c'e' ancora un messaggio su disco:
+ * la domanda (dallo stato, finche' la riga non arriva) e sotto la riga di stato. Mostra anche il
+ * testo di `Done`, `Failed` e `Cancelled`: fra la fine della risposta e il primo messaggio emesso
+ * da Room passa un fotogramma, e in quel fotogramma il testo non deve sparire.
  */
 @Composable
 internal fun LiveBubble(live: AssistantState, pending: PendingConfirmation?, onResolve: (Long, Boolean) -> Unit) {
@@ -260,48 +436,128 @@ internal fun LiveBubble(live: AssistantState, pending: PendingConfirmation?, onR
     else -> ""
   }
   val memo = remember { ResponseMemo(freshStart = text.isBlank()) }
-  Column(Modifier.fillMaxWidth()) {
-    AssistantTexts.statusLine(live)?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = if (live is AssistantState.Failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium) }
-    if (text.isNotBlank()) {
-      Spacer(Modifier.height(8.dp))
-      ResponseBody(text, streaming = live is AssistantState.Answering, live = true, memo = memo)
+  val question = live.questionText()
+  Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+    // La stessa bolla che arrivera' da Room un attimo dopo, nello stesso posto: il cambio non si vede.
+    if (!question.isNullOrBlank()) {
+      BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+        Text(
+          text = question,
+          style = MaterialTheme.typography.bodyLarge,
+          color = MaterialTheme.colorScheme.onPrimaryContainer,
+          modifier = Modifier
+            .widthIn(max = maxWidth * 0.86f)
+            .background(MaterialTheme.colorScheme.primaryContainer, ContinuousCornerShape(FluidRadius.Card))
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        )
+      }
     }
-    if (pending != null) ConfirmationRow(pending, onResolve)
+    Column(Modifier.fillMaxWidth()) {
+      AssistantTexts.statusLine(live)?.let {
+        Text(it, style = MaterialTheme.typography.bodyMedium, color = if (live is AssistantState.Failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium, modifier = Modifier.padding(bottom = 8.dp))
+      }
+      if (text.isNotBlank()) ResponseBody(text, streaming = live is AssistantState.Answering, live = true, memo = memo)
+      if (pending != null) ConfirmationRow(pending, onResolve)
+    }
   }
 }
 
+/** La domanda che uno stato porta con se', se la porta (in ascolto e in trascrizione non c'e'). */
+private fun AssistantState.questionText(): String? = when (this) {
+  is AssistantState.Classifying -> question
+  is AssistantState.Working -> question
+  is AssistantState.WaitingRateLimit -> question
+  is AssistantState.SwitchingProvider -> question
+  is AssistantState.Answering -> question
+  is AssistantState.AwaitingConfirmation -> question
+  is AssistantState.Done -> question
+  is AssistantState.Failed -> question
+  is AssistantState.Cancelled -> question
+  else -> null
+}
+
 /**
- * Le azioni sotto un messaggio: 44 dp di bersaglio (erano 32, sotto il minimo per un dito) e
- * icone leggibili, non un grigio al 55% che si perdeva sul fondo.
+ * Le azioni sotto un messaggio: quarantotto dp di bersaglio, il minimo di Android per un dito
+ * (erano 32, poi 44), e icone leggibili, non un grigio al 55% che si perdeva sul fondo. Spenta,
+ * l'icona sbiadisce e il tocco non passa.
  */
 @Composable
-private fun SmallAction(icon: ImageVector, description: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun SmallAction(icon: ImageVector, description: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
   Box(
     modifier = modifier
-      .size(44.dp)
-      .fluidPressable(onClick = onClick, role = Role.Button, haptic = null),
+      .size(48.dp)
+      .fluidPressable(onClick = onClick, enabled = enabled, role = Role.Button, haptic = null),
     contentAlignment = Alignment.Center,
   ) {
-    Icon(icon, contentDescription = description, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+    Icon(
+      icon,
+      contentDescription = description,
+      tint = MaterialTheme.colorScheme.onSurfaceVariant,
+      modifier = Modifier.size(18.dp).alpha(if (enabled) 1f else DisabledAlpha),
+    )
   }
 }
 
 /**
- * Rigenera, e "rigenera con…": con piu' di un servizio pronto il tocco apre un menu con lo stesso
- * servizio e gli altri. Una risposta sbagliata di un modello e' spesso giusta per un altro, e
- * prima per provarlo bisognava cambiare l'ordine nelle impostazioni.
+ * Un'azione con la parola accanto all'icona ("Riprova", "Dettagli"): sotto una risposta fallita
+ * l'icona da sola non basta a dire cosa fare. La pillola e' bassa come il chip del modello nel
+ * composer, il bersaglio del tocco resta di quarantotto dp.
  */
 @Composable
-private fun RegenerateAction(providers: List<ProviderId>, onRegenerate: () -> Unit, onRegenerateWith: (ProviderId) -> Unit) {
-  if (providers.size < 2) {
-    SmallAction(Icons.Rounded.Refresh, "Rigenera", onRegenerate)
-    return
+private fun PillAction(icon: ImageVector, label: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+  Box(
+    modifier = modifier
+      .heightIn(min = 48.dp)
+      .fluidPressable(onClick = onClick, enabled = enabled, role = Role.Button, haptic = null),
+    contentAlignment = Alignment.Center,
+  ) {
+    Row(
+      Modifier
+        .height(32.dp)
+        .alpha(if (enabled) 1f else DisabledAlpha)
+        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), FluidCapsuleShape)
+        .padding(start = 10.dp, end = 12.dp),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(16.dp))
+      Spacer(Modifier.width(6.dp))
+      Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+    }
   }
+}
+
+/** Quanto sbiadisce un'azione spenta: si vede che c'e', e che adesso non si puo'. */
+private const val DisabledAlpha = 0.38f
+
+/**
+ * Rigenera (o Riprova), e "…con…": con piu' di un servizio pronto il tocco apre un menu con lo
+ * stesso servizio e gli altri. Una risposta sbagliata di un modello e' spesso giusta per un altro,
+ * e prima per provarlo bisognava cambiare l'ordine nelle impostazioni.
+ *
+ * @param pill con la parola accanto ("Riprova"), per le risposte fallite; altrimenti solo l'icona.
+ */
+@Composable
+private fun RegenerateAction(
+  label: String,
+  providers: List<ProviderId>,
+  enabled: Boolean,
+  pill: Boolean,
+  onRegenerate: () -> Unit,
+  onRegenerateWith: (ProviderId) -> Unit,
+) {
+  val several = providers.size >= 2
   val menu = rememberFluidContextMenu(actions = {
-    listOf(FluidContextAction("Rigenera", Icons.Rounded.Refresh, onClick = onRegenerate)) +
-      providers.map { provider -> FluidContextAction("Rigenera con ${provider.label}", Icons.Rounded.SwapHoriz) { onRegenerateWith(provider) } }
+    listOf(FluidContextAction(label, Icons.Rounded.Refresh, onClick = onRegenerate)) +
+      providers.map { provider -> FluidContextAction("$label con ${provider.label}", Icons.Rounded.SwapHoriz) { onRegenerateWith(provider) } }
   })
-  SmallAction(Icons.Rounded.Refresh, "Rigenera, anche con un altro servizio", onClick = { menu.open() }, modifier = Modifier.fluidContextMenuAnchor(menu))
+  val onClick = if (several) ({ menu.open(); Unit }) else onRegenerate
+  val anchor = if (several) Modifier.fluidContextMenuAnchor(menu) else Modifier
+  val description = if (several) "$label, anche con un altro servizio" else label
+  if (pill) {
+    PillAction(Icons.Rounded.Refresh, label, onClick = onClick, modifier = anchor, enabled = enabled)
+  } else {
+    SmallAction(Icons.Rounded.Refresh, description, onClick = onClick, modifier = anchor, enabled = enabled)
+  }
 }
 
 internal fun copy(context: android.content.Context, text: String) {
