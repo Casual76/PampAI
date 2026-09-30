@@ -17,6 +17,7 @@ import kotlinx.serialization.json.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -82,5 +83,95 @@ class RegistryHolderTest {
     // Smontare riporta al catalogo locale.
     holder.setRemote(emptyList())
     assertTrue(holder.catalog.value.registry.find("cv_voti_media") == null)
+  }
+
+  private val weather = catalog.copy(
+    authority = "dev.pampa.fluidweather.ai.tools",
+    packageName = "dev.pampa.fluidweather",
+    appId = "dev.pampa.fluidweather",
+    domain = "meteo",
+    appLabel = "Fluid Weather",
+    vocabulary = emptyList(),
+    categories = listOf(RemoteCategoryInfo("meteo", "Meteo", "il meteo")),
+    groups = listOf(RemoteGroupInfo("oggi", "weather", "il meteo di oggi", "meteo", null, loadsWithCategory = true, action = false)),
+    tools = listOf(RemoteToolInfo("adesso", "oggi", "il meteo adesso", Schema.obj(emptyMap()), needsConfirmation = false, longRunning = false, action = false)),
+  )
+
+  private fun debugOf(release: RemoteCatalog): RemoteCatalog =
+    release.copy(packageName = "${release.packageName}.debug", authority = "${release.packageName}.debug.ai.tools", appLabel = "${release.appLabel} (debug)")
+
+  @Test
+  fun debugAndReleaseOfTheSameAppMountOnceAndTheOthersStay() {
+    val holder = RegistryHolder()
+    // La debug arriva per prima: vince lo stesso la release.
+    holder.setRemote(listOf(RemoteToolSet.of(NoCalls, debugOf(catalog), host), RemoteToolSet.of(NoCalls, catalog, host), RemoteToolSet.of(NoCalls, weather, host)))
+    val mounted = holder.catalog.value
+    assertEquals(1, mounted.registry.tools.count { it.name == "cv_voti_media" })
+    assertNotNull(mounted.registry.find("meteo_adesso"))
+    assertEquals(setOf("dev.antigravity.classevivaexpressive", "dev.pampa.fluidweather"), mounted.connectedPackages)
+    // Con la sola debug installata, la debug si monta.
+    holder.setRemote(listOf(RemoteToolSet.of(NoCalls, debugOf(catalog), host)))
+    assertEquals(setOf("dev.antigravity.classevivaexpressive.debug"), holder.catalog.value.connectedPackages)
+  }
+
+  @Test
+  fun aClashingAppStaysOutAloneAndSaysWhy() {
+    // "cerca" + "web" fa "cerca_web", che e' gia' uno strumento di Aria.
+    val clashing = weather.copy(
+      packageName = "dev.x.cerca",
+      domain = "cerca",
+      categories = listOf(RemoteCategoryInfo("cerca", "Cerca", "cerca")),
+      groups = listOf(RemoteGroupInfo("base", "web", "cerca", "cerca", null, loadsWithCategory = true, action = false)),
+      tools = listOf(RemoteToolInfo("web", "base", "cerca", Schema.obj(emptyMap()), needsConfirmation = false, longRunning = false, action = false)),
+    )
+    val warnings = mutableListOf<String>()
+    val sets = listOf(RemoteToolSet.of(NoCalls, clashing, host), RemoteToolSet.of(NoCalls, catalog, host), RemoteToolSet.of(NoCalls, debugOf(catalog), host))
+    val kept = mountable(RegistryHolder().catalog.value.registry.tools, sets) { warnings += it }
+    assertEquals(listOf("dev.antigravity.classevivaexpressive"), kept.map { it.catalog.packageName })
+    assertEquals(2, warnings.size)
+    assertTrue(warnings.any { it.startsWith("dev.x.cerca") && it.contains("cerca_web") })
+    assertTrue(warnings.any { it.startsWith("dev.antigravity.classevivaexpressive.debug") })
+    // Dal registry: niente eccezioni, e le app buone ci sono.
+    val holder = RegistryHolder()
+    holder.setRemote(sets)
+    assertNotNull(holder.catalog.value.registry.find("cv_voti_media"))
+    assertEquals(1, holder.catalog.value.registry.tools.count { it.name == "cerca_web" })
+  }
+
+  @Test
+  fun aParentGroupWithoutToolsOfItsOwnStaysDeclared() {
+    val nested = catalog.copy(
+      groups = listOf(
+        RemoteGroupInfo("scuola", "school", "la scuola", "classeviva", null, loadsWithCategory = true, action = false),
+        RemoteGroupInfo("voti", "grades", "i voti", "classeviva", "scuola", loadsWithCategory = false, action = false),
+      ),
+    )
+    val holder = RegistryHolder()
+    holder.setRemote(listOf(RemoteToolSet.of(NoCalls, nested, host)))
+    val mounted = holder.catalog.value
+    assertNotNull(mounted.registry.find("cv_voti_media"))
+    assertNotNull(mounted.registry.group("cv_scuola"))
+  }
+
+  @Test
+  fun theLockscreenCatalogHasNoConnectedApps() {
+    val holder = RegistryHolder()
+    holder.setRemote(listOf(RemoteToolSet.of(NoCalls, catalog, host), RemoteToolSet.of(NoCalls, weather, host)))
+    val locked = holder.catalog.value.lockscreen
+    assertNull(locked.registry.find("cv_voti_media"))
+    assertNull(locked.registry.find("meteo_adesso"))
+    assertNotNull(locked.registry.find("timer_crea"))
+    assertTrue(locked.connectedPackages.isEmpty())
+    assertTrue(locked.preRules.isEmpty())
+    assertFalse(locked.summary.contains("classeviva"))
+    assertFalse(locked.summary.contains("notifiche"))
+    // Il router da bloccato sceglie solo fra i gruppi rimasti.
+    val schema = locked.router.schema.toString()
+    assertTrue(schema.contains("\"orologio\""))
+    assertFalse(schema.contains("\"notifiche\""))
+    assertFalse(schema.contains("\"cv_voti\""))
+    assertFalse(schema.contains("\"aria\""))
+    // Ed e' lo stesso oggetto a ogni domanda, finche' il catalogo non cambia.
+    assertTrue(holder.catalog.value.lockscreen === locked)
   }
 }

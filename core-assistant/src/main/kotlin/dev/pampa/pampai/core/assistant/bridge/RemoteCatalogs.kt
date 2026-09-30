@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.ai.bridge.AiToolClient
 import dev.antigravity.fluidengine.ai.bridge.RemoteAvailability
@@ -24,6 +25,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+
+private const val TAG = "RemoteCatalogs"
 
 /** Un'app Pampa vista dal bridge: c'e', risponde, quanti tool porta. */
 data class ConnectedApp(
@@ -91,7 +94,9 @@ class RemoteCatalogs @Inject constructor(
   }
 
   fun refreshAsync() {
-    scope.launch { runCatching { refresh() } }
+    // Un giro fallito lascia il catalogo di prima: almeno che resti scritto perche'. (Due build
+    // della stessa app non arrivano piu' qui: il registry ne monta una e lascia fuori l'altra.)
+    scope.launch { runCatching { refresh() }.onFailure { Log.w(TAG, "app collegate non aggiornate", it) } }
   }
 
   suspend fun refresh() = lock.withLock {

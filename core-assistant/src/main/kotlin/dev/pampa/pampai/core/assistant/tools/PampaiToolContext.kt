@@ -93,11 +93,20 @@ class PampaiToolContext(
    */
   suspend fun confirm(tool: String, title: String, detail: String?): ToolOutput? {
     if (!actionsEnabled) return ToolOutput(ACTIONS_OFF)
-    return when (val outcome = gate.ask(tool, title, detail)) {
+    return confirmSafety(tool, title, detail)
+  }
+
+  /**
+   * Una conferma che non e' un'azione ma una rete di sicurezza: `ricorda` dopo che la domanda ha
+   * letto testo scritto da altri. Si chiede sempre, anche con l'interruttore "Azioni" spento:
+   * quell'interruttore dice "non agire sul telefono e nelle app", non "non ricordare niente", e
+   * legarli voleva dire bloccare la memoria per un motivo che non c'entra.
+   */
+  suspend fun confirmSafety(tool: String, title: String, detail: String?): ToolOutput? =
+    when (val outcome = gate.ask(tool, title, detail)) {
       ConfirmationOutcome.CONFIRMED -> null
       else -> ToolOutput(PampaiConfirmationGate.outcomeText(outcome))
     }
-  }
 
   /**
    * Per le azioni reversibili che restano sul telefono (una sveglia, un timer, la torcia): niente

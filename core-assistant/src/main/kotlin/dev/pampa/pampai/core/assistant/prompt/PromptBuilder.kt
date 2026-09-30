@@ -82,11 +82,13 @@ object PromptBuilder {
     appendLine("Dove sei: ${if (p.surface == Surface.SESSION) "sopra un'altra app, richiamata dal tasto di accensione (l'utente vede una card di vetro)" else "nella chat di PampAI"}")
     p.screenNote?.let { appendLine("Schermo: $it") }
     p.attachmentsNote?.let { appendLine("Allegati: $it") }
-    appendLine("App e aree: ${p.connectedApps}")
+    // Le app collegate dicono di chi e' il telefono (il registro di chi, la fermata di casa): dal
+    // telefono bloccato non entrano, qualunque riassunto arrivi. Cosa resta lo dice la riga sotto.
+    if (!p.lockscreen) appendLine("App e aree: ${p.connectedApps}")
     if (p.loadedCategories.isNotEmpty()) appendLine("Categorie gia' aperte in questa conversazione: ${p.loadedCategories.joinToString(", ")}")
     appendLine("Azioni: ${if (p.actionsEnabled) "abilitate" else "disabilitate dall'utente (puoi solo leggere: se ti chiede di fare, digli di riattivarle nelle impostazioni)"}")
     p.conversationTitle?.let { appendLine("Conversazione: $it") }
-    if (p.lockscreen) appendLine("Il telefono e' BLOCCATO e chi ti parla potrebbe non essere il proprietario: hai solo gli strumenti che non toccano dati personali (sveglie, timer, torcia, volume, batteria, calcoli, web, musica). Notifiche, contatti, calendario, promemoria, memoria, conversazioni passate e app collegate non li hai: se te li chiedono, di' di sbloccare il telefono e riprovare. Non riferire niente di personale che ricordi dalla conversazione.")
+    if (p.lockscreen) appendLine("Il telefono e' BLOCCATO e chi ti parla potrebbe non essere il proprietario: hai solo gli strumenti che non toccano dati personali ne' il modo in cui il telefono avvisa (creare sveglie e timer, torcia, volume dei media, batteria, calcoli, ricerche sul web -- anche per il meteo --, controllo della musica). Notifiche, contatti, calendario, promemoria, memoria, conversazioni passate, posizione, app collegate, sveglie gia' impostate, suoneria, non disturbare e luminosita' non li hai: se te li chiedono, di' di sbloccare il telefono e riprovare. Non riferire niente di personale che ricordi dalla conversazione.")
     if (p.temporary) appendLine("Questa e' una chat temporanea: non resta nella cronologia e non entra nella memoria. Non usare `ricorda` (rifiuta), e se l'utente ti chiede di ricordare qualcosa digli che da qui non puoi.")
     p.pluginLabel?.let { appendLine("Plugin scelto dall'utente per questa conversazione: $it. I suoi strumenti sono gia' aperti: parti da quelli e dai per scontato che le domande riguardino quello, a meno che non sia evidente il contrario. Non e' un vincolo: se serve altro, usa altro.") }
     if (p.memoryBlock.isNotBlank()) {

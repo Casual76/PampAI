@@ -43,9 +43,10 @@ class RicordaTool : AiTool<PampaiToolContext> {
     if (ctx.temporary) return ToolOutput(TEMPORARY_NO_MEMORY)
     // Se in questa domanda Aria ha letto testo scritto da altri (una pagina, una notifica, lo
     // schermo, un'app collegata), il "ricorda" potrebbe venire da li' e non dall'utente: quel
-    // testo entrerebbe in ogni conversazione futura. Allora decide l'utente, con un tasto.
+    // testo entrerebbe in ogni conversazione futura. Allora decide l'utente, con un tasto. E' una
+    // domanda di sicurezza, non un'azione: vale anche con le azioni spente (`confirmSafety`).
     if (ctx.traces.any { it.app != null || it.name in EXTERNAL_READERS }) {
-      ctx.confirm(name, "Ricordare questo?", text)?.let { return it }
+      ctx.confirmSafety(name, "Ricordare questo?", text)?.let { return it }
     }
     ctx.memory.add(text, ctx.conversationId, ctx.now())
     return ToolText.output { line("fatto", "ricordato: $text") }
