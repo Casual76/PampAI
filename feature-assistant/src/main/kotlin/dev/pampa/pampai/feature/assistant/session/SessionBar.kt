@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
@@ -188,8 +189,23 @@ internal fun SessionBar(
           modifier = Modifier.align(Alignment.Center).size(26.dp),
         )
       } else {
+        // La riga e' impaginata alla taglia della capsula fin dal primo fotogramma: mentre l'orb
+        // cresce, la sagoma la ritagliava e si leggeva un pezzo di parola che scorreva ("olto…" di
+        // "Ti ascolto…"). Arriva in dissolvenza nella seconda meta' del viaggio, e solo quando la
+        // meta e' davvero la capsula (nel fotogramma prima che il morph parta la forma e' ancora
+        // l'orb, e il progresso a riposo vale 1). Solo alpha: dentro ci sono tasti di vetro, e il
+        // vetro non si scala (prima trappola).
+        val capsuleWidth = capsuleForm.frame.width
         Row(
-          modifier = Modifier.align(Alignment.Center).fillMaxWidth().height(CapsuleHeight).padding(horizontal = 8.dp),
+          modifier = Modifier
+            .align(Alignment.Center)
+            .fillMaxWidth()
+            .height(CapsuleHeight)
+            .graphicsLayer {
+              val arriving = physics.form.frame.width >= capsuleWidth * 0.9f
+              alpha = if (!arriving) 0f else ((physics.progress - 0.5f) / 0.4f).coerceIn(0f, 1f)
+            }
+            .padding(horizontal = 8.dp),
           verticalAlignment = Alignment.CenterVertically,
         ) {
           GlassRound(Icons.Rounded.Screenshot, "Allega lo schermo", controlBackdrop, onClick = onAttachScreen)
