@@ -266,7 +266,9 @@ internal fun SessionCard(
       .fluidPhysicsSurface(
         state = physics,
         backdrop = backdrop,
-        tint = GlassDefaults.floatingTint(),
+        // La tinta dei fogli, non quella delle barre: la card e' una superficie da leggere, e con
+        // la tinta leggera le icone della home si riconoscevano dietro le righe della risposta.
+        tint = GlassDefaults.modalTint(),
         role = GlassRole.Floating,
         tier = FluidPhysicsTier.Balanced,
       ),

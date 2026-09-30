@@ -138,11 +138,6 @@ fun PampaiSessionOverlay(controller: SessionController, actions: SessionActions)
   LaunchedEffect(scrim) {
     scrim.animateTo(ScrimAlpha, spring(dampingRatio = FluidMotion.DampingStandard, stiffness = FluidMotion.ResponseSmooth))
   }
-  // Il fondale del vetro e' congelato (non si riregistra a ogni fotogramma), ma la registrazione va
-  // rifatta a ogni apparizione e a ogni screenshot nuovo: la composizione sopravvive fra una volta
-  // e l'altra, e il vetro continuava a rifrangere lo screenshot dell'app di prima — o quello di
-  // prima che arrivasse lo screenshot, con lo scrim a zero.
-  val freshRecording = remember(shownStamp, screen.screenshot) { OneShot() }
   var selection by remember { mutableStateOf<Rect?>(null) }
 
   Box(
@@ -158,7 +153,11 @@ fun PampaiSessionOverlay(controller: SessionController, actions: SessionActions)
     Box(
       Modifier
         .fillMaxSize()
-        .glassBackdropSource(backdrop, frozen = { !selecting && !freshRecording.take() })
+        // Mai congelato. Una registrazione sola per apparizione partiva prima che lo screenshot fosse
+        // disegnato, e il vetro non aveva niente da sfocare: dietro la card si leggevano le etichette
+        // delle icone della home. Il costo e' piccolo: questo nodo si ridisegna solo quando cambiano
+        // screenshot, scrim o selezione, non quando si muovono la barra o la card.
+        .glassBackdropSource(backdrop)
         .pointerInput(screen.screenshot != null) {
           detectTapGestures(onTap = { if (!controller.selecting.value) actions.hide() else controller.selecting.value = false })
         }
@@ -358,17 +357,6 @@ private suspend fun PointerInputScope.consumeEverything() {
     while (true) {
       awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
     }
-  }
-}
-
-/** Vero una volta sola, alla prima lettura: la registrazione del fondale da rifare. */
-private class OneShot {
-  private var pending = true
-
-  fun take(): Boolean {
-    if (!pending) return false
-    pending = false
-    return true
   }
 }
 
