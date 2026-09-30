@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,6 +78,9 @@ import kotlinx.coroutines.flow.StateFlow
  * Il livello del microfono lo legge l'orologio dell'alone dentro il loop di frame: lo `StateFlow`
  * a cinquanta hertz non ricompone niente.
  *
+ * @param stamp l'apparizione corrente (`SessionController.shownStamp`): a ogni apparizione la
+ *   barra riparte **gia'** orb, con uno snap. Un morph capsula → orb all'apertura era la capsula
+ *   della volta prima che si vedeva per qualche fotogramma, si richiudeva e si riapriva.
  * @param orb vero durante l'entrata; lo tiene l'overlay, perche' anche la card deve sapere quando
  *   la capsula si e' posata.
  * @param hasAttachments cambia solo il tasto di destra: con un allegato in attesa si invia anche
@@ -84,6 +88,7 @@ import kotlinx.coroutines.flow.StateFlow
  */
 @Composable
 internal fun SessionBar(
+  stamp: Long,
   state: AssistantState,
   textMode: Boolean,
   partial: String?,
@@ -145,8 +150,11 @@ internal fun SessionBar(
     val capsuleForm = remember(width, height) {
       FluidFormPresets.capsule(Rect(0f, (height - capsuleHeight) / 2f, width, (height + capsuleHeight) / 2f))
     }
-    val physics = rememberFluidPhysicsState(if (orb) orbForm else capsuleForm)
-    LaunchedEffect(orb, width) { physics.morphTo(if (orb) orbForm else capsuleForm) }
+    // Uno stato nuovo per ogni apparizione, nato nella forma giusta nella stessa composizione che
+    // vede lo stamp nuovo: e' lo snap, senza aspettare un effetto (che arriverebbe dopo il primo
+    // fotogramma, con la capsula vecchia ancora disegnata).
+    val physics = key(stamp) { rememberFluidPhysicsState(if (orb) orbForm else capsuleForm) }
+    LaunchedEffect(physics, orb, width) { physics.morphTo(if (orb) orbForm else capsuleForm) }
     Box(
       Modifier
         .fillMaxSize()
@@ -173,6 +181,12 @@ internal fun SessionBar(
           modifier = Modifier.align(Alignment.Center).size(26.dp),
         )
       } else {
+        // TODO(engine 2.8.0): i tasti tondi qui sotto rifrangono la pagina ([backdrop]), non la
+        // capsula su cui stanno: una lente appoggiata su vetro smerigliato deve mostrare la
+        // smerigliatura. Il composer della chat lo fa giusto (`glassSurface(exports = ...)` +
+        // `rememberCombinedGlassBackdrop(backdrop, capsula)`), ma `fluidPhysicsSurface` nella 2.7.1
+        // non ha `exports`. Quando c'e': `val barGlass = rememberGlassBackdrop()`, `exports =
+        // barGlass` sulla superficie e `rememberCombinedGlassBackdrop(backdrop, barGlass)` ai tasti.
         Row(
           modifier = Modifier.align(Alignment.Center).fillMaxWidth().height(CapsuleHeight).padding(horizontal = 8.dp),
           verticalAlignment = Alignment.CenterVertically,

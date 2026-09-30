@@ -28,13 +28,16 @@ import dev.pampa.pampai.feature.assistant.session.SessionActions
 import dev.pampa.pampai.feature.assistant.session.SessionComposeHost
 import dev.pampa.pampai.feature.assistant.session.SessionController
 import dev.pampa.pampai.core.assistant.remote.PampaiFlags
+import dev.pampa.pampai.core.assistant.tools.Surface
 import dev.pampa.pampai.feature.assistant.theme.PampaiTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * La sessione di sistema: la finestra trasparente sopra qualsiasi app, con dentro l'overlay di Aria
@@ -58,11 +61,22 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
    */
   private var redirecting = false
 
+  /**
+   * L'impostazione "parti in testo", tenuta a portata di mano: letta in `onShow` con un `first()`
+   * costava un salto sul disco prima di poter decidere qualsiasi cosa. Null finche' DataStore non ha
+   * risposto la prima volta.
+   */
+  @Volatile private var startInText: Boolean? = null
+
+  /** Lo stamp dell'apparizione a schermo, zero da nascosta: chi aspetta qualcosa controlla che sia ancora quella. */
+  private var showing = 0L
+
   override fun onCreate() {
     super.onCreate()
     setTheme(R.style.Theme_PampAI_Session)
     setUiEnabled(true)
     controller = SessionController(runtime, entry.conversations(), screen, scope)
+    scope.launch { entry.pampaiSettings().settings.collect { startInText = it.startInText } }
   }
 
   /**
@@ -133,15 +147,22 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
       source = source,
       lockscreen = keyguard,
     )
+    val voice = source != PampaiInteractionService.SOURCE_TEXT
+    // Prima di riaccendere la composizione, e senza aspettare niente: la conversazione, lo stamp
+    // dell'entrata, gli allegati, lo stato. Era dopo `host.resume()` e dopo una lettura su disco,
+    // e i primi fotogrammi mostravano lo scambio e la capsula della volta prima (oltre i due
+    // minuti, la card vecchia che lampeggiava e spariva).
+    val stamp = controller.onShow(startVoice = voice, locked = keyguard)
+    showing = stamp
     if (::host.isInitialized) host.resume()
     scope.launch {
       // Il flag remoto `assistant_session` spegne l'overlay: si apre l'app, che funziona comunque.
       if (!entry.remote().isEnabled(PampaiFlags.AssistantSession)) {
-        expandToApp(null)
+        openApp(conversationId = null, fresh = true)
         return@launch
       }
-      val settings = entry.pampaiSettings().settings.first()
-      controller.onShow(startVoice = source != PampaiInteractionService.SOURCE_TEXT, startInText = settings.startInText, locked = keyguard)
+      val textFirst = startInText ?: entry.pampaiSettings().settings.first().startInText
+      controller.begin(stamp, startVoice = voice, startInText = textFirst)
     }
   }
 
@@ -165,6 +186,7 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
     // comunque: la struttura e lo screenshot possono arrivare anche a UI spenta.
     if (!redirecting) controller.onHide()
     redirecting = false
+    showing = 0L
     screen.clear()
     if (::host.isInitialized) host.pause()
     super.onHide()
@@ -186,16 +208,43 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
     super.onDestroy()
   }
 
-  /** Il trascinamento in alto: la stessa conversazione continua nella chat a pagina intera. */
+  /**
+   * Il trascinamento in alto: la stessa conversazione continua nella chat a pagina intera.
+   *
+   * Sempre la conversazione **della sessione**, anche quando chi chiama non la passa (i chip).
+   * Prima, senza id e con il runtime occupato, partiva `EXTRA_LAST`: l'app apriva la conversazione
+   * piu' recente — fissate in testa — cioe' spesso un'altra, e aprirla fermava la risposta
+   * dell'overlay. Se la domanda della sessione e' in volo e la sua conversazione non e' ancora
+   * nata, si aspetta un attimo che nasca; se resta ignota l'app si apre senza cambiare
+   * conversazione, e senza fermare niente.
+   */
   private fun expandToApp(conversationId: Long?) {
+    val known = conversationId ?: runtime.sessionConversationId.value
+    val sessionInFlight = runtime.isBusy && runtime.liveOwner.value.surface == Surface.SESSION
+    if (known != null || !sessionInFlight) {
+      openApp(known, fresh = false)
+      return
+    }
+    val stamp = showing
+    scope.launch {
+      val born = withTimeoutOrNull(ConversationWaitMillis) { runtime.sessionConversationId.filterNotNull().first() }
+      // Chiusa nel frattempo: l'app non si apre da sola dopo che l'utente ha mandato via Aria.
+      if (showing == stamp) openApp(born, fresh = false)
+    }
+  }
+
+  /**
+   * Porta davanti l'app. Con [conversationId] su quella conversazione (l'app non la ferma: e' la
+   * stessa del lavoro in corso). Senza, [fresh] chiede una chat nuova — ma solo a runtime fermo:
+   * con una risposta in corso l'app si apre dov'era, perche' cambiare conversazione la fermerebbe.
+   * Senza extra `MainActivity` non consuma nessuna richiesta e non tocca la chat aperta.
+   */
+  private fun openApp(conversationId: Long?, fresh: Boolean) {
     val intent = Intent(context, MainActivity::class.java)
       .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
     when {
       conversationId != null -> intent.putExtra(AssistantNotifications.EXTRA_CONVERSATION, conversationId)
-      // Una domanda in volo senza id noto: l'app apre l'ultima conversazione, non una nuova, cosi'
-      // la risposta arriva dove si guarda invece di sparire dietro una chat vuota.
-      runtime.isBusy -> intent.putExtra(MainActivity.EXTRA_LAST, true)
-      else -> intent.putExtra(MainActivity.EXTRA_NEW, true)
+      fresh && !runtime.isBusy -> intent.putExtra(MainActivity.EXTRA_NEW, true)
     }
     // Lancio normale anche qui, per lo stesso motivo del reindirizzamento in onShow: una sola
     // MainActivity, nel suo task. Con startAssistantActivity l'app espansa viveva in un task
@@ -215,5 +264,10 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
       AriaChips.REMINDER -> expandToApp(null)
       else -> Unit
     }
+  }
+
+  private companion object {
+    /** Quanto aspettare che nasca la conversazione di una domanda appena partita, prima di aprire l'app. */
+    const val ConversationWaitMillis = 1_000L
   }
 }
