@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -293,9 +294,15 @@ private fun Home(
       ) {
         // Sorgente prima e fondo dopo: il menu che si apre sopra il cassetto rifrange il cassetto,
         // non la chat dietro, e non campiona testo su trasparenza.
+        //
+        // `focusable()` sul contenitore: aprendosi, il cassetto di Material 3 porta il fuoco al suo
+        // primo elemento che lo accetta, e senza questo era il campo di ricerca — la tastiera si
+        // apriva da sola e restava aperta anche dopo aver scelto una conversazione. Cosi' il fuoco
+        // si ferma sul cassetto, e con una tastiera fisica Tab entra poi nelle righe.
         Box(
           Modifier
             .fillMaxSize()
+            .focusable()
             .glassBackdropSource(drawerBackdrop)
             .background(MaterialTheme.colorScheme.surface),
         ) {

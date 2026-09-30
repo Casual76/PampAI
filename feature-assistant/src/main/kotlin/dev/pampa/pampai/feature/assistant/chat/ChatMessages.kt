@@ -336,6 +336,12 @@ internal fun AssistantMessage(
       Spacer(Modifier.height(6.dp))
       Text(failureKind?.let { AssistantTexts.failure(it, provider = answering) } ?: "Interrotta.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
     }
+    // Una risposta fermata a meta' finisce a meta' frase: senza una riga che lo dice, sembra una
+    // risposta tronca per un guasto.
+    if (cancelled && !failed && text.isNotBlank() && settled) {
+      Spacer(Modifier.height(6.dp))
+      Text("Fermata qui.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
     // I chip arrivano con il messaggio finale: sfumano dentro invece di comparire di colpo.
     AnimatedVisibility(
       visible = message.chips.isNotEmpty(),

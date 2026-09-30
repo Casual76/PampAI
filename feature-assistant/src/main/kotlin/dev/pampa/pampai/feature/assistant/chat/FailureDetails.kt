@@ -1,5 +1,7 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -114,14 +116,19 @@ internal fun FailureDetailsSheet(report: FailureReport?, onDismiss: () -> Unit) 
     presentation = FluidGlassModalPresentation.Sheet,
     paneTitle = "Dettagli dell'errore",
     footer = { current ->
-      FluidButton(
-        text = "Copia",
-        onClick = { copy(context, current.asText()) },
-        style = FluidButtonStyle.Tinted,
-        size = FluidButtonSize.Medium,
-        fillWidth = true,
-        leading = { Icon(Icons.Rounded.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp)) },
-      )
+      // Il foglio dell'engine non mette margini ne' scavalca la barra dei gesti: li mette chi lo usa
+      // (come il foglio d'esempio dell'engine). Senza, "Copia" andava da bordo a bordo e sotto la
+      // barra di sistema.
+      Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(start = SheetMargin, end = SheetMargin, bottom = 12.dp)) {
+        FluidButton(
+          text = "Copia",
+          onClick = { copy(context, current.asText()) },
+          style = FluidButtonStyle.Tinted,
+          size = FluidButtonSize.Medium,
+          fillWidth = true,
+          leading = { Icon(Icons.Rounded.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp)) },
+        )
+      }
     },
   ) { current -> FailureDetailsContent(current) }
 }
@@ -138,7 +145,7 @@ internal fun FailureDetailsContent(report: FailureReport) {
     }
     report.chain?.let { add(DetailRow("Servizi provati", it, report.chainReasons.orEmpty())) }
   }
-  Column(Modifier.fillMaxWidth()) {
+  Column(Modifier.fillMaxWidth().padding(horizontal = SheetMargin)) {
     Text("Cosa e' successo", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp))
     Text(report.summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp))
     if (rows.isNotEmpty()) {
@@ -153,5 +160,8 @@ internal fun FailureDetailsContent(report: FailureReport) {
     Spacer(Modifier.height(12.dp))
   }
 }
+
+/** Il margine ai lati del foglio, lo stesso del foglio d'esempio dell'engine. */
+private val SheetMargin = 20.dp
 
 private data class DetailRow(val label: String, val value: String, val detail: String)
