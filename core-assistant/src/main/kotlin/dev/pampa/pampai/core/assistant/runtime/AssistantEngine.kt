@@ -1,5 +1,7 @@
 package dev.pampa.pampai.core.assistant.runtime
 
+import dev.antigravity.fluidengine.ai.orchestrator.ProviderSwitch
+import dev.pampa.pampai.core.assistant.db.FailureDetail
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -113,6 +115,7 @@ class AssistantEngine @Inject constructor(
   private val reminders: ReminderRepository,
   private val fluidify: FluidifyClient,
   private val remote: RemoteSwitches,
+  private val models: ModelsMaintenance,
 ) {
 
   internal fun screenNote(request: AssistantRequest): String? = screenNoteOf(screen.current, request) { pkg ->
@@ -330,6 +333,7 @@ class AssistantEngine @Inject constructor(
         // Il servizio scelto resta quello: si cambia solo con la riserva automatica accesa, e mai
         // quando l'utente l'ha scelto lui per questa domanda ("rigenera con...").
         pinProvider = request.override != null || !pampai.failoverEnabled,
+        onModelUnavailable = { provider, model -> models.modelUnavailable(provider, model, runtime.scope) },
       )
       estimate = ContextMeter.estimate(prompt, conversation, ContextMeter.historyBudget(first), registry.specsFor(conversation.loadedGroups), parts, first)
       val result = orchestrator.ask(input, live)
@@ -345,6 +349,7 @@ class AssistantEngine @Inject constructor(
       live.value = AssistantState.Done(
         question = question, answer = result.answer, chips = result.chips, provider = result.provider, mode = request.mode,
         usage = result.usage, toolsUsed = result.toolsUsed, durationMillis = result.log.durationMillis, tierReached = result.tierReached,
+        switches = result.log.switches,
       )
       // Il titolo dal modello serve a ritrovare una conversazione in cronologia: una temporanea in
       // cronologia non ci finisce, e le resta la domanda troncata finche' e' aperta.
@@ -381,8 +386,9 @@ class AssistantEngine @Inject constructor(
     } catch (e: AssistantFailure) {
       val partial = (live.value as? AssistantState.Answering)?.partial
       withContext(NonCancellable) { persister?.cancelAndJoin() }
-      turn?.let { started -> closeFailed(started, e.kind, partial, now, e.error?.message ?: e.kind.name, traced, used) }
-      live.value = AssistantState.Failed(question, e.kind, e.error, e.retryAfterSec, partial)
+      val detail = FailureDetail(e.provider, e.reason, e.error?.httpCode, e.error?.providerMessage)
+      turn?.let { started -> closeFailed(started, e.kind, partial, now, e.error?.message ?: e.kind.name, traced, used, detail, e.switches) }
+      live.value = AssistantState.Failed(question, e.kind, e.error, e.retryAfterSec, partial, provider = e.provider, reason = e.reason)
       ExecutionResult(savedConversationId ?: -1L, question, null, e.kind, cancelled = false)
     } catch (e: Throwable) {
       Log.w(TAG, "domanda fallita", e)
@@ -398,10 +404,20 @@ class AssistantEngine @Inject constructor(
    * fallire (e' il disco, spesso, il motivo): allora resta la riga del log, e lo stato Failed arriva
    * lo stesso.
    */
-  private suspend fun closeFailed(turn: Turn, kind: FailureKind, partial: String?, startedAt: Long, error: String?, traced: PampaiToolContext?, used: Conversation?) {
+  private suspend fun closeFailed(
+    turn: Turn,
+    kind: FailureKind,
+    partial: String?,
+    startedAt: Long,
+    error: String?,
+    traced: PampaiToolContext?,
+    used: Conversation?,
+    detail: FailureDetail? = null,
+    switches: List<ProviderSwitch> = emptyList(),
+  ) {
     runCatching {
       conversations.fail(turn.assistantId, kind, partial)
-      conversations.addFailedRun(turn.conversationId, turn.assistantId, startedAt, System.currentTimeMillis(), "failed", error, traced?.traces.orEmpty())
+      conversations.addFailedRun(turn.conversationId, turn.assistantId, startedAt, System.currentTimeMillis(), "failed", error, traced?.traces.orEmpty(), detail, switches)
       conversations.touch(turn.conversationId, System.currentTimeMillis(), null)
       keepCached(turn, used)
     }.onFailure { Log.w(TAG, "chiusura della domanda fallita non riuscita", it) }

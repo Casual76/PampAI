@@ -7,6 +7,7 @@ import dev.antigravity.fluidengine.config.EngineRemoteConfig
 import dev.antigravity.fluidengine.foundation.EngineCompatibility
 import dev.pampa.pampai.core.assistant.bridge.RemoteCatalogs
 import dev.pampa.pampai.core.assistant.remote.PampaiFlags
+import dev.pampa.pampai.core.assistant.runtime.ModelsMaintenance
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ class PampaiApplication : Application() {
 
   @Inject lateinit var remoteConfig: EngineRemoteConfig
   @Inject lateinit var remoteCatalogs: RemoteCatalogs
+  @Inject lateinit var modelsMaintenance: ModelsMaintenance
 
   /** Vive quanto il processo: niente di quello che parte qui ha qualcosa da cui essere cancellato. */
   private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -36,6 +38,12 @@ class PampaiApplication : Application() {
     applicationScope.launch {
       val enabled = runCatching { remoteConfig.flag(PampaiFlags.FederatedTools).first() }.getOrDefault(true)
       if (enabled) remoteCatalogs.start()
+    }
+
+    // I modelli scelti contro il catalogo vero, una volta al giorno: un modello ritirato si
+    // sostituisce qui, prima che una domanda ci sbatta contro, e non solo aprendo le impostazioni.
+    applicationScope.launch {
+      runCatching { modelsMaintenance.runDaily() }
     }
 
     // Cosa fare se questa build e' rimasta indietro: la chat lo mostra (RemoteSwitches), il kill

@@ -144,6 +144,8 @@ class AssistantNotifications @Inject constructor(@ApplicationContext private val
     FailureKind.TIMEOUT -> "Ci ha messo troppo: riprova con una domanda piu' semplice."
     FailureKind.BLOCKED -> "Il servizio ha rifiutato la richiesta."
     FailureKind.PROVIDER -> "Il servizio ha risposto con un errore."
+    FailureKind.MODEL_UNAVAILABLE -> "Il modello scelto non c'e' piu': ne ho scelto un altro, riprova."
+    FailureKind.CONTEXT_TOO_LONG -> "La conversazione e' troppo lunga per questo servizio: aprine una nuova."
     FailureKind.MICROPHONE -> "Il microfono non e' disponibile."
     FailureKind.TRANSCRIPTION -> "Non sono riuscita a trascrivere."
     FailureKind.UNKNOWN -> "Qualcosa e' andato storto."

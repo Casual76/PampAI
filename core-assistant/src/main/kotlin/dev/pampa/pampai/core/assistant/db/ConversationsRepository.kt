@@ -11,6 +11,8 @@ import dev.antigravity.fluidengine.ai.orchestrator.FailureKind
 import dev.antigravity.fluidengine.ai.provider.ContentPart
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderId
+import dev.antigravity.fluidengine.ai.orchestrator.ProviderSwitch
+import dev.antigravity.fluidengine.ai.orchestrator.SwitchReason
 import dev.pampa.pampai.core.assistant.attachments.PendingAttachment
 import dev.pampa.pampai.core.assistant.tools.PampaiToolTrace
 import java.io.File
@@ -147,6 +149,13 @@ data class Run(
    * qui si legge "Gemini pro, poi la chat di OpenRouter". Vuoto per le righe salvate prima.
    */
   val models: List<RunModel> = emptyList(),
+  /**
+   * I cambi di servizio della domanda (engine 2.8.0), per la riga "Ha risposto Gemini: Groq era al
+   * limite". Vuoto quando ha risposto il primo, e per le righe salvate prima.
+   */
+  val switches: List<ProviderSwitch> = emptyList(),
+  /** Il dettaglio di un fallimento, per il foglio "Dettagli": chi, con che codice, cosa ha detto. */
+  val failure: FailureDetail? = null,
 ) {
   val totalTokens: Int? get() = if (promptTokens == null && completionTokens == null) null else (promptTokens ?: 0) + (completionTokens ?: 0)
   val durationMillis: Long? get() = finishedAtMillis?.let { it - startedAtMillis }
@@ -154,6 +163,13 @@ data class Run(
 
 /** Un modello che ha risposto in un passaggio: quale servizio, a quale livello, quale modello. */
 data class RunModel(val provider: ProviderId, val tier: ModelTier, val model: String)
+
+/**
+ * Perche' una domanda e' fallita, detto dal servizio: il codice HTTP e il suo messaggio (corto, gia'
+ * ripulito dalle chiavi dall'engine). "Il servizio ha risposto con un errore" da solo non dice a
+ * nessuno cosa fare; questo si', a chi lo va a cercare.
+ */
+data class FailureDetail(val provider: ProviderId?, val reason: SwitchReason?, val httpCode: Int?, val message: String?)
 
 data class Totals(val conversations: Int, val runs: Int, val tokens: Long, val costUsd: Double)
 
@@ -175,7 +191,18 @@ private data class RunModelJson(val provider: String, val tier: String, val mode
  * una migrazione di Room: le righe vecchie (una lista di stringhe) si leggono come prima.
  */
 @Serializable
-private data class GroupsJson(val groups: List<String> = emptyList(), val models: List<RunModelJson> = emptyList())
+private data class GroupsJson(
+  val groups: List<String> = emptyList(),
+  val models: List<RunModelJson> = emptyList(),
+  val switches: List<SwitchJson> = emptyList(),
+  val failure: FailureJson? = null,
+)
+
+@Serializable
+private data class SwitchJson(val from: String, val to: String, val reason: String)
+
+@Serializable
+private data class FailureJson(val provider: String? = null, val reason: String? = null, val httpCode: Int? = null, val message: String? = null)
 
 /** Un allegato gia' scritto su disco, in attesa della sua riga: i file si scrivono fuori dalla transazione. */
 private class StagedFile(val kind: AttachmentKind, val mime: String, val name: String, val path: String, val bytes: Long)
@@ -433,7 +460,7 @@ class ConversationsRepository @Inject constructor(
         chatModel = log.models[ModelTier.CHAT] ?: log.model,
         deepModel = log.models[ModelTier.DEEP],
         tierReached = log.tierReached.name,
-        groupsJson = json.encodeToString(GroupsJson(log.groups, log.modelsUsed.map { RunModelJson(it.provider.id, it.tier.name, it.model) })),
+        groupsJson = json.encodeToString(GroupsJson(log.groups, log.modelsUsed.map { RunModelJson(it.provider.id, it.tier.name, it.model) }, log.switches.map { it.toJson() })),
         promptTokens = log.usage?.promptTokens,
         completionTokens = log.usage?.completionTokens,
         costUsd = log.usage?.costUsd,
@@ -449,11 +476,27 @@ class ConversationsRepository @Inject constructor(
       ),
     )
 
-  suspend fun addFailedRun(conversationId: Long, messageId: Long, startedAtMillis: Long, finishedAtMillis: Long, outcome: String, error: String?, traces: List<PampaiToolTrace> = emptyList()): Long =
+  suspend fun addFailedRun(
+    conversationId: Long,
+    messageId: Long,
+    startedAtMillis: Long,
+    finishedAtMillis: Long,
+    outcome: String,
+    error: String?,
+    traces: List<PampaiToolTrace> = emptyList(),
+    failure: FailureDetail? = null,
+    switches: List<ProviderSwitch> = emptyList(),
+  ): Long =
     runDao.insert(
       RunEntity(
         conversationId = conversationId, messageId = messageId, startedAtMillis = startedAtMillis, finishedAtMillis = finishedAtMillis,
-        steps = 0, provider = null, routerModel = null, chatModel = null, deepModel = null, tierReached = null, groupsJson = null,
+        steps = 0, provider = failure?.provider?.id, routerModel = null, chatModel = null, deepModel = null, tierReached = null,
+        groupsJson = if (failure == null && switches.isEmpty()) null else json.encodeToString(
+          GroupsJson(
+            switches = switches.map { it.toJson() },
+            failure = failure?.let { FailureJson(it.provider?.id, it.reason?.name, it.httpCode, it.message) },
+          ),
+        ),
         promptTokens = null, completionTokens = null, costUsd = null, waitedSeconds = 0,
         toolTracesJson = traces.takeIf { it.isNotEmpty() }?.let { list -> json.encodeToString(list.map { TraceJson(it.name, it.millis, it.ok, it.chars, it.args, it.preview, it.app) }) },
         outcome = outcome, error = error,
@@ -638,11 +681,21 @@ class ConversationsRepository @Inject constructor(
         val tier = ModelTier.entries.firstOrNull { it.name == m.tier } ?: return@mapNotNull null
         RunModel(provider, tier, m.model)
       } ?: emptyList(),
+      switches = stored?.switches?.mapNotNull { sw ->
+        val from = ProviderId.fromId(sw.from) ?: return@mapNotNull null
+        val to = ProviderId.fromId(sw.to) ?: return@mapNotNull null
+        ProviderSwitch(from, to, SwitchReason.entries.firstOrNull { it.name == sw.reason } ?: SwitchReason.BAD_REQUEST)
+      } ?: emptyList(),
+      failure = stored?.failure?.let { f ->
+        FailureDetail(ProviderId.fromId(f.provider), f.reason?.let { name -> SwitchReason.entries.firstOrNull { it.name == name } }, f.httpCode, f.message)
+      },
       promptTokens = promptTokens, completionTokens = completionTokens, costUsd = costUsd, waitedSeconds = waitedSeconds,
       tools = toolTracesJson?.let { runCatching { json.decodeFromString<List<TraceJson>>(it) }.getOrNull() }?.map { PampaiToolTrace(it.name, it.args, it.millis, it.ok, it.chars, it.preview, it.app) } ?: emptyList(),
       outcome = outcome, error = error, contextTokens = contextTokens, contextWindow = contextWindow,
     )
   }
+
+  private fun ProviderSwitch.toJson() = SwitchJson(from.id, to.id, reason.name)
 
   /** Le due forme di `groupsJson`: l'oggetto di adesso, o la lista di stringhe di prima. */
   private fun decodeGroups(raw: String): GroupsJson? =

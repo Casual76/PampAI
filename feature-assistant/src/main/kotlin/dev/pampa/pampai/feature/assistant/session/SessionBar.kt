@@ -52,6 +52,8 @@ import dev.antigravity.fluidengine.ui.fluidphysics.FluidForm
 import dev.antigravity.fluidengine.ui.fluidphysics.FluidFormPresets
 import dev.antigravity.fluidengine.ui.fluidphysics.FluidPhysicsTier
 import dev.antigravity.fluidengine.ui.fluidphysics.fluidPhysicsSurface
+import dev.antigravity.fluidengine.ui.fluid.rememberCombinedGlassBackdrop
+import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.antigravity.fluidengine.ui.fluidphysics.rememberFluidPhysicsState
 import dev.pampa.pampai.feature.assistant.chat.ComposerField
 import dev.pampa.pampai.feature.assistant.chat.ComposerVoiceLine
@@ -154,6 +156,10 @@ internal fun SessionBar(
     // vede lo stamp nuovo: e' lo snap, senza aspettare un effetto (che arriverebbe dopo il primo
     // fotogramma, con la capsula vecchia ancora disegnata).
     val physics = key(stamp) { rememberFluidPhysicsState(if (orb) orbForm else capsuleForm) }
+    // Il materiale della capsula, per i tasti tondi che ci stanno sopra: una lente appoggiata su
+    // vetro smerigliato deve mostrare la smerigliatura, non la pagina sotto (come nel composer).
+    val barGlass = rememberGlassBackdrop()
+    val controlBackdrop = rememberCombinedGlassBackdrop(backdrop, barGlass)
     LaunchedEffect(physics, orb, width) { physics.morphTo(if (orb) orbForm else capsuleForm) }
     Box(
       Modifier
@@ -171,6 +177,7 @@ internal fun SessionBar(
           tint = GlassDefaults.modalTint(),
           role = GlassRole.Floating,
           tier = FluidPhysicsTier.Balanced,
+          exports = barGlass,
         ),
     ) {
       if (orb) {
@@ -181,17 +188,11 @@ internal fun SessionBar(
           modifier = Modifier.align(Alignment.Center).size(26.dp),
         )
       } else {
-        // TODO(engine 2.8.0): i tasti tondi qui sotto rifrangono la pagina ([backdrop]), non la
-        // capsula su cui stanno: una lente appoggiata su vetro smerigliato deve mostrare la
-        // smerigliatura. Il composer della chat lo fa giusto (`glassSurface(exports = ...)` +
-        // `rememberCombinedGlassBackdrop(backdrop, capsula)`), ma `fluidPhysicsSurface` nella 2.7.1
-        // non ha `exports`. Quando c'e': `val barGlass = rememberGlassBackdrop()`, `exports =
-        // barGlass` sulla superficie e `rememberCombinedGlassBackdrop(backdrop, barGlass)` ai tasti.
         Row(
           modifier = Modifier.align(Alignment.Center).fillMaxWidth().height(CapsuleHeight).padding(horizontal = 8.dp),
           verticalAlignment = Alignment.CenterVertically,
         ) {
-          GlassRound(Icons.Rounded.Screenshot, "Allega lo schermo", backdrop, onClick = onAttachScreen)
+          GlassRound(Icons.Rounded.Screenshot, "Allega lo schermo", controlBackdrop, onClick = onAttachScreen)
           if (listening || transcribing) {
             ComposerVoiceLine(
               partial = partial,
@@ -213,11 +214,11 @@ internal fun SessionBar(
           }
           Spacer(Modifier.width(4.dp))
           when {
-            listening -> GlassRound(Icons.Rounded.Stop, "Smetti di ascoltare", backdrop, tint = MaterialTheme.colorScheme.error, onClick = onStopVoice)
-            busy -> GlassRound(Icons.Rounded.Stop, "Ferma", backdrop, onClick = onStop)
-            speaking && text.isBlank() -> GlassRound(Icons.Rounded.VolumeOff, "Zitta", backdrop, onClick = onStopSpeaking)
-            text.isBlank() && !hasAttachments -> GlassRound(Icons.Rounded.Mic, "Parla", backdrop, tint = MaterialTheme.colorScheme.primary, onClick = onVoice)
-            else -> GlassRound(Icons.Rounded.ArrowUpward, "Invia", backdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
+            listening -> GlassRound(Icons.Rounded.Stop, "Smetti di ascoltare", controlBackdrop, tint = MaterialTheme.colorScheme.error, onClick = onStopVoice)
+            busy -> GlassRound(Icons.Rounded.Stop, "Ferma", controlBackdrop, onClick = onStop)
+            speaking && text.isBlank() -> GlassRound(Icons.Rounded.VolumeOff, "Zitta", controlBackdrop, onClick = onStopSpeaking)
+            text.isBlank() && !hasAttachments -> GlassRound(Icons.Rounded.Mic, "Parla", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = onVoice)
+            else -> GlassRound(Icons.Rounded.ArrowUpward, "Invia", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
           }
         }
       }

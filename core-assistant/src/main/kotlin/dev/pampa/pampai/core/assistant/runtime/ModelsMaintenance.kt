@@ -3,9 +3,11 @@ package dev.pampa.pampai.core.assistant.runtime
 import android.util.Log
 import dev.antigravity.fluidengine.ai.keys.AiKeyStore
 import dev.antigravity.fluidengine.ai.keys.AiKeyVerifier
+import dev.antigravity.fluidengine.ai.provider.ProviderId
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -43,6 +45,24 @@ class ModelsMaintenance @Inject constructor(
             Log.w(TAG, "manutenzione dei modelli di ${provider.id} non riuscita", e)
           }
         }
+      }
+    }
+  }
+
+  /**
+   * Un modello che il servizio ha detto sparito a meta' domanda (engine 2.8.0): si esclude e si
+   * riallinea subito, non al prossimo giro di [runDaily]. La domanda intanto e' gia' passata al
+   * servizio dopo; questo serve alla domanda successiva, che altrimenti ricadrebbe sullo stesso
+   * modello.
+   */
+  fun modelUnavailable(provider: ProviderId, model: String, scope: CoroutineScope) {
+    scope.launch {
+      try {
+        verifier.markUnavailable(provider, model)
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Throwable) {
+        Log.w(TAG, "riallineamento dopo il modello sparito $model non riuscito", e)
       }
     }
   }
