@@ -35,9 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
@@ -86,6 +88,10 @@ private object Routes {
   const val Usage = "usage"
   const val Settings = "settings"
   const val Memory = "memory"
+
+  /** Le impostazioni, aperte su una sezione (il chip `[[impostazioni:azioni]]`) o in cima. */
+  const val SettingsWithSection = "settings?section={section}"
+  fun settings(section: String? = null): String = if (section.isNullOrBlank()) Settings else "settings?section=$section"
 }
 
 /** Quanto la pagina coperta si sposta mentre quella nuova la copre. */
@@ -195,9 +201,13 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
             composable(Routes.Memory) {
               Page(this) { MemoryRoute(onBack = { navController.popBackStack() }) }
             }
-            composable(Routes.Settings) {
+            composable(
+              Routes.SettingsWithSection,
+              arguments = listOf(navArgument("section") { type = NavType.StringType; nullable = true; defaultValue = null }),
+            ) { backStackEntry ->
               Page(this) {
                 SettingsRoute(
+                  section = backStackEntry.arguments?.getString("section"),
                   bottomInset = 0.dp,
                   onBack = { navController.popBackStack() },
                   onOpenConsent = { navController.navigate(Routes.Consent) },
@@ -270,7 +280,7 @@ private fun Home(
       AriaChips.SETTINGS -> when (chip.value) {
         "assistente" -> AssistantRole.openSettings(context)
         "consumi" -> navController.navigate(Routes.Usage)
-        else -> navController.navigate(Routes.Settings)
+        else -> navController.navigate(Routes.settings(chip.value))
       }
       AriaChips.PLACE -> chip.value?.let { chat.send("E a $it?") }
       AriaChips.APP -> chip.value?.let { name -> openApp(context, name) }

@@ -101,7 +101,7 @@ fun LazyListScope.assistantSettingsItems(
     }
   }
 
-  item { FluidSectionHeader(title = "Chiavi", detail = "Restano sul telefono, cifrate. Viaggiano solo verso il servizio a cui appartengono.") }
+  item(key = "section-chiavi") { FluidSectionHeader(title = "Chiavi", detail = "Restano sul telefono, cifrate. Viaggiano solo verso il servizio a cui appartengono.") }
   item {
     FluidListGroup(glass = true) {
       ProviderId.entries.forEachIndexed { index, provider ->
@@ -121,7 +121,7 @@ fun LazyListScope.assistantSettingsItems(
   }
 
   if (verified.size > 1) {
-    item { FluidSectionHeader(title = "Ordine dei servizi", detail = "Il primo risponde; gli altri fanno da riserva se la riserva automatica e' accesa nelle preferenze.") }
+    item(key = "section-ordine") { FluidSectionHeader(title = "Ordine dei servizi", detail = "Il primo risponde; gli altri fanno da riserva se la riserva automatica e' accesa nelle preferenze.") }
     item {
       Text("Chat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp))
       ProviderOrderList(order = state.settings.chatOrder, available = verified, onReorder = viewModel::setChatOrder)
@@ -133,23 +133,23 @@ fun LazyListScope.assistantSettingsItems(
   }
 
   if (verified.isNotEmpty()) {
-    item { FluidSectionHeader(title = "Modelli", detail = "Tre livelli per servizio: il router sceglie gli strumenti, la chat risponde, il profondo vede immagini e legge documenti.") }
+    item(key = "section-modelli") { FluidSectionHeader(title = "Modelli", detail = "Tre livelli per servizio: il router sceglie gli strumenti, la chat risponde, il profondo vede immagini e legge documenti.") }
     item { AssistantModelsSection(viewModel, state) }
   }
 
-  item { FluidSectionHeader(title = "Preferenze") }
+  item(key = "section-preferenze") { FluidSectionHeader(title = "Preferenze") }
   item { AssistantPreferences(viewModel, state) }
 
-  item { FluidSectionHeader(title = "Voce", detail = "Come Aria ascolta e come legge le risposte.") }
+  item(key = "section-voce") { FluidSectionHeader(title = "Voce", detail = "Come Aria ascolta e come legge le risposte.") }
   item { VoicePreferences(viewModel, state) }
 
-  item { FluidSectionHeader(title = "Permessi", detail = "Ogni strumento chiede il suo permesso solo quando serve; da qui li concedi tutti insieme.") }
+  item(key = "section-permessi") { FluidSectionHeader(title = "Permessi", detail = "Ogni strumento chiede il suo permesso solo quando serve; da qui li concedi tutti insieme.") }
   item { PermissionsSection() }
 
-  item { FluidSectionHeader(title = "Azioni fidate", detail = "Le azioni che Aria fa senza chiederti conferma.") }
+  item(key = "section-fidate") { FluidSectionHeader(title = "Azioni fidate", detail = "Le azioni che Aria fa senza chiederti conferma.") }
   item { TrustedActionsSection(viewModel, state) }
 
-  item { FluidSectionHeader(title = "App collegate", detail = "Le app Pampa che espongono i loro strumenti ad Aria.") }
+  item(key = "section-app") { FluidSectionHeader(title = "App collegate", detail = "Le app Pampa che espongono i loro strumenti ad Aria.") }
   item { ConnectedAppsSection(viewModel) }
 
   item {
@@ -162,7 +162,7 @@ fun LazyListScope.assistantSettingsItems(
   }
 
   if (state.recent.isNotEmpty()) {
-    item { FluidSectionHeader(title = "Ultime richieste", detail = "Solo in memoria: sparisce chiudendo l'app. I consumi completi stanno nella pagina apposta.") }
+    item(key = "section-richieste") { FluidSectionHeader(title = "Ultime richieste", detail = "Solo in memoria: sparisce chiudendo l'app. I consumi completi stanno nella pagina apposta.") }
     item {
       FluidListGroup(glass = true) {
         state.recent.forEachIndexed { index, log ->

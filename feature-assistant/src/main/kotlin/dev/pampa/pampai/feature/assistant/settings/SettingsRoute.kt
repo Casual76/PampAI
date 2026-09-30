@@ -3,12 +3,17 @@ package dev.pampa.pampai.feature.assistant.settings
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -30,6 +35,12 @@ import dev.antigravity.fluidengine.ui.theme.FluidListGroup
 import dev.antigravity.fluidengine.ui.theme.FluidListRow
 import dev.pampa.pampai.feature.assistant.assist.AssistantRoleCard
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /** L'aggiornamento in-app: lo stesso manifest che il Pampa Store legge. Vive nell'app, arriva qui via Hilt. */
@@ -47,11 +58,16 @@ fun SettingsRoute(
   onBack: (() -> Unit)? = null,
   onOpenUsage: () -> Unit = {},
   onOpenMemory: () -> Unit = {},
+  /** La sezione da mostrare aprendo: "azioni", "permessi", "chiavi"... (un chip `[[impostazioni:...]]`). */
+  section: String? = null,
   viewModel: AssistantSettingsViewModel = hiltViewModel(),
   about: AboutViewModel = hiltViewModel(),
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
+  val listState = rememberLazyListState()
+  ScrollToSection(listState, section)
   FluidScreen(
+    listState = listState,
     title = "Impostazioni",
     subtitle = "Aria, le chiavi, la voce, l'aspetto.",
     onBack = onBack,
@@ -59,10 +75,10 @@ fun SettingsRoute(
     itemSpacing = 12.dp,
     ambient = remember { FluidAmbient(tone = FluidHeroTone.Primary, motif = FluidHeroMotif.Cards) },
   ) {
-    item { FluidSectionHeader(title = "Aspetto") }
+    item(key = "section-aspetto") { FluidSectionHeader(title = "Aspetto") }
     appearanceItems(viewModel, state)
 
-    item { FluidSectionHeader(title = "Aria") }
+    item(key = "section-aria") { FluidSectionHeader(title = "Aria") }
     assistantSettingsItems(viewModel, state, onOpenConsent)
     item {
       FluidListGroup(glass = true) {
@@ -148,3 +164,53 @@ private fun AboutGroup(updater: AppUpdater) {
 private fun appVersion(context: Context): String = runCatching {
   context.packageManager.getPackageInfo(context.packageName, 0).versionName
 }.getOrNull() ?: "?"
+
+/**
+ * Il chip "Impostazioni · azioni" apriva le impostazioni in cima, e l'interruttore stava otto
+ * schermate piu' giu'. Qui si scende fino all'intestazione della sezione: le chiavi degli item
+ * non si possono cercare in una lista pigra, quindi si scorre a passi finche' non compare, poi ci si
+ * ferma su di lei.
+ */
+@OptIn(FlowPreview::class)
+@Composable
+private fun ScrollToSection(listState: LazyListState, section: String?) {
+  val key = section?.let { SectionKeys[it.lowercase()] } ?: return
+  LaunchedEffect(key) {
+    // Le sezioni arrivano con lo stato (chiavi, modelli, app collegate): si cerca quando la lista ha
+    // smesso di crescere, altrimenti si arrivava in fondo a una pagina ancora corta e ci si fermava.
+    snapshotFlow { listState.layoutInfo.totalItemsCount }.filter { it > 0 }.debounce(300).first()
+    repeat(30) {
+      val hit = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == key }
+      // Un passo interrotto da un altro scorrimento (la testata della pagina che si ripiega) non
+      // chiude la ricerca: si riprova. Solo la cancellazione vera dell'effetto la ferma.
+      try {
+        if (hit != null) {
+          listState.animateScrollToItem(hit.index)
+          return@LaunchedEffect
+        }
+        if (!listState.canScrollForward) return@LaunchedEffect
+        listState.scrollBy(listState.layoutInfo.viewportSize.height * 0.8f)
+      } catch (e: CancellationException) {
+        if (!isActive) throw e
+      }
+    }
+  }
+}
+
+/** Dal nome che usa il modello nei chip alla chiave dell'intestazione. */
+private val SectionKeys = mapOf(
+  "aspetto" to "section-aspetto",
+  "aria" to "section-aria",
+  "chiavi" to "section-chiavi",
+  "ordine" to "section-ordine",
+  "servizi" to "section-ordine",
+  "modelli" to "section-modelli",
+  "azioni" to "section-preferenze",
+  "riserva" to "section-preferenze",
+  "preferenze" to "section-preferenze",
+  "voce" to "section-voce",
+  "permessi" to "section-permessi",
+  "fidate" to "section-fidate",
+  "app" to "section-app",
+  "collegate" to "section-app",
+)
