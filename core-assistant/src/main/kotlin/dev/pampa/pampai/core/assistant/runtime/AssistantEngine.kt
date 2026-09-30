@@ -72,6 +72,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -209,9 +211,23 @@ class AssistantEngine @Inject constructor(
       request = request.copy(question = question, attachments = attached)
       val messageId = started.assistantId
 
-      // Il testo parziale finisce su disco ogni 300 ms: chi riapre l'app a meta' lo trova.
+      // Il testo parziale finisce su disco ogni 300 ms: chi riapre l'app a meta' lo trova. Quando
+      // l'orchestratore torna a lavorare dopo aver gia' scritto (un nuovo tentativo dopo uno stream
+      // rotto, un cambio di servizio, uno strumento dopo un preambolo) il parziale si svuota: la
+      // risposta che arriva riparte da zero, e prima il testo del tentativo fallito restava a schermo
+      // sotto "Penso..." per decine di secondi, poi sostituito da un altro.
       val saver = launch(Dispatchers.IO) {
-        live.filterIsInstance<AssistantState.Answering>().sample(300).collect { conversations.updatePartial(messageId, it.partial) }
+        live
+          .mapNotNull { state ->
+            when (state) {
+              is AssistantState.Answering -> state.partial
+              is AssistantState.Working, is AssistantState.SwitchingProvider, is AssistantState.WaitingRateLimit -> ""
+              else -> null
+            }
+          }
+          .distinctUntilChanged()
+          .sample(300)
+          .collect { conversations.updatePartial(messageId, it) }
       }
       persister = saver
 

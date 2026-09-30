@@ -326,6 +326,7 @@ private fun Home(
       onChip = onChip,
       onOpenMenu = { scope.launch { drawer.open() } },
       onOpenSettings = { navController.navigate(Routes.Settings) },
+      onOpenConsent = { navController.navigate(Routes.Consent) },
       viewModel = chat,
     )
   }
@@ -346,12 +347,16 @@ fun openApp(context: android.content.Context, name: String) {
 @Composable
 private fun ConsentRoute(onBack: () -> Unit, viewModel: AssistantSettingsViewModel = hiltViewModel()) {
   val state by viewModel.state.collectAsStateWithLifecycle()
+  val scope = rememberCoroutineScope()
   FluidScreen(title = "Il consenso", subtitle = "Cosa parte, verso chi, cosa resta qui.", onBack = onBack, itemSpacing = 12.dp) {
     consentItems(
       canAccept = state.verified.isNotEmpty(),
       onAccept = {
-        viewModel.acceptConsentAndEnable()
-        onBack()
+        // Indietro solo a scritture finite: le impostazioni che si ritrovano devono gia' dire "accesa".
+        scope.launch {
+          viewModel.acceptConsentAndEnable().join()
+          onBack()
+        }
       },
       onLater = onBack,
     )

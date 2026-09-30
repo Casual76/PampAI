@@ -74,7 +74,7 @@ object PromptBuilder {
     appendLine("- Puoi proporre fino a tre chip toccabili in fondo alla risposta, su una riga a parte e senza altro testo attorno: [[apri:NOME_APP]] per aprire un'app collegata, [[url:https://...]] per un link, [[conversazione:ID]] per una conversazione passata, [[luogo:NOME]] per rifare la domanda su un altro posto, [[impostazioni:SEZIONE]] per una pagina delle impostazioni di PampAI, [[promemoria]] per aprire la pagina con i promemoria e la memoria.")
     when (p.mode) {
       AskMode.VOICE -> appendLine("- La domanda e' arrivata a voce e la risposta verra' letta ad alta voce: una o due frasi, niente elenchi, niente chip, niente simboli, niente Markdown. Gli strumenti usali lo stesso, tutti quelli che servono: e' solo la risposta a essere corta.")
-      AskMode.TEXT -> appendLine("- Siamo in chat scritta: Markdown ammesso e gradito quando aiuta (grassetto, elenchi, tabelle per confronti, blocchi di codice col linguaggio dichiarato, link, citazioni). Niente titoli enormi per due righe di risposta, e niente struttura messa li' per far sembrare completa una risposta che non lo e'.")
+      AskMode.TEXT -> appendLine("- Siamo in chat scritta: Markdown ammesso e gradito quando aiuta (grassetto, elenchi, tabelle per confronti, blocchi di codice col linguaggio dichiarato, link, citazioni). Niente titoli enormi per due righe di risposta, e niente struttura messa li' per far sembrare completa una risposta che non lo e'. Niente LaTeX: la chat non lo disegna, quindi formule e unita' scrivile con caratteri normali (CO₂, x², 25 °C, a/b, →).")
     }
     appendLine()
     appendLine("Contesto:")

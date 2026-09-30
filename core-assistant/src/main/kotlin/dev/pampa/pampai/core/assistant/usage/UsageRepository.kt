@@ -90,14 +90,22 @@ class UsageRepository @Inject constructor(private val dao: UsageEventDao) : AiUs
 
   suspend fun clear() = dao.deleteAll()
 
-  private fun describe(error: AiError): String = when (error) {
-    is AiError.RateLimited -> if (error.freeModelCap) "tetto giornaliero gratuito" else "limite di richieste"
-    is AiError.Unauthorized -> "chiave rifiutata"
-    is AiError.Server -> "errore del servizio (${error.code})"
-    is AiError.BadRequest -> "richiesta rifiutata (${error.code})"
-    is AiError.Network -> "rete"
-    is AiError.Timeout -> "tempo scaduto"
-    is AiError.Parse -> "risposta illeggibile"
+  /**
+   * L'errore in una riga per i Consumi. Con quello che ha detto il servizio (engine 2.8.0, gia' corto
+   * e senza chiavi): "richiesta rifiutata (404)" da solo non diceva mai perche', e un router sparito
+   * restava un mistero a ogni domanda.
+   */
+  private fun describe(error: AiError): String {
+    val base = when (error) {
+      is AiError.RateLimited -> if (error.freeModelCap) "tetto giornaliero gratuito" else "limite di richieste"
+      is AiError.Unauthorized -> "chiave rifiutata"
+      is AiError.Server -> "errore del servizio (${error.code})"
+      is AiError.BadRequest -> "richiesta rifiutata (${error.code})"
+      is AiError.Network -> "rete"
+      is AiError.Timeout -> "tempo scaduto"
+      is AiError.Parse -> "risposta illeggibile"
+    }
+    return error.providerMessage?.takeIf { it.isNotBlank() }?.let { "$base: $it" } ?: base
   }
 
   private fun UsageEventEntity.toModel() = UsageEvent(

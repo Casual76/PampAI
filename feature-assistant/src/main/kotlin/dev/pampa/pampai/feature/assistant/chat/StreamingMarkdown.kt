@@ -1,5 +1,6 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import dev.pampa.pampai.core.assistant.chat.MathText
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.AnnotatedString
@@ -35,7 +36,9 @@ internal class StreamBlock(val kind: StreamBlockKind, val text: AnnotatedString,
  * come fa il Markdown; gli elenchi e le tabelle tengono la riga. I marcatori `[[chip]]` spariscono:
  * a fine risposta diventano i chip sotto il testo, e mostrarli mentre arrivano non dice niente.
  */
-internal fun streamingBlocks(markdown: String, scheme: ColorScheme, typography: Typography): List<StreamBlock> {
+internal fun streamingBlocks(source: String, scheme: ColorScheme, typography: Typography): List<StreamBlock> {
+  // Come il Markdown finale: le formule gia' in testo, cosi' il passaggio a fine risposta non salta.
+  val markdown = MathText.rewrite(source)
   val styles = InlineStyles(scheme, typography)
   val out = ArrayList<StreamBlock>()
   val lines = ArrayList<String>()

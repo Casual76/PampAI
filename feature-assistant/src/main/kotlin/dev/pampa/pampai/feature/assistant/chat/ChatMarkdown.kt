@@ -1,5 +1,6 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import dev.pampa.pampai.core.assistant.chat.MathText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
@@ -41,8 +42,10 @@ fun MarkdownBody(markdown: String) {
   }
   val typography = MaterialTheme.typography
   val code = typography.bodySmall.copy(fontFamily = FontFamily.Monospace)
+  // Le formule LaTeX il Markdown non le disegna, le toglieva: prima si riscrivono in testo.
+  val content = remember(markdown) { MathText.rewrite(markdown) }
   Markdown(
-    content = markdown,
+    content = content,
     colors = markdownColor(),
     typography = markdownTypography(
       h1 = chatHeading(1, typography),

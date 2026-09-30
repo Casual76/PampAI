@@ -35,6 +35,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 
 data class AssistantSettingsUiState(
@@ -88,9 +91,17 @@ class AssistantSettingsViewModel @Inject constructor(
   fun setEnabled(enabled: Boolean) = viewModelScope.launch { settingsStore.setEnabled(enabled) }
 
   /** Il consenso e l'accensione insieme: e' la pagina di consenso a chiamarlo. */
-  fun acceptConsentAndEnable() = viewModelScope.launch {
-    settingsStore.setConsentAccepted(System.currentTimeMillis())
-    settingsStore.setEnabled(true)
+  /**
+   * Consenso e accensione, insieme e fino in fondo. La pagina del consenso si chiude subito dopo il
+   * tocco, e con lei questo ViewModel: le due scritture giravano nel suo scope e la seconda veniva
+   * cancellata a meta' — consenso salvato, Aria ancora spenta, e "Aria e' spenta" in chat subito
+   * dopo averla accesa. Chi chiude la pagina aspetta il [Job].
+   */
+  fun acceptConsentAndEnable(): Job = viewModelScope.launch {
+    withContext(NonCancellable) {
+      settingsStore.setConsentAccepted(System.currentTimeMillis())
+      settingsStore.setEnabled(true)
+    }
   }
 
   suspend fun saveAndVerify(provider: ProviderId, key: String?): VerifyResult {

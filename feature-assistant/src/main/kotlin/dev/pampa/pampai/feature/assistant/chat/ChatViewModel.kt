@@ -552,6 +552,17 @@ class ChatViewModel @Inject constructor(
    *
    * @return come [send]: false se non e' partita ne' e' in coda.
    */
+  /**
+   * Il tocco su "Aria e' spenta: accendila". Con il consenso gia' dato basta riaccenderla, qui, senza
+   * mandare nessuno a cercare l'interruttore in fondo alle impostazioni; senza consenso torna falso e
+   * chi chiama apre la pagina del consenso.
+   */
+  fun turnOnAria(): Boolean {
+    if (!state.value.settings.consentAccepted) return false
+    viewModelScope.launch { settingsStore.setEnabled(true) }
+    return true
+  }
+
   fun editAndResend(message: Message, newText: String): Boolean {
     if (newText.isBlank()) return false
     if (state.value.blockedByConsent) {

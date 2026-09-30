@@ -1,5 +1,7 @@
 package dev.pampa.pampai.core.assistant.voice
 
+import dev.pampa.pampai.core.assistant.chat.MathText
+
 /**
  * Il Markdown ridotto a testo per la voce: **grassetto**, *corsivo*, `codice`, titoli, elenchi,
  * tabelle, blocchi di codice, link. Il sintetizzatore non deve leggere gli asterischi.
@@ -9,7 +11,8 @@ object PlainText {
   fun of(markdown: String): String {
     val out = StringBuilder()
     var inCode = false
-    markdown.lines().forEach { raw ->
+    // Le formule in testo prima di tutto: "$	ext{CO}_2$" letto ad alta voce sarebbe una sfilza di simboli.
+    MathText.rewrite(markdown).lines().forEach { raw ->
       val line = raw.trimEnd()
       if (line.trimStart().startsWith("```")) {
         inCode = !inCode

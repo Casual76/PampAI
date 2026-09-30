@@ -87,6 +87,8 @@ fun ChatRoute(
   onChip: (AnswerChip) -> Unit,
   onOpenMenu: () -> Unit,
   onOpenSettings: () -> Unit,
+  /** La pagina del consenso, per "Aria e' spenta" quando il consenso non c'e' ancora. */
+  onOpenConsent: () -> Unit = onOpenSettings,
   viewModel: ChatViewModel = hiltViewModel(),
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
@@ -135,6 +137,7 @@ fun ChatRoute(
   // restano lo stesso oggetto (altrimenti ogni item della lista si ricomporrebbe per niente).
   val currentOnChip by rememberUpdatedState(onChip)
   val currentOnOpenSettings by rememberUpdatedState(onOpenSettings)
+  val currentOnOpenConsent by rememberUpdatedState(onOpenConsent)
   // "Rigenera" aspetta finche' Aria lavora (qui o per l'overlay): partirebbe fermandola. Le frecce
   // aspettano solo il lavoro su questa conversazione, che si attacca al ramo di adesso.
   val locked = state.anyBusy
@@ -219,7 +222,15 @@ fun ChatRoute(
       onStopSpeaking = viewModel::stopSpeaking,
       onAttach = { viewModel.attach(it) },
       onRemoveAttachment = viewModel::removeAttachment,
-      onOpenSettings = { currentOnOpenSettings() },
+      // La pillola sopra il composer: senza chiavi porta alle impostazioni; con Aria spenta la
+      // riaccende subito se il consenso c'e', altrimenti apre il consenso.
+      onOpenSettings = {
+        if (state.blockedByConsent) {
+          if (!viewModel.turnOnAria()) currentOnOpenConsent()
+        } else {
+          currentOnOpenSettings()
+        }
+      },
       onProvider = viewModel::useProvider,
       onThinking = viewModel::setThinking,
       onThinkingAuto = viewModel::setThinkingAuto,
