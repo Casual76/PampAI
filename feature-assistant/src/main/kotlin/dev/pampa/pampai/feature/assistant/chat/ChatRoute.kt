@@ -194,11 +194,14 @@ fun ChatRoute(
   val mood = state.live?.haloMood() ?: HaloMood.HIDDEN
   val aurora = rememberChatAurora(mood)
 
-  // La barra in cima e' assente finche' la lista sta in cima e si addensa nei primi 64 dp di
-  // scorrimento, con la zona morta e la rampa della barra di `FluidScreen`. Sopra il saluto di una
-  // chat appena aperta non c'e' niente da sfocare, e una lastra li' era soltanto un film.
+  // La barra in cima e' assente finche' la lista sta in cima e si addensa appena si scorre. Sopra
+  // il saluto di una chat appena aperta non c'e' niente da sfocare, e una lastra li' era soltanto un
+  // film. La zona morta e' quella di `FluidScreen`, la rampa no: li' il contenuto parte sotto un
+  // titolo grande e ha strada prima di arrivare alla barra, qui parte subito sotto una barra bassa e
+  // dopo una ventina di dp la prima domanda e' gia' sotto il titolo. Con i 64 dp di FluidScreen il
+  // vetro era ancora quasi trasparente e titolo e domanda si leggevano uno sopra l'altro.
   val deadZonePx = with(density) { FluidScreenDefaults.ShieldDeadZone.toPx() }
-  val rampPx = with(density) { FluidScreenDefaults.ShieldRampDistance.toPx() }
+  val rampPx = with(density) { ChatBarRamp.toPx() }
   val barIntensity = remember(listState, deadZonePx, rampPx) {
     derivedStateOf {
       val travelled = if (listState.firstVisibleItemIndex > 0) Float.MAX_VALUE else listState.firstVisibleItemScrollOffset.toFloat()
@@ -475,3 +478,6 @@ private fun remoteBanner(status: RemoteStatus): RemoteBanner? = when {
   status.compatibility == EngineCompatibility.UPDATE_RECOMMENDED -> RemoteBanner("C'e' un aggiornamento", status.notice ?: "Una versione nuova di PampAI e' pronta nel Pampa Store.", urgent = false, update = true)
   else -> status.notice?.takeIf { it.isNotBlank() }?.let { RemoteBanner("Avviso", it, urgent = false, update = false) }
 }
+
+/** Quanto scorre la lista prima che la barra in cima sia vetro pieno: meno della meta' della barra. */
+private val ChatBarRamp = 24.dp

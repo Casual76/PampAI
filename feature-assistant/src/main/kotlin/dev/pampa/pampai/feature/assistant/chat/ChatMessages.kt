@@ -325,7 +325,7 @@ internal fun AssistantMessage(
       // `live = false`: la crescita la anima gia' la colonna qui sopra; una seconda molla dentro la
       // prima farebbe inseguire alla colonna un'altezza che si muove, e resterebbe indietro.
       text.isNotBlank() -> ResponseBody(text, streaming = live is AssistantState.Answering, live = false, memo = memo)
-      failed -> Text(failureKind?.let { AssistantTexts.failure(it, provider = answering) } ?: "Qualcosa e' andato storto.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+      failed -> Text(failureKind?.let { AssistantTexts.failure(it, provider = answering, tried = AssistantTexts.tried(run?.switches.orEmpty())) } ?: "Qualcosa e' andato storto.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
       cancelled -> Text("Fermata prima della risposta.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
       // Ancora niente testo: lo dice la riga di stato qui sopra.
       busy || live != null -> Unit
@@ -334,7 +334,7 @@ internal fun AssistantMessage(
     }
     if (failed && text.isNotBlank()) {
       Spacer(Modifier.height(6.dp))
-      Text(failureKind?.let { AssistantTexts.failure(it, provider = answering) } ?: "Interrotta.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+      Text(failureKind?.let { AssistantTexts.failure(it, provider = answering, tried = AssistantTexts.tried(run?.switches.orEmpty())) } ?: "Interrotta.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
     }
     // Una risposta fermata a meta' finisce a meta' frase: senza una riga che lo dice, sembra una
     // risposta tronca per un guasto.

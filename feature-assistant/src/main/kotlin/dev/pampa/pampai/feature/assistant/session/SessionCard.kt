@@ -462,7 +462,7 @@ private fun ExchangeBody(
       // prima farebbe inseguire alla card un'altezza che si muove, e la card resterebbe indietro.
       text.isNotBlank() -> ResponseBody(text, streaming = live is AssistantState.Answering, live = false, memo = memo)
       answer?.status == MessageStatus.FAILED -> Text(
-        text = answer.failureKind?.let { AssistantTexts.failure(it, provider = exchange.run?.provider) } ?: "Qualcosa e' andato storto.",
+        text = answer.failureKind?.let { AssistantTexts.failure(it, provider = exchange.run?.provider, tried = AssistantTexts.tried(exchange.run?.switches.orEmpty())) } ?: "Qualcosa e' andato storto.",
         style = typography.bodyMedium,
         color = scheme.error,
       )

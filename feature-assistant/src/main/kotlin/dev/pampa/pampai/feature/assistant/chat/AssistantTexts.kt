@@ -20,12 +20,14 @@ object AssistantTexts {
    * (il default) un limite arriva qui solo quando sono al limite tutti, spenta Aria aspetta e poi
    * si arrende, e chi legge "riprova fra 40 s" deve sapere che l'alternativa esiste.
    */
-  fun failure(kind: FailureKind, retryAfterSec: Int? = null, provider: ProviderId? = null): String = when (kind) {
+  fun failure(kind: FailureKind, retryAfterSec: Int? = null, provider: ProviderId? = null, tried: List<ProviderId> = emptyList()): String = when (kind) {
     FailureKind.NO_KEYS -> "Nessuna chiave verificata: aggiungine una nelle impostazioni."
     FailureKind.UNAUTHORIZED -> "La chiave non e' piu' valida: controllala nelle impostazioni."
     FailureKind.RATE_LIMITED -> {
       val who = provider?.label ?: "Il servizio"
-      if (retryAfterSec != null) "$who e' al limite: riprova fra $retryAfterSec s (o accendi la riserva automatica nelle impostazioni)."
+      // La riserva ha gia' provato tutti: consigliarla sarebbe sbagliato, e nominarne uno solo pure.
+      if (tried.size >= 2) "Sono al limite ${names(tried)}: riprova fra ${retryAfterSec?.let { "$it s" } ?: "poco"}."
+      else if (retryAfterSec != null) "$who e' al limite: riprova fra $retryAfterSec s (o accendi la riserva automatica nelle impostazioni)."
       else "$who e' al limite di richieste: riprova fra poco (o accendi la riserva automatica nelle impostazioni)."
     }
     FailureKind.NETWORK -> "Niente rete: controlla la connessione e riprova."
@@ -84,7 +86,7 @@ object AssistantTexts {
    */
   fun reasonText(reason: SwitchReason): String = when (reason) {
     SwitchReason.RATE_LIMITED -> "era al limite"
-    SwitchReason.SERVER -> "aveva un guasto"
+    SwitchReason.SERVER -> "non era disponibile"
     SwitchReason.TIMEOUT -> "non rispondeva"
     SwitchReason.NETWORK -> "non era raggiungibile"
     SwitchReason.TOOL_USE_FAILED -> "ha sbagliato a usare uno strumento"
@@ -93,6 +95,16 @@ object AssistantTexts {
     SwitchReason.BAD_REQUEST -> "ha rifiutato la richiesta"
     SwitchReason.EMPTY_ANSWER -> "ha dato una risposta vuota"
     SwitchReason.PARSE -> "ha risposto in modo illeggibile"
+  }
+
+  /** I servizi per cui una domanda e' passata, in ordine e senza doppioni, dai suoi cambi. */
+  fun tried(switches: List<ProviderSwitch>): List<ProviderId> =
+    if (switches.isEmpty()) emptyList() else (listOf(switches.first().from) + switches.map { it.to }).distinct()
+
+  /** "Groq", "Groq e Gemini", "Groq, Gemini e OpenRouter". */
+  private fun names(providers: List<ProviderId>): String {
+    val labels = providers.map { it.label }
+    return if (labels.size <= 1) labels.joinToString() else labels.dropLast(1).joinToString(", ") + " e " + labels.last()
   }
 
   /**

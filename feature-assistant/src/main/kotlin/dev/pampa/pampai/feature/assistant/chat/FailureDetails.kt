@@ -55,7 +55,7 @@ internal data class FailureReport(
   val technical: String?,
 ) {
   /** La frase intera, la stessa che la risposta mostra. */
-  val summary: String get() = kind?.let { AssistantTexts.failure(it, provider = provider) } ?: "Qualcosa e' andato storto."
+  val summary: String get() = kind?.let { AssistantTexts.failure(it, provider = provider, tried = AssistantTexts.tried(switches)) } ?: "Qualcosa e' andato storto."
 
   /** "Groq era al limite", se il servizio ha detto perche'. */
   val reasonLine: String? get() = reason?.let { r -> "${provider?.label ?: "Il servizio"} ${AssistantTexts.reasonText(r)}" }
