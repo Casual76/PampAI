@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Solo la build di debug: si fonde con src/main/AndroidManifest.xml, la release non lo vede.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <application>
+
+    <!--
+      L'iniettore di guasti, comandato da adb con "am broadcast -a dev.pampa.pampai.debug.FAULT
+      -p dev.pampa.pampai.debug" e gli extra kind, provider, count, call: l'uso completo e' nel
+      KDoc di FaultReceiver (un commento XML non puo' contenere il doppio trattino delle opzioni).
+
+      exported="true" perche' il broadcast arriva da un altro uid, quello della shell di adb: un
+      receiver non esportato riceve solo dalla sua app. Un receiver di manifest su Android 14+ non
+      riceve i broadcast impliciti, ma "am broadcast -p <pacchetto>" e' esplicito e passa.
+      Accettabile per una build di debug; e per non lasciarlo aperto a qualunque app installata,
+      chi manda deve avere android.permission.DUMP, che la shell di adb ha e un'app normale non
+      puo' ottenere.
+    -->
+    <receiver
+        android:name="dev.pampa.pampai.debug.FaultReceiver"
+        android:exported="true"
+        android:permission="android.permission.DUMP">
+      <intent-filter>
+        <action android:name="dev.pampa.pampai.debug.FAULT" />
+      </intent-filter>
+    </receiver>
+
+  </application>
+
+</manifest>

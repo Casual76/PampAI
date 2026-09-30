@@ -13,10 +13,13 @@ import dev.antigravity.fluidengine.ai.keys.ModelCatalogStore
 import dev.antigravity.fluidengine.ai.net.AiHttp
 import dev.antigravity.fluidengine.ai.orchestrator.AiConfirmationGate
 import dev.antigravity.fluidengine.ai.orchestrator.AiDiagnosticsLog
+import dev.antigravity.fluidengine.ai.provider.ChatProvider
 import dev.antigravity.fluidengine.ai.provider.ProviderFactory
 import dev.antigravity.fluidengine.storage.EngineSettingsStore
+import dev.pampa.pampai.core.assistant.debug.ProviderDecorator
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
 import java.io.File
+import java.util.Optional
 import javax.inject.Singleton
 
 /** L'engine-ai cablato in Hilt: tutto singleton, tutto pigro. Il dominio di Aria sta altrove. */
@@ -52,17 +55,30 @@ object AssistantModule {
   @Singleton
   fun provideModelCatalogStore(@ApplicationContext context: Context): ModelCatalogStore = ModelCatalogStore(File(context.filesDir, "ai/models"))
 
+  /**
+   * [decorator] c'e' solo nella build di debug (l'iniettore di guasti, `app/src/debug`); in release
+   * l'`Optional` e' vuoto e `ProviderFactory` riceve l'identita', cioe' il suo default.
+   */
   @Provides
   @Singleton
-  fun provideProviderFactory(http: AiHttp, keys: AiKeyStore, settings: AiSettingsStore, catalogs: ModelCatalogStore): ProviderFactory =
-    ProviderFactory(
+  fun provideProviderFactory(
+    http: AiHttp,
+    keys: AiKeyStore,
+    settings: AiSettingsStore,
+    catalogs: ModelCatalogStore,
+    decorator: Optional<ProviderDecorator>,
+  ): ProviderFactory {
+    val decorate: (ChatProvider) -> ChatProvider = if (decorator.isPresent) decorator.get()::decorate else { provider -> provider }
+    return ProviderFactory(
       http = http,
       keys = keys,
       settings = settings,
       referer = "https://github.com/Casual76/PampAI",
       appTitle = "PampAI",
       catalogs = catalogs,
+      decorate = decorate,
     )
+  }
 
   @Provides
   @Singleton
