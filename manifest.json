@@ -14,22 +14,30 @@
       "ref": "main"
     },
     "stable": {
-      "version": "1.2.1",
+      "version": "1.2.2",
       "releaseDate": "2026-10-13",
-      "changelog": "Il vetro dell'app è aggiornato (Fluid Engine 2.12.1). I pannelli grandi sono più sfocati e piegano di più la luce ai bordi. I pulsanti si possono tenere premuti e trascinare senza che la pagina scorra, e interruttori e cursori non la fanno più scorrere mentre li muovi. Le notifiche dentro l'app si tirano giù per leggerle intere e si scartano verso l'alto.",
-      "releaseTag": "stable-pampai-v1.2.1",
-      "apkAsset": "pampai-1.2.1.apk",
-      "sizeBytes": 13939339
+      "changelog": "Vetro sopra vetro, come dev'essere (Fluid Engine 2.13.0): un pulsante su un pannello, su un pop-up, su un foglio o su una card ora sfoca il vetro su cui sta invece di lasciar vedere la pagina nitida, e i pomelli di interruttori e cursori tenuti su una card mostrano la card.",
+      "releaseTag": "stable-pampai-v1.2.2",
+      "apkAsset": "pampai-1.2.2.apk",
+      "sizeBytes": 13939341
     },
     "beta": {
-      "version": "1.2.1",
+      "version": "1.2.2",
       "releaseDate": "2026-10-13",
-      "changelog": "Il vetro dell'app è aggiornato (Fluid Engine 2.12.1). I pannelli grandi sono più sfocati e piegano di più la luce ai bordi. I pulsanti si possono tenere premuti e trascinare senza che la pagina scorra, e interruttori e cursori non la fanno più scorrere mentre li muovi. Le notifiche dentro l'app si tirano giù per leggerle intere e si scartano verso l'alto.",
-      "releaseTag": "stable-pampai-v1.2.1",
-      "apkAsset": "pampai-1.2.1.apk",
-      "sizeBytes": 13939339
+      "changelog": "Vetro sopra vetro, come dev'essere (Fluid Engine 2.13.0): un pulsante su un pannello, su un pop-up, su un foglio o su una card ora sfoca il vetro su cui sta invece di lasciar vedere la pagina nitida, e i pomelli di interruttori e cursori tenuti su una card mostrano la card.",
+      "releaseTag": "stable-pampai-v1.2.2",
+      "apkAsset": "pampai-1.2.2.apk",
+      "sizeBytes": 13939341
     },
     "history": [
+      {
+        "version": "1.2.1",
+        "releaseDate": "2026-10-13",
+        "changelog": "Il vetro dell'app è aggiornato (Fluid Engine 2.12.1). I pannelli grandi sono più sfocati e piegano di più la luce ai bordi. I pulsanti si possono tenere premuti e trascinare senza che la pagina scorra, e interruttori e cursori non la fanno più scorrere mentre li muovi. Le notifiche dentro l'app si tirano giù per leggerle intere e si scartano verso l'alto.",
+        "releaseTag": "stable-pampai-v1.2.1",
+        "apkAsset": "pampai-1.2.1.apk",
+        "sizeBytes": 13939339
+      },
       {
         "version": "1.2.0",
         "releaseDate": "2026-09-30",
