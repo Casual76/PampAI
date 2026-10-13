@@ -46,9 +46,9 @@ android {
     applicationId 'dev.pampa.pampai'
     minSdk 29
     targetSdk 36
-    versionCode 6
+    versionCode 7
     // Letterale: il publisher dello store legge questa riga con una regex che capisce solo stringhe.
-    versionName '1.2.1'
+    versionName '1.2.2'
     vectorDrawables.useSupportLibrary = true
   }
 
