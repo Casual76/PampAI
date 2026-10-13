@@ -14,22 +14,30 @@
       "ref": "main"
     },
     "stable": {
-      "version": "1.2.0",
-      "releaseDate": "2026-09-30",
-      "changelog": "Piu' solida, e le risposte hanno le versioni.\n\n- Rigenera qualsiasi risposta o modifica una domanda: la nuova versione si affianca a quella di prima, e con le frecce ‹ 1/2 › le sfogli, come in ChatGPT.\n- Quando un servizio e' al limite, non risponde o sbaglia, Aria passa al successivo e lo scrive sotto la risposta. Sulle risposte fallite, \"Dettagli\" mostra cosa ha risposto il servizio.\n- Il router di Groq ritirato si sostituisce da solo, Gemini che ragiona non va piu' in timeout, e niente piu' risposte vuote.\n- Tasto di accensione: la card non salta piu' a fine risposta, il vetro sfoca davvero e ogni apertura parte pulita.\n- Voce: il silenzio non manda piu' domande inventate, e Stop ferma davvero.\n- Comandi rapidi (timer, sveglie, torcia, volume) senza passare dall'IA, e una pagina per memoria e promemoria.\n- Dal telefono bloccato Aria fa solo cose innocue.\n- Le formule si leggono (CO₂, x²), la chat non ti riporta giu' mentre leggi, la tastiera non copre piu' l'ultima riga.\n\nFluid Engine 2.9.0. Questa versione aggiorna il database delle conversazioni (con una copia di sicurezza): tornare alla 1.1.2 le cancellerebbe.",
-      "releaseTag": "stable-pampai-v1.2.0",
-      "apkAsset": "pampai-1.2.0.apk",
-      "sizeBytes": 13906574
+      "version": "1.2.1",
+      "releaseDate": "2026-10-13",
+      "changelog": "Il vetro dell'app è aggiornato (Fluid Engine 2.12.1). I pannelli grandi sono più sfocati e piegano di più la luce ai bordi. I pulsanti si possono tenere premuti e trascinare senza che la pagina scorra, e interruttori e cursori non la fanno più scorrere mentre li muovi. Le notifiche dentro l'app si tirano giù per leggerle intere e si scartano verso l'alto.",
+      "releaseTag": "stable-pampai-v1.2.1",
+      "apkAsset": "pampai-1.2.1.apk",
+      "sizeBytes": 13939339
     },
     "beta": {
-      "version": "1.2.0",
-      "releaseDate": "2026-09-30",
-      "changelog": "Piu' solida, e le risposte hanno le versioni.\n\n- Rigenera qualsiasi risposta o modifica una domanda: la nuova versione si affianca a quella di prima, e con le frecce ‹ 1/2 › le sfogli, come in ChatGPT.\n- Quando un servizio e' al limite, non risponde o sbaglia, Aria passa al successivo e lo scrive sotto la risposta. Sulle risposte fallite, \"Dettagli\" mostra cosa ha risposto il servizio.\n- Il router di Groq ritirato si sostituisce da solo, Gemini che ragiona non va piu' in timeout, e niente piu' risposte vuote.\n- Tasto di accensione: la card non salta piu' a fine risposta, il vetro sfoca davvero e ogni apertura parte pulita.\n- Voce: il silenzio non manda piu' domande inventate, e Stop ferma davvero.\n- Comandi rapidi (timer, sveglie, torcia, volume) senza passare dall'IA, e una pagina per memoria e promemoria.\n- Dal telefono bloccato Aria fa solo cose innocue.\n- Le formule si leggono (CO₂, x²), la chat non ti riporta giu' mentre leggi, la tastiera non copre piu' l'ultima riga.\n\nFluid Engine 2.9.0. Questa versione aggiorna il database delle conversazioni (con una copia di sicurezza): tornare alla 1.1.2 le cancellerebbe.",
-      "releaseTag": "stable-pampai-v1.2.0",
-      "apkAsset": "pampai-1.2.0.apk",
-      "sizeBytes": 13906574
+      "version": "1.2.1",
+      "releaseDate": "2026-10-13",
+      "changelog": "Il vetro dell'app è aggiornato (Fluid Engine 2.12.1). I pannelli grandi sono più sfocati e piegano di più la luce ai bordi. I pulsanti si possono tenere premuti e trascinare senza che la pagina scorra, e interruttori e cursori non la fanno più scorrere mentre li muovi. Le notifiche dentro l'app si tirano giù per leggerle intere e si scartano verso l'alto.",
+      "releaseTag": "stable-pampai-v1.2.1",
+      "apkAsset": "pampai-1.2.1.apk",
+      "sizeBytes": 13939339
     },
     "history": [
+      {
+        "version": "1.2.0",
+        "releaseDate": "2026-09-30",
+        "changelog": "Piu' solida, e le risposte hanno le versioni.\n\n- Rigenera qualsiasi risposta o modifica una domanda: la nuova versione si affianca a quella di prima, e con le frecce ‹ 1/2 › le sfogli, come in ChatGPT.\n- Quando un servizio e' al limite, non risponde o sbaglia, Aria passa al successivo e lo scrive sotto la risposta. Sulle risposte fallite, \"Dettagli\" mostra cosa ha risposto il servizio.\n- Il router di Groq ritirato si sostituisce da solo, Gemini che ragiona non va piu' in timeout, e niente piu' risposte vuote.\n- Tasto di accensione: la card non salta piu' a fine risposta, il vetro sfoca davvero e ogni apertura parte pulita.\n- Voce: il silenzio non manda piu' domande inventate, e Stop ferma davvero.\n- Comandi rapidi (timer, sveglie, torcia, volume) senza passare dall'IA, e una pagina per memoria e promemoria.\n- Dal telefono bloccato Aria fa solo cose innocue.\n- Le formule si leggono (CO₂, x²), la chat non ti riporta giu' mentre leggi, la tastiera non copre piu' l'ultima riga.\n\nFluid Engine 2.9.0. Questa versione aggiorna il database delle conversazioni (con una copia di sicurezza): tornare alla 1.1.2 le cancellerebbe.",
+        "releaseTag": "stable-pampai-v1.2.0",
+        "apkAsset": "pampai-1.2.0.apk",
+        "sizeBytes": 13906574
+      },
       {
         "version": "1.1.2",
         "releaseDate": "2026-09-19",
