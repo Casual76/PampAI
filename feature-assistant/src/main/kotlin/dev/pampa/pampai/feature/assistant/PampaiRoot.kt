@@ -2,10 +2,6 @@ package dev.pampa.pampai.feature.assistant
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -36,15 +32,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
 import dev.antigravity.fluidengine.ui.fluid.FluidGlassModalHost
-import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.FluidNotificationHost
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.FluidScreen
@@ -60,7 +53,8 @@ import dev.antigravity.fluidengine.ui.fluid.rememberFluidChromeController
 import dev.antigravity.fluidengine.ui.fluid.rememberFluidGlassModalHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberFluidNotificationHostState
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
-import dev.antigravity.fluidengine.ui.theme.FluidRouteMotionHost
+import dev.antigravity.fluidengine.ui.navigation.FluidNavHost
+import dev.antigravity.fluidengine.ui.navigation.composable
 import dev.pampa.pampai.core.assistant.prompt.AriaChips
 import dev.pampa.pampai.core.assistant.tools.device.AppLauncher
 import dev.pampa.pampai.feature.assistant.assist.AssistantRole
@@ -94,9 +88,6 @@ private object Routes {
   fun settings(section: String? = null): String = if (section.isNullOrBlank()) Settings else "settings?section=$section"
 }
 
-/** Quanto la pagina coperta si sposta mentre quella nuova la copre. */
-private const val CoveredParallax = 0.25f
-
 /**
  * Cosa l'app chiede da fuori: aprire una conversazione (una notifica, la sessione che si espande),
  * la voce (una scorciatoia, il trampolino), una chat nuova, l'ultima, o un testo e dei file condivisi.
@@ -112,8 +103,8 @@ data class EntryRequest(
 )
 
 /**
- * La radice dell'app: il navigation host con le transizioni opache e laterali del design system
- * (una pagina in arrivo non sfuma mai), e sopra di lui — sopra ogni pagina e sopra il cassetto —
+ * La radice dell'app: `FluidNavHost`, le pagine del design system (opache, da destra, il back sotto
+ * il dito: una pagina in arrivo non sfuma mai), e sopra di lui — sopra ogni pagina e sopra il cassetto —
  * l'unico host dei modali e delle notifiche.
  *
  * Un host solo, qui, perche' un modale che una pagina o un cassetto possono coprire non e' un
@@ -160,61 +151,40 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
     Box(Modifier.fillMaxSize()) {
       ProvideFluidChrome(controller = chrome, bottomInset = 0.dp, scrollToTop = scrollToTop) {
         Box(Modifier.fillMaxSize().fluidGlassModalObscured()) {
-          NavHost(
+          // Le pagine sono quelle del design system: opache, da destra, con la pagina sotto che
+          // arretra di un terzo, e il back che tiene la pagina sotto il dito (mai il progresso del
+          // gesto di sistema passato per un easing, che la portava a mezzo schermo a un quinto).
+          FluidNavHost(
             navController = navController,
             startDestination = if (startAtOnboarding) Routes.Onboarding else Routes.Home,
-            enterTransition = {
-              slideInHorizontally(animationSpec = tween(FluidMotion.DurationExpand, easing = FluidMotion.EaseEmphasized), initialOffsetX = { it })
-            },
-            exitTransition = {
-              slideOutHorizontally(animationSpec = tween(FluidMotion.DurationExpand, easing = FluidMotion.EaseEmphasized), targetOffsetX = { -(it * CoveredParallax).toInt() })
-            },
-            popEnterTransition = {
-              slideInHorizontally(animationSpec = tween(FluidMotion.DurationCollapse, easing = FluidMotion.EaseEmphasized), initialOffsetX = { -(it * CoveredParallax).toInt() })
-            },
-            popExitTransition = {
-              slideOutHorizontally(animationSpec = tween(FluidMotion.DurationCollapse, easing = FluidMotion.EaseEmphasized), targetOffsetX = { it })
-            },
           ) {
             composable(Routes.Onboarding) {
-              Page(this) {
-                OnboardingRoute(onDone = { navController.navigate(Routes.Home) { popUpTo(Routes.Onboarding) { inclusive = true } } })
-              }
+              OnboardingRoute(onDone = { navController.navigate(Routes.Home) { popUpTo(Routes.Onboarding) { inclusive = true } } })
             }
             composable(Routes.Home) {
-              Page(this) {
-                Home(
-                  navController = navController,
-                  entry = pending,
-                  onConsumed = { consumedStamp = it.stamp },
-                  backdrops = chatBackdrops,
-                  drawerBackdrop = drawerBackdrop,
-                )
-              }
+              Home(
+                navController = navController,
+                entry = pending,
+                onConsumed = { consumedStamp = it.stamp },
+                backdrops = chatBackdrops,
+                drawerBackdrop = drawerBackdrop,
+              )
             }
-            composable(Routes.Consent) {
-              Page(this) { ConsentRoute(onBack = { navController.popBackStack() }) }
-            }
-            composable(Routes.Usage) {
-              Page(this) { UsageRoute(onBack = { navController.popBackStack() }) }
-            }
-            composable(Routes.Memory) {
-              Page(this) { MemoryRoute(onBack = { navController.popBackStack() }) }
-            }
+            composable(Routes.Consent) { ConsentRoute(onBack = { navController.popBackStack() }) }
+            composable(Routes.Usage) { UsageRoute(onBack = { navController.popBackStack() }) }
+            composable(Routes.Memory) { MemoryRoute(onBack = { navController.popBackStack() }) }
             composable(
               Routes.SettingsWithSection,
               arguments = listOf(navArgument("section") { type = NavType.StringType; nullable = true; defaultValue = null }),
             ) { backStackEntry ->
-              Page(this) {
-                SettingsRoute(
-                  section = backStackEntry.arguments?.getString("section"),
-                  bottomInset = 0.dp,
-                  onBack = { navController.popBackStack() },
-                  onOpenConsent = { navController.navigate(Routes.Consent) },
-                  onOpenUsage = { navController.navigate(Routes.Usage) },
-                  onOpenMemory = { navController.navigate(Routes.Memory) },
-                )
-              }
+              SettingsRoute(
+                section = backStackEntry.arguments?.getString("section"),
+                bottomInset = 0.dp,
+                onBack = { navController.popBackStack() },
+                onOpenConsent = { navController.navigate(Routes.Consent) },
+                onOpenUsage = { navController.navigate(Routes.Usage) },
+                onOpenMemory = { navController.navigate(Routes.Memory) },
+              )
             }
           }
         }
@@ -225,11 +195,6 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
       FluidNotificationHost(state = notificationHost, backdrop = rootBackdrop, modifier = Modifier.align(Alignment.TopCenter))
     }
   }
-}
-
-@Composable
-private fun Page(scope: AnimatedContentScope, content: @Composable () -> Unit) {
-  FluidRouteMotionHost(animatedVisibilityScope = scope, content = content)
 }
 
 /**
