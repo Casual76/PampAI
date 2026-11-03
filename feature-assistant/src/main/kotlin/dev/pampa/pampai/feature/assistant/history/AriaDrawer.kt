@@ -49,7 +49,6 @@ import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
 import dev.antigravity.fluidengine.ui.fluid.FluidAlert
 import dev.antigravity.fluidengine.ui.fluid.FluidAlertAction
 import dev.antigravity.fluidengine.ui.fluid.FluidContextAction
-import dev.antigravity.fluidengine.ui.fluid.FluidContextMenuController
 import dev.antigravity.fluidengine.ui.fluid.FluidPromptAlert
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.FluidTextField
@@ -93,10 +92,6 @@ fun AriaDrawer(
   val today = LocalDate.now(zone)
   val pinned = items.filter { it.pinned }
   val grouped = items.filter { !it.pinned }.groupBy { Instant.ofEpochMilli(it.updatedAtMillis).atZone(zone).toLocalDate() }
-  // Un menu alla volta. L'host di radice mette lo scrim anche sopra il cassetto, quindi una
-  // seconda pressione lunga non arriva a nessuna riga finche' il primo e' aperto; questo chiude
-  // comunque quello aperto prima di alzarne un altro, per non dipendere da chi mangia i tocchi.
-  val menuSlot = remember { MenuSlot() }
   var renaming by remember { mutableStateOf<dev.pampa.pampai.core.assistant.db.Conversation?>(null) }
   var deleting by remember { mutableStateOf<dev.pampa.pampai.core.assistant.db.Conversation?>(null) }
   var deletingAll by remember { mutableStateOf(false) }
@@ -154,7 +149,7 @@ fun AriaDrawer(
       if (pinned.isNotEmpty()) {
         item(key = "pin-h") { SectionLabel("Fissate") }
         pinned.forEach { conversation ->
-          item(key = "pin-${conversation.id}") { ConversationRow(conversation, active, rowActions, menuSlot) }
+          item(key = "pin-${conversation.id}") { ConversationRow(conversation, active, rowActions) }
         }
       }
       grouped.forEach { (day, conversations) ->
@@ -168,7 +163,7 @@ fun AriaDrawer(
           )
         }
         conversations.forEach { conversation ->
-          item(key = "c-${conversation.id}") { ConversationRow(conversation, active, rowActions, menuSlot) }
+          item(key = "c-${conversation.id}") { ConversationRow(conversation, active, rowActions) }
         }
       }
       if (items.isEmpty()) {
@@ -286,33 +281,22 @@ private fun NavRow(icon: ImageVector, label: String, onClick: () -> Unit) {
   }
 }
 
-/**
- * Il menu aperto in questo momento, se c'e'. Ogni riga tiene il proprio controller (e' cosi' che
- * l'engine registra l'ancora e la ripresa della riga), e il cassetto tiene solo il riferimento a
- * quello alzato per ultimo: e' quello da chiudere prima di alzarne un altro.
- */
-private class MenuSlot {
-  var open: FluidContextMenuController? = null
-}
-
 @Composable
 private fun ConversationRow(
   conversation: dev.pampa.pampai.core.assistant.db.Conversation,
   active: Long?,
   actions: RowActions,
-  menuSlot: MenuSlot,
 ) {
   val menu = rememberFluidContextMenu(actions = {
     listOf(
       FluidContextAction(if (conversation.pinned) "Togli dalle fissate" else "Fissa in alto", Icons.Rounded.PushPin) { actions.pin(conversation) },
       FluidContextAction("Rinomina", Icons.Rounded.Edit) { actions.rename(conversation) },
-      FluidContextAction("Elimina", Icons.Rounded.Delete, destructive = true) { actions.delete(conversation) },
+      // Dalla 3.0 il pannello dei menu e' uno solo (un secondo menu non puo' aprirsi sopra il primo,
+      // e un rilascio altrove lo lascia aperto): non serve piu' tenere il conto di quello aperto.
+      FluidContextAction("Elimina", Icons.Rounded.Delete, destructive = true, startsSection = true) { actions.delete(conversation) },
     )
   })
-  val openMenu = {
-    menuSlot.open?.takeIf { it !== menu }?.dismiss()
-    if (menu.open()) menuSlot.open = menu
-  }
+  val openMenu: () -> Unit = { menu.open() }
   DrawerRow(
     title = conversation.title,
     detail = null,

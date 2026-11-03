@@ -206,7 +206,7 @@ private fun MemoryRow(memory: Memory, onEdit: () -> Unit, onPin: () -> Unit, onD
       listOf(
         FluidContextAction("Modifica", Icons.Rounded.Edit, onClick = onEdit),
         FluidContextAction(if (memory.pinned) "Non fissare" else "Fissa: sempre nel prompt", Icons.Rounded.PushPin, onClick = onPin),
-        FluidContextAction("Dimentica", Icons.Rounded.Delete, destructive = true, onClick = onDelete),
+        FluidContextAction("Dimentica", Icons.Rounded.Delete, destructive = true, startsSection = true, onClick = onDelete),
       )
     },
   )
