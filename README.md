@@ -79,8 +79,10 @@ Store: il ponte esiste dalla versione con il Fluid Engine 1.27.0 in poi.
 
 Tre moduli: `:app` (la sessione di sistema, il tile, le scorciatoie), `:core-assistant` (strumenti,
 memoria, voce, runtime, tracker) e `:feature-assistant` (chat, overlay, impostazioni). Sotto c'è il
-[Fluid Engine](https://github.com/Casual76/fluid-engine) come submodule: design system, provider dei
-modelli, orchestratore degli strumenti e il modulo `engine-ai-bridge` che regge i tool federati.
+[Fluid Engine](https://github.com/Casual76/fluid-engine) (3.0) come submodule: design system, provider dei
+modelli, orchestratore degli strumenti, il modulo `engine-ai-bridge` che regge i tool federati e
+`engine-ai-ui`, l'interfaccia dell'assistente (Markdown, bolle, compositore, impostazioni di chiavi e
+modelli, alone) che PampAI ha originato e che adesso usa dall'engine.
 
 ```bash
 git submodule update --init --recursive
