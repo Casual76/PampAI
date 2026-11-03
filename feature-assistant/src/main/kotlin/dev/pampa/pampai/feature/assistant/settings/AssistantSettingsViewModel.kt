@@ -18,9 +18,7 @@ import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.OpenRouterKeyInfo
 import dev.antigravity.fluidengine.ai.provider.OpenRouterDataPolicy
 import dev.antigravity.fluidengine.ai.provider.ProviderId
-import dev.antigravity.fluidengine.foundation.AccentMode
 import dev.antigravity.fluidengine.foundation.EngineSettings
-import dev.antigravity.fluidengine.foundation.ThemeMode
 import dev.antigravity.fluidengine.storage.EngineSettingsStore
 import dev.pampa.pampai.core.assistant.settings.PampaiSettings
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
@@ -153,10 +151,6 @@ class AssistantSettingsViewModel @Inject constructor(
   fun setTtsEngine(engine: TtsEngine) = viewModelScope.launch { pampaiStore.setTtsEngine(engine) }
   fun setOnboardingDone() = viewModelScope.launch { pampaiStore.setOnboardingDone(true) }
 
-  // Aspetto: le impostazioni dell'engine.
-  fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { engineStore.setThemeMode(mode) }
-  fun setAmoled(enabled: Boolean) = viewModelScope.launch { engineStore.setAmoledEnabled(enabled) }
-  fun setAccentMode(mode: AccentMode) = viewModelScope.launch { engineStore.setAccentMode(mode) }
-  fun setCustomAccent(name: String) = viewModelScope.launch { engineStore.setCustomAccent(name) }
-  fun setHaptics(enabled: Boolean) = viewModelScope.launch { engineStore.setHapticsEnabled(enabled) }
+  /** Aspetto: la sezione dell'engine passa le [EngineSettings] intere e nuove, e il tema, che le osserva, fa il resto. */
+  fun setEngineSettings(next: EngineSettings) = viewModelScope.launch { engineStore.update { next } }
 }

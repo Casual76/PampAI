@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -45,12 +46,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import coil.compose.AsyncImage
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.foundation.EngineCompatibility
 import dev.antigravity.fluidengine.ui.fluid.FluidButton
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonSize
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonStyle
+import dev.antigravity.fluidengine.ui.fluid.FluidImageViewer
 import dev.antigravity.fluidengine.ui.fluid.FluidNotification
 import dev.antigravity.fluidengine.ui.fluid.FluidScreenDefaults
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidGlassQuality
@@ -70,6 +73,7 @@ import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
 import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
 import dev.pampa.pampai.feature.assistant.halo.HaloMood
 import dev.pampa.pampai.feature.assistant.halo.haloMood
+import java.io.File
 
 /**
  * La chat con Aria: le domande, le risposte con la loro telemetria, e in fondo la barra per
@@ -101,7 +105,9 @@ fun ChatRoute(
   val remote by viewModel.remoteStatus.collectAsStateWithLifecycle()
   val context = LocalContext.current
   val composer = rememberComposerState()
+  // L'immagine aperta resta ricordata anche a visualizzatore chiuso: l'uscita del foglio la disegna ancora.
   var viewing by remember { mutableStateOf<Attachment?>(null) }
+  var viewerOpen by remember { mutableStateOf(false) }
   var details by remember { mutableStateOf<FailureReport?>(null) }
   val notifications = LocalFluidNotificationHostState.current
   LaunchedEffect(viewModel) {
@@ -317,7 +323,14 @@ fun ChatRoute(
                   shown,
                   showEdit = shown.id == lastUserId,
                   onEdit = { composer.startEditing(shown) },
-                  onOpenAttachment = { attachment -> if (attachment.kind == AttachmentKind.IMAGE) viewing = attachment else AttachmentFiles.open(context, attachment) },
+                  onOpenAttachment = { attachment ->
+                    if (attachment.kind == AttachmentKind.IMAGE) {
+                      viewing = attachment
+                      viewerOpen = true
+                    } else {
+                      AttachmentFiles.open(context, attachment)
+                    }
+                  },
                   versionsEnabled = !versionsLocked,
                   onVersion = viewModel::selectVersion,
                 )
@@ -385,7 +398,16 @@ fun ChatRoute(
       }
     }
   }
-  viewing?.let { attachment -> ImageViewer(attachment, onDismiss = { viewing = null }) }
+  FluidImageViewer(visible = viewerOpen, onDismissRequest = { viewerOpen = false }) { _ ->
+    viewing?.let { attachment ->
+      AsyncImage(
+        model = File(attachment.path),
+        contentDescription = attachment.name,
+        contentScale = ContentScale.Fit,
+        modifier = Modifier.fillMaxSize(),
+      )
+    }
+  }
   FailureDetailsSheet(report = details, onDismiss = { details = null })
 }
 

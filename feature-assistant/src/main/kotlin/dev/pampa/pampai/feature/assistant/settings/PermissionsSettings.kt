@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import dev.antigravity.fluidengine.ui.fluid.FluidButton
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonSize
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonStyle
+import dev.antigravity.fluidengine.ui.fluid.FluidPressGrip
 import dev.antigravity.fluidengine.ui.fluid.FluidChip
 import dev.antigravity.fluidengine.ui.theme.FluidCard
 import dev.antigravity.fluidengine.ui.theme.FluidListDivider
@@ -82,6 +83,9 @@ fun PermissionsSection() {
               text = "Consenti",
               style = FluidButtonStyle.Tinted,
               size = FluidButtonSize.Small,
+              // Un pulsante per riga in una lista che scorre: non c'e' un "fuori" da cui partire
+              // per scorrere, quindi cede il dito alla lista.
+              grip = FluidPressGrip.YieldsToScroll,
               onClick = {
                 launcher.launch(permission.permissions)
                 if (epoch > 0) runCatching { context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}"))) }
@@ -105,7 +109,13 @@ fun PermissionsSection() {
         },
         badge = if (granted) null else {
           {
-            FluidButton(text = "Apri", style = FluidButtonStyle.Tinted, size = FluidButtonSize.Small, onClick = { runCatching { context.startActivity(access.intent(context)) } })
+            FluidButton(
+              text = "Apri",
+              style = FluidButtonStyle.Tinted,
+              size = FluidButtonSize.Small,
+              grip = FluidPressGrip.YieldsToScroll,
+              onClick = { runCatching { context.startActivity(access.intent(context)) } },
+            )
           }
         },
       )

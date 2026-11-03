@@ -42,7 +42,7 @@ fun ConnectedAppsSection(viewModel: AssistantSettingsViewModel) {
           RemoteAvailability.INSTALLED_OK -> "${app.toolCount} strumenti · v${app.version}" + (app.hint?.let { " · $it" } ?: "")
           RemoteAvailability.NOT_READY -> "Installata ma non pronta: aprila una volta (accesso, dati) e riprova."
           RemoteAvailability.NEEDS_UPDATE -> "Installata senza il bridge: aggiornala dal Pampa Store."
-          RemoteAvailability.NO_PERMISSION -> "Firma diversa: e' una build di sviluppo? Gli strumenti passano solo fra app firmate con la stessa chiave."
+          RemoteAvailability.NO_PERMISSION -> "Rifiutata: firma diversa (una build di sviluppo?) o un'app ancora sul Fluid Engine 2.x senza il permesso del ponte. Gli strumenti passano solo fra app firmate con la stessa chiave."
           RemoteAvailability.NOT_INSTALLED -> "Non installata."
         },
         meta = when (app.availability) {

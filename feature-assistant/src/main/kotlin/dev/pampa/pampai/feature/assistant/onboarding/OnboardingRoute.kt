@@ -19,11 +19,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.antigravity.fluidengine.ai.keys.KeyState
 import dev.antigravity.fluidengine.ai.provider.ProviderId
+import dev.antigravity.fluidengine.aiui.settings.FluidAiKeySetup
 import dev.antigravity.fluidengine.ui.fluid.FluidAmbient
 import dev.antigravity.fluidengine.ui.fluid.FluidButton
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonSize
@@ -33,13 +35,12 @@ import dev.antigravity.fluidengine.ui.fluid.FluidHeroTone
 import dev.antigravity.fluidengine.ui.fluid.FluidScreen
 import dev.antigravity.fluidengine.ui.fluid.FluidSectionHeader
 import dev.antigravity.fluidengine.ui.theme.FluidCard
-import dev.antigravity.fluidengine.ui.theme.FluidHeroCard
 import dev.antigravity.fluidengine.ui.theme.FluidListDivider
 import dev.antigravity.fluidengine.ui.theme.FluidListGroup
 import dev.antigravity.fluidengine.ui.theme.FluidListRow
 import dev.pampa.pampai.feature.assistant.assist.AssistantRoleCard
 import dev.pampa.pampai.feature.assistant.consent.consentItems
-import dev.pampa.pampai.feature.assistant.settings.AiKeySetup
+import dev.pampa.pampai.feature.assistant.settings.AriaAiStrings
 import dev.pampa.pampai.feature.assistant.settings.AssistantSettingsViewModel
 
 private const val StepWelcome = 0
@@ -69,10 +70,13 @@ fun OnboardingRoute(
   when (step) {
     StepWelcome -> FluidScreen(title = "Ciao, sono Aria", subtitle = "L'assistente delle app Pampa.", ambient = ambient, itemSpacing = 12.dp) {
       item {
-        FluidHeroCard(
-          title = "Una chat, una voce, e le tue app",
-          subtitle = "Chiedimi del registro, del meteo, dei bus, della musica; fammi impostare sveglie e promemoria; tienimi premuto il tasto di accensione e parlami di quello che vedi sullo schermo.",
-        )
+        FluidCard(highlighted = true, glass = true) {
+          Text("Una chat, una voce, e le tue app", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+          Text(
+            "Chiedimi del registro, del meteo, dei bus, della musica; fammi impostare sveglie e promemoria; tienimi premuto il tasto di accensione e parlami di quello che vedi sullo schermo.",
+            style = MaterialTheme.typography.bodyMedium,
+          )
+        }
       }
       item {
         FluidCard(glass = true) {
@@ -91,12 +95,13 @@ fun OnboardingRoute(
         FluidListGroup(glass = true) {
           ProviderId.entries.forEachIndexed { index, provider ->
             if (index > 0) FluidListDivider()
-            AiKeySetup(
+            FluidAiKeySetup(
               provider = provider,
               state = state.keys[provider] ?: KeyState(false, null),
               saveAndVerify = viewModel::saveAndVerify,
-              onRemove = viewModel::removeKey,
+              onRemove = { viewModel.removeKey(it) },
               initiallyExpanded = provider == ProviderId.GROQ && state.verified.isEmpty(),
+              strings = AriaAiStrings,
             )
           }
         }

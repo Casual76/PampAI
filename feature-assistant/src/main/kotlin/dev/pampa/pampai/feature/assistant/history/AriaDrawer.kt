@@ -50,6 +50,7 @@ import dev.antigravity.fluidengine.ui.fluid.FluidAlert
 import dev.antigravity.fluidengine.ui.fluid.FluidAlertAction
 import dev.antigravity.fluidengine.ui.fluid.FluidContextAction
 import dev.antigravity.fluidengine.ui.fluid.FluidContextMenuController
+import dev.antigravity.fluidengine.ui.fluid.FluidPromptAlert
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.FluidTextField
 import dev.antigravity.fluidengine.ui.fluid.fluidContextMenuAnchor
@@ -210,20 +211,17 @@ fun AriaDrawer(
   }
 
   renaming?.let { conversation ->
-    var title by remember(conversation.id) { mutableStateOf(conversation.title) }
-    FluidAlert(
-      onDismissRequest = { renaming = null },
+    FluidPromptAlert(
       title = "Rinomina",
-      actions = listOf(
-        FluidAlertAction("Annulla", { renaming = null }),
-        FluidAlertAction("Salva", {
-          viewModel.rename(conversation.id, title.trim())
-          renaming = null
-        }, FluidAlertAction.Emphasis.Preferred, enabled = title.isNotBlank()),
-      ),
-    ) {
-      FluidTextField(value = title, onValueChange = { title = it.take(80) }, placeholder = "Titolo della conversazione")
-    }
+      onDismissRequest = { renaming = null },
+      onConfirm = { title ->
+        // Il testo arriva gia' ripulito (`trim`) e non vuoto (`validate`).
+        viewModel.rename(conversation.id, title.take(80))
+        renaming = null
+      },
+      initialValue = conversation.title,
+      placeholder = "Titolo della conversazione",
+    )
   }
   deleting?.let { conversation ->
     FluidAlert(

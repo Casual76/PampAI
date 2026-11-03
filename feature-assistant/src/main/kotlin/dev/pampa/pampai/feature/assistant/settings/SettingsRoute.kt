@@ -9,31 +9,31 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.antigravity.fluidengine.foundation.AppUpdateInstallState
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.foundation.AppUpdater
-import dev.antigravity.fluidengine.foundation.AvailableAppUpdate
 import dev.antigravity.fluidengine.ui.fluid.FluidAmbient
 import dev.antigravity.fluidengine.ui.fluid.FluidHeroMotif
 import dev.antigravity.fluidengine.ui.fluid.FluidHeroTone
 import dev.antigravity.fluidengine.ui.fluid.FluidScreen
 import dev.antigravity.fluidengine.ui.fluid.FluidSectionHeader
+import dev.antigravity.fluidengine.ui.fluid.fluidAppearanceSection
 import dev.antigravity.fluidengine.ui.fluid.fluidLicensesSection
+import dev.antigravity.fluidengine.ui.fluid.fluidUpdateSection
 import dev.antigravity.fluidengine.ui.theme.FluidListDivider
 import dev.antigravity.fluidengine.ui.theme.FluidListGroup
 import dev.antigravity.fluidengine.ui.theme.FluidListRow
 import dev.pampa.pampai.feature.assistant.assist.AssistantRoleCard
+import dev.pampa.pampai.feature.assistant.theme.PampaiBrand
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.FlowPreview
@@ -41,11 +41,16 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
-/** L'aggiornamento in-app: lo stesso manifest che il Pampa Store legge. Vive nell'app, arriva qui via Hilt. */
+/**
+ * L'aggiornamento in-app: lo stesso manifest che il Pampa Store legge. L'`AppUpdater` vive nell'app e
+ * arriva qui via Hilt; il [UpdateController] traduce i suoi passi negli stati della sezione
+ * «Aggiornamenti» dell'engine, e dura quanto la pagina, non quanto un tocco.
+ */
 @HiltViewModel
-class AboutViewModel @Inject constructor(val updater: AppUpdater) : ViewModel()
+class AboutViewModel @Inject constructor(updater: AppUpdater, @ApplicationContext context: Context) : ViewModel() {
+  val updates = UpdateController(updater, viewModelScope, appVersion(context))
+}
 
 /**
  * Impostazioni: aspetto, Aria (chiavi, modelli, preferenze, voce), assistente di sistema,
@@ -75,8 +80,13 @@ fun SettingsRoute(
     itemSpacing = 12.dp,
     ambient = remember { FluidAmbient(tone = FluidHeroTone.Primary, motif = FluidHeroMotif.Cards) },
   ) {
-    item(key = "section-aspetto") { FluidSectionHeader(title = "Aspetto") }
-    appearanceItems(viewModel, state)
+    fluidAppearanceSection(
+      settings = state.engine,
+      onSettingsChange = viewModel::setEngineSettings,
+      brand = PampaiBrand,
+      glass = true,
+      keyPrefix = "section-aspetto",
+    )
 
     item(key = "section-aria") { FluidSectionHeader(title = "Aria") }
     assistantSettingsItems(viewModel, state, onOpenConsent)
@@ -100,62 +110,27 @@ fun SettingsRoute(
     item { AssistantRoleCard() }
 
     item { FluidSectionHeader(title = "Informazioni") }
-    item { AboutGroup(about.updater) }
+    item { AboutGroup() }
+    fluidUpdateSection(
+      state = about.updates.state,
+      onCheck = about.updates::check,
+      onInstall = about.updates::install,
+      lastCheckedAtMillis = about.updates.lastCheckedAtMillis,
+      glass = true,
+    )
     fluidLicensesSection()
   }
 }
 
 @Composable
-private fun AboutGroup(updater: AppUpdater) {
+private fun AboutGroup() {
   val context = LocalContext.current
-  val scope = rememberCoroutineScope()
-  var status by remember { mutableStateOf("Tocca per controllare") }
-  var available by remember { mutableStateOf<AvailableAppUpdate?>(null) }
-  var busy by remember { mutableStateOf(false) }
   FluidListGroup(glass = true) {
     FluidListRow(title = "Versione", subtitle = "PampAI ${appVersion(context)}")
     FluidListDivider()
     FluidListRow(
-      title = "Aggiornamenti",
-      subtitle = status,
-      onClick = {
-        if (busy) return@FluidListRow
-        val update = available
-        scope.launch {
-          busy = true
-          if (update == null) {
-            status = "Controllo…"
-            updater.check(currentVersionName = appVersion(context))
-              .onSuccess { found ->
-                if (found == null) {
-                  status = "Sei all'ultima versione"
-                } else {
-                  available = found
-                  status = "Disponibile ${found.version} — tocca per installare"
-                }
-              }
-              .onFailure { status = "Controllo non riuscito: sei offline?" }
-          } else {
-            updater.install(update).collect { state ->
-              status = when (state) {
-                is AppUpdateInstallState.Downloading -> "Scarico… ${(state.progress * 100).toInt()}%"
-                is AppUpdateInstallState.Verifying -> state.message
-                is AppUpdateInstallState.Installing -> state.message
-                is AppUpdateInstallState.AwaitingUserAction -> state.message
-                is AppUpdateInstallState.Installed -> "Installata: riapri l'app"
-                is AppUpdateInstallState.Error -> "Errore: ${state.message}"
-              }
-            }
-            available = null
-          }
-          busy = false
-        }
-      },
-    )
-    FluidListDivider()
-    FluidListRow(
       title = "Sorgente",
-      subtitle = "github.com/Casual76/PampAI",
+      subtitle = "github.com/Casual76/PampAI · GPL-3.0",
       onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Casual76/PampAI"))) } },
     )
   }
@@ -198,16 +173,16 @@ private fun ScrollToSection(listState: LazyListState, section: String?) {
 }
 
 /** Dal nome che usa il modello nei chip alla chiave dell'intestazione. */
-private val SectionKeys = mapOf(
-  "aspetto" to "section-aspetto",
+internal val SectionKeys = mapOf(
+  "aspetto" to "section-aspetto-header",
   "aria" to "section-aria",
-  "chiavi" to "section-chiavi",
-  "ordine" to "section-ordine",
-  "servizi" to "section-ordine",
-  "modelli" to "section-modelli",
-  "azioni" to "section-preferenze",
-  "riserva" to "section-preferenze",
-  "preferenze" to "section-preferenze",
+  "chiavi" to "aria-keys-header",
+  "ordine" to "aria-order-header",
+  "servizi" to "aria-order-header",
+  "modelli" to "aria-models-header",
+  "azioni" to "aria-prefs-header",
+  "riserva" to "aria-prefs-header",
+  "preferenze" to "aria-prefs-header",
   "voce" to "section-voce",
   "permessi" to "section-permessi",
   "fidate" to "section-fidate",

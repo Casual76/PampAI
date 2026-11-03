@@ -9,12 +9,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.antigravity.fluidengine.ui.fluid.FluidButton
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonStyle
 import dev.antigravity.fluidengine.ui.fluid.FluidSectionHeader
 import dev.antigravity.fluidengine.ui.theme.FluidCard
-import dev.antigravity.fluidengine.ui.theme.FluidHeroCard
 
 /**
  * Le voci del consenso, alla prima accensione: cosa parte dal telefono, verso chi, cosa resta
@@ -27,10 +27,10 @@ fun LazyListScope.consentItems(
   onLater: (() -> Unit)?,
 ) {
   item {
-    FluidHeroCard(
-      title = "Prima di accendere Aria",
-      subtitle = "Due parole su cosa fa dei tuoi dati, e cosa non fa mai da sola.",
-    )
+    FluidCard(highlighted = true, glass = true) {
+      Text("Prima di accendere Aria", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+      Text("Due parole su cosa fa dei tuoi dati, e cosa non fa mai da sola.", style = MaterialTheme.typography.bodyMedium)
+    }
   }
   item { FluidSectionHeader(title = "Cosa parte dal telefono") }
   item {
