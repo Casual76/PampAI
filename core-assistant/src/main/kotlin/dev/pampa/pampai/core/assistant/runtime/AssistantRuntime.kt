@@ -8,7 +8,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.antigravity.fluidengine.ai.keys.AiKeyStore
 import dev.antigravity.fluidengine.ai.keys.AiSettings
 import dev.antigravity.fluidengine.ai.keys.AiSettingsStore
-import dev.antigravity.fluidengine.ai.net.AiError
 import dev.antigravity.fluidengine.ai.orchestrator.AskMode
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantFailure
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
@@ -461,10 +460,12 @@ class AssistantRuntime @Inject constructor(
         // aspetta questo): qui resta solo da rimettere a riposo il motore della voce.
         stt.reset()
         throw e
-      } catch (e: AssistantFailure) {
-        publish(token, AssistantState.Failed(null, e.kind, e.error, e.retryAfterSec, null))
       } catch (e: Throwable) {
-        publish(token, AssistantState.Failed(null, FailureKind.UNKNOWN, e as? AiError, null, null))
+        // Un errore qualunque diventa il fallimento giusto (una chiave rifiutata in trascrizione e'
+        // `UNAUTHORIZED`, la rete e' `NETWORK`), invece di "sconosciuto": e' la tabella dell'engine,
+        // la stessa del failover. Un `AssistantFailure` che c'e' gia' resta com'e'.
+        val failure = AssistantFailure.of(e)
+        publish(token, AssistantState.Failed(null, failure.kind, failure.error, failure.retryAfterSec, null))
       }
     }
   }
