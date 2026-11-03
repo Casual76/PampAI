@@ -5,6 +5,13 @@
        REQUEST_INSTALL_PACKAGES con engine-update: il manifest fuso li ha gia'. -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+  <!-- PampAI e' il *cliente* del ponte fra le app: dal Fluid Engine 3.0.0 non chiede piu' nessun
+       permesso, perche' e' l'ospite a controllare la firma di chi lo chiama. Questa riga serve solo
+       a parlare con le app ancora sulla 2.x, il cui `<provider>` e' protetto da `AI_TOOLS`: e'
+       innocua se nessuna lo dichiara (non viene concesso e non da' fastidio), e va tolta quando
+       tutte le app Pampa sono sulla 3.0. -->
+  <uses-permission android:name="dev.antigravity.fluidengine.permission.AI_TOOLS" />
+
   <!-- Per trovare un riconoscitore vocale di un altro pacchetto a cui inoltrare la dettatura. -->
   <queries>
     <intent>

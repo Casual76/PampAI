@@ -57,6 +57,8 @@ dependencies {
   api project(":core-assistant")
   // Il design system porta con se' Compose, Material 3 ed engine-foundation.
   api project(":engine-ui")
+  // L'interfaccia dell'assistente dell'engine (3.0): impostazioni, selettore dei modelli, Markdown, chat.
+  implementation project(":engine-ai-ui")
   implementation project(":engine-update")
   implementation project(":engine-config")
 
