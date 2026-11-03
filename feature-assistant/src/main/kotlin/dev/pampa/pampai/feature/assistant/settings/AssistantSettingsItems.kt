@@ -66,6 +66,10 @@ internal val AriaAiStrings = FluidAiSettingsStrings(
   enabledTitle = "Aria",
   enabledOn = "Accesa: risponde in chat e dal tasto di accensione.",
   enabledOff = "Spenta: nessuna richiesta parte.",
+  // Con la chiave gia' verificata il campo sta stretto accanto a «Verifica» e «Rimuovi»: il segnaposto
+  // dell'engine ("Nuova chiave (vuoto = tieni quella salvata)") andava a capo in cinque righe. Cosa succede
+  // lasciandolo vuoto lo dice gia' il sottotitolo della scheda («Chiave verificata il ...»).
+  keyPlaceholderKeep = "Nuova chiave",
   orderDetail = "Il primo risponde; gli altri fanno da riserva se la riserva automatica e' accesa nelle preferenze.",
   modelSameAsChat = " · uguale alla chat: scegline uno piu' capace e Aria ci passera' da sola sulle domande difficili",
   orPolicyDenyDetail = "Aria chiede a OpenRouter di non usarli: i modelli i cui endpoint gratuiti registrano i prompt non rispondono.",
