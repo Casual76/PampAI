@@ -67,10 +67,10 @@ strumenti che servono a rispondere.
 ## Le app collegate
 
 Aria trova da sola le app Pampa installate e ne monta gli strumenti. Il canale è un
-`ContentProvider` protetto da un permesso a livello **firma**: solo app firmate con la stessa chiave
-possono parlarsi, e ogni strumento gira nel processo della sua app, dove i dati già stanno. Le
-azioni che contano (una chiamata, un'installazione, una cancellazione) chiedono conferma qui, prima
-che l'altra app faccia qualcosa.
+`ContentProvider` che controlla la **firma** di chi lo chiama a ogni richiesta: solo app firmate con
+la stessa chiave possono parlarsi, e ogni strumento gira nel processo della sua app, dove i dati già
+stanno. Le azioni che contano (una chiamata, un'installazione, una cancellazione) chiedono conferma
+qui, prima che l'altra app faccia qualcosa.
 
 Se un'app non compare in *Impostazioni › App collegate*, di solito è perché va aggiornata dal Pampa
 Store: il ponte esiste dalla versione con il Fluid Engine 1.27.0 in poi.
@@ -103,3 +103,20 @@ l'apertura del database invece di cancellare le conversazioni.
 
 Serve un `local.properties` con `sdk.dir`. Se la cartella del progetto è sincronizzata da un servizio
 cloud, conviene spostare le cartelle di build fuori: `pampai.buildRoot=C:/percorso/fuori/dal/cloud`.
+
+## Licenza
+
+PampAI è software libero: si distribuisce sotto la **GNU General Public License, versione 3**
+(testo completo in [`LICENSE`](LICENSE)). Chi riceve l'APK ha diritto ai sorgenti, che sono questo
+repository, pubblico: <https://github.com/Casual76/PampAI>. Si possono leggere, modificare e
+ridistribuire alle condizioni della GPL-3.0, con la stessa licenza. Fino alla versione 1.2.2 l'app era
+sotto Apache-2.0: da questa in avanti no, per il motivo qui sotto.
+
+**Perché GPL-3.0.** Dalla 3.0 il Fluid Engine contiene codice di
+[LibrePods](https://github.com/librepods-org/librepods) (GPL-3.0): il comportamento dei pulsanti e delle
+pagine non è più riscritto, è portato. Un'app che distribuisce l'engine è un'opera derivata, e va
+distribuita con la stessa licenza. È la regola di tutte le app Pampa che usano l'engine.
+
+Le opere di altri che l'APK porta con sé (il vetro di Kyant, Apache-2.0; i caratteri Inter, SIL OFL 1.1;
+LibrePods) sono elencate nella pagina **Impostazioni › Informazioni** dell'app, con gli avvisi che le
+loro licenze chiedono; i testi sono in [`engine/LICENSES/`](engine/LICENSES).
