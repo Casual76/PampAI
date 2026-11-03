@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -403,7 +404,8 @@ fun ChatRoute(
       }
     }
   }
-  FluidImageViewer(visible = viewerOpen, onDismissRequest = { viewerOpen = false }) { _ ->
+  // Sul nero, come la galleria del telefono (e com'era il visore di prima): `background` e' della 3.0.1.
+  FluidImageViewer(visible = viewerOpen, onDismissRequest = { viewerOpen = false }, background = Color.Black) { _ ->
     viewing?.let { attachment ->
       AsyncImage(
         model = File(attachment.path),

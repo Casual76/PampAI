@@ -25,6 +25,7 @@ import dev.antigravity.fluidengine.ui.fluid.FluidAmbient
 import dev.antigravity.fluidengine.ui.fluid.FluidHeroMotif
 import dev.antigravity.fluidengine.ui.fluid.FluidHeroTone
 import dev.antigravity.fluidengine.ui.fluid.FluidScreen
+import dev.antigravity.fluidengine.ui.fluid.FluidUpdateController
 import dev.antigravity.fluidengine.ui.fluid.FluidSectionHeader
 import dev.antigravity.fluidengine.ui.fluid.fluidAppearanceSection
 import dev.antigravity.fluidengine.ui.fluid.fluidLicensesSection
@@ -44,12 +45,13 @@ import kotlinx.coroutines.isActive
 
 /**
  * L'aggiornamento in-app: lo stesso manifest che il Pampa Store legge. L'`AppUpdater` vive nell'app e
- * arriva qui via Hilt; il [UpdateController] traduce i suoi passi negli stati della sezione
- * «Aggiornamenti» dell'engine, e dura quanto la pagina, non quanto un tocco.
+ * arriva qui via Hilt; il `FluidUpdateController` dell'engine (3.0.1) traduce i suoi passi negli stati della
+ * sezione «Aggiornamenti». Sta nel ViewModel e non in `rememberFluidUpdateController`: uno scaricamento
+ * non si ferma uscendo dalla pagina e tornandoci, e la sezione dice ancora a che punto e' arrivato.
  */
 @HiltViewModel
 class AboutViewModel @Inject constructor(updater: AppUpdater, @ApplicationContext context: Context) : ViewModel() {
-  val updates = UpdateController(updater, viewModelScope, appVersion(context))
+  val updates = FluidUpdateController(updater, viewModelScope, appVersion(context))
 }
 
 /**
