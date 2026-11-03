@@ -21,14 +21,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
+import dev.antigravity.fluidengine.aiui.halo.FluidAuroraSpec
+import dev.antigravity.fluidengine.aiui.halo.FluidHaloColours
+import dev.antigravity.fluidengine.aiui.halo.FluidHaloMood
+import dev.antigravity.fluidengine.aiui.halo.drawFluidAuroraField
+import dev.antigravity.fluidengine.aiui.halo.rememberFluidHaloClock
 import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidGlassQuality
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy
-import dev.pampa.pampai.feature.assistant.halo.AuroraSpec
-import dev.pampa.pampai.feature.assistant.halo.HaloColours
-import dev.pampa.pampai.feature.assistant.halo.HaloMood
-import dev.pampa.pampai.feature.assistant.halo.drawAuroraField
-import dev.pampa.pampai.feature.assistant.halo.rememberHaloClock
 
 // L'aurora della chat: mentre Aria ascolta, lavora o scrive, tutto lo sfondo della pagina si muove
 // di colori larghi e lenti, dietro il testo e dentro il vetro della barra e del composer. A riposo
@@ -36,7 +36,7 @@ import dev.pampa.pampai.feature.assistant.halo.rememberHaloClock
 //
 // Vive nel fondale ([ChatBackdrops.canvas]), non nel corpo: la lista e' registrata a parte, cosi'
 // un fondale che cambia sessanta volte al secondo non fa mai ri-registrare il testo. Il pittore e
-// l'orologio sono quelli di `halo/HaloField.kt`; qui c'e' solo la regia: quando accendere, quanto
+// l'orologio sono quelli di `engine-ai-ui` (`FluidHaloField.kt`); qui c'e' solo la regia: quando accendere, quanto
 // forte, e quanto far pagare ai vetri.
 
 /**
@@ -66,7 +66,7 @@ private const val AuroraPresenceFloor = 0.002f
 private const val AuroraFadeInMs = 400
 private const val AuroraFadeOutMs = 600
 
-/** L'ampiezza al lavoro e in scrittura: con il picco di [AuroraSpec] fa 0.12 in chiaro e 0.18 in scuro. */
+/** L'ampiezza al lavoro e in scrittura: con il picco di [FluidAuroraSpec] fa 0.12 in chiaro e 0.18 in scuro. */
 private const val WorkingAmplitude = 0.6f
 
 /** In ascolto l'ampiezza parte da qui e sale con la voce fino a 0.75: fra due sillabe resta qualcosa. */
@@ -93,7 +93,7 @@ class ChatAuroraState internal constructor() {
  * Se l'umore accende l'aurora: mentre Aria ascolta, lavora o scrive. A riposo, a risposta finita e
  * nell'errore no: e' il segnale di "sta succedendo qualcosa", e a `Done` la cosa e' successa.
  */
-private fun HaloMood.lightsAurora(): Boolean = this == HaloMood.LISTENING || this == HaloMood.WORKING || this == HaloMood.WRITING
+private fun FluidHaloMood.lightsAurora(): Boolean = this == FluidHaloMood.LISTENING || this == FluidHaloMood.WORKING || this == FluidHaloMood.WRITING
 
 /**
  * L'economia dell'aurora letta dalla qualita' del vetro in scope: [ChatAmbientEconomy.Economy]
@@ -150,7 +150,7 @@ private fun rememberPowerSaveMode(): State<Boolean> {
  * per congelare il fondale e alzare l'intervallo dei vetri, e la presenza continua per disegnare.
  */
 @Composable
-fun rememberChatAurora(mood: HaloMood, economy: ChatAmbientEconomy = rememberChatAmbientEconomy()): ChatAuroraState {
+fun rememberChatAurora(mood: FluidHaloMood, economy: ChatAmbientEconomy = rememberChatAmbientEconomy()): ChatAuroraState {
   val state = remember { ChatAuroraState() }
   val reducedMotion = LocalFluidMotionPolicy.current.reducedMotion
   val on = !reducedMotion && economy != ChatAmbientEconomy.Off && mood.lightsAurora()
@@ -170,7 +170,7 @@ fun rememberChatAurora(mood: HaloMood, economy: ChatAmbientEconomy = rememberCha
  *
  * Tre colori del tema (accento, secondario, terziario) che girano piano nel ciclo; `Plus` su una
  * pagina scura, `SrcOver` su una chiara, deciso dalla luminanza della superficie e non dal nome del
- * tema. L'orologio va a velocita' 1: i periodi di [AuroraSpec] sono secondi veri, e un'aurora che
+ * tema. L'orologio va a velocita' 1: i periodi di [FluidAuroraSpec] sono secondi veri, e un'aurora che
  * accelerasse con l'umore come fa l'alone sarebbe un fondo che si agita dietro le parole.
  *
  * Presenza, tempo e ampiezza si leggono **nel disegno**: a sessanta fotogrammi al secondo si
@@ -186,24 +186,24 @@ fun rememberChatAurora(mood: HaloMood, economy: ChatAmbientEconomy = rememberCha
 @Composable
 fun ChatAurora(
   state: ChatAuroraState,
-  mood: HaloMood,
+  mood: FluidHaloMood,
   level: () -> Float,
   modifier: Modifier = Modifier,
   economy: ChatAmbientEconomy = rememberChatAmbientEconomy(),
 ) {
-  val colours = HaloColours.fromTheme()
+  val colours = FluidHaloColours.fromTheme()
   val cycle = remember(colours) { listOf(colours.accent, colours.secondary, colours.tertiary) }
   val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
   val present = state.present
-  val spec = remember(present) { if (economy == ChatAmbientEconomy.Economy) AuroraSpec(blobCount = 4, radiusMax = 0.45f) else AuroraSpec() }
-  val clock = rememberHaloClock(
+  val spec = remember(present) { if (economy == ChatAmbientEconomy.Economy) FluidAuroraSpec(blobCount = 4, radiusMax = 0.45f) else FluidAuroraSpec() }
+  val clock = rememberFluidHaloClock(
     running = present,
     speed = 1f,
     economy = economy == ChatAmbientEconomy.Economy,
     target = {
       when (mood) {
-        HaloMood.LISTENING -> ListeningFloor + ListeningRange * level().coerceIn(0f, 1f)
-        HaloMood.WORKING, HaloMood.WRITING -> WorkingAmplitude
+        FluidHaloMood.LISTENING -> ListeningFloor + ListeningRange * level().coerceIn(0f, 1f)
+        FluidHaloMood.WORKING, FluidHaloMood.WRITING -> WorkingAmplitude
         else -> 0f
       }
     },
@@ -211,7 +211,7 @@ fun ChatAurora(
   Canvas(modifier.fillMaxSize()) {
     val presence = state.presence.value
     if (presence > AuroraPresenceFloor) {
-      drawAuroraField(clock.time, clock.amplitude, presence, cycle, spec, dark)
+      drawFluidAuroraField(clock.time, clock.amplitude, presence, cycle, spec, dark)
     }
   }
 }

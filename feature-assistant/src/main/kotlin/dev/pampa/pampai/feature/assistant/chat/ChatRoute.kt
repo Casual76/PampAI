@@ -49,6 +49,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
+import dev.antigravity.fluidengine.aiui.chat.FluidFollowBottom
+import dev.antigravity.fluidengine.aiui.chat.rememberFluidChatScroll
+import dev.antigravity.fluidengine.aiui.chat.rememberFluidChatScrollKeys
+import dev.antigravity.fluidengine.aiui.halo.FluidHaloMood
+import dev.antigravity.fluidengine.aiui.halo.haloMood
+import dev.antigravity.fluidengine.aiui.overlay.FluidFailureDetailsSheet
+import dev.antigravity.fluidengine.aiui.overlay.FluidFailureReport
 import dev.antigravity.fluidengine.foundation.EngineCompatibility
 import dev.antigravity.fluidengine.ui.fluid.FluidButton
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonSize
@@ -71,8 +78,6 @@ import dev.pampa.pampai.core.assistant.db.MessageStatus
 import dev.pampa.pampai.core.assistant.remote.RemoteStatus
 import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
 import dev.pampa.pampai.core.assistant.runtime.ProviderOverride
-import dev.pampa.pampai.feature.assistant.halo.HaloMood
-import dev.pampa.pampai.feature.assistant.halo.haloMood
 import java.io.File
 
 /**
@@ -108,7 +113,7 @@ fun ChatRoute(
   // L'immagine aperta resta ricordata anche a visualizzatore chiuso: l'uscita del foglio la disegna ancora.
   var viewing by remember { mutableStateOf<Attachment?>(null) }
   var viewerOpen by remember { mutableStateOf(false) }
-  var details by remember { mutableStateOf<FailureReport?>(null) }
+  var details by remember { mutableStateOf<FluidFailureReport?>(null) }
   val notifications = LocalFluidNotificationHostState.current
   LaunchedEffect(viewModel) {
     viewModel.notices.collect { text ->
@@ -131,10 +136,10 @@ fun ChatRoute(
   }
 
   // Una lista per conversazione: si apre in fondo, e tornando dalle impostazioni resta dov'era.
-  val scrollKeys = rememberChatScrollKeys()
-  val scroll = rememberChatScroll(scrollKeys.keyFor(state.conversation?.id, liveShown = state.live != null))
+  val scrollKeys = rememberFluidChatScrollKeys()
+  val scroll = rememberFluidChatScroll(scrollKeys.keyFor(state.conversation?.id, liveShown = state.live != null))
   val listState = scroll.list
-  FollowBottom(scroll)
+  FluidFollowBottom(scroll)
 
   val lastUserId = remember(state.messages) { state.messages.lastOrNull { it.role == MessageRole.USER }?.id }
   // I servizi pronti per "Rigenera con…", nell'ordine dell'utente.
@@ -197,7 +202,7 @@ fun ChatRoute(
 
   // L'aurora sul fondale segue l'umore di Aria: c'e' mentre ascolta, lavora o scrive, e non c'e' a
   // riposo, a risposta finita, o con il moto ridotto. Vedi ChatAmbient.
-  val mood = state.live?.haloMood() ?: HaloMood.HIDDEN
+  val mood = state.live?.haloMood() ?: FluidHaloMood.HIDDEN
   val aurora = rememberChatAurora(mood)
 
   // La barra in cima e' assente finche' la lista sta in cima e si addensa appena si scorre. Sopra
@@ -347,7 +352,7 @@ fun ChatRoute(
         }
         // Una conversazione nuova: la domanda in corso non e' ancora su disco.
         if (state.messages.isEmpty() && state.live != null) {
-          item(key = "live") { LiveBubble(state.live!!, state.pending, viewModel::resolve) }
+          item(key = "live") { LiveBubble(state.live!!, state.pending, viewModel::resolve, onChip = { currentOnChip(it) }) }
         }
         state.queued.forEachIndexed { index, question ->
           item(key = "coda-$index") { QueuedBubble(question, onCancel = { viewModel.unqueue(question) }) }
@@ -408,7 +413,7 @@ fun ChatRoute(
       )
     }
   }
-  FailureDetailsSheet(report = details, onDismiss = { details = null })
+  FluidFailureDetailsSheet(report = details, onDismiss = { details = null }, strings = AriaAssistantStrings)
 }
 
 /** L'aria fra l'ultima riga e il bordo del composer. */

@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import dev.antigravity.fluidengine.aiui.chat.FluidSmallAction
 import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy
 import dev.pampa.pampai.core.assistant.db.Message
@@ -34,7 +35,7 @@ import dev.pampa.pampai.core.assistant.db.Version
  *
  * Una versione nasce da "rigenera" (una risposta sorella) o da "modifica e rinvia" (una domanda
  * sorella, con il suo ramo): nessuna delle due cancella niente, e le frecce riportano al ramo di
- * prima. Le frecce sono le azioni piccole della chat ([SmallAction]), a quarantotto dp di
+ * prima. Le frecce sono le azioni piccole della chat ([FluidSmallAction]), a quarantotto dp di
  * bersaglio; il numero ha le cifre tabulari, cosi' passando da 1 a 2 non balla.
  *
  * @param enabled falso mentre Aria lavora su questa conversazione: la domanda in corso si attacca
@@ -43,7 +44,7 @@ import dev.pampa.pampai.core.assistant.db.Version
 @Composable
 internal fun VersionSwitcher(version: Version, enabled: Boolean, onSelect: (Long) -> Unit, modifier: Modifier = Modifier) {
   Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-    SmallAction(
+    FluidSmallAction(
       icon = Icons.Rounded.ChevronLeft,
       description = "Versione precedente",
       onClick = { version.prevId?.let(onSelect) },
@@ -59,7 +60,7 @@ internal fun VersionSwitcher(version: Version, enabled: Boolean, onSelect: (Long
         liveRegion = LiveRegionMode.Polite
       },
     )
-    SmallAction(
+    FluidSmallAction(
       icon = Icons.Rounded.ChevronRight,
       description = "Versione successiva",
       onClick = { version.nextId?.let(onSelect) },

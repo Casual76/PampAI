@@ -55,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.PendingConfirmation
+import dev.antigravity.fluidengine.aiui.overlay.FluidConfirmationRow
+import dev.pampa.pampai.feature.assistant.chat.AriaAssistantStrings
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
 import dev.antigravity.fluidengine.ui.fluid.FluidChip
 import dev.antigravity.fluidengine.ui.fluid.FluidMotion
@@ -78,7 +80,6 @@ import dev.pampa.pampai.core.assistant.db.MessageRole
 import dev.pampa.pampai.core.assistant.db.MessageStatus
 import dev.pampa.pampai.core.assistant.db.Run
 import dev.pampa.pampai.feature.assistant.chat.AssistantTexts
-import dev.pampa.pampai.feature.assistant.chat.ConfirmationRow
 import dev.pampa.pampai.feature.assistant.chat.ResponseBody
 import dev.pampa.pampai.feature.assistant.chat.ResponseMemo
 import dev.pampa.pampai.feature.assistant.chat.RunSteps
@@ -458,7 +459,7 @@ private fun ExchangeBody(
       .padding(bottom = 22.dp),
   ) {
     ExchangeHeader(header)
-    if (pending != null && live is AssistantState.AwaitingConfirmation) ConfirmationRow(pending, onResolve)
+    if (pending != null && live is AssistantState.AwaitingConfirmation) FluidConfirmationRow(pending, onConfirm = { onResolve(pending.id, it) }, strings = AriaAssistantStrings, modifier = Modifier.padding(top = 8.dp))
     when {
       // `live = false`: la crescita la anima gia' la colonna qui sopra; una seconda molla dentro la
       // prima farebbe inseguire alla card un'altezza che si muove, e la card resterebbe indietro.

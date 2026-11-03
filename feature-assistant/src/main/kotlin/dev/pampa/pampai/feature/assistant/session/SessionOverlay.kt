@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
@@ -43,6 +42,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -71,7 +71,10 @@ import dev.antigravity.fluidengine.ui.fluid.glassBackdropSource
 import dev.antigravity.fluidengine.ui.fluid.glassSurface
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.pampa.pampai.core.assistant.attachments.PendingAttachment
-import dev.pampa.pampai.feature.assistant.halo.HaloColours
+import dev.antigravity.fluidengine.aiui.halo.FluidHaloField
+import dev.antigravity.fluidengine.aiui.halo.FluidHaloFieldSpec
+import dev.antigravity.fluidengine.aiui.halo.FluidHaloMood
+import dev.antigravity.fluidengine.aiui.halo.haloMood
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -96,7 +99,7 @@ class SessionActions(
  *  1. lo screenshot sotto uno scrim che scurisce, l'unica cosa che il vetro campiona (finestre
  *     diverse non si vedono: da qui il "vetro discreto"). Un tocco fuori chiude, un trascinamento
  *     ritaglia una porzione di schermo da allegare.
- *  2. l'alone lungo il perimetro ([AriaHalo]), che legge il microfono per conto suo.
+ *  2. l'alone lungo il perimetro ([FluidHaloField]), che legge il microfono per conto suo.
  *  3. la pila in basso ([SessionStack]): la card **dietro**, e davanti la nota, i chip degli
  *     allegati e la barra.
  *
@@ -136,7 +139,7 @@ fun PampaiSessionOverlay(controller: SessionController, actions: SessionActions)
   // nel disegno: la sua dissolvenza non ricompone l'overlay.
   val scrim = remember(freshStamp) { Animatable(0f) }
   LaunchedEffect(scrim) {
-    scrim.animateTo(ScrimAlpha, spring(dampingRatio = FluidMotion.DampingStandard, stiffness = FluidMotion.ResponseSmooth))
+    scrim.animateTo(ScrimAlpha, FluidMotion.smooth())
   }
   var selection by remember { mutableStateOf<Rect?>(null) }
 
@@ -201,7 +204,7 @@ fun PampaiSessionOverlay(controller: SessionController, actions: SessionActions)
 
     // 2. L'alone lungo il bordo (legge il microfono dentro il suo loop di frame: il livello a
     //    cinquanta hertz non ricompone niente, nemmeno l'alone).
-    HaloLayer(controller, mood = if (selecting) HaloMood.IDLE else state.haloMood())
+    HaloLayer(controller, mood = if (selecting) FluidHaloMood.IDLE else state.haloMood())
 
     // 3. La pila in basso. Resta composta anche mentre si ritaglia lo schermo: toglierla e
     //    rimetterla rifaceva da capo l'entrata dell'orb e della card. Durante la selezione sfuma
@@ -407,13 +410,17 @@ private fun AttachmentChips(
 
 /** L'alone, con il livello del microfono passato come lambda: lo legge solo il loop di frame. */
 @Composable
-private fun HaloLayer(controller: SessionController, mood: HaloMood) {
-  AriaHalo(
+private fun HaloLayer(controller: SessionController, mood: FluidHaloMood) {
+  // Quattordici macchie da sessanta dp sul perimetro del telefono: nella sessione l'alone dice "Aria
+  // e' qui", e con il moto ridotto resta, fermo, invece di sparire (`staticWhenReduced`, il default).
+  FluidHaloField(
     mood = mood,
     level = { controller.micLevel.value.level },
-    colours = HaloColours.fromTheme(),
+    spec = SessionHaloSpec,
   )
 }
+
+private val SessionHaloSpec = FluidHaloFieldSpec(blobCount = 14, blobRadius = 60.dp, peakAlpha = 0.45f, cornerRadius = 44.dp, blendMode = BlendMode.Plus)
 
 /**
  * Lo screenshot a tutto schermo. Disegnato a mano per un controllo solo: lo store lo ricicla alla

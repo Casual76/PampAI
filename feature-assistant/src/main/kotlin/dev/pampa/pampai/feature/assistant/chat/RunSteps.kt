@@ -27,13 +27,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.antigravity.fluidengine.ai.orchestrator.PendingConfirmation
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
-import dev.antigravity.fluidengine.ui.fluid.FluidButton
-import dev.antigravity.fluidengine.ui.fluid.FluidButtonSize
-import dev.antigravity.fluidengine.ui.fluid.FluidButtonStyle
 import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.fluidPressable
 import dev.pampa.pampai.core.assistant.db.Run
@@ -230,18 +226,6 @@ private fun providerLine(run: Run): String? {
   if (first == null || first == final || run.switches.isNotEmpty()) return final.label
   val reason = if (run.waitedSeconds > 0) " (${first.label} al limite)" else ""
   return "risposto da ${final.label}$reason"
-}
-
-@Composable
-fun ConfirmationRow(pending: PendingConfirmation, onResolve: (Long, Boolean) -> Unit) {
-  Spacer(Modifier.height(8.dp))
-  Text(pending.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-  pending.detail?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-  Spacer(Modifier.height(6.dp))
-  Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-    FluidButton(text = "Conferma", onClick = { onResolve(pending.id, true) }, style = FluidButtonStyle.Tinted, size = FluidButtonSize.Small)
-    FluidButton(text = "Annulla", onClick = { onResolve(pending.id, false) }, style = FluidButtonStyle.Plain, size = FluidButtonSize.Small)
-  }
 }
 
 /** La telemetria di uno scambio in una riga: strumenti, servizio (e se e' cambiato, da chi a chi), tempo, token, costo. */

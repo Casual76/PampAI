@@ -20,7 +20,6 @@ pdfbox = "2.0.27.0"
 media3 = "1.5.1"
 coroutinesGuava = "1.8.1"
 coil = "2.7.0"
-markdown = "0.41.0"
 exp4j = "0.4.8"
 junit = "4.13.2"
 
@@ -56,8 +55,6 @@ pdfbox-android = { module = "com.tom-roush:pdfbox-android", version.ref = "pdfbo
 media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer-android", version.ref = "markdown" }
-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }
 exp4j = { module = "net.objecthunter:exp4j", version.ref = "exp4j" }
 junit4 = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }

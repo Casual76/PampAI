@@ -1,30 +1,16 @@
 package dev.pampa.pampai.feature.assistant.chat
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.AttachFile
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
@@ -32,16 +18,9 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Key
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.Psychology
-import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material.icons.rounded.VolumeOff
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,21 +31,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -76,27 +46,20 @@ import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.MicLevel
 import dev.antigravity.fluidengine.ai.provider.ProviderId
-import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
-import dev.antigravity.fluidengine.ui.fluid.FluidCapsuleShape
+import dev.antigravity.fluidengine.aiui.chat.FluidComposer
+import dev.antigravity.fluidengine.aiui.chat.FluidComposerChip
+import dev.antigravity.fluidengine.aiui.chat.FluidComposerPill
+import dev.antigravity.fluidengine.aiui.chat.FluidComposerVoiceLine
+import dev.antigravity.fluidengine.aiui.chat.FluidGlassRoundButton
+import dev.antigravity.fluidengine.aiui.chat.fluidComposerAction
+import dev.antigravity.fluidengine.aiui.chat.rememberFluidListeningGlow
 import dev.antigravity.fluidengine.ui.fluid.FluidGlassModalPortal
 import dev.antigravity.fluidengine.ui.fluid.FluidGlassModalPresentation
-import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.antigravity.fluidengine.ui.fluid.GlassBackdropState
-import dev.antigravity.fluidengine.ui.fluid.GlassDefaults
-import dev.antigravity.fluidengine.ui.fluid.GlassRole
-import dev.antigravity.fluidengine.ui.fluid.GlassTint
-import dev.antigravity.fluidengine.ui.fluid.fluidPressable
-import dev.antigravity.fluidengine.ui.fluid.glassControlSurface
-import dev.antigravity.fluidengine.ui.fluid.glassSurface
-import dev.antigravity.fluidengine.ui.fluid.rememberCombinedGlassBackdrop
-import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.pampa.pampai.core.assistant.attachments.PendingAttachment
 import dev.pampa.pampai.core.assistant.db.AttachmentKind
 import dev.pampa.pampai.core.assistant.db.Message
 import dev.pampa.pampai.core.assistant.runtime.VoiceEvent
-import dev.pampa.pampai.feature.assistant.halo.HaloColours
-import dev.pampa.pampai.feature.assistant.halo.haloBlendForTheme
-import dev.pampa.pampai.feature.assistant.halo.rememberHaloClock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -185,7 +148,7 @@ internal class ComposerActions(
   val onStopVoice: () -> Unit = {},
   val onCancelVoice: () -> Unit = {},
   val onStopSpeaking: () -> Unit = {},
-  val onAttach: (android.net.Uri) -> Unit = {},
+  val onAttach: (Uri) -> Unit = {},
   val onRemoveAttachment: (Int) -> Unit = {},
   val onOpenSettings: () -> Unit = {},
   val onProvider: (ProviderId) -> Unit = {},
@@ -197,10 +160,11 @@ internal class ComposerActions(
 )
 
 /**
- * La barra in fondo, nella forma delle chat che si usano: il campo sopra, e sotto la riga con il
- * "+", il modello che risponde e il microfono (o l'invio, o lo stop). Sopra la barra, quando ci
- * sono, le pillole: allegati, plugin scelto, "pensa piu' a fondo", modifica in corso, e la strada
- * per le impostazioni quando manca una chiave.
+ * La barra in fondo, nella forma delle chat che si usano: e' il `FluidComposer` dell'engine (campo,
+ * capsula di vetro, alone in ascolto, tasto a destra: microfono, invio, stop, zitta), e qui restano
+ * gli slot che sono di Aria: il "+" con le sue due pagine (allegati, plugin, "pensa piu' a fondo",
+ * chat temporanea), il chip del modello, e le pillole sopra (allegati, plugin scelto, modifica in
+ * corso, la strada per le impostazioni quando manca una chiave).
  *
  * Il campo e' sempre usabile. Senza chiavi rispondono i comandi rapidi ("timer di 10 minuti"), che
  * girano sul telefono; il resto finisce nella risposta "nessuna chiave", con la pillola che porta
@@ -210,11 +174,6 @@ internal class ComposerActions(
  * Il "+" apre un menu di vetro **sul tasto** (Fotocamera, Foto, File, Plugin, Pensa piu' a
  * fondo, Chat temporanea); il modello apre un pop-up sul suo chip. Entrambi vengono dal padrone di casa dei
  * modali alla radice, sullo stesso vetro della chat.
- *
- * Il vetro: la capsula rifrange [backdrop] (fondale e lista insieme) e **esporta** il proprio
- * materiale finito, cosi' i tasti tondi che ci stanno sopra piegano la capsula e non la pagina
- * tre strati piu' giu' — come fa la barra di `FluidScreen` con le sue azioni. Prima campionavano
- * la pagina direttamente, e ogni tasto era un buco nitido nel composer.
  *
  * @param resampleIntervalMillis ogni quanto, al massimo, la capsula rifa' la propria cattura; zero
  *   e' "quando serve". Sopra un fondale animato lo alza chi anima il fondale.
@@ -230,32 +189,15 @@ internal fun Composer(
   resampleIntervalMillis: Long = 0L,
 ) {
   val context = LocalContext.current
-  // Il materiale della capsula, pubblicato per i tasti che ci stanno sopra: una lente appoggiata
-  // su vetro smerigliato mostra la smerigliatura, non la pagina sotto.
-  val composerGlass = rememberGlassBackdrop()
-  val controlBackdrop = rememberCombinedGlassBackdrop(backdrop, composerGlass)
   val text = composer.text
   val editing = composer.editing
   val busy = state.anyBusy
   val listening = state.live is AssistantState.Listening
   val transcribing = state.live is AssistantState.Transcribing
-  // L'alone mentre ascolta: l'orologio segue il microfono (letto nel loop di frame, non in
-  // composizione: lo `StateFlow` a cinquanta hertz non ricompone nessuno) e la presenza sfuma
-  // dentro e fuori. Mentre trascrive rallenta e si assesta: la voce e' finita, si aspetta.
+  // La riga della voce (e l'alone) ci sono anche mentre trascrive: per il tasto a destra e' ancora
+  // "ascolto", e un tocco ferma la trascrizione come prima (la risposta e' di `onStop`, non di `onStopVoice`).
   val voiceActive = listening || transcribing
-  val micLevel = feeds.micLevel
-  val glowClock = rememberHaloClock(
-    running = voiceActive,
-    speed = if (transcribing) GlowTranscribingTempo else 1f,
-    target = { if (transcribing) GlowTranscribingAmplitude else GlowFloorAmplitude + (1f - GlowFloorAmplitude) * micLevel.value.level.coerceIn(0f, 1f) },
-  )
-  val glow = animateFloatAsState(
-    targetValue = if (voiceActive) 1f else 0f,
-    animationSpec = if (voiceActive) FluidMotion.fadeIn(GlowFadeInMs) else FluidMotion.fadeOut(GlowFadeOutMs),
-    label = "composerGlow",
-  )
-  val glowColours = HaloColours.fromTheme()
-  val glowBlend = haloBlendForTheme()
+  val glow = rememberFluidListeningGlow(listening = listening, transcribing = transcribing, level = { feeds.micLevel.value.level })
   val focus = remember { FocusRequester() }
   // Il silenzio iniziale: la barra e' gia' tornata testo, qui si mette il cursore nel campo. Solo
   // con la chat davanti (STARTED): prima l'effetto restava in ascolto anche con l'app dietro, e un
@@ -266,15 +208,13 @@ internal fun Composer(
       feeds.voiceEvents.collect { if (it is VoiceEvent.InitialSilence) runCatching { focus.requestFocus() } }
     }
   }
-  val micGranted = remember { context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED }
-  val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) actions.onVoice() }
   val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(3)) { uris -> uris.forEach(actions.onAttach) }
   val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> uris.forEach(actions.onAttach) }
   // La foto intera, non l'anteprima: l'anteprima e' una miniatura di pochi pixel, e una pagina di
   // libro o uno scontrino fotografati cosi' non si leggono. Il file lo riempie l'app della
   // fotocamera (senza permesso della fotocamera per noi) e poi passa dalla via degli allegati,
   // che la rimpicciolisce a una misura buona per il modello.
-  var cameraUri by rememberSaveable { mutableStateOf<android.net.Uri?>(null) }
+  var cameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
   val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
     val uri = cameraUri
     if (saved && uri != null) actions.onAttach(uri)
@@ -301,89 +241,58 @@ internal fun Composer(
     if (actions.onSend(query)) composer.sent()
   }
 
-  Column {
-    // La strada per le impostazioni resta in vista quando serve: senza chiavi (i comandi rapidi
-    // funzionano, il resto no) e con Aria spenta.
-    val settingsPill = when {
-      !state.hasKeys -> "Aggiungi una chiave"
-      state.blockedByConsent -> "Aria e' spenta: accendila"
-      else -> null
-    }
-    val pills = editing != null || state.attachments.isNotEmpty() || chosenPlugin != null || model.deepNext || settingsPill != null
-    if (pills) {
-      FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)) {
-        settingsPill?.let { Pill(Icons.Rounded.Key, it, accent = true, removable = false, onClick = actions.onOpenSettings) }
-        if (editing != null) Pill(Icons.Rounded.Edit, "Modifico il messaggio", accent = true, onClick = { composer.cancelEditing() })
-        chosenPlugin?.let { Pill(Icons.Rounded.Extension, it.label, accent = true, onClick = { actions.onPlugin(null) }) }
-        if (model.deepNext) Pill(Icons.Rounded.Psychology, "Pensa piu' a fondo", accent = true, onClick = actions.onToggleDeep)
-        state.attachments.forEachIndexed { index, attachment -> AttachmentChip(attachment) { actions.onRemoveAttachment(index) } }
-      }
-    }
-    // La scatola esterna porta l'alone: le macchie stanno dietro al vetro e sbordano attorno, l'anello
-    // sopra il bordo. Non clippa, e non deve: la luce vive fuori dalla capsula.
-    Box(Modifier.composerListeningGlow(clock = glowClock, presence = { glow.value }, colours = glowColours, blend = glowBlend)) {
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .onGloballyPositioned { composerRect = it.boundsInRoot() }
-          .glassSurface(
-            state = backdrop,
-            tint = composerTint(),
-            shape = ComposerShape,
-            role = ComposerRole,
-            exports = composerGlass,
-            resampleIntervalMillis = resampleIntervalMillis,
-          )
-          .padding(start = 8.dp, end = 8.dp, top = 6.dp, bottom = 8.dp),
-      ) {
-        if (voiceActive) {
-          ChatVoiceLine(partial = feeds.partial, transcribing = transcribing, amplitude = { glowClock.amplitude }, onTap = actions.onCancelVoice, modifier = Modifier.fillMaxWidth())
-        } else {
-          ComposerField(
-            value = text,
-            onValueChange = { composer.text = it },
-            placeholder = when {
-              editing != null -> "Modifica e rinvia..."
-              // Si scrive anche mentre Aria risponde: la prossima domanda si prepara leggendo
-              // questa, e con Invio va in coda.
-              busy -> "Intanto scrivi la prossima..."
-              else -> "Chiedi ad Aria..."
-            },
-            enabled = true,
-            onSend = { submit() },
-            modifier = Modifier.fillMaxWidth().focusRequester(focus),
-          )
-        }
-        Spacer(Modifier.height(6.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          GlassRound(
-            icon = Icons.Rounded.Add,
-            description = "Allega o scegli",
-            backdrop = controlBackdrop,
-            modifier = Modifier.onGloballyPositioned { plusRect = it.boundsInRoot() },
-            onClick = { pluginPage = false; plusMenu = true },
-          )
-          Spacer(Modifier.width(8.dp))
-          ModelPill(label = modelLabel(state, model.thinkingAuto), onClick = { modelMenu = true })
-          Spacer(Modifier.weight(1f))
-          val hasInput = text.isNotBlank() || state.attachments.isNotEmpty()
-          when {
-            listening -> GlassRound(Icons.Rounded.Stop, "Smetti di ascoltare", controlBackdrop, tint = MaterialTheme.colorScheme.error, onClick = actions.onStopVoice)
-            // Al lavoro con qualcosa di scritto: lo stop resta, e accanto l'invio che mette in coda.
-            busy && hasInput -> {
-              GlassRound(Icons.Rounded.Stop, "Ferma", controlBackdrop, onClick = actions.onStop)
-              Spacer(Modifier.width(8.dp))
-              GlassRound(Icons.Rounded.ArrowUpward, "Manda quando ha finito", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
-            }
-            busy -> GlassRound(Icons.Rounded.Stop, "Ferma", controlBackdrop, onClick = actions.onStop)
-            model.speaking && !hasInput -> GlassRound(Icons.Rounded.VolumeOff, "Zitta", controlBackdrop, onClick = actions.onStopSpeaking)
-            !hasInput -> GlassRound(Icons.Rounded.Mic, "Parla", controlBackdrop, onClick = { if (micGranted) actions.onVoice() else micLauncher.launch(Manifest.permission.RECORD_AUDIO) })
-            else -> GlassRound(Icons.Rounded.ArrowUpward, "Invia", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
-          }
-        }
-      }
-    }
+  // La strada per le impostazioni resta in vista quando serve: senza chiavi (i comandi rapidi
+  // funzionano, il resto no) e con Aria spenta.
+  val settingsPill = when {
+    !state.hasKeys -> "Aggiungi una chiave"
+    state.blockedByConsent -> "Aria e' spenta: accendila"
+    else -> null
   }
+  val hasPills = editing != null || state.attachments.isNotEmpty() || chosenPlugin != null || model.deepNext || settingsPill != null
+  val hasInput = text.isNotBlank() || state.attachments.isNotEmpty()
+
+  FluidComposer(
+    value = text,
+    onValueChange = { composer.text = it },
+    backdrop = backdrop,
+    action = fluidComposerAction(hasInput = hasInput, busy = busy, listening = voiceActive, speaking = model.speaking),
+    onSend = { submit() },
+    placeholder = when {
+      editing != null -> AriaChatStrings.composerEditing
+      // Si scrive anche mentre Aria risponde: la prossima domanda si prepara leggendo
+      // questa, e con Invio va in coda.
+      busy -> AriaChatStrings.composerBusyPlaceholder
+      else -> AriaChatStrings.composerPlaceholder
+    },
+    strings = AriaChatStrings,
+    onStop = actions.onStop,
+    onVoice = actions.onVoice,
+    // Trascrivendo, il tasto "ferma" e' lo stop della domanda (come prima), non la fine dell'ascolto.
+    onStopListening = { if (transcribing) actions.onStop() else actions.onStopVoice() },
+    onMute = actions.onStopSpeaking,
+    pills = if (!hasPills) null else ({
+      settingsPill?.let { FluidComposerPill(Icons.Rounded.Key, it, accent = true, removable = false, trailingLink = Icons.Rounded.ChevronRight, onClick = actions.onOpenSettings) }
+      if (editing != null) FluidComposerPill(Icons.Rounded.Edit, "Modifico il messaggio", accent = true, onClick = { composer.cancelEditing() })
+      chosenPlugin?.let { FluidComposerPill(Icons.Rounded.Extension, it.label, accent = true, onClick = { actions.onPlugin(null) }) }
+      if (model.deepNext) FluidComposerPill(Icons.Rounded.Psychology, "Pensa piu' a fondo", accent = true, onClick = actions.onToggleDeep)
+      state.attachments.forEachIndexed { index, attachment -> AttachmentChip(attachment) { actions.onRemoveAttachment(index) } }
+    }),
+    leading = { controlBackdrop ->
+      FluidGlassRoundButton(
+        icon = Icons.Rounded.Add,
+        description = "Allega o scegli",
+        backdrop = controlBackdrop,
+        modifier = Modifier.onGloballyPositioned { plusRect = it.boundsInRoot() },
+        onClick = { pluginPage = false; plusMenu = true },
+      )
+    },
+    chips = { FluidComposerChip(label = modelLabel(state, model.thinkingAuto), onClick = { modelMenu = true }) },
+    voiceLine = { ChatVoiceLine(partial = feeds.partial, transcribing = transcribing, amplitude = { glow.clock.amplitude }, onTap = actions.onCancelVoice, modifier = Modifier.fillMaxWidth()) },
+    glow = glow,
+    focusRequester = focus,
+    onBoundsChange = { composerRect = it },
+    resampleIntervalMillis = resampleIntervalMillis,
+  )
 
   // Il menu del "+": il tasto *diventa* il menu (presentazione `Expand`: parte dal suo
   // rettangolo, cresce con le molle della Fluid-physics, e ci ritorna quando si sceglie).
@@ -450,171 +359,12 @@ internal fun Composer(
 @Composable
 private fun ChatVoiceLine(partial: StateFlow<String?>, transcribing: Boolean, amplitude: () -> Float, onTap: () -> Unit, modifier: Modifier = Modifier) {
   val words by partial.collectAsStateWithLifecycle()
-  ComposerVoiceLine(partial = words, transcribing = transcribing, amplitude = amplitude, onTap = onTap, modifier = modifier)
-}
-
-/**
- * L'alone in ascolto: quanto ci mette a comparire e a sparire. In uscita un po' piu' lungo, cosi'
- * quando si smette di parlare la luce si posa invece di spegnersi.
- */
-private const val GlowFadeInMs = 220
-private const val GlowFadeOutMs = 260
-
-/** L'ampiezza dell'alone nel silenzio: fra due sillabe non si spegne. Con la voce va a uno. */
-private const val GlowFloorAmplitude = 0.25f
-
-/** Mentre trascrive l'alone si assesta basso e va a un terzo del passo: la voce e' finita, si aspetta. */
-private const val GlowTranscribingAmplitude = 0.30f
-private const val GlowTranscribingTempo = 0.35f
-
-/** Il raggio della capsula. Preesistente e non un token `FluidRadius`: cambiarlo e' una scelta visiva. */
-internal val ComposerCorner: Dp = 26.dp
-
-/** La sagoma della capsula, condivisa con chi deve nascerci dentro o ritornarci (i menu del "+"). */
-internal val ComposerShape = ContinuousCornerShape(ComposerCorner)
-
-/**
- * `Floating`, con riserva. E' il ruolo giusto per una capsula che galleggia sulla chat: la lente
- * e' la stessa del `Modal` (19/29 dp contro 20/28), cambia la sfocatura, 1.8 contro 3.5, e con la
- * pagina rifratta sotto la piu' leggera e' quella che lascia vedere che *c'e'* una pagina.
- * Sull'emulatore ogni build con `Floating` su una superficie di questa misura finiva in ANR nel
- * disegno ("main thread affamato", non un loop), e quelle con `Modal` no: sul telefono va provato,
- * e il ripiego e' `GlassRole.Modal`, una parola.
- */
-private val ComposerRole = GlassRole.Floating
-
-/**
- * Quanto del film dei `floatingTint` resta sulla capsula. Il 52% (chiaro) era pensato per una
- * pillola di navigazione con etichette di otto pixel sopra contenuto arbitrario; con la pagina
- * rifratta sotto e le parole grandi del campo, era un velo bianco che copriva il vetro. Quattro
- * quinti: 0.52 -> 0.42 in chiaro, 0.48 -> 0.38 in scuro. Il ripiego senza `RenderEffect` e il
- * filo del bordo restano quelli della famiglia.
- */
-private const val ComposerFilmShare = 0.80f
-
-@Composable
-private fun composerTint(): GlassTint {
-  val base = GlassDefaults.floatingTint()
-  return base.copy(overlay = base.overlay.copy(alpha = base.overlay.alpha * ComposerFilmShare))
-}
-
-/**
- * Il campo del composer: le parole direttamente sul vetro.
- *
- * `FluidTextField` disegna un pozzo grigio sotto il testo, giusto in un modulo e sbagliato qui: un
- * rettangolo pieno dentro una capsula di vetro e' quello che fa leggere il vetro come "una
- * trasparenza". Nelle chat che si usano il testo sta sulla superficie, e il bordo della capsula e'
- * l'unico contorno.
- *
- * @param maxLines quante righe il campo puo' crescere prima di scorrere; sei e' il composer della
- *   chat, chi lo riusa altrove sceglie le sue.
- */
-@Composable
-internal fun ComposerField(
-  value: String,
-  onValueChange: (String) -> Unit,
-  placeholder: String,
-  enabled: Boolean,
-  onSend: () -> Unit,
-  modifier: Modifier = Modifier,
-  maxLines: Int = 6,
-) {
-  val scheme = MaterialTheme.colorScheme
-  BasicTextField(
-    value = value,
-    onValueChange = onValueChange,
-    enabled = enabled,
-    maxLines = maxLines,
-    textStyle = MaterialTheme.typography.bodyLarge.copy(color = scheme.onSurface),
-    cursorBrush = SolidColor(scheme.primary),
-    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-    keyboardActions = KeyboardActions(onSend = { onSend() }),
-    modifier = modifier.padding(horizontal = 10.dp, vertical = 12.dp),
-    decorationBox = { inner ->
-      Box {
-        if (value.isEmpty()) {
-          Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant.copy(alpha = 0.75f))
-        }
-        inner()
-      }
-    },
-  )
-}
-
-/** Il chip del modello: una pillola bassa, che non ruba la riga al campo di testo. */
-@Composable
-private fun ModelPill(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-  Row(
-    modifier = modifier
-      .height(30.dp)
-      .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), FluidCapsuleShape)
-      .fluidPressable(onClick = onClick, role = Role.Button, haptic = null)
-      .padding(start = 12.dp, end = 8.dp),
-    verticalAlignment = Alignment.CenterVertically,
-  ) {
-    Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    Spacer(Modifier.width(2.dp))
-    Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-  }
-}
-
-/**
- * Una pillola sopra la barra: un allegato, il plugin, la modalita'. Toccarla la toglie; con
- * [removable] falso e' un collegamento (le impostazioni) e la X non c'e'.
- */
-@Composable
-private fun Pill(icon: ImageVector, label: String, accent: Boolean = false, removable: Boolean = true, onClick: () -> Unit) {
-  val bg = if (accent) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
-  val fg = if (accent) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-  Row(
-    modifier = Modifier
-      .height(30.dp)
-      .background(bg, FluidCapsuleShape)
-      .fluidPressable(onClick = onClick, role = Role.Button, haptic = null)
-      .padding(start = 10.dp, end = 6.dp),
-    verticalAlignment = Alignment.CenterVertically,
-  ) {
-    Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(14.dp))
-    Spacer(Modifier.width(6.dp))
-    Text(label, style = MaterialTheme.typography.labelMedium, color = fg, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    if (removable) {
-      Spacer(Modifier.width(4.dp))
-      Icon(Icons.Rounded.Close, contentDescription = "Togli", tint = fg.copy(alpha = 0.7f), modifier = Modifier.size(14.dp))
-    } else {
-      Spacer(Modifier.width(4.dp))
-      Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = fg.copy(alpha = 0.7f), modifier = Modifier.size(14.dp))
-    }
-  }
-}
-
-/**
- * Un tasto tondo di vetro, come quelli della barra nella sessione: il "+", il microfono, l'invio,
- * lo stop. Lo stesso disco per tutti, cambia solo l'icona e, quando serve, il colore. Il
- * [backdrop] e' quello che il disco rifrange: sul composer e' la pila pagina + capsula.
- */
-@Composable
-internal fun GlassRound(
-  icon: ImageVector,
-  description: String,
-  backdrop: GlassBackdropState,
-  modifier: Modifier = Modifier,
-  tint: Color = MaterialTheme.colorScheme.onSurface,
-  onClick: () -> Unit,
-) {
-  Box(
-    modifier = modifier
-      .size(40.dp)
-      .glassControlSurface(backdrop = backdrop, shape = FluidCapsuleShape)
-      .fluidPressable(onClick = onClick, role = Role.Button),
-    contentAlignment = Alignment.Center,
-  ) {
-    Icon(icon, contentDescription = description, tint = tint, modifier = Modifier.size(20.dp))
-  }
+  FluidComposerVoiceLine(partial = words, transcribing = transcribing, amplitude = amplitude, onTap = onTap, modifier = modifier, strings = AriaAssistantStrings)
 }
 
 @Composable
 private fun AttachmentChip(attachment: PendingAttachment, onRemove: () -> Unit) {
-  Pill(
+  FluidComposerPill(
     icon = if (attachment.kind == AttachmentKind.IMAGE) Icons.Rounded.Image else Icons.Rounded.AttachFile,
     label = attachment.name.take(22),
     onClick = onRemove,

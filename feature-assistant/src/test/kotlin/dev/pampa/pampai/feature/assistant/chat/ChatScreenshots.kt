@@ -26,6 +26,8 @@ import dev.antigravity.fluidengine.ai.orchestrator.ProviderSwitch
 import dev.antigravity.fluidengine.ai.orchestrator.SwitchReason
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderId
+import dev.antigravity.fluidengine.aiui.overlay.FluidFailureDetailsContent
+import dev.antigravity.fluidengine.aiui.overlay.FluidFailureReport
 import dev.antigravity.fluidengine.foundation.EngineSettings
 import dev.antigravity.fluidengine.foundation.ThemeMode
 import dev.pampa.pampai.core.assistant.db.FailureDetail
@@ -38,7 +40,6 @@ import dev.pampa.pampai.core.assistant.db.Version
 import dev.pampa.pampai.core.assistant.tools.PampaiToolTrace
 import dev.pampa.pampai.feature.assistant.theme.PampaiTheme
 import java.io.File
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -180,7 +181,7 @@ class ChatScreenshots {
   /** Il foglio "Dettagli" di una risposta fallita, il contenuto sopra il fondo della pagina. */
   @Composable
   private fun Details() {
-    val report = FailureReport(
+    val report = FluidFailureReport(
       kind = FailureKind.RATE_LIMITED,
       provider = ProviderId.OPENROUTER,
       model = "minimax/minimax-m2.5:free",
@@ -191,7 +192,7 @@ class ChatScreenshots {
       technical = "HTTP 429",
     )
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp)) {
-      FailureDetailsContent(report)
+      FluidFailureDetailsContent(report, AriaAssistantStrings)
     }
   }
 
@@ -201,15 +202,8 @@ class ChatScreenshots {
     rule.onRoot().captureRoboImage(File(out, "$name.png").absolutePath)
   }
 
-  /**
-   * Il Markdown completo (mikepenz 0.41) e' compilato per Java 21, e Robolectric gira sulla JVM di
-   * Gradle: sulla JDK 17 caricarlo fallisce ("class file version 65.0"). Allora le schermate con
-   * risposte finite si saltano invece di fallire, e il giro senza Markdown ([Flow]) resta.
-   */
-  private fun assumeMarkdownLoads() = assumeTrue("il Markdown completo vuole la JDK 21 per Robolectric", (System.getProperty("java.specification.version")?.toIntOrNull() ?: 0) >= 21)
-
-  @Test fun chatLight() { assumeMarkdownLoads(); shoot("chat-light", ThemeMode.LIGHT) { Screen(empty = false) } }
-  @Test fun chatDark() { assumeMarkdownLoads(); shoot("chat-dark", ThemeMode.DARK) { Screen(empty = false) } }
+  @Test fun chatLight() = shoot("chat-light", ThemeMode.LIGHT) { Screen(empty = false) }
+  @Test fun chatDark() = shoot("chat-dark", ThemeMode.DARK) { Screen(empty = false) }
   @Test fun emptyLight() = shoot("empty-light", ThemeMode.LIGHT) { Screen(empty = true) }
   @Test fun emptyDark() = shoot("empty-dark", ThemeMode.DARK) { Screen(empty = true) }
   @Test fun flowLight() = shoot("flow-light", ThemeMode.LIGHT) { Flow() }

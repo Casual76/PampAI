@@ -56,13 +56,15 @@ import dev.antigravity.fluidengine.ui.fluidphysics.fluidPhysicsSurface
 import dev.antigravity.fluidengine.ui.fluid.rememberCombinedGlassBackdrop
 import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
 import dev.antigravity.fluidengine.ui.fluidphysics.rememberFluidPhysicsState
-import dev.pampa.pampai.feature.assistant.chat.ComposerField
-import dev.pampa.pampai.feature.assistant.chat.ComposerVoiceLine
-import dev.pampa.pampai.feature.assistant.chat.GlassRound
-import dev.pampa.pampai.feature.assistant.chat.composerListeningGlow
-import dev.pampa.pampai.feature.assistant.halo.HaloColours
-import dev.pampa.pampai.feature.assistant.halo.haloBlendForTheme
-import dev.pampa.pampai.feature.assistant.halo.rememberHaloClock
+import dev.antigravity.fluidengine.aiui.chat.FluidComposerField
+import dev.antigravity.fluidengine.aiui.chat.FluidComposerVoiceLine
+import dev.antigravity.fluidengine.aiui.chat.FluidGlassRoundButton
+import dev.antigravity.fluidengine.aiui.chat.FluidListeningGlow
+import dev.antigravity.fluidengine.aiui.chat.fluidListeningGlow
+import dev.antigravity.fluidengine.aiui.halo.FluidHaloColours
+import dev.antigravity.fluidengine.aiui.halo.haloBlendForTheme
+import dev.antigravity.fluidengine.aiui.halo.rememberFluidHaloClock
+import dev.pampa.pampai.feature.assistant.chat.AriaAssistantStrings
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -117,7 +119,7 @@ internal fun SessionBar(
 
   // L'alone: l'orologio corre solo mentre si ascolta davvero (durante l'orb non c'e' ancora una
   // capsula su cui girare), la presenza sfuma dentro e fuori.
-  val clock = rememberHaloClock(
+  val clock = rememberFluidHaloClock(
     running = listening && !orb && !reducedMotion,
     speed = 1f,
     target = { GlowFloorAmplitude + (1f - GlowFloorAmplitude) * micLevel.value.level.coerceIn(0f, 1f) },
@@ -127,7 +129,7 @@ internal fun SessionBar(
     if (voiceActive) glow.animateTo(1f, FluidMotion.fadeIn(GlowFadeInMillis))
     else glow.animateTo(0f, FluidMotion.fadeOut(GlowFadeOutMillis))
   }
-  val glowColours = HaloColours.fromTheme()
+  val glowColours = FluidHaloColours.fromTheme()
   val glowBlend = haloBlendForTheme()
 
   // Il fuoco nel campo quando la barra e' tornata testo: dopo il silenzio iniziale, o per scelta.
@@ -165,12 +167,9 @@ internal fun SessionBar(
     Box(
       Modifier
         .fillMaxSize()
-        .composerListeningGlow(
-          clock = clock,
-          presence = { glow.value },
-          colours = glowColours,
+        .fluidListeningGlow(
+          glow = FluidListeningGlow(clock = clock, presence = { glow.value }, colours = glowColours, blend = glowBlend),
           shape = BarGlowShape,
-          blend = glowBlend,
         )
         .fluidPhysicsSurface(
           state = physics,
@@ -208,17 +207,18 @@ internal fun SessionBar(
             .padding(horizontal = 8.dp),
           verticalAlignment = Alignment.CenterVertically,
         ) {
-          GlassRound(Icons.Rounded.Screenshot, "Allega lo schermo", controlBackdrop, onClick = onAttachScreen)
+          FluidGlassRoundButton(Icons.Rounded.Screenshot, "Allega lo schermo", controlBackdrop, onClick = onAttachScreen)
           if (listening || transcribing) {
-            ComposerVoiceLine(
+            FluidComposerVoiceLine(
               partial = partial,
               transcribing = transcribing,
               amplitude = { clock.amplitude },
               onTap = onVoiceToText,
               modifier = Modifier.weight(1f),
+              strings = AriaAssistantStrings,
             )
           } else {
-            ComposerField(
+            FluidComposerField(
               value = text,
               onValueChange = { text = it },
               placeholder = if (busy) "Sto rispondendo…" else "Chiedi ad Aria…",
@@ -230,11 +230,11 @@ internal fun SessionBar(
           }
           Spacer(Modifier.width(4.dp))
           when {
-            listening -> GlassRound(Icons.Rounded.Stop, "Smetti di ascoltare", controlBackdrop, tint = MaterialTheme.colorScheme.error, onClick = onStopVoice)
-            busy -> GlassRound(Icons.Rounded.Stop, "Ferma", controlBackdrop, onClick = onStop)
-            speaking && text.isBlank() -> GlassRound(Icons.Rounded.VolumeOff, "Zitta", controlBackdrop, onClick = onStopSpeaking)
-            text.isBlank() && !hasAttachments -> GlassRound(Icons.Rounded.Mic, "Parla", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = onVoice)
-            else -> GlassRound(Icons.Rounded.ArrowUpward, "Invia", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
+            listening -> FluidGlassRoundButton(Icons.Rounded.Stop, "Smetti di ascoltare", controlBackdrop, tint = MaterialTheme.colorScheme.error, onClick = onStopVoice)
+            busy -> FluidGlassRoundButton(Icons.Rounded.Stop, "Ferma", controlBackdrop, onClick = onStop)
+            speaking && text.isBlank() -> FluidGlassRoundButton(Icons.Rounded.VolumeOff, "Zitta", controlBackdrop, onClick = onStopSpeaking)
+            text.isBlank() && !hasAttachments -> FluidGlassRoundButton(Icons.Rounded.Mic, "Parla", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = onVoice)
+            else -> FluidGlassRoundButton(Icons.Rounded.ArrowUpward, "Invia", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
           }
         }
       }
