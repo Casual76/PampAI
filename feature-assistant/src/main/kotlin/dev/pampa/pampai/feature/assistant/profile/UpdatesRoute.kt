@@ -14,6 +14,7 @@ import dev.pampa.pampai.core.assistant.durable.*
 import dev.pampa.pampai.core.assistant.research.AreaScheduleStatus
 import dev.pampa.pampai.core.assistant.runtime.*
 import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
+import dev.antigravity.fluidengine.ui.page.FluidPageHost
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.serialization.json.*
@@ -27,34 +28,40 @@ internal fun UpdatesRoute(onBack: () -> Unit, viewModel: ProfileViewModel) {
   var helper by remember { mutableStateOf(false) }
   var query by rememberSaveable { mutableStateOf("") }
   val draft = state.areaDraft
-  if (draft == null) {
-    ProfileScaffold("Aggiornamenti del profilo", "Decidi cosa può imparare Aria. Ogni area ha scelte e limiti propri.", onBack) {
-      state.message?.let { item { Notice(it) } }
-      item { FluidListGroup(glass = true) {
-        FluidListRow("Limiti globali", "Se configurati valgono anche per le richieste in chat", onClick = { caps = false })
-        FluidListDivider()
-        FluidListRow("Limiti degli aggiornamenti", "Un limite aggiuntivo per tutto il lavoro automatico", onClick = { caps = true })
-      } }
-      state.caps.forEach { cap -> item(key = "cap-${cap.id}") { FluidListGroup {
-        FluidListRow(if (cap.backgroundOnly) "Limite salvato per aggiornamenti" else "Limite globale salvato",
-          "${cap.requests} richieste · ${cap.tokens} token\nDal ${dateLabel(cap.start)} al ${dateLabel(cap.end)}\n" +
-            (cap.money?.let { "Tetto di spesa: ${java.math.BigDecimal.valueOf(it, 6).toPlainString()} · valuta da verificare" } ?: "Tetto di spesa disattivato esplicitamente"))
-      } } }
-      item { Notice("Prima di configurare limiti globali, le richieste esplicite in chat non hanno un massimale monetario garantito. I limiti per area si aggiungono a quelli globali e degli aggiornamenti.") }
-      val areas = (state.grants.map { it.area } + state.areas.map { it.area }).distinct()
-      if (areas.isEmpty()) item { Notice("Collega prima una sezione in Fonti collegate. Nessun aggiornamento è attivo.") }
-      areas.forEach { area -> item(key = area) {
-        val config = state.areas.firstOrNull { it.area == area }
-        val status = state.schedules.firstOrNull { it.area == area }
-        AreaUpdatesRow(area, config, status, { viewModel.editArea(area) }, { viewModel.disable(area) })
-      } }
-      item { Notice("Tariffe e valuta non sono verificate: con un tetto di spesa il lavoro automatico resta sospeso. Anche senza tetto di spesa servono limiti del modello verificati. Nessun prezzo o quota gratuita viene presunto.") }
-      item { Notice("Android esegue gli aggiornamenti quando possibile, rispettando rete e batteria: l’orario non è garantito. Nessuna notifica o messaggio spontaneo.") }
+  // Conserva il contenuto uscente per la molla, senza un BackHandler che rubi il gesto predittivo.
+  var leavingDraft by remember { mutableStateOf(draft) }
+  SideEffect { if (draft != null) leavingDraft = draft }
+  FluidPageHost(stack = if (draft == null) listOf("areas") else listOf("areas", "edit-${draft.area}"),
+    onBack = { viewModel.changeArea(null) }, modifier = Modifier.fillMaxSize()) { page ->
+    if (page == "areas") {
+      ProfileScaffold("Aggiornamenti del profilo", "Decidi cosa può imparare Aria. Ogni area ha scelte e limiti propri.", onBack) {
+        state.message?.let { item { Notice(it) } }
+        item { FluidListGroup(glass = true) {
+          FluidListRow("Limiti globali", "Se configurati valgono anche per le richieste in chat", onClick = { caps = false })
+          FluidListDivider()
+          FluidListRow("Limiti degli aggiornamenti", "Un limite aggiuntivo per tutto il lavoro automatico", onClick = { caps = true })
+        } }
+        state.caps.forEach { cap -> item(key = "cap-${cap.id}") { FluidListGroup {
+          FluidListRow(if (cap.backgroundOnly) "Limite salvato per aggiornamenti" else "Limite globale salvato",
+            "${cap.requests} richieste · ${cap.tokens} token\nDal ${dateLabel(cap.start)} al ${dateLabel(cap.end)}\n" +
+              (cap.money?.let { "Tetto di spesa: ${java.math.BigDecimal.valueOf(it, 6).toPlainString()} · valuta da verificare" } ?: "Tetto di spesa disattivato esplicitamente"))
+        } } }
+        item { Notice("Prima di configurare limiti globali, le richieste esplicite in chat non hanno un massimale monetario garantito. I limiti per area si aggiungono a quelli globali e degli aggiornamenti.") }
+        val areas = (state.grants.map { it.area } + state.areas.map { it.area }).distinct()
+        if (areas.isEmpty()) item { Notice("Collega prima una sezione in Fonti collegate. Nessun aggiornamento è attivo.") }
+        areas.forEach { area -> item(key = area) {
+          val config = state.areas.firstOrNull { it.area == area }
+          val status = state.schedules.firstOrNull { it.area == area }
+          AreaUpdatesRow(area, config, status, { viewModel.editArea(area) }, { viewModel.disable(area) })
+        } }
+        item { Notice("Tariffe e valuta non sono verificate: con un tetto di spesa il lavoro automatico resta sospeso. Anche senza tetto di spesa servono limiti del modello verificati. Nessun prezzo o quota gratuita viene presunto.") }
+        item { Notice("Android esegue gli aggiornamenti quando possibile, rispettando rete e batteria: l’orario non è garantito. Nessuna notifica o messaggio spontaneo.") }
+      }
+    } else {
+      val editing = draft ?: leavingDraft
+      if (editing != null) AreaSetupScreen(editing, state, onBack = { viewModel.changeArea(null) }, onChange = viewModel::changeArea,
+        onModel = { helper = false; picker = true }, onHelper = { helper = editing.policy != null; picker = true }, onSave = { viewModel.saveArea(editing) })
     }
-  } else {
-    androidx.activity.compose.BackHandler { viewModel.changeArea(null) }
-    AreaSetupScreen(draft, state, onBack = { viewModel.changeArea(null) }, onChange = viewModel::changeArea,
-      onModel = { helper = false; picker = true }, onHelper = { helper = draft.policy != null; picker = true }, onSave = { viewModel.saveArea(draft) })
   }
   if (picker && draft != null) FluidGlassModalPortal(visible = true, onDismissRequest = { picker = false }, presentation = FluidGlassModalPresentation.Sheet, paneTitle = "Modello per quest’area") {
     androidx.compose.foundation.lazy.LazyColumn(Modifier.fillMaxWidth().heightIn(max = 600.dp).imePadding(), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {

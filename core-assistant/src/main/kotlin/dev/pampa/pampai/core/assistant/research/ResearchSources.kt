@@ -70,14 +70,25 @@ internal data class CapturedSourceRead(val read: ResearchRead, val host: RemoteH
   // Canonical content can be shared; an acquisition retains its exact consent/control read.
   private fun key(read: ResearchRead) = read.grantId + ":" + digest(researchJson.encodeToString(ResearchRead.serializer(), read))
   private fun data(result: RemoteResult.Done) = result.result?.data ?: throw ResearchUnavailable("TYPED_PROOF_REQUIRED")
-  suspend fun discover(): List<SourceCandidate> = hosts().mapNotNull { host ->
+  suspend fun discover(): List<SourceCandidate> = hosts().map { host ->
+    fun unavailable(issue: SourceIssue) = SourceCandidate(host.packageName, host.authority,
+      ResearchHostPolicy.domain(host) ?: host.label, null, null, false, issue)
     try {
-      if (!typed(host)) null else {
+      if (!typed(host)) unavailable(SourceIssue.UPDATE_REQUIRED) else {
         val c = data(wire(host, "source_capabilities", buildJsonObject {}))
         checkContract(c, host)
-        SourceCandidate(host.packageName, host.authority, c.string("domain")!!, c.string("account"), c.string("student"), true)
+        val account = c.string("account")
+        SourceCandidate(host.packageName, host.authority, c.string("domain")!!, account, c.string("student"),
+          !account.isNullOrBlank(), if (account.isNullOrBlank()) SourceIssue.ACCOUNT_REQUIRED else null)
       }
-    } catch (_: ResearchUnavailable) { null }
+    } catch (e: ResearchUnavailable) {
+      unavailable(when (e.code) {
+        "UNTRUSTED_SOURCE" -> SourceIssue.SIGNATURE_MISMATCH
+        "UNSUPPORTED_SOURCE_PROOF", "TYPED_PROOF_REQUIRED", "TYPED_DATA_REQUIRED" -> SourceIssue.UPDATE_REQUIRED
+        else -> SourceIssue.NOT_READY
+      })
+    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+      catch (_: Exception) { unavailable(SourceIssue.NOT_READY) }
   }
   private fun checkContract(c: JsonObject, host: RemoteHost) {
     requireResearch(c.string("contract") == "aria.source-proof" && c["version"] == JsonPrimitive(1) &&

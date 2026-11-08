@@ -193,9 +193,6 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
               Routes.SettingsWithSection,
               arguments = listOf(navArgument("section") { type = NavType.StringType; nullable = true; defaultValue = null }),
             ) { backStackEntry ->
-              androidx.activity.compose.BackHandler(enabled = backStackEntry.arguments?.getString("section") != null) {
-                navController.backFromSettings()
-              }
               SettingsRoute(
                 chat = hiltViewModel(remember(backStackEntry) { navController.getBackStackEntry(Routes.Home) }),
                 section = backStackEntry.arguments?.getString("section"),

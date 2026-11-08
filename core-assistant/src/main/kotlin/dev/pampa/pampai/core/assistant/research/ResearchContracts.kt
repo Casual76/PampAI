@@ -12,8 +12,9 @@ enum class ResearchIntent { DIRECT, LOOKUP, RESEARCH }
   val grantId: String get() = "source:" + digest(listOf(selection.packageName, selection.authority, selection.domain,
     selection.account, selection.student, selection.year, selection.area).joinToString("|") { it?.let { s -> "${s.length}:$s" } ?: "null" })
 }
+enum class SourceIssue { UPDATE_REQUIRED, ACCOUNT_REQUIRED, SIGNATURE_MISMATCH, NOT_READY }
 data class SourceCandidate(val packageName: String, val authority: String, val domain: String,
-  val account: String?, val student: String?, val supported: Boolean)
+  val account: String?, val student: String?, val supported: Boolean, val issue: SourceIssue? = null)
 class ResearchUnavailable(val code: String) : IllegalStateException(code)
 data class ForegroundResearch(val conversationId: Long, val objective: String, val intent: ResearchIntent,
   val policy: ModelPolicy, val reads: List<ResearchRead>, val maxRecords: Int = 100)

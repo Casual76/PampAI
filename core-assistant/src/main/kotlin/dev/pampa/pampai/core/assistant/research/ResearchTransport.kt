@@ -17,13 +17,15 @@ interface ResearchTransport {
   suspend fun call(host: RemoteHost, tool: String, args: JsonObject): RemoteResult.Done
 }
 internal object ResearchHostPolicy {
+  val packages = mapOf("dev.pampa.fluidify" to "fluidify", "dev.pampa.fluidify.debug" to "fluidify",
+    "dev.antigravity.classevivaexpressive" to "cv", "dev.antigravity.classevivaexpressive.debug" to "cv")
   fun domain(host: RemoteHost): String? {
     if (host.authority != "${host.packageName}.ai.tools") return null
-    return when (host.packageName) {
-      "dev.pampa.fluidify", "dev.pampa.fluidify.debug" -> "fluidify"
-      "dev.antigravity.classevivaexpressive", "dev.antigravity.classevivaexpressive.debug" -> "cv"
-      else -> null
-    }
+    return packages[host.packageName]
+  }
+  /** Listing an installed known app grants no read permission; typed/trusted admission is separate. */
+  fun installed(pm: PackageManager): List<RemoteHost> = packages.mapNotNull { (pkg, label) ->
+    runCatching { pm.getApplicationInfo(pkg, 0) }.getOrNull()?.let { RemoteHost(pkg, "$pkg.ai.tools", label) }
   }
 }
 
@@ -32,10 +34,11 @@ internal object ResearchHostPolicy {
   private fun trusted(host: RemoteHost) {
     requireResearch(ResearchHostPolicy.domain(host) != null, "UNKNOWN_SOURCE_HOST")
     val info = context.packageManager.resolveContentProvider(host.authority, 0)
-    requireResearch(info?.packageName == host.packageName && context.packageManager.checkSignatures(host.packageName,
-      context.packageName) == PackageManager.SIGNATURE_MATCH, "UNTRUSTED_SOURCE")
+    requireResearch(context.packageManager.checkSignatures(host.packageName, context.packageName) == PackageManager.SIGNATURE_MATCH, "UNTRUSTED_SOURCE")
+    requireResearch(info?.packageName == host.packageName && info.enabled && info.exported, "SOURCE_PROVIDER_UNAVAILABLE")
   }
-  override suspend fun hosts() = client.discover().filter { ResearchHostPolicy.domain(it) != null }
+  override suspend fun hosts() = (client.discover().filter { ResearchHostPolicy.domain(it) != null } +
+    ResearchHostPolicy.installed(context.packageManager)).distinctBy { it.authority }
   override suspend fun typed(host: RemoteHost): Boolean {
     trusted(host)
     val catalog = client.catalog(host) ?: return false
