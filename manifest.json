@@ -22,14 +22,22 @@
       "sizeBytes": 14152029
     },
     "beta": {
-      "version": "1.3.1",
-      "releaseDate": "2026-11-03",
-      "changelog": "Engine 3.0.4: gli interruttori si trascinano, i menu si aprono veloci come si chiudono, il gesto indietro non scatta più col dito fermo; piccole correzioni di accessibilità.",
-      "releaseTag": "stable-pampai-v1.3.1",
-      "apkAsset": "pampai-1.3.1.apk",
-      "sizeBytes": 14152029
+      "version": "1.4.0-beta.1",
+      "releaseDate": "2026-11-08",
+      "changelog": "Aria cambia organizzazione: chat, navigazione e impostazioni sono più chiare, con spazi adattati anche a tablet e caratteri grandi.\n\n- Scegli servizio, modello e impegno per ogni richiesta. Le richieste accodate conservano la scelta originale; l'interpretazione delle immagini può usare un helper scelto esplicitamente.\n- Nuovo profilo personale: consulta i fatti alla base, correggi le informazioni, dimentica elementi ed escludi ambiti.\n- Ricerca silenziosa opzionale, con fonti, periodi, limiti e stato del lavoro visibili. Rimane spenta finché non viene configurata esplicitamente.\n- Conferme, ricevute e gestione di Stop più affidabili. Le operazioni con esito incerto conservano la ricevuta e non vengono reinviate automaticamente.\n- Maggiore controllo sull'uso dei dati: le restrizioni della domanda precedono la consultazione delle fonti e della memoria.\n\nQuesta è una beta. La consultazione privata di Fluidify e ClasseViva richiede versioni compatibili delle app sorgenti. Le prove complete su overlay di sistema, trasferimento durante una richiesta attiva, voce, TalkBack, servizi collegati e scheduling Android sono ancora aperte; non sono dichiarate superate.",
+      "releaseTag": "beta-pampai-v1.4.0-beta.1",
+      "apkAsset": "pampai-1.4.0-beta.1.apk",
+      "sizeBytes": 15005174
     },
     "history": [
+      {
+        "version": "1.3.1",
+        "releaseDate": "2026-11-03",
+        "changelog": "Engine 3.0.4: gli interruttori si trascinano, i menu si aprono veloci come si chiudono, il gesto indietro non scatta più col dito fermo; piccole correzioni di accessibilità.",
+        "releaseTag": "stable-pampai-v1.3.1",
+        "apkAsset": "pampai-1.3.1.apk",
+        "sizeBytes": 14152029
+      },
       {
         "version": "1.3.0",
         "releaseDate": "2026-11-03",
