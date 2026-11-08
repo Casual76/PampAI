@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.db.MigrationsTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:41:18.304Z" hostname="PC_FISSO" time="0.002">
+  <properties/>
+  <testcase name="la 2 a 3 aggiunge la colonna delle temporanee senza toccare le conversazioni gia' salvate" classname="dev.pampa.pampai.core.assistant.db.MigrationsTest" time="0.0"/>
+  <testcase name="le migrazioni coprono ogni passo fino alla versione del database" classname="dev.pampa.pampai.core.assistant.db.MigrationsTest" time="0.001"/>
+  <testcase name="una conversazione nasce non temporanea, come il default della colonna" classname="dev.pampa.pampai.core.assistant.db.MigrationsTest" time="0.0"/>
+  <testcase name="la 3 a 4 aggiunge colonne, aggiorna righe e crea un indice, senza cancellare niente" classname="dev.pampa.pampai.core.assistant.db.MigrationsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

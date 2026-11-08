@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:12:57.305Z" hostname="PC_FISSO" time="0.094">
+  <properties/>
+  <testcase name="la regola di serie confronta il chiamante con noi, e si fida solo di SIGNATURE_MATCH" classname="dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest" time="0.021"/>
+  <testcase name="senza contesto non si fida di nessuno" classname="dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest" time="0.013"/>
+  <testcase name="un chiamante fidato passa, e il cancello sceglie per uid" classname="dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest" time="0.014"/>
+  <testcase name="un chiamante con un'altra firma riceve una SecurityException, su ogni metodo" classname="dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest" time="0.014"/>
+  <testcase name="malformed args and missing confirmation have no effects" classname="dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest" time="0.019"/>
+  <testcase name="una chiamata dello stesso processo passa" classname="dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest" time="0.013"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" tests="11" skipped="0" failures="1" errors="0" timestamp="2026-11-08T15:52:33.245Z" hostname="PC_FISSO" time="4.947">
+  <properties/>
+  <testcase name="privacyTransactionRollsBackActualMemoryInsertAndRetainsRealUncertainWriteNoReplay" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.36"/>
+  <testcase name="profileFirstRicordaWaitsForSafetyWithActionsOffAndRefusalDoesNotSave" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="2.513"/>
+  <testcase name="cancellingPendingSafetyNeverInsertsMemory" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.193"/>
+  <testcase name="currentApprovedPromotionIsIndependentAndBothToolOverloadsUseRealProvenance" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.313"/>
+  <testcase name="forgetAfterSafetyApprovalDuringProofRenewalStillPreventsTheInsert" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.199"/>
+  <testcase name="engineApprovedPromotionPersistsOnlyAfterSafetyAndTemporaryTurnNeverPromotes" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.306"/>
+  <testcase name="admittedMislabelledReadIsNotSettledOrRetainedWhenRevokedBeforeFinalCompletion" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.098"/>
+  <testcase name="actualEngineRefusedMemoryCannotReachProviderAnswerCacheOrTitle" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.13"/>
+  <testcase name="pendingProfilePromotionRejectsForgetRevokeAndCorrectionAfterConfirmation" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.417"/>
+  <testcase name="memoryRefusalDeniesBothDispatchOverloadsAndStoredConversationSearch" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.247"/>
+  <testcase name="actualEngineNeverPublishesPrivateDoneBeforeDeferredSqliteCommitSucceeds" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.17">
+    <failure message="android.database.sqlite.SQLiteException: cannot start a transaction within a transaction (code 1 SQLITE_ERROR)" type="android.database.sqlite.SQLiteException">android.database.sqlite.SQLiteException: cannot start a transaction within a transaction (code 1 SQLITE_ERROR)
+	at android.database.sqlite.SQLiteConnection.nativeBinding(Native Method)
+	at android.database.sqlite.SQLiteConnection.nativeExecute(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.execute(SQLiteConnection.java:743)
+	at android.database.sqlite.SQLiteSession.beginTransactionUnchecked(SQLiteSession.java:336)
+	at android.database.sqlite.SQLiteSession.beginTransaction(SQLiteSession.java:311)
+	at android.database.sqlite.SQLiteDatabase.beginTransaction(SQLiteDatabase.java:819)
+	at android.database.sqlite.SQLiteDatabase.beginTransaction(SQLiteDatabase.java:802)
+	at android.database.sqlite.SQLiteDatabase.beginTransaction(SQLiteDatabase.java:653)
+	at androidx.sqlite.db.framework.FrameworkSQLiteDatabase.beginTransaction(FrameworkSQLiteDatabase.android.kt:52)
+	at androidx.room.RoomDatabase.internalBeginTransaction(RoomDatabase.android.kt:702)
+	at androidx.room.RoomDatabase.beginTransaction(RoomDatabase.android.kt:690)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2042)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at app//kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1.run(RoomDatabase.android.kt:2084)
+	at androidx.room.TransactionExecutor.execute$lambda$1$lambda$0(TransactionExecutor.android.kt:38)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base@21.0.10/java.lang.Thread.run(Unknown Source)
+</failure>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

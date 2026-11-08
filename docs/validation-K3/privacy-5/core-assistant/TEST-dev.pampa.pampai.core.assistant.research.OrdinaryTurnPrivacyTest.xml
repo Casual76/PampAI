@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:45:43.497Z" hostname="PC_FISSO" time="4.044">
+  <properties/>
+  <testcase name="ordinaryImageProfileWiringRejectsLateStreamBeforeDiskCacheOrTitle" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="2.929"/>
+  <testcase name="legacyCvAndRawProofCannotGuessStudentOrYear" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.207"/>
+  <testcase name="lateMountedReadNeverReturnsAfterForget" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.07"/>
+  <testcase name="actualMountedValidReadUsesProofChannelAndExactSavedPeriod" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.063"/>
+  <testcase name="invalidatedProfileCommitRetainsUncertainWriteLedgerAndReplayFence" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.046"/>
+  <testcase name="lateCompleteAndStreamProfileCorrectionAreTerminalAndReleaseNoContent" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.078"/>
+  <testcase name="modelReadCannotForgeReceiptReadbackAuthorizationByRequestPrefix" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.02"/>
+  <testcase name="mountedLegacyMediaBrowserReadsFailWithoutInventingAccountScope" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.1"/>
+  <testcase name="mountedMissingContextGenericAndUnknownReadNeverReachSource" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.046"/>
+  <testcase name="revokeOrRemoteAuthorizationChangeAfterReadRejectsProviderResponse" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.13"/>
+  <testcase name="privateSuccessfulHistoryStaysVisibleButIsNotReusedAsModelContext" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.032"/>
+  <testcase name="forgottenRawAndAggregateFamiliesCannotReacquire" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.066"/>
+  <testcase name="mountedFragmentsRequireTheExactOriginatingTurnAndContinuation" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.081"/>
+  <testcase name="pendingLegacyReadAndUnboundPollNeverReleaseLatePrivateStatus" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.021"/>
+  <testcase name="atomicCommitRollsBackConversationWriteWhenLocalGenerationChanged" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.039"/>
+  <testcase name="savedScopeReplacementAndRevocationRejectMountedReads" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.068"/>
+  <testcase name="sourceFreeTurnSurvivesUnrelatedForgetAndFreshProfileCommits" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.047"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

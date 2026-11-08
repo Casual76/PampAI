@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.db.MessageTreeTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:53:34.674Z" hostname="PC_FISSO" time="0.003">
+  <properties/>
+  <testcase name="un padre sparito fa del figlio una radice, e un ciclo non gira all'infinito" classname="dev.pampa.pampai.core.assistant.db.MessageTreeTest" time="0.002"/>
+  <testcase name="una conversazione lineare e' la catena dalla prima domanda all'ultima risposta" classname="dev.pampa.pampai.core.assistant.db.MessageTreeTest" time="0.0"/>
+  <testcase name="antenati e sottoalbero" classname="dev.pampa.pampai.core.assistant.db.MessageTreeTest" time="0.001"/>
+  <testcase name="cambiare ramo e tornare riapre la foglia dove si era rimasti" classname="dev.pampa.pampai.core.assistant.db.MessageTreeTest" time="0.0"/>
+  <testcase name="le prime domande sorelle sono versioni della prima domanda" classname="dev.pampa.pampai.core.assistant.db.MessageTreeTest" time="0.0"/>
+  <testcase name="le versioni sono in ordine di nascita, e a parita' di millisecondo decide l'id" classname="dev.pampa.pampai.core.assistant.db.MessageTreeTest" time="0.0"/>
+  <testcase name="una foglia che non c'e' piu' vale come nessuna foglia" classname="dev.pampa.pampai.core.assistant.db.MessageTreeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

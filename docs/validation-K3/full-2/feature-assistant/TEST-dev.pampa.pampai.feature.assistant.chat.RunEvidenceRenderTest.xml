@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.chat.RunEvidenceRenderTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:54:37.833Z" hostname="PC_FISSO" time="4.026">
+  <properties/>
+  <testcase name="textOnlyStoredRunHasNoHelperAttribution" classname="dev.pampa.pampai.feature.assistant.chat.RunEvidenceRenderTest" time="3.73"/>
+  <testcase name="typedErrorAndUncertainNeverRenderOkDespitePositiveProse" classname="dev.pampa.pampai.feature.assistant.chat.RunEvidenceRenderTest" time="0.14"/>
+  <testcase name="failedPreparationDisclosesPreparedInterpretationWithoutClaimingDelivery" classname="dev.pampa.pampai.feature.assistant.chat.RunEvidenceRenderTest" time="0.071"/>
+  <testcase name="storedCachedHelperSurvivesCurrentConfigurationChangeAndReopen" classname="dev.pampa.pampai.feature.assistant.chat.RunEvidenceRenderTest" time="0.085"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

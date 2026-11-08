@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.aiui.markdown.FluidAssistantMarkdownOptions
 import dev.antigravity.fluidengine.ui.fluid.FluidMarkdown
+import dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy
 import dev.antigravity.fluidengine.ui.fluid.FluidMotion
 import dev.pampa.pampai.core.assistant.chat.MathText
 import dev.pampa.pampai.core.assistant.db.Message
@@ -59,13 +60,14 @@ internal fun responseText(message: Message?, live: AssistantState?): String {
  */
 @Composable
 internal fun ResponseBody(text: String, streaming: Boolean, live: Boolean, memo: ResponseMemo) {
-  val sizing = if (live) Modifier.animateContentSize(FluidMotion.intSize(FluidMotion.DampingChrome, FluidMotion.ResponseSnappy)) else Modifier
+  val reduced = LocalFluidMotionPolicy.current.reducedMotion
+  val sizing = if (live && !reduced) Modifier.animateContentSize(FluidMotion.intSize(FluidMotion.DampingChrome, FluidMotion.ResponseSnappy)) else Modifier
   val markdown = remember(text) { MathText.rewrite(text) }
   Box(Modifier.fillMaxWidth().then(sizing)) {
     FluidMarkdown(
       markdown = markdown,
-      streaming = streaming,
-      animateFirst = memo.freshStart,
+      streaming = streaming && !reduced,
+      animateFirst = memo.freshStart && !reduced,
       options = FluidAssistantMarkdownOptions,
     )
   }

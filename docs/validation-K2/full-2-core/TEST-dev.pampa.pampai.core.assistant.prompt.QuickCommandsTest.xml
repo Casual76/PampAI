@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-08T11:58:56.297Z" hostname="PC_FISSO" time="0.03">
+  <properties/>
+  <testcase name="la cortesia dopo la virgola non manda la frase al modello" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.005"/>
+  <testcase name="nel dubbio decide il modello" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.003"/>
+  <testcase name="le risposte sono frasi, e un errore torna al modello" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.013"/>
+  <testcase name="quando suona la sveglia e le domande cortesi" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.0"/>
+  <testcase name="telefono, ora e musica" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.001"/>
+  <testcase name="esiti strutturati non inventano scadenze e non ritentano azioni" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.001"/>
+  <testcase name="i timer detti in tanti modi partono senza modello" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.002"/>
+  <testcase name="un'ora da 1 a 11 senza la parte del giorno la decide il modello" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.001"/>
+  <testcase name="i calcoli secchi si fanno da soli" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.0"/>
+  <testcase name="un'azione riuscita ha sempre una risposta, cosi' il modello non la rifa'" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.0"/>
+  <testcase name="la suoneria solo con verbo e oggetto" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.001"/>
+  <testcase name="le frasi di tutti i giorni che non sono comandi" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.001"/>
+  <testcase name="quando lo strumento non ha fatto niente c'e' una frase anche senza modello" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.0"/>
+  <testcase name="le sveglie si impostano da sole solo con un'ora senza dubbi" classname="dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

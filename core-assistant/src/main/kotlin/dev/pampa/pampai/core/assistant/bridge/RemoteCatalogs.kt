@@ -107,14 +107,15 @@ class RemoteCatalogs @Inject constructor(
       val apps = hosts.map { host ->
         val availability = client.availability(host)
         val catalog = if (availability == RemoteAvailability.NO_PERMISSION || availability == RemoteAvailability.NOT_INSTALLED) null else client.catalog(host)
-        if (catalog != null) sets += RemoteToolSet.of(client, catalog, this.host)
+        val gated = catalog?.let { SourceBridgePolicy.catalog(it, client.negotiation(it.authority)) }
+        if (gated != null) sets += RemoteToolSet.of(SourceBridgeCalls(client, gated), gated, this.host)
         ConnectedApp(
           packageName = host.packageName,
           label = catalog?.appLabel ?: host.label,
           domain = catalog?.domain ?: host.packageName.substringAfterLast('.'),
           version = catalog?.appVersion ?: "",
           availability = availability,
-          toolCount = catalog?.tools?.size ?: 0,
+          toolCount = gated?.tools?.size ?: 0,
           hint = catalog?.hint,
         )
       }

@@ -1,0 +1,8 @@
+// Fresh execution of requested Test tasks only; production compilation remains incremental at
+// the Gradle task level while Kotlin/KSP incremental compilation is disabled by invocation.
+allprojects {
+  tasks.withType(Test).configureEach {
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+  }
+}

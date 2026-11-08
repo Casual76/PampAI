@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.profile.MusicFactPresentationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:12:22.182Z" hostname="PC_FISSO" time="0.058">
+  <properties/>
+  <testcase name="actualAggregateKeepsImportedCountsAndUnknownDurationSeparate" classname="dev.pampa.pampai.feature.assistant.profile.MusicFactPresentationTest" time="0.054"/>
+  <testcase name="importedObservationDoesNotInventDurationFromTrackLength" classname="dev.pampa.pampai.feature.assistant.profile.MusicFactPresentationTest" time="0.001"/>
+  <testcase name="nestedTrackAndArtistCountsStayReadable" classname="dev.pampa.pampai.feature.assistant.profile.MusicFactPresentationTest" time="0.001"/>
+  <testcase name="actualHistoryShapeShowsTrackMeasuredTimeAndProvenance" classname="dev.pampa.pampai.feature.assistant.profile.MusicFactPresentationTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

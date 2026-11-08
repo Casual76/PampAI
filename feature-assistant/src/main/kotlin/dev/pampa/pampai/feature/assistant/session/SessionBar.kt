@@ -1,99 +1,30 @@
 package dev.pampa.pampai.feature.assistant.session
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import kotlinx.coroutines.launch
+
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Screenshot
-import androidx.compose.material.icons.rounded.Stop
-import androidx.compose.material.icons.rounded.VolumeOff
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.MicLevel
-import dev.antigravity.fluidengine.ui.fluid.FluidMotion
+import dev.antigravity.fluidengine.aiui.chat.*
 import dev.antigravity.fluidengine.ui.fluid.GlassBackdropState
-import dev.antigravity.fluidengine.ui.fluid.GlassDefaults
-import dev.antigravity.fluidengine.ui.fluid.GlassRole
-import dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy
-import dev.antigravity.fluidengine.ui.fluidphysics.FluidForm
-import dev.antigravity.fluidengine.ui.fluidphysics.FluidFormPresets
-import dev.antigravity.fluidengine.ui.fluidphysics.FluidPhysicsTier
-import dev.antigravity.fluidengine.ui.fluidphysics.fluidPhysicsSurface
-import dev.antigravity.fluidengine.ui.fluid.rememberCombinedGlassBackdrop
-import dev.antigravity.fluidengine.ui.fluid.rememberGlassBackdrop
-import dev.antigravity.fluidengine.ui.fluidphysics.rememberFluidPhysicsState
-import dev.antigravity.fluidengine.aiui.chat.FluidComposerField
-import dev.antigravity.fluidengine.aiui.chat.FluidComposerVoiceLine
-import dev.antigravity.fluidengine.aiui.chat.FluidGlassRoundButton
-import dev.antigravity.fluidengine.aiui.chat.FluidListeningGlow
-import dev.antigravity.fluidengine.aiui.chat.fluidListeningGlow
-import dev.antigravity.fluidengine.aiui.halo.FluidHaloColours
-import dev.antigravity.fluidengine.aiui.halo.haloBlendForTheme
-import dev.antigravity.fluidengine.aiui.halo.rememberFluidHaloClock
 import dev.pampa.pampai.feature.assistant.chat.AriaAssistantStrings
+import dev.pampa.pampai.feature.assistant.chat.AriaChatStrings
+import dev.pampa.pampai.feature.assistant.chat.AssistantComposer
 import kotlinx.coroutines.flow.StateFlow
 
-/**
- * La barra della sessione: l'orb di vetro che diventa la capsula, e resta l'unica cosa a cui si
- * parla. E' il primo nodo Fluid-physics dell'overlay — un cerchio da [OrbRadius] che in
- * [OrbMillis] millisecondi morfa nella capsula alta [CapsuleHeight]. La card nasce dopo, da un
- * seme nascosto sotto questa capsula.
- *
- * In ascolto la barra si accende come il composer della chat: le macchie del campo di luce di Aria
- * viaggiano **dietro** al vetro e sbordano attorno, e un anello sottile coi colori del tema gira
- * sul bordo. Il modificatore sta **prima** del vetro nella catena, quindi le macchie si disegnano
- * sotto la superficie e l'anello sopra; la sagoma che gli si passa e' quella della capsula
- * ([BarGlowShape]), non il riquadro alto [BarHeight] che la contiene, altrimenti l'anello
- * correrebbe sedici dp fuori dal bordo vero.
- *
- * Il livello del microfono lo legge l'orologio dell'alone dentro il loop di frame: lo `StateFlow`
- * a cinquanta hertz non ricompone niente.
- *
- * @param stamp l'apparizione corrente (`SessionController.shownStamp`): a ogni apparizione la
- *   barra riparte **gia'** orb, con uno snap. Un morph capsula → orb all'apertura era la capsula
- *   della volta prima che si vedeva per qualche fotogramma, si richiudeva e si riapriva.
- * @param orb vero durante l'entrata; lo tiene l'overlay, perche' anche la card deve sapere quando
- *   la capsula si e' posata.
- * @param hasAttachments cambia solo il tasto di destra: con un allegato in attesa si invia anche
- *   senza aver scritto niente.
- */
+/** Same Fluid composer as the app; no entry delay, fixed capsule height or one-line input. */
 @Composable
 internal fun SessionBar(
   stamp: Long,
+  text: String,
+  currentText: () -> String,
+  onTextChange: (String) -> Unit,
   state: AssistantState,
   textMode: Boolean,
   partial: String?,
@@ -102,176 +33,56 @@ internal fun SessionBar(
   orb: Boolean,
   backdrop: GlassBackdropState,
   micLevel: StateFlow<MicLevel>,
-  onAsk: (String) -> Unit,
+  onAsk: suspend (String) -> Boolean,
   onVoice: () -> Unit,
   onStopVoice: () -> Unit,
   onVoiceToText: () -> Unit,
   onStop: () -> Unit,
   onStopSpeaking: () -> Unit,
   onAttachScreen: () -> Unit,
+  modelControl: (@Composable () -> Unit)? = null,
+  preparingVoice: Boolean = false,
 ) {
-  var text by remember { mutableStateOf("") }
   val listening = state is AssistantState.Listening
-  val transcribing = state == AssistantState.Transcribing
-  val busy = state.isBusy
-  val reducedMotion = LocalFluidMotionPolicy.current.reducedMotion
-  val voiceActive = (listening || transcribing) && !orb
-
-  // L'alone: l'orologio corre solo mentre si ascolta davvero (durante l'orb non c'e' ancora una
-  // capsula su cui girare), la presenza sfuma dentro e fuori.
-  val clock = rememberFluidHaloClock(
-    running = listening && !orb && !reducedMotion,
-    speed = 1f,
-    target = { GlowFloorAmplitude + (1f - GlowFloorAmplitude) * micLevel.value.level.coerceIn(0f, 1f) },
-  )
-  val glow = remember { Animatable(0f) }
-  LaunchedEffect(voiceActive) {
-    if (voiceActive) glow.animateTo(1f, FluidMotion.fadeIn(GlowFadeInMillis))
-    else glow.animateTo(0f, FluidMotion.fadeOut(GlowFadeOutMillis))
-  }
-  val glowColours = FluidHaloColours.fromTheme()
-  val glowBlend = haloBlendForTheme()
-
-  // Il fuoco nel campo quando la barra e' tornata testo: dopo il silenzio iniziale, o per scelta.
-  // Non durante l'orb (la tastiera aprirebbe mentre la forma viaggia) e non mentre ascolta.
+  val transcribing = state is AssistantState.Transcribing
   val focus = remember { FocusRequester() }
-  LaunchedEffect(textMode, orb, listening) {
-    if (textMode && !orb && !listening) runCatching { focus.requestFocus() }
+  val glow = rememberFluidListeningGlow(listening, transcribing, level = { micLevel.value.level })
+  LaunchedEffect(stamp, textMode, listening) {
+    if (textMode && !listening) runCatching { focus.requestFocus() }
   }
-
+  val sendScope = rememberCoroutineScope()
+  var preparing by remember { mutableStateOf(false) }
+  var preparation by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
   fun submit() {
-    if (text.isBlank() && !hasAttachments) return
-    onAsk(text)
-    text = ""
+    // SessionController has no queue contract. Keep the draft while the current request runs.
+    if (state.isBusy || (text.isBlank() && !hasAttachments)) return
+    if (preparing || preparingVoice) return
+    preparing = true
+    val captured = text
+    preparation = sendScope.launch { try { if (onAsk(captured) && currentText() == captured) onTextChange("") } finally { preparing = false; preparation = null } }
   }
-
-  BoxWithConstraints(Modifier.fillMaxWidth().height(BarHeight)) {
-    val density = LocalDensity.current
-    val width = constraints.maxWidth.toFloat()
-    val height = with(density) { BarHeight.toPx() }
-    val orbRadius = with(density) { OrbRadius.toPx() }
-    val capsuleHeight = with(density) { CapsuleHeight.toPx() }
-    val orbForm = remember(width, height) { FluidForm.circle(Offset(width / 2f, height / 2f), orbRadius) }
-    val capsuleForm = remember(width, height) {
-      FluidFormPresets.capsule(Rect(0f, (height - capsuleHeight) / 2f, width, (height + capsuleHeight) / 2f))
-    }
-    // Uno stato nuovo per ogni apparizione, nato nella forma giusta nella stessa composizione che
-    // vede lo stamp nuovo: e' lo snap, senza aspettare un effetto (che arriverebbe dopo il primo
-    // fotogramma, con la capsula vecchia ancora disegnata).
-    val physics = key(stamp) { rememberFluidPhysicsState(if (orb) orbForm else capsuleForm) }
-    // Il materiale della capsula, per i tasti tondi che ci stanno sopra: una lente appoggiata su
-    // vetro smerigliato deve mostrare la smerigliatura, non la pagina sotto (come nel composer).
-    val barGlass = rememberGlassBackdrop()
-    val controlBackdrop = rememberCombinedGlassBackdrop(backdrop, barGlass)
-    LaunchedEffect(physics, orb, width) { physics.morphTo(if (orb) orbForm else capsuleForm) }
-    Box(
-      Modifier
-        .fillMaxSize()
-        .fluidListeningGlow(
-          glow = FluidListeningGlow(clock = clock, presence = { glow.value }, colours = glowColours, blend = glowBlend),
-          shape = BarGlowShape,
-        )
-        .fluidPhysicsSurface(
-          state = physics,
-          backdrop = backdrop,
-          tint = GlassDefaults.modalTint(),
-          role = GlassRole.Floating,
-          tier = FluidPhysicsTier.Balanced,
-          exports = barGlass,
-        ),
-    ) {
-      if (orb) {
-        Icon(
-          imageVector = Icons.Rounded.Mic,
-          contentDescription = null,
-          tint = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.align(Alignment.Center).size(26.dp),
-        )
-      } else {
-        // La riga e' impaginata alla taglia della capsula fin dal primo fotogramma: mentre l'orb
-        // cresce, la sagoma la ritagliava e si leggeva un pezzo di parola che scorreva ("olto…" di
-        // "Ti ascolto…"). Arriva in dissolvenza nella seconda meta' del viaggio, e solo quando la
-        // meta e' davvero la capsula (nel fotogramma prima che il morph parta la forma e' ancora
-        // l'orb, e il progresso a riposo vale 1). Solo alpha: dentro ci sono tasti di vetro, e il
-        // vetro non si scala (prima trappola).
-        val capsuleWidth = capsuleForm.frame.width
-        Row(
-          modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxWidth()
-            .height(CapsuleHeight)
-            .graphicsLayer {
-              val arriving = physics.form.frame.width >= capsuleWidth * 0.9f
-              alpha = if (!arriving) 0f else ((physics.progress - 0.5f) / 0.4f).coerceIn(0f, 1f)
-            }
-            .padding(horizontal = 8.dp),
-          verticalAlignment = Alignment.CenterVertically,
-        ) {
-          FluidGlassRoundButton(Icons.Rounded.Screenshot, "Allega lo schermo", controlBackdrop, onClick = onAttachScreen)
-          if (listening || transcribing) {
-            FluidComposerVoiceLine(
-              partial = partial,
-              transcribing = transcribing,
-              amplitude = { clock.amplitude },
-              onTap = onVoiceToText,
-              modifier = Modifier.weight(1f),
-              strings = AriaAssistantStrings,
-            )
-          } else {
-            FluidComposerField(
-              value = text,
-              onValueChange = { text = it },
-              placeholder = if (busy) "Sto rispondendo…" else "Chiedi ad Aria…",
-              enabled = !busy,
-              onSend = { submit() },
-              maxLines = 1,
-              modifier = Modifier.weight(1f).focusRequester(focus),
-            )
-          }
-          Spacer(Modifier.width(4.dp))
-          when {
-            listening -> FluidGlassRoundButton(Icons.Rounded.Stop, "Smetti di ascoltare", controlBackdrop, tint = MaterialTheme.colorScheme.error, onClick = onStopVoice)
-            busy -> FluidGlassRoundButton(Icons.Rounded.Stop, "Ferma", controlBackdrop, onClick = onStop)
-            speaking && text.isBlank() -> FluidGlassRoundButton(Icons.Rounded.VolumeOff, "Zitta", controlBackdrop, onClick = onStopSpeaking)
-            text.isBlank() && !hasAttachments -> FluidGlassRoundButton(Icons.Rounded.Mic, "Parla", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = onVoice)
-            else -> FluidGlassRoundButton(Icons.Rounded.ArrowUpward, "Invia", controlBackdrop, tint = MaterialTheme.colorScheme.primary, onClick = { submit() })
-          }
-        }
-      }
-    }
-  }
+  AssistantComposer(
+    value = text, onValueChange = onTextChange, backdrop = backdrop,
+    action = if (preparing || preparingVoice) FluidComposerAction.Stop else fluidComposerAction(hasInput = text.isNotBlank() || hasAttachments,
+      busy = state.isBusy, listening = listening || transcribing, speaking = speaking)
+      .let { if (it == FluidComposerAction.StopAndQueue) FluidComposerAction.Stop else it },
+    preparing = preparing || preparingVoice,
+    onSend = ::submit, onStop = { if (preparing) preparation?.cancel() else onStop() }, onVoice = onVoice,
+    onStopListening = { if (transcribing) onStop() else onStopVoice() }, onMute = onStopSpeaking,
+    strings = AriaChatStrings, focusRequester = focus, maxLines = 4,
+    // Session host owns microphone permission before it starts the voice session.
+    requestMicPermission = false,
+    chips = { modelControl?.invoke() },
+    leading = { controlBackdrop ->
+      FluidGlassRoundButton(Icons.Rounded.Screenshot, "Allega lo schermo", controlBackdrop,
+        modifier = Modifier.size(48.dp), onClick = onAttachScreen)
+    },
+    voiceLine = {
+      FluidComposerVoiceLine(partial, transcribing, amplitude = { glow.clock.amplitude },
+        onTap = onVoiceToText, modifier = Modifier.fillMaxWidth(), strings = AriaAssistantStrings)
+    },
+    glow = glow,
+  )
 }
 
-/**
- * La sagoma su cui gira l'alone: la capsula vera dentro il riquadro della barra.
- *
- * Il nodo e' alto [BarHeight] perche' l'orb, che ha diametro maggiore della capsula, ci deve
- * stare; la capsula ne occupa [CapsuleHeight] al centro. Passare al pittore il rettangolo del
- * nodo disegnerebbe l'anello su un bordo che non esiste.
- */
-private val BarGlowShape = object : Shape {
-  override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
-    val inset = ((size.height - with(density) { CapsuleHeight.toPx() }) / 2f).coerceAtLeast(0f)
-    val radius = (size.height - 2f * inset) / 2f
-    return Outline.Rounded(
-      RoundRect(Rect(0f, inset, size.width, size.height - inset), CornerRadius(radius, radius)),
-    )
-  }
-}
-
-/** Il riquadro della barra: alto quanto serve all'orb, che e' piu' grosso della capsula. */
-private val BarHeight = 72.dp
-
-/** L'orb dell'entrata e la capsula in cui si posa. */
-private val OrbRadius = 34.dp
-private val CapsuleHeight = 56.dp
-
-/** Quanto dura l'entrata orb → capsula: la card aspetta questo prima di uscire dal suo seme. */
-internal const val OrbMillis = 320L
-
-/** L'ampiezza dell'alone nel silenzio: fra due sillabe non si spegne. Con la voce va a uno. */
-private const val GlowFloorAmplitude = 0.35f
-
-/** Quanto ci mette la luce a comparire e a posarsi. */
-private const val GlowFadeInMillis = 240
-private const val GlowFadeOutMillis = 200
+internal const val OrbMillis = 0L

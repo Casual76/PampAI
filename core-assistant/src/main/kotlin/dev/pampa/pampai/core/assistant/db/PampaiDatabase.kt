@@ -1,5 +1,6 @@
 package dev.pampa.pampai.core.assistant.db
 
+import dev.pampa.pampai.core.assistant.durable.*
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -412,19 +413,23 @@ interface ReminderDao {
  * (in `DatabaseModule`) devono arrivare esattamente fin qui, e un test lo verifica: alzare la
  * versione senza scrivere la migrazione vuol dire buttare le conversazioni dell'utente.
  */
-const val PAMPAI_DB_VERSION = 4
+const val PAMPAI_DB_VERSION = 7
 
 @Database(
-  entities = [ConversationEntity::class, MessageEntity::class, AttachmentEntity::class, RunEntity::class, UsageEventEntity::class, MemoryEntity::class, ReminderEntity::class],
+  autoMigrations = [androidx.room.AutoMigration(from = 4, to = 5), androidx.room.AutoMigration(from = 5, to = 6), androidx.room.AutoMigration(from = 6, to = 7)],
+  entities = [SourceGrant::class, LearningState::class, AreaConfiguration::class, AreaModel::class, ResearchJob::class, JobGrant::class, ResearchStep::class, ResearchEvidence::class, ProfileItem::class, ProfileDependency::class, ProfileExclusion::class, BudgetCap::class, BudgetAttempt::class, ProviderCooldown::class, ForegroundActivity::class, DispatchAuditEntity::class, OperationEntity::class, ConversationEntity::class, MessageEntity::class, AttachmentEntity::class, RunEntity::class, UsageEventEntity::class, MemoryEntity::class, ReminderEntity::class],
   version = PAMPAI_DB_VERSION,
   exportSchema = true,
 )
 abstract class PampaiDatabase : RoomDatabase() {
+  abstract fun durable(): DurableDao
   abstract fun conversations(): ConversationDao
   abstract fun messages(): MessageDao
   abstract fun attachments(): AttachmentDao
   abstract fun runs(): RunDao
   abstract fun usageEvents(): UsageEventDao
   abstract fun memories(): MemoryDao
+  abstract fun dispatches(): DispatchAuditDao
+  abstract fun operations(): OperationDao
   abstract fun reminders(): ReminderDao
 }

@@ -1,0 +1,20 @@
+﻿{
+    "CheckedAt":  "2026-11-08T10:27:16.6432507Z",
+    "OwnedRemaining":  0,
+    "CompletedSessions":  [
+                              54667,
+                              20046,
+                              26859,
+                              28508
+                          ],
+    "UnrelatedProcessesLeftUntouched":  [
+                                            {
+                                                "ProcessId":  14932,
+                                                "ParentProcessId":  38992
+                                            },
+                                            {
+                                                "ProcessId":  42844,
+                                                "ParentProcessId":  14932
+                                            }
+                                        ]
+}

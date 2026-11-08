@@ -1,0 +1,119 @@
+﻿{
+    "frozenAtUtc":  "2026-11-08T10:14:15.7777363+00:00",
+    "releaseLog":  "validation-research-consumer-release.log",
+    "releaseExit":  0,
+    "coreTests":  {
+                      "skipped":  0,
+                      "errors":  0,
+                      "tests":  210,
+                      "failures":  0
+                  },
+    "consumerTests":  {
+                          "tests":  25,
+                          "names":  [
+                                        "explicitProfileConsentAndTargetedRetrievalRenewActualScopes",
+                                        "changedAuthorizationRevokesSameStableGrantAndCancelsJob",
+                                        "expiredPageCursorRestartsTwiceAndKeepsCanonicalEvidence",
+                                        "fragmentLeaseExpiryRestartsBoundedReadInsteadOfReusingOldSnapshot",
+                                        "disablingConsentDuringSynthesisDiscardsAutomaticProfileWrite",
+                                        "unsupportedTypedOrMisclassifiedWriteNeverReachesRead",
+                                        "wrongAccountReceiptCannotPopulateValidator",
+                                        "boundedModelCallTraversesRealProviderLifecycleAndBudget",
+                                        "backgroundRequiresExactAreaPlanConsentAndNeverAdmitsCrossArea",
+                                        "normalMusicQuestionUsesPertinentStoredKnowledgeWhileUnrelatedQuestionUsesNone",
+                                        "naturalGradeQuestionUsesOnlySavedGradeScopeWithoutBrandOrSetup",
+                                        "partialFragmentCannotPublishPrematurePageCursor",
+                                        "savedPlanCapturesPolicyScopesAndChangesCancelActiveWork",
+                                        "sourceHostAllowlistRejectsUnknownPackageAndAuthorityAlias",
+                                        "cvDetailPagesReuseFullRecordsAndAggregateExactlyOnce",
+                                        "connectedTwoSourceForegroundAndFollowupUseFixedModelWithoutProfiling",
+                                        "sameAuthorizationRenewalPreservesVersionEpochAndCheckpoint",
+                                        "sourceRevokedWhileReadReturnsCannotCommitEvidence",
+                                        "temporaryConsultationNeverCreatesResearchOrProfileRows",
+                                        "cvWrongYearStudentAndUnknownArgumentFailBeforeTransport",
+                                        "unicodeFragmentsWithholdCursorThenHashAndDeduplicate",
+                                        "reopenResumesCommittedPage",
+                                        "modelCannotInventEvidenceAndConsentCannotBeGrantedMidRun",
+                                        "forgetDuringSynthesisRejectsLateCommitAndDeletesEvidence",
+                                        "failedBackgroundLimitsNeverPerformSourceReadAndCapsReopenFromFlow"
+                                    ],
+                          "failures":  0
+                      },
+    "engineExecutedLog":  "validation-research-consumer-full-1.log",
+    "engineTests":  {
+                        "skipped":  0,
+                        "errors":  0,
+                        "tests":  264,
+                        "failures":  0
+                    },
+    "countsAreSeparateNotCumulative":  true,
+    "coreLint":  {
+                     "errors":  0,
+                     "severityCounts":  {
+                                            "Warning":  22
+                                        }
+                 },
+    "sourceSha256":  {
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchTransport.kt":  "faada2f4d6ecf796581cd2e65623f77cf0e145d347801777856971332afac97b",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/di/DatabaseModule.kt":  "aad564f995f894f3d5323e17caacf400d5b3b6d27d22c1b5ae5156a01dcc988a",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchContracts.kt":  "b5f944fba9ac1e54cf6685901f50a12d705d685031fbd41ae4b7247ed0a13601",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConnections.kt":  "5da384ff402f2be4f069bd5ab72ddb5b3693d4addb17364db81b652c7d15e2cb",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantEngine.kt":  "411c919b71d0edba38cde45e589fdde6af6a0996c9c3fed184a2ca5e1783c743",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchQuestionPlanner.kt":  "6f566bd1e9e9e3bc8d2f017be42c6ba42f2828e0dd1546e25cd12e999f2b1501",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchProfile.kt":  "e21a4109fbc1ccbdcecb58524aeded8a6809b735c11931a2ea74e087b096ab97",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundation.kt":  "022546b15b6eb8b17eb2b9d3614f8965df5dc7646962020ab753e666bbe5d00d",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchRunner.kt":  "923bd1a2dda4e6fda74853e1d33ff7c04aa24ff692c1cfd901b862a7252a01d7",
+                         "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/QuickCancellationIntegrationTest.kt":  "9b8b0ae4962986e3ea332651747c1f0e94a66084b1580c88599b6e285028d8a7",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSetup.kt":  "c7440ab45f07bb198fa64e2a83be86d05906d07fe5d597e4143aaad478e82e32",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableEntities.kt":  "7bf4b487717fe507a8df37f987812c3f3815da44157e342d8277395301a35447",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchForeground.kt":  "d46cfdf67eacfb53b721452fe425ac61ea621d33a873b2899adf0a2cef4978b0",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchBindings.kt":  "1e63f529be0c194bae014cdfb09963a119ea1259bb8020df9ef115961407153f",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/SourcePages.kt":  "5f10a40ecb5fc7834552f6785a37ea5a45b3e797b108e4fb8d8e173aae9bf323",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantRuntime.kt":  "535501785505869d9dc7e3f477cf4254fd4f16b51af771a1d22b3a77f85e7d47",
+                         "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundationTest.kt":  "7a104366911ba7685a3a00b2fa5fcee0119ee3ebbc9abab34e0ffe1da2a32c53",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSources.kt":  "13f232f04b423d27e369abdf7e9735444dc68cc01290f34f54e52884731eb4a2",
+                         "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConsumerTest.kt":  "1edb3ea651937b48170612102a0d809c3b0de14077a3971d195ede8ff21d077e",
+                         "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchModel.kt":  "003c3b78bf5779676b19afa271be09a37b789da1a9dcd17deb6ae2eb7741f86d"
+                     },
+    "matchesRuntimeFreeze":  {
+                                 "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/InfoTools.kt":  true,
+                                 "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/7.json":  true,
+                                 "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedger.kt":  true,
+                                 "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/RuntimeBudgetCoordinator.kt":  true,
+                                 "core-assistant/src/main/AndroidManifest.xml":  true,
+                                 "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/music/FluidifyClient.kt":  true,
+                                 "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelSelection.kt":  true
+                             },
+    "artifact":  {
+                     "path":  "C:\\Users\\casua\\AppData\\Local\\PampAI-qa-build-full\\core-assistant\\outputs\\aar\\core-assistant-debug.aar",
+                     "sha256":  "1a26ef274642ca5d5167fbe745b57caa13ac46f1b997c13f97f0394107bee07a",
+                     "bytes":  2509901
+                 },
+    "remainingUnrelatedJava":  [
+                                   {
+                                       "pid":  14932,
+                                       "gradle8143":  false,
+                                       "gradle93":  true,
+                                       "worker":  false
+                                   },
+                                   {
+                                       "pid":  42844,
+                                       "gradle8143":  false,
+                                       "gradle93":  false,
+                                       "worker":  false
+                                   }
+                               ],
+    "ownedGradle8143Remaining":  [
+
+                                 ],
+    "sourceFreeze":  true,
+    "runnerReleased":  true,
+    "excluded":  [
+                     "feature/app builds and tests",
+                     "source/native builds",
+                     "devices/live providers/real accounts/credentials",
+                     "worker/startup/scheduling",
+                     "commits/push/publication",
+                     "integrated runtime acceptance"
+                 ]
+}

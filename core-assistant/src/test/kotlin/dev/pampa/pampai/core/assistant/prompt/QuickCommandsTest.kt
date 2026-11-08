@@ -241,7 +241,7 @@ class QuickCommandsTest {
   fun `le risposte sono frasi, e un errore torna al modello`() {
     val timer = QuickCommands.match("timer di 10 minuti")!!
     assertEquals(
-      "Timer di 10 minuti avviato: suona alle 18:42.",
+      "Richiesta timer di 10 minuti inviata a Orologio. Avvio e scadenza non verificabili.",
       QuickCommands.reply(timer, "fatto: timer di 10 minuti avviato\nsuona alle: 2026-09-27 (dom) 18:42", now),
     )
     assertNull(QuickCommands.reply(timer, "errore: nessuna app Orologio risponde ai timer su questo telefono", now))
@@ -253,6 +253,23 @@ class QuickCommandsTest {
     assertEquals("Batteria al 76%, in carica.", QuickCommands.reply(QuickCommands.match("quanta batteria ho")!!, "batteria: 76%\nstato: in carica\nrisparmio energetico: spento", now))
     assertEquals("Sveglia impostata alle 07:00 (domani).", QuickCommands.reply(QuickCommands.match("svegliami alle 7 di mattina")!!, "fatto: sveglia impostata alle 07:00", now))
     assertNotNull(QuickCommands.reply(QuickCommands.match("quanto fa 12*7")!!, "espressione: 12*7\nrisultato: 84", now))
+  }
+
+  @Test
+  fun `esiti strutturati non inventano scadenze e non ritentano azioni`() {
+    val timer = QuickCommands.match("timer di 10 minuti")!!
+    val receipt = dev.pampa.pampai.core.assistant.receipts.ClockReceipts.timer(600, null)
+    assertEquals(Outcome.Answer(receipt.text), QuickCommands.outcome(timer, receipt, now))
+    val music = QuickCommands.match("metti in pausa la musica")!!
+    dev.antigravity.fluidengine.ai.tools.ToolOutcome.entries.forEach { status ->
+      val output = dev.antigravity.fluidengine.ai.tools.ToolOutput("Esito della fonte: $status",
+        result = dev.antigravity.fluidengine.ai.tools.ToolResultDetails(status))
+      assertEquals(Outcome.Answer(output.text), QuickCommands.outcome(music, output, now))
+    }
+    val uncertain = dev.antigravity.fluidengine.ai.tools.ToolOutput("",
+      result = dev.antigravity.fluidengine.ai.tools.ToolResultDetails(dev.antigravity.fluidengine.ai.tools.ToolOutcome.UNCERTAIN))
+    val answer = QuickCommands.outcome(timer, uncertain, now) as Outcome.Answer
+    assertTrue(answer.text.contains("Non lo ripeto"))
   }
 
   @Test

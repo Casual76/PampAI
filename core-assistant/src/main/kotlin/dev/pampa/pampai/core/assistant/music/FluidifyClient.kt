@@ -1,5 +1,6 @@
 package dev.pampa.pampai.core.assistant.music
 
+import dev.pampa.pampai.core.assistant.tools.music.readLibraryPages
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -54,7 +55,7 @@ class FluidifyClient @Inject constructor(@ApplicationContext private val context
   /** Esegue [block] sul browser connesso, sul thread principale; null se Fluidify non risponde. */
   private suspend fun <T> withBrowser(block: suspend (MediaBrowser) -> T): T? {
     val b = connect() ?: return null
-    return withContext(Dispatchers.Main) { runCatching { block(b) }.getOrNull() }
+    return withContext(Dispatchers.Main) { try { block(b) } catch (e: Exception) { if (e is kotlinx.coroutines.CancellationException) throw e; null } }
   }
 
   suspend fun nowPlaying(): NowPlaying? = withBrowser { b ->
@@ -86,13 +87,26 @@ class FluidifyClient @Inject constructor(@ApplicationContext private val context
     (from until minOf(b.mediaItemCount, from + limit)).map { b.getMediaItemAt(it).toMusicItem() }
   }
 
+  /** Zero-based pages. A failed later page invalidates the read, never masquerades as empty. */
   suspend fun children(parentId: String, limit: Int = 50): List<MusicItem>? = withBrowser { b ->
-    b.getChildren(parentId, 0, limit, null).await().value?.map { it.toMusicItem() }
+    readLibraryPages(limit) { page, size ->
+      val result = b.getChildren(parentId, page, size, null).await()
+      if (result.resultCode != androidx.media3.session.LibraryResult.RESULT_SUCCESS) null
+      else result.value?.map { it.toMusicItem() }
+    }
+  }
+
+  suspend fun item(id: String): MusicItem? = withBrowser { b ->
+    val result = b.getItem(id).await()
+    check(result.resultCode == androidx.media3.session.LibraryResult.RESULT_SUCCESS)
+    checkNotNull(result.value).toMusicItem()
   }
 
   suspend fun search(query: String, limit: Int = 30): List<MusicItem>? = withBrowser { b ->
-    b.search(query, null).await()
-    b.getSearchResult(query, 0, limit, null).await().value?.map { it.toMusicItem() }
+    check(b.search(query, null).await().resultCode == androidx.media3.session.LibraryResult.RESULT_SUCCESS)
+    val result = b.getSearchResult(query, 0, limit, null).await()
+    check(result.resultCode == androidx.media3.session.LibraryResult.RESULT_SUCCESS)
+    checkNotNull(result.value).map { it.toMusicItem() }
   }
 
   /** Riproduce un elemento dell'albero: Fluidify espande da solo playlist e nodi in una coda. */
@@ -118,8 +132,9 @@ class FluidifyClient @Inject constructor(@ApplicationContext private val context
     result.resultCode == SessionResult.RESULT_SUCCESS
   } ?: false
 
-  fun open() {
-    context.packageManager.getLaunchIntentForPackage(PACKAGE)?.let { runCatching { context.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }
+  fun open(): Boolean {
+    val intent = context.packageManager.getLaunchIntentForPackage(PACKAGE) ?: return false
+    return runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); true }.getOrDefault(false)
   }
 
   fun release() {
@@ -127,6 +142,7 @@ class FluidifyClient @Inject constructor(@ApplicationContext private val context
     browser = null
   }
 
+  @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
   private fun MediaItem.toMusicItem(): MusicItem = MusicItem(
     mediaId = mediaId,
     title = mediaMetadata.title?.toString() ?: mediaId,

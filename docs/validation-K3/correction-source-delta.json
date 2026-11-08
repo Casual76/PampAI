@@ -1,0 +1,122 @@
+[
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/SignedPlaylistReader.kt",
+    "old": "ca580161369753b9376327947257c211211b463fd172cf59f1f5458603273b13",
+    "new": "07cdb16c762a0ff8d45b921858059804477d2cb091eebaafbc817d3bd1f14868"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceBridgePolicy.kt",
+    "old": "4dd08c9914e280645a54906ec9aefb6b3e3889c1fe142b720b9519442a3966be",
+    "new": "db62a609676d3dc78c05217d344384d7135708dedfc977d3115f2c96458c3f61"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/ConversationsRepository.kt",
+    "old": "72c047026e763d20fc6e1c9fe204c090e656071d23a680d6be60d60c5022da2e",
+    "new": "3570b5fb02c627b9d6b8b96c9df9408e3d0136bb6b9a3f9c48c081d49b34e83f"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundation.kt",
+    "old": "e624cb86770c53bed0a23211ec6f43129e6df1c66d70941f5bd169a83ba39aba",
+    "new": "62eed6f46961c971782cbe6aafdb5c7d30a78fab092d84810f2e3c6566a626d4"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchForeground.kt",
+    "old": "750cadbce0b768ccd1c5c92055a330795cfe3d6d28154ddc8e860beda2ae2f4b",
+    "new": "a98d4de8caffd21169af801a0cf71ef018e7d2030986f1d8bb76e86653bcd4b4"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchProfile.kt",
+    "old": "2a12d7c90b6540861f363c9f6aa898d7c4b8b1aaedbbfed958232ebf42e7be33",
+    "new": "894ca6fbdd478dfd5936c757bf5dc4621f050cbe1b6831c49200ca3069603fe9"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchQuestionPlanner.kt",
+    "old": "51ab283815af740b05982e8e5d6c97545948c0bbdacf20af8006a72e1b5ecc85",
+    "new": "3916480a502a093e870dad95c0d63bcc59627ae01b03b05fd9d2f1ece824bb41"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSources.kt",
+    "old": "83329542976561b93efe31c6701edfab4b489722c49076039bfd82ff695e9c26",
+    "new": "7a9fc1453ec93a326595e109426fa2bb9bfe9b2172f6dc4434f9d4f29cad5e87"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/TurnPrivacy.kt",
+    "old": null,
+    "new": "65ec65caf8cb0ce306725c4f323dd7577d91ad00e4775d8c8efcca694e235b60"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantEngine.kt",
+    "old": "bb2dbab423f1e5474bbc184f075751c7cee308a06623ae116c6b2df15fc4ade9",
+    "new": "013ea39d756c3c31b51208c6d2bb06b7862eeb9bed085427eb26f0ddc2d13352"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/LegacySourceReadGuard.kt",
+    "old": null,
+    "new": "d3abb13927023a21252db82d6e185a25062aedb015d61051091ab373343dc159"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/RegistryBuilder.kt",
+    "old": "1735963d70e67154a2f17bb8fce49af82982b3093e0db572dc78d8700cd8a45c",
+    "new": "b61b304c92422b54fd0cf32f6ca171675d388e159bedcd212eff80e96ccc3d9c"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/aria/AriaTools.kt",
+    "old": "b82044973c114f928c8d7e84be75a97a4601ba9f4ca610674967180012572596",
+    "new": "89e41f33355fbb204acb8232347c728e52ac1b3409521ae3a2e86af61f42793c"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceIntegrationTest.kt",
+    "old": "7425a80b9adf3fad794310e5d4f054c619ff4d7c11fafcb3e58977252965d9db",
+    "new": "d388c139d9bea4d7536ad62e0fa88759ce7cda6238307133902eb575bc73b5fe"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceReceiptPersistenceTest.kt",
+    "old": "8e3041a185458fa857cd6e5eb3a84e30acefbfa8e427de0cbc91857da8c4e20b",
+    "new": "0feeb06482e2bd5717cc29330ef661c9df677084d8361b53129dced9f4c56a50"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/OrdinaryTurnPrivacyTest.kt",
+    "old": null,
+    "new": "0e15f3f8afec9c6e5c27fc22b34df64df62073b973ed96d6983ab0768a478374"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConsumerTest.kt",
+    "old": "54830742f56df5b546589943bed369595af788f673a5952ac96aefca2db5a680",
+    "new": "bbad077f8fdf99f51f06b8fe25df65400994c6ed45a7bd3341862a2696a34584"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/MusicFactPresentation.kt",
+    "old": "eec98a5a9e2ed974f4b3814e6e317d637459c783233ced7e2a9c020793e62bbf",
+    "new": "4d1f068eb2ff5d9c182676703ee2231b50b38f98f2ec0bbb68bc774cb6fa1f36"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfilePresentation.kt",
+    "old": "0e9e5a002c0d28db20f5c0cf9c33da96caf8e9ef5d838833d8d7e1839fd8447b",
+    "new": "09ad5706e79ed8722fbe0a572b5382f3c2d865a11a8679384624b44283b42060"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileRoute.kt",
+    "old": "898b124393a4544d370f365d78d4c9015429e4ac23f6ce901241c107952513c7",
+    "new": "3822c6eef9aedd5704ed53538dfe86b85d101d0febd9e82413ae9a7a3121b4f3"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/UpdatesRoute.kt",
+    "old": "2d3935e36854f5b63dc523f4804b8144f17e2c552921e65fafb312c233eab8ff",
+    "new": "f60e3fa0ab3bd007b4df34cd5f7bb52407b84b5aaf741126287d4f051625b938"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/MusicFactPresentationTest.kt",
+    "old": "95351f502e928813d6d35a97b6f17497c5350f461c69d545d7c103f684ce177d",
+    "new": "16dd1dbeb2e1b2780bf8aec9941fc940e7d2dfe8d32a990895b5a967c561fc18"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileScreenshots.kt",
+    "old": "f5108a52bd96782c706a0535a3a116ee93e00623546a710ad72462ddaab8e3cf",
+    "new": "f35e453122fbdc92227f1218ec88dccd6428f71848866929392b25da18bbd185"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileTimeSemanticsTest.kt",
+    "old": null,
+    "new": "d07d96fd03247b890b1cd0bfd839d7e650bfa938a1ebaa9ef41a15d5eaa80fe0"
+  }
+]

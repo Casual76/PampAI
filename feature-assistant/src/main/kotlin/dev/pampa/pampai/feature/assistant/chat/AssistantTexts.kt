@@ -27,14 +27,14 @@ object AssistantTexts {
       val who = provider?.label ?: "Il servizio"
       // La riserva ha gia' provato tutti: consigliarla sarebbe sbagliato, e nominarne uno solo pure.
       if (tried.size >= 2) "Sono al limite ${names(tried)}: riprova fra ${retryAfterSec?.let { "$it s" } ?: "poco"}."
-      else if (retryAfterSec != null) "$who e' al limite: riprova fra $retryAfterSec s (o accendi la riserva automatica nelle impostazioni)."
-      else "$who e' al limite di richieste: riprova fra poco (o accendi la riserva automatica nelle impostazioni)."
+      else if (retryAfterSec != null) "$who e' al limite. Riprova fra $retryAfterSec s."
+      else "$who e' al limite di richieste. Riprova fra poco."
     }
     FailureKind.NETWORK -> "Niente rete: controlla la connessione e riprova."
     FailureKind.TIMEOUT -> "Ci ho messo troppo. Riprova, o dividi la domanda in pezzi piu' piccoli."
     FailureKind.BLOCKED -> "Il servizio ha rifiutato la richiesta per i suoi filtri: prova a riformularla, o a rigenerare con un altro servizio."
     FailureKind.PROVIDER -> "${provider?.label ?: "Il servizio"} ha risposto con un errore: riprova, o rigenera con un altro servizio."
-    FailureKind.MODEL_UNAVAILABLE -> "Il modello scelto per ${provider?.label ?: "questo servizio"} non c'e' piu': ne ho scelto un altro, riprova."
+    FailureKind.MODEL_UNAVAILABLE -> "Il modello scelto per ${provider?.label ?: "questo servizio"} non e' disponibile: scegli un altro modello o riprova."
     FailureKind.CONTEXT_TOO_LONG -> "La conversazione e' troppo lunga per ${provider?.label ?: "questo servizio"}: aprine una nuova, o rigenera con un altro servizio."
     FailureKind.MICROPHONE -> "Il microfono non e' disponibile: chiudi l'app che lo sta usando."
     FailureKind.TRANSCRIPTION -> "Non sono riuscita a trascrivere: riprova."

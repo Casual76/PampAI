@@ -1,5 +1,8 @@
 package dev.pampa.pampai.feature.assistant.session
 
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -24,7 +27,10 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
  * li cerca risalendo l'albero e senza non parte. Il ciclo di vita lo muove la sessione:
  * [resume] quando si mostra, [pause] quando si nasconde, [dispose] quando muore.
  */
-class SessionComposeHost(context: Context) : FrameLayout(context), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+class SessionComposeHost(context: Context) : FrameLayout(context), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner, OnBackPressedDispatcherOwner {
+
+  var onBack: () -> Unit = {}
+  override val onBackPressedDispatcher = OnBackPressedDispatcher { onBack() }
 
   private val registry = LifecycleRegistry(this)
   private val store = ViewModelStore()
@@ -34,6 +40,7 @@ class SessionComposeHost(context: Context) : FrameLayout(context), LifecycleOwne
   init {
     savedState.performRestore(null)
     registry.currentState = Lifecycle.State.CREATED
+    setViewTreeOnBackPressedDispatcherOwner(this)
     setViewTreeLifecycleOwner(this)
     setViewTreeViewModelStoreOwner(this)
     setViewTreeSavedStateRegistryOwner(this)

@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
@@ -45,6 +46,19 @@ class SessionController(
   private val screen: ScreenContextStore,
   private val scope: CoroutineScope,
 ) {
+
+  private val voicePreparation = dev.pampa.pampai.feature.assistant.chat.VoicePreparation(scope)
+  val preparingVoice = voicePreparation.preparing
+  val draft = MutableStateFlow("")
+  private var draftGeneration = 0L
+
+  fun handoff(id: Long?): String {
+    voicePreparation.cancel()
+    draftGeneration++ // invalidate a slow preflight; expansion never dispatches it
+    return DraftHandoffs.put(DraftHandoff(id, draft.value, attachmentsFlow.value, modelSelection.state.value.selected(id)))
+  }
+
+  val modelSelection get() = runtime.modelSelection
 
   val conversationId: StateFlow<Long?> = runtime.sessionConversationId
 
@@ -138,6 +152,7 @@ class SessionController(
    * @return lo stamp di questa apparizione, da ripassare a [begin].
    */
   fun onShow(startVoice: Boolean, locked: Boolean = false): Long {
+    voicePreparation.cancel()
     val now = System.currentTimeMillis()
     this.locked = locked
     // Una risposta dell'overlay ancora in corso, chiesta a telefono sbloccato, non si mostra su
@@ -145,9 +160,10 @@ class SessionController(
     if (locked && runtime.isBusy && runtime.liveOwner.value.surface == Surface.SESSION) runtime.cancel()
     // Riaperta mentre e' ancora a schermo (una seconda pressione) continua sempre.
     val recent = visible || (hiddenAt > 0L && now - hiddenAt < CONTINUE_WINDOW_MILLIS)
-    val continues = !locked && recent && conversationId.value != null
+    val continues = !locked && recent
     if (!continues) runtime.selectSessionConversation(null)
-    attachmentsFlow.value = emptyList()
+    draftGeneration++
+    if (!continues) { draft.value = ""; attachmentsFlow.value = emptyList() }
     notice.value = null
     selecting.value = false
     // Provvisorio: [begin] lo corregge con l'impostazione "parti in testo". Durante l'orb la barra
@@ -189,6 +205,9 @@ class SessionController(
   }
 
   fun onHide() {
+    voicePreparation.cancel()
+    draftGeneration++
+    modelSelection.imageChoiceNeeded.value = false
     hiddenAt = System.currentTimeMillis()
     visible = false
     eventsJob?.cancel()
@@ -206,32 +225,62 @@ class SessionController(
     return false
   }
 
-  fun ask(text: String) {
-    val question = text.trim()
-    if (question.isEmpty() && attachmentsFlow.value.isEmpty()) return
+  fun ask(text: String) { scope.launch { askPrepared(text) } }
+
+  suspend fun askPrepared(text: String): Boolean {
+    if (!visible) return false
+    val generation = draftGeneration
+    val runtimeGeneration = runtime.requestGeneration
     val attached = attachmentsFlow.value
-    attachmentsFlow.value = emptyList()
+    val target = conversationId.value
+    modelSelection.loaded.first { it }
+    if (!visible || generation != draftGeneration || target != conversationId.value) return false
+    val question = text.trim()
+    if (question.isEmpty() && attached.isEmpty()) return false
+    val policy = modelSelection.state.value.selected(conversationId.value)
+    val request = AssistantRequest(conversationId.value, question, AskMode.TEXT, attached, Surface.SESSION, locked = locked, modelPolicy = policy)
+    try { runtime.preflight(request) }
+    catch (e: kotlinx.coroutines.CancellationException) { throw e }
+    catch (e: Exception) { notice.value = e.message ?: "Bozza conservata"; return false }
+    if (!visible || generation != draftGeneration || target != conversationId.value) return false
+    if (!runtime.submitIfCurrent(request, runtimeGeneration, replaceBusy = false)) {
+      notice.value = "Invio sospeso. La bozza è conservata."
+      return false
+    }
+    attachmentsFlow.value = attachmentsFlow.value.filter { it !in attached }
     notice.value = null
-    runtime.submit(AssistantRequest(conversationId.value, question, AskMode.TEXT, attached, Surface.SESSION, locked = locked))
+    return true
   }
 
   fun startVoice() {
-    textMode.value = false
-    notice.value = null
+    if (!visible || runtime.isBusy) return
+    val generation = draftGeneration
     val attached = attachmentsFlow.value
-    attachmentsFlow.value = emptyList()
-    runtime.startListening(conversationId.value, Surface.SESSION, attached, locked = locked)
+    val id = conversationId.value
+    val policy = modelSelection.state.value.selected(id)
+    var admitted = false
+    voicePreparation.start(preflight = {
+      try { runtime.preflight(AssistantRequest(id, "", AskMode.VOICE, attached, Surface.SESSION, locked = locked, modelPolicy = policy)); admitted = true }
+      catch (e: kotlinx.coroutines.CancellationException) { throw e }
+      catch (e: Exception) { notice.value = e.message ?: "Bozza conservata" }
+    }, stillOwned = { admitted && visible && generation == draftGeneration && id == conversationId.value && !runtime.isBusy }, listen = {
+      textMode.value = false
+      notice.value = null
+      attachmentsFlow.value = attachmentsFlow.value.filter { it !in attached }
+      runtime.startListening(id, Surface.SESSION, attached, locked = locked, modelPolicy = policy)
+    })
   }
 
   fun stopVoice() = runtime.stopListening()
 
   /** Il tocco sulla barra mentre ascolta: si torna al testo senza dire niente. */
   fun voiceToText() {
+    voicePreparation.cancel()
     runtime.cancelListening()
     textMode.value = true
   }
 
-  fun cancel() = runtime.cancel()
+  fun cancel() { val preparing = preparingVoice.value; voicePreparation.cancel(); draftGeneration++; if (!preparing) runtime.cancel() }
 
   fun stopSpeaking() = runtime.stopSpeaking()
 

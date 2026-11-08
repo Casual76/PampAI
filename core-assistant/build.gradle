@@ -53,6 +53,8 @@ ksp {
 }
 
 dependencies {
+  api "androidx.work:work-runtime-ktx:2.12.0"
+  testImplementation "androidx.work:work-testing:2.12.0"
   // Il trasporto e l'orchestrazione senza dominio stanno nell'engine; qui c'e' il dominio di Aria.
   api project(":engine-ai")
   api project(":engine-ai-bridge")
@@ -83,6 +85,7 @@ dependencies {
   ksp libs.room.compiler
 
   testImplementation libs.junit4
+  testImplementation "io.mockk:mockk-jvm:1.14.11"
   testImplementation libs.kotlinx.coroutines.test
   // Room vero sulla JVM: le migrazioni con MigrationTestHelper e il repository su un database in
   // memoria. Stessa versione di Robolectric di feature-assistant, stessa di Room del resto.

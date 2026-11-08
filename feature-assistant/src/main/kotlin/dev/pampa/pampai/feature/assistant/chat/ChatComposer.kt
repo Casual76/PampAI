@@ -1,9 +1,12 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import kotlinx.coroutines.launch
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -36,6 +39,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -47,7 +51,7 @@ import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
 import dev.antigravity.fluidengine.ai.orchestrator.MicLevel
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.aiui.chat.FluidComposer
-import dev.antigravity.fluidengine.aiui.chat.FluidComposerChip
+import dev.antigravity.fluidengine.aiui.chat.FluidComposerAction
 import dev.antigravity.fluidengine.aiui.chat.FluidComposerPill
 import dev.antigravity.fluidengine.aiui.chat.FluidComposerVoiceLine
 import dev.antigravity.fluidengine.aiui.chat.FluidGlassRoundButton
@@ -111,12 +115,13 @@ internal class ComposerState(text: String = "") {
 }
 
 @Composable
-internal fun rememberComposerState(): ComposerState = rememberSaveable(saver = ComposerState.Saver) { ComposerState() }
+internal fun rememberComposerState(vararg inputs: Any?): ComposerState = rememberSaveable(*inputs, saver = ComposerState.Saver) { ComposerState() }
 
 /** Cosa il composer mostra e non decide lui: la voce che legge, l'impegno, il plugin, le modalita'. */
 @Immutable
 internal data class ComposerModel(
   val speaking: Boolean = false,
+  val preparingVoice: Boolean = false,
   val thinkingAuto: Boolean = true,
   val plugins: List<PluginOption> = emptyList(),
   val plugin: String? = null,
@@ -142,7 +147,7 @@ internal class ComposerFeeds(
  */
 @Stable
 internal class ComposerActions(
-  val onSend: (String) -> Boolean = { true },
+  val onSend: suspend (String) -> Boolean = { true },
   val onStop: () -> Unit = {},
   val onVoice: () -> Unit = {},
   val onStopVoice: () -> Unit = {},
@@ -171,8 +176,7 @@ internal class ComposerActions(
  * alle impostazioni. Mentre Aria lavora si scrive e si manda lo stesso: la domanda va in coda e
  * parte quando ha finito (accanto all'invio resta lo stop).
  *
- * Il "+" apre un menu di vetro **sul tasto** (Fotocamera, Foto, File, Plugin, Pensa piu' a
- * fondo, Chat temporanea); il modello apre un pop-up sul suo chip. Entrambi vengono dal padrone di casa dei
+ * Il "+" apre un menu di vetro **sul tasto** (allegati, contesto e nuova chat temporanea); il modello apre un pop-up sul suo chip. Entrambi vengono dal padrone di casa dei
  * modali alla radice, sullo stesso vetro della chat.
  *
  * @param resampleIntervalMillis ogni quanto, al massimo, la capsula rifa' la propria cattura; zero
@@ -235,10 +239,16 @@ internal fun Composer(
 
   // Non si ignora piu' niente: con Aria al lavoro la domanda va in coda (lo decide chi riceve
   // `onSend`), e il campo si svuota solo se e' partita o in coda davvero.
+  val sendScope = androidx.compose.runtime.rememberCoroutineScope()
+  var preparingSend by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+  var preparation by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
   fun submit() {
-    val query = text.trim()
+    val submittedText = composer.text
+    val query = submittedText.trim()
     if (query.isEmpty() && state.attachments.isEmpty()) return
-    if (actions.onSend(query)) composer.sent()
+    if (preparingSend || model.preparingVoice) return
+    preparingSend = true
+    preparation = sendScope.launch { try { if (actions.onSend(query) && composer.text == submittedText) composer.sent() } finally { preparingSend = false; preparation = null } }
   }
 
   // La strada per le impostazioni resta in vista quando serve: senza chiavi (i comandi rapidi
@@ -248,14 +258,16 @@ internal fun Composer(
     state.blockedByConsent -> "Aria e' spenta: accendila"
     else -> null
   }
-  val hasPills = editing != null || state.attachments.isNotEmpty() || chosenPlugin != null || model.deepNext || settingsPill != null
+  val hasPills = editing != null || state.attachments.isNotEmpty() || chosenPlugin != null || settingsPill != null
   val hasInput = text.isNotBlank() || state.attachments.isNotEmpty()
 
-  FluidComposer(
+  AssistantComposer(
+    modifier = Modifier.testTag("aria-composer").onGloballyPositioned { composerRect = it.boundsInRoot() },
     value = text,
     onValueChange = { composer.text = it },
     backdrop = backdrop,
-    action = fluidComposerAction(hasInput = hasInput, busy = busy, listening = voiceActive, speaking = model.speaking),
+    action = if (preparingSend || model.preparingVoice) FluidComposerAction.Stop else fluidComposerAction(hasInput = hasInput, busy = busy, listening = voiceActive, speaking = model.speaking),
+    preparing = preparingSend || model.preparingVoice,
     onSend = { submit() },
     placeholder = when {
       editing != null -> AriaChatStrings.composerEditing
@@ -265,7 +277,7 @@ internal fun Composer(
       else -> AriaChatStrings.composerPlaceholder
     },
     strings = AriaChatStrings,
-    onStop = actions.onStop,
+    onStop = { if (preparingSend) preparation?.cancel() else actions.onStop() },
     onVoice = actions.onVoice,
     // Trascrivendo, il tasto "ferma" e' lo stop della domanda (come prima), non la fine dell'ascolto.
     onStopListening = { if (transcribing) actions.onStop() else actions.onStopVoice() },
@@ -274,7 +286,6 @@ internal fun Composer(
       settingsPill?.let { FluidComposerPill(Icons.Rounded.Key, it, accent = true, removable = false, trailingLink = Icons.Rounded.ChevronRight, onClick = actions.onOpenSettings) }
       if (editing != null) FluidComposerPill(Icons.Rounded.Edit, "Modifico il messaggio", accent = true, onClick = { composer.cancelEditing() })
       chosenPlugin?.let { FluidComposerPill(Icons.Rounded.Extension, it.label, accent = true, onClick = { actions.onPlugin(null) }) }
-      if (model.deepNext) FluidComposerPill(Icons.Rounded.Psychology, "Pensa piu' a fondo", accent = true, onClick = actions.onToggleDeep)
       state.attachments.forEachIndexed { index, attachment -> AttachmentChip(attachment) { actions.onRemoveAttachment(index) } }
     }),
     leading = { controlBackdrop ->
@@ -282,15 +293,15 @@ internal fun Composer(
         icon = Icons.Rounded.Add,
         description = "Allega o scegli",
         backdrop = controlBackdrop,
-        modifier = Modifier.onGloballyPositioned { plusRect = it.boundsInRoot() },
+        modifier = Modifier.size(48.dp).onGloballyPositioned { plusRect = it.boundsInRoot() },
         onClick = { pluginPage = false; plusMenu = true },
       )
     },
-    chips = { FluidComposerChip(label = modelLabel(state, model.thinkingAuto), onClick = { modelMenu = true }) },
+    chips = { state.modelSelection?.let { ExactModelControl(it, state.conversation?.id) } ?: AssistantModelControl(modelLabel(state, model.thinkingAuto), onClick = { modelMenu = true }) },
     voiceLine = { ChatVoiceLine(partial = feeds.partial, transcribing = transcribing, amplitude = { glow.clock.amplitude }, onTap = actions.onCancelVoice, modifier = Modifier.fillMaxWidth()) },
     glow = glow,
     focusRequester = focus,
-    onBoundsChange = { composerRect = it },
+    maxLines = 4,
     resampleIntervalMillis = resampleIntervalMillis,
   )
 
@@ -306,16 +317,15 @@ internal fun Composer(
   ) {
     Column(Modifier.width(264.dp).padding(vertical = 4.dp)) {
       if (!pluginPage) {
+        MenuSectionLabel("Allegati")
         MenuRow(Icons.Rounded.PhotoCamera, "Fotocamera") { plusMenu = false; runCatching { AttachmentFiles.newCameraUri(context).also { cameraUri = it } }.getOrNull()?.let { cameraLauncher.launch(it) } }
         MenuRow(Icons.Rounded.Image, "Foto") { plusMenu = false; photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
         MenuRow(Icons.Rounded.AttachFile, "File") { plusMenu = false; filePicker.launch(arrayOf("application/pdf", "text/*", "image/*")) }
         MenuDivider()
-        MenuRow(Icons.Rounded.Extension, "Plugin", detail = chosenPlugin?.label, trailing = Icons.Rounded.ChevronRight) { pluginPage = true }
-        MenuRow(Icons.Rounded.Psychology, "Pensa piu' a fondo", detail = "Livello profondo e ragionamento alto", checked = model.deepNext) { actions.onToggleDeep(); plusMenu = false }
-        // Non un interruttore su questa chat: apre una chat nuova, temporanea (e spegnendolo ne
-        // apre una normale). Una conversazione gia' scritta non puo' diventare "come se non fosse
-        // mai stata scritta", quindi la scelta si fa prima di parlare, e la spunta dice dove si e'.
-        MenuRow(Icons.Rounded.VisibilityOff, "Chat temporanea", detail = "Non resta in cronologia ne' in memoria", checked = model.temporary) { actions.onToggleTemporary(); plusMenu = false }
+        MenuSectionLabel("Conversazione")
+        MenuRow(Icons.Rounded.Extension, "Contesto e plugin", detail = chosenPlugin?.label, trailing = Icons.Rounded.ChevronRight) { pluginPage = true }
+        // Always starts a separate temporary conversation; never changes storage of this one.
+        MenuRow(Icons.Rounded.VisibilityOff, "Nuova chat temporanea", detail = "Non resta in cronologia o in memoria") { actions.onToggleTemporary(); plusMenu = false }
       } else {
         MenuRow(Icons.Rounded.ArrowBack, "Indietro") { pluginPage = false }
         MenuDivider()

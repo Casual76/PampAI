@@ -65,6 +65,40 @@ class ConversationsTreeRepositoryTest {
 
   private fun photo() = PendingAttachment(AttachmentKind.IMAGE, "image/jpeg", "foto.jpg", byteArrayOf(1, 2, 3, 4))
 
+  @Test fun `replay uses target branch not later images and retains earlier image for text replay`() = runBlocking {
+    val c = repo.createConversation("branch", tick())
+    val a = ask(c, "A")
+    ask(c, "B image", attachments = listOf(photo()))
+    val aContext = repo.replayContext(c, Anchor.Regenerate(a.assistantId), emptyList())
+    assertTrue(aContext.first.isEmpty()); assertTrue(aContext.second.isEmpty())
+    val d = repo.createConversation("earlier", tick())
+    ask(d, "U1 image", attachments = listOf(photo()))
+    val u2 = ask(d, "U2 text")
+    ask(d, "later")
+    val before = repo.replayContext(d, Anchor.Regenerate(u2.assistantId), emptyList())
+    assertTrue(before.first.single().attachments.isNotEmpty())
+    val turn = repo.startTurn(d, Anchor.Regenerate(u2.assistantId), "", AskMode.TEXT, emptyList(), tick())
+    val dispatched = repo.exchanges(d, turn.questionId, 8)
+    assertEquals(before.first.map { it.copy(attachments = emptyList()) }, dispatched.map { it.copy(attachments = emptyList()) })
+    val beforeImage = before.first.single().attachments.single() as dev.antigravity.fluidengine.ai.provider.ContentPart.Image
+    val sentImage = dispatched.single().attachments.single() as dev.antigravity.fluidengine.ai.provider.ContentPart.Image
+    assertArrayEquals(beforeImage.bytes, sentImage.bytes)
+  }
+
+  @Test fun `silent discard retains cancelled version with reserved write before output`() = runBlocking {
+    val c = repo.createConversation("write", tick())
+    val original = ask(c, "create")
+    val turn = ask(c, "", Anchor.Regenerate(original.assistantId), answer = null)
+    val ledger = dev.pampa.pampai.core.assistant.receipts.OperationLedger(db)
+    val call = dev.antigravity.fluidengine.ai.provider.ToolCall("one", "write", kotlinx.serialization.json.buildJsonObject {})
+    val ex = ledger.attempt(c, turn.questionId.toString(), turn.assistantId, { true }).prepare(call)
+    repo.discardVersion(turn)
+    assertEquals(MessageStatus.CANCELLED, repo.message(turn.assistantId)!!.status)
+    assertEquals(ex.operationId, db.operations().forMessage(turn.assistantId).single().operationId)
+    try { ledger.attempt(c, turn.questionId.toString(), turn.assistantId + 1, { true }).prepare(call.copy(id = "retry")); throw AssertionError("second write") }
+    catch (_: dev.pampa.pampai.core.assistant.receipts.PreviousOperationRequiresDecision) { }
+  }
+
   @Test
   fun `le domande si attaccano in fondo al ramo mostrato`() = runBlocking {
     val c = repo.createConversation("prova", tick())

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.tools.DatesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-08T08:59:59.430Z" hostname="PC_FISSO" time="0.004">
+  <properties/>
+  <testcase name="data e ora insieme, con il rinvio a domani se l'ora e' passata" classname="dev.pampa.pampai.core.assistant.tools.DatesTest" time="0.002"/>
+  <testcase name="il testo si normalizza e si confronta per prefissi di parola" classname="dev.pampa.pampai.core.assistant.tools.DatesTest" time="0.0"/>
+  <testcase name="le ore si leggono con e senza minuti, e con le parole" classname="dev.pampa.pampai.core.assistant.tools.DatesTest" time="0.0"/>
+  <testcase name="le etichette portano il giorno della settimana" classname="dev.pampa.pampai.core.assistant.tools.DatesTest" time="0.0"/>
+  <testcase name="le date si leggono in ogni forma che il modello usa" classname="dev.pampa.pampai.core.assistant.tools.DatesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

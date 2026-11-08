@@ -1,10 +1,9 @@
 package dev.pampa.pampai.feature.assistant.chat
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,13 +23,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.antigravity.fluidengine.ai.tools.ToolOutcome
+import dev.pampa.pampai.core.assistant.tools.PampaiToolTrace
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderId
-import dev.antigravity.fluidengine.ui.fluid.ContinuousCornerShape
-import dev.antigravity.fluidengine.ui.fluid.FluidRadius
 import dev.antigravity.fluidengine.ui.fluid.fluidPressable
 import dev.pampa.pampai.core.assistant.db.Run
 import dev.pampa.pampai.core.assistant.runtime.LOCAL_OUTCOME
@@ -57,7 +55,7 @@ fun RunSteps(run: Run) {
   Column(Modifier.padding(bottom = 8.dp)) {
     Row(
       modifier = Modifier
-        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f), ContinuousCornerShape(FluidRadius.Control))
+        .heightIn(min = 48.dp)
         .fluidPressable(onClick = { details = !details }, pressedScale = 1f, role = Role.Button, haptic = null)
         .padding(horizontal = 12.dp, vertical = 8.dp),
       verticalAlignment = Alignment.CenterVertically,
@@ -88,12 +86,15 @@ fun RunSteps(run: Run) {
       // risposto Gemini: Groq era al limite"), con il perche'; qui resta per le righe di prima.
       if (run.switches.isEmpty()) providerChain(run)?.let { Text("servizi: $it", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
       if (run.groups.isNotEmpty()) Text("gruppi: ${run.groups.joinToString(", ")}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      run.imageInterpretations.forEach { use ->
+        Text(imageInterpretationLabel(use), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      }
       run.tools.forEach { trace ->
         Spacer(Modifier.height(4.dp))
         Text(
-          text = "${trace.app?.let { "$it · " } ?: ""}${trace.name} ${trace.args} · ${trace.millis} ms · ${if (trace.ok) "ok" else "errore"}",
+          text = "${trace.app?.let { "$it · " } ?: ""}${trace.name} ${trace.args} · ${trace.millis} ms · ${traceOutcomeLabel(trace)}",
           style = MaterialTheme.typography.labelSmall,
-          color = if (trace.ok) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
+          color = if (trace.outcome == ToolOutcome.ERROR || (trace.outcome == null && !trace.ok)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
         )
         if (trace.preview.isNotBlank()) Text(trace.preview, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
@@ -108,7 +109,7 @@ fun RunSteps(run: Run) {
  * ne era la terza copia: l'intestazione della risposta usa questo per sapere se il posto resta vuoto.
  */
 internal fun runHasSteps(run: Run): Boolean =
-  run.outcome != LOCAL_OUTCOME && run.outcome != STOPPED_OUTCOME && (run.tools.isNotEmpty() || modelsLine(run) != null)
+  run.imageInterpretations.isNotEmpty() || (run.outcome != LOCAL_OUTCOME && run.outcome != STOPPED_OUTCOME && (run.tools.isNotEmpty() || modelsLine(run) != null))
 
 /**
  * La riga chiusa, in italiano corrente.
@@ -119,6 +120,7 @@ internal fun runHasSteps(run: Run): Boolean =
  */
 private fun toolSummary(run: Run): String {
   val work = when {
+    run.imageInterpretations.isNotEmpty() -> "Supporto visivo: " + run.imageInterpretations.joinToString { "${it.provider.label} / ${it.model}" }
     run.tools.isEmpty() -> run.error?.let { "Non ci sono riuscita" } ?: "Ho risposto da sola"
     else -> {
       val apps = run.tools.mapNotNull { it.app }.distinct()
@@ -130,8 +132,7 @@ private fun toolSummary(run: Run): String {
       }
     }
   }
-  val answerer = if (run.error == null) answeredBy(run) else null
-  return if (answerer != null) "$work · $answerer" else work
+  return work
 }
 
 /** Gli strumenti di tutti i giorni detti come li direbbe una persona, non con il loro nome tecnico. */
@@ -142,8 +143,8 @@ private val ToolPhrases = mapOf(
   "converti_unita" to "Ho fatto la conversione",
   "fuso_orario" to "Ho guardato il fuso orario",
   "data_calcola" to "Ho contato i giorni",
-  "sveglia_crea" to "Ho impostato la sveglia",
-  "timer_crea" to "Ho avviato il timer",
+  "sveglia_crea" to "Richiesta sveglia",
+  "timer_crea" to "Richiesta timer",
   "promemoria_crea" to "Ho creato il promemoria",
   "promemoria_elenco" to "Ho guardato i promemoria",
   "ricorda" to "Me lo sono segnato",
@@ -237,3 +238,17 @@ fun telemetry(run: Run): String = if (run.outcome == LOCAL_OUTCOME) "comando rap
   run.costUsd?.takeIf { it > 0.0 }?.let { add(String.format(Locale.getDefault(), "%.4f $", it)) }
   if (run.outcome != "ok") add(run.outcome)
 }.joinToString(" · ")
+
+internal fun traceOutcomeLabel(trace: PampaiToolTrace): String = when (trace.outcome) {
+  ToolOutcome.ERROR -> "errore"
+  ToolOutcome.UNCERTAIN -> "esito incerto"
+  ToolOutcome.PARTIAL -> "parziale"
+  ToolOutcome.ACCEPTED -> "richiesta accettata"
+  ToolOutcome.COMPLETED -> "completato"
+  null -> if (trace.ok) "ok (traccia precedente)" else "errore"
+}
+
+internal fun imageInterpretationLabel(use: dev.pampa.pampai.core.assistant.db.RunImageInterpretation): String =
+  "${use.provider.label} / ${use.model} ha interpretato le immagini" +
+    (if (use.cached) " (descrizione riutilizzata dalla cache)" else "") +
+    "; descrizione preparata per il modello principale al posto dei pixel."

@@ -1,7 +1,6 @@
 package dev.pampa.pampai.feature.assistant.history
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -102,22 +101,7 @@ fun AriaDrawer(
     pin = { viewModel.pin(it.id, !it.pinned) },
   )
 
-  Column(
-    Modifier
-      .fillMaxHeight()
-      .background(MaterialTheme.colorScheme.surface)
-      .statusBarsPadding()
-      .padding(horizontal = 12.dp),
-  ) {
-    Text(
-      text = "Aria",
-      style = MaterialTheme.typography.headlineMedium,
-      fontWeight = FontWeight.Bold,
-      modifier = Modifier.padding(start = 8.dp, top = 12.dp, bottom = 12.dp),
-    )
-    FluidTextField(value = query, onValueChange = viewModel::setQuery, placeholder = "Cerca nelle conversazioni…")
-    Spacer(Modifier.height(8.dp))
-
+  DrawerWorkspace(query, viewModel::setQuery, { onNewChat(); onOpenConversation() }, onOpenSettings, onOpenMemory) {
     LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(vertical = 4.dp)) {
       if (query.length >= 3) {
         item { SectionLabel(if (hits.isEmpty()) "Niente per \"$query\"" else "${hits.size} passaggi") }
@@ -139,12 +123,6 @@ fun AriaDrawer(
           }
         }
         return@LazyColumn
-      }
-      item {
-        NavRow(Icons.Rounded.Settings, "Impostazioni", onOpenSettings)
-        NavRow(Icons.Rounded.Psychology, "Memoria e promemoria", onOpenMemory)
-        NavRow(Icons.Rounded.Insights, "Consumi", onOpenUsage)
-        Spacer(Modifier.height(8.dp))
       }
       if (pinned.isNotEmpty()) {
         item(key = "pin-h") { SectionLabel("Fissate") }
@@ -184,25 +162,6 @@ fun AriaDrawer(
       }
     }
 
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .navigationBarsPadding()
-        .padding(vertical = 10.dp),
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Row(
-        modifier = Modifier
-          .background(MaterialTheme.colorScheme.primary, ContinuousCornerShape(FluidRadius.Control))
-          .fluidPressable(onClick = { onNewChat(); onOpenConversation() }, role = Role.Button)
-          .padding(horizontal = 18.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        Icon(Icons.Rounded.Add, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(18.dp))
-        Spacer(Modifier.width(8.dp))
-        Text("Nuova chat", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.SemiBold)
-      }
-    }
   }
 
   renaming?.let { conversation ->
@@ -316,7 +275,7 @@ private fun ConversationRow(
     trailing = {
       Box(
         Modifier
-          .size(40.dp)
+          .size(48.dp)
           .fluidPressable(onClick = openMenu, role = Role.Button, haptic = null),
         contentAlignment = Alignment.Center,
       ) {
@@ -361,5 +320,25 @@ private fun DrawerRow(
       }
     }
     trailing?.invoke()
+  }
+}
+
+/** Only history results change during search; these controls remain in the same layout slots. */
+@Composable
+internal fun DrawerWorkspace(
+  query: String, onQuery: (String) -> Unit, onNewChat: () -> Unit,
+  onSettings: () -> Unit, onMemory: () -> Unit,
+  history: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
+) {
+  Column(Modifier.fillMaxHeight().background(MaterialTheme.colorScheme.surface)
+    .statusBarsPadding().navigationBarsPadding().padding(horizontal = 12.dp)) {
+    NavRow(Icons.Rounded.Add, "Nuova chat", onNewChat)
+    FluidTextField(value = query, onValueChange = onQuery, placeholder = "Cerca nelle conversazioni")
+    history()
+    dev.antigravity.fluidengine.ui.theme.FluidListGroup(glass = true) {
+      dev.antigravity.fluidengine.ui.theme.FluidListRow(title = "Il tuo profilo", subtitle = "", onClick = onMemory)
+      dev.antigravity.fluidengine.ui.theme.FluidListDivider()
+      dev.antigravity.fluidengine.ui.theme.FluidListRow(title = "Impostazioni", subtitle = "", onClick = onSettings)
+    }
   }
 }

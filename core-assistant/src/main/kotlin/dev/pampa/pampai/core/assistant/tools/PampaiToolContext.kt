@@ -26,7 +26,7 @@ import java.util.Locale
 enum class Surface { APP, SESSION }
 
 /** Il tool che la domanda ha fatto partire deve dire dove sta girando: il suo nome per il cancello. */
-const val ACTIONS_OFF = "le azioni sono disattivate nelle impostazioni di PampAI: dillo all'utente"
+const val ACTIONS_OFF = "Le azioni sono disattivate. Puoi abilitarle nelle impostazioni di PampAI."
 
 /**
  * Cosa un tool puo' toccare mentre gira: il telefono, l'ora, la memoria, le conversazioni, le
@@ -92,7 +92,7 @@ class PampaiToolContext(
    * testo da restituire al modello se l'utente ha detto no (o non ha risposto).
    */
   suspend fun confirm(tool: String, title: String, detail: String?): ToolOutput? {
-    if (!actionsEnabled) return ToolOutput(ACTIONS_OFF)
+    requireActions()?.let { return it }
     return confirmSafety(tool, title, detail)
   }
 
@@ -105,7 +105,9 @@ class PampaiToolContext(
   suspend fun confirmSafety(tool: String, title: String, detail: String?): ToolOutput? =
     when (val outcome = gate.ask(tool, title, detail)) {
       ConfirmationOutcome.CONFIRMED -> null
-      else -> ToolOutput(PampaiConfirmationGate.outcomeText(outcome))
+      else -> ToolOutput(PampaiConfirmationGate.outcomeText(outcome), result = dev.antigravity.fluidengine.ai.tools.ToolResultDetails(
+        dev.antigravity.fluidengine.ai.tools.ToolOutcome.ERROR,
+        error = dev.antigravity.fluidengine.ai.tools.ToolError("confirmation_not_granted", "Operazione non eseguita: conferma non concessa")))
     }
 
   /**
@@ -113,5 +115,7 @@ class PampaiToolContext(
    * conferma -- chiederla a ogni "mettimi un timer" e' quello che rende un assistente inutile --
    * ma l'interruttore "Azioni" delle impostazioni vale lo stesso.
    */
-  fun requireActions(): ToolOutput? = if (!actionsEnabled) ToolOutput(ACTIONS_OFF) else null
+  fun requireActions(): ToolOutput? = if (!actionsEnabled) ToolOutput(ACTIONS_OFF,
+    result = dev.antigravity.fluidengine.ai.tools.ToolResultDetails(dev.antigravity.fluidengine.ai.tools.ToolOutcome.ERROR,
+      error = dev.antigravity.fluidengine.ai.tools.ToolError("actions_disabled", "Operazione non eseguita: azioni disattivate"))) else null
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:57:37.541Z" hostname="PC_FISSO" time="2.963">
+  <properties/>
+  <testcase name="unexpiredClaimIsDeferredAndExpiredClaimCanResume" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.231"/>
+  <testcase name="persistedCadenceAndConstraintsArePassedToQueueAndReopened" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.109"/>
+  <testcase name="cancellationAfterPossibleDispatchKeepsChargeAndRequiresExplicitReconciliation" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.089"/>
+  <testcase name="persistedRunningMarkerIsReconciledWithoutLosingCheckpoint" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.105"/>
+  <testcase name="cancellationBeforeDispatchPreservesCheckpointAndSchedulesSafeResume" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.108"/>
+  <testcase name="absentAndDisabledStartupNeverEnqueueOrAcquire" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.114"/>
+  <testcase name="onDemandInitializationUsesApplicationConfigurationAndCustomFactory" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.124"/>
+  <testcase name="applicationOwnedObserverReconcilesDisabledStartupAndRuntimeChanges" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.158"/>
+  <testcase name="realWorkerFactoryBuildsAndUsesOnlyBackgroundExecutor" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.165"/>
+  <testcase name="foregroundPriorityAndRecoveryKeepLiveOwnership" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.123"/>
+  <testcase name="eligibilityAndAdoptionExcludeForegroundJobs" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.05"/>
+  <testcase name="cooldownYieldsBeforeAdmissionAndUnknownSuspensionDoesNotRetry" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.165"/>
+  <testcase name="moneyCapAndRevocationSuspendWithoutCalls" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.182"/>
+  <testcase name="orphanJobIsResumedAndCompletionSchedulesCadenceOnce" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.14"/>
+  <testcase name="foregroundContextStopsActualSourceTransportBeforeDiscoveryWire" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.373"/>
+  <testcase name="exhaustedBudgetUsesOnlyAnAlreadyAuthorizedFutureWindow" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.137"/>
+  <testcase name="atomicBackgroundAdmissionAdoptsSameJobAndDoesNotResetCheckpoint" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.032"/>
+  <testcase name="changedModelAndDisableCancelOldGeneration" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.31"/>
+  <testcase name="uncertainDispatchSurvivesRecoveryWithoutSynthesisReplay" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.135"/>
+  <testcase name="realWorkManagerPersistsUniqueConstraintsAndWorkerFactory" classname="dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest" time="0.111"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

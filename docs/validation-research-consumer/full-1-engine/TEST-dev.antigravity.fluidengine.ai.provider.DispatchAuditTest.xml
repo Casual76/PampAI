@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.antigravity.fluidengine.ai.provider.DispatchAuditTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-08T09:53:27.628Z" hostname="PC_FISSO" time="0.006">
+  <properties/>
+  <testcase name="parameterRejectionRecordsBothActualWireAttemptsWithoutChangingModel" classname="dev.antigravity.fluidengine.ai.provider.DispatchAuditTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

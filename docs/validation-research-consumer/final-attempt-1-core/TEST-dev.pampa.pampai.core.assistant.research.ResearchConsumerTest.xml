@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" tests="21" skipped="0" failures="1" errors="0" timestamp="2026-11-08T09:57:28.504Z" hostname="PC_FISSO" time="2.642">
+  <properties/>
+  <testcase name="explicitProfileConsentAndTargetedRetrievalRenewActualScopes" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.276"/>
+  <testcase name="changedAuthorizationRevokesSameStableGrantAndCancelsJob" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.028"/>
+  <testcase name="fragmentLeaseExpiryRestartsBoundedReadInsteadOfReusingOldSnapshot" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.022"/>
+  <testcase name="disablingConsentDuringSynthesisDiscardsAutomaticProfileWrite" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.049"/>
+  <testcase name="unsupportedTypedOrMisclassifiedWriteNeverReachesRead" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.022"/>
+  <testcase name="wrongAccountReceiptCannotPopulateValidator" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.021"/>
+  <testcase name="boundedModelCallTraversesRealProviderLifecycleAndBudget" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="1.2"/>
+  <testcase name="backgroundRequiresExactAreaPlanConsentAndNeverAdmitsCrossArea" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.061"/>
+  <testcase name="processReopenRevalidatesAndResumesWithoutRereadingCommittedPage" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.529">
+    <failure message="android.database.sqlite.SQLiteCantOpenDatabaseException: Cannot open database 'C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConsumerTest_processReopenRevalidatesAndResumesWithoutRereadingCommittedPage16189533164912475980\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-reopen-e887d5f0-1f77-4292-92c7-3f23b3fed794.db' with flags 0x30000000: File C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConsumerTest_processReopenRevalidatesAndResumesWithoutRereadingCommittedPage16189533164912475980\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-reopen-e887d5f0-1f77-4292-92c7-3f23b3fed794.db doesn't exist and CREATE_IF_NECESSARY is set, check directory permissions" type="android.database.sqlite.SQLiteCantOpenDatabaseException">android.database.sqlite.SQLiteCantOpenDatabaseException: Cannot open database 'C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConsumerTest_processReopenRevalidatesAndResumesWithoutRereadingCommittedPage16189533164912475980\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-reopen-e887d5f0-1f77-4292-92c7-3f23b3fed794.db' with flags 0x30000000: File C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConsumerTest_processReopenRevalidatesAndResumesWithoutRereadingCommittedPage16189533164912475980\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-reopen-e887d5f0-1f77-4292-92c7-3f23b3fed794.db doesn't exist and CREATE_IF_NECESSARY is set, check directory permissions
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:275)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:218)
+	at android.database.sqlite.SQLiteConnectionPool.openConnectionLocked(SQLiteConnectionPool.java:535)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java:222)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java:214)
+	at android.database.sqlite.SQLiteDatabase.openInner(SQLiteDatabase.java:1163)
+	at android.database.sqlite.SQLiteDatabase.open(SQLiteDatabase.java:1143)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java:1007)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java:996)
+	at android.database.sqlite.SQLiteOpenHelper.getDatabaseLocked(SQLiteOpenHelper.java:373)
+	at android.database.sqlite.SQLiteOpenHelper.getWritableDatabase(SQLiteOpenHelper.java:316)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper$OpenHelper.getWritableOrReadableDatabase(FrameworkSQLiteOpenHelper.android.kt:224)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper$OpenHelper.innerGetDatabase(FrameworkSQLiteOpenHelper.android.kt:180)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper$OpenHelper.getSupportDatabase(FrameworkSQLiteOpenHelper.android.kt:141)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper.getWritableDatabase(FrameworkSQLiteOpenHelper.android.kt:96)
+	at androidx.room.RoomDatabase.internalBeginTransaction(RoomDatabase.android.kt:695)
+	at androidx.room.RoomDatabase.beginTransaction(RoomDatabase.android.kt:690)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2042)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at app//kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1.run(RoomDatabase.android.kt:2084)
+	at androidx.room.TransactionExecutor.execute$lambda$1$lambda$0(TransactionExecutor.android.kt:38)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base@21.0.10/java.lang.Thread.run(Unknown Source)
+Caused by: android.database.sqlite.SQLiteCantOpenDatabaseException: unknown error (code 14 SQLITE_CANTOPEN): Could not open database
+	at android.database.sqlite.SQLiteConnection.nativeBinding(Native Method)
+	at android.database.sqlite.SQLiteConnection.nativeOpen(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:237)
+	... 36 more
+</failure>
+  </testcase>
+  <testcase name="partialFragmentCannotPublishPrematurePageCursor" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.03"/>
+  <testcase name="savedPlanCapturesPolicyScopesAndChangesCancelActiveWork" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.032"/>
+  <testcase name="cvDetailPagesReuseFullRecordsAndAggregateExactlyOnce" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.026"/>
+  <testcase name="connectedTwoSourceForegroundAndFollowupUseFixedModelWithoutProfiling" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.087"/>
+  <testcase name="sameAuthorizationRenewalPreservesVersionEpochAndCheckpoint" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.043"/>
+  <testcase name="sourceRevokedWhileReadReturnsCannotCommitEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.034"/>
+  <testcase name="temporaryConsultationNeverCreatesResearchOrProfileRows" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.031"/>
+  <testcase name="cvWrongYearStudentAndUnknownArgumentFailBeforeTransport" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.017"/>
+  <testcase name="unicodeFragmentsWithholdCursorThenHashAndDeduplicate" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.024"/>
+  <testcase name="modelCannotInventEvidenceAndConsentCannotBeGrantedMidRun" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.039"/>
+  <testcase name="forgetDuringSynthesisRejectsLateCommitAndDeletesEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.038"/>
+  <testcase name="failedBackgroundLimitsNeverPerformSourceReadAndCapsReopenFromFlow" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.031"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

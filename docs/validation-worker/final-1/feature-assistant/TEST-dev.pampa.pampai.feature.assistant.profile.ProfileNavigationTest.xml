@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.profile.ProfileNavigationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:52:16.083Z" hostname="PC_FISSO" time="1.188">
+  <properties/>
+  <testcase name="hubChildBackAndLegacyMemoryPreserveHomeDraft" classname="dev.pampa.pampai.feature.assistant.profile.ProfileNavigationTest" time="1.188"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

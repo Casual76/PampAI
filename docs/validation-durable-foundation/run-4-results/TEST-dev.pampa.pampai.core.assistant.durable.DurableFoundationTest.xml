@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-08T09:02:25.775Z" hostname="PC_FISSO" time="0.394">
+  <properties/>
+  <testcase name="correctionDominatesAndCanonicalForgetInvalidatesDependentInference" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.049"/>
+  <testcase name="forgetSurvivesReopenAndRejectsInflightResult" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.06"/>
+  <testcase name="failedReadIsUnknownAndRecordDedupeDoesNotSumPageAggregates" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.036"/>
+  <testcase name="unmappedExclusionBlocksAcquisitionUntilExplicitReenable" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.035"/>
+  <testcase name="backgroundRequiresSetupButForegroundDoesNot" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.029"/>
+  <testcase name="explicitRegrantCanReacquireInvalidRecordsWithoutRestoringOldProfile" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.041"/>
+  <testcase name="defaultProofAndUnknownSourceGenerationFailClosed" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.034"/>
+  <testcase name="leaseReclaimRejectsLateOwnerAndPreservesCheckpoint" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.035"/>
+  <testcase name="revokeAndAccountChangeFenceLateResultsAndRetrieval" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.039"/>
+  <testcase name="temporaryCreationAndLaterTemporaryTransitionAreRejected" classname="dev.pampa.pampai.core.assistant.durable.DurableFoundationTest" time="0.036"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

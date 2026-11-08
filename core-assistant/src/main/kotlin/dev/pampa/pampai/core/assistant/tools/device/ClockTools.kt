@@ -1,5 +1,6 @@
 package dev.pampa.pampai.core.assistant.tools.device
 
+import dev.pampa.pampai.core.assistant.receipts.ClockReceipts
 import android.app.AlarmManager
 import android.content.Intent
 import android.provider.AlarmClock
@@ -73,7 +74,7 @@ class SvegliaCreaTool : AiTool<PampaiToolContext> {
     days(args.list("giorni"))?.let { intent.putIntegerArrayListExtra(AlarmClock.EXTRA_DAYS, it) }
     if (!Device.launch(ctx, intent)) return ToolOutput.error("nessuna app Orologio risponde alle sveglie su questo telefono")
     return ToolText.output {
-      line("fatto", "sveglia impostata alle ${"%02d:%02d".format(time.hour, time.minute)}")
+      line("richiesta inviata a Orologio", "sveglia alle ${"%02d:%02d".format(time.hour, time.minute)}")
       args.str("etichetta")?.let { line("etichetta", it) }
       days(args.list("giorni"))?.let { line("giorni", args.list("giorni").joinToString(", ")) }
     }
@@ -140,7 +141,7 @@ class SvegliaDisattivaTool : AiTool<PampaiToolContext> {
       else -> intent.putExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE, AlarmClock.ALARM_SEARCH_MODE_NEXT)
     }
     if (!Device.launch(ctx, intent)) return ToolOutput.error("l'app Orologio di questo telefono non permette di spegnere le sveglie da fuori: apri l'app")
-    return ToolText.output { line("fatto", "richiesta inviata all'app Orologio (se la sveglia esisteva, e' spenta)") }
+    return ToolText.output { line("fatto", "richiesta inviata all'app Orologio (effetto non verificabile)") }
   }
 }
 
@@ -155,7 +156,7 @@ class SvegliaPosticipaTool : AiTool<PampaiToolContext> {
     val minutes = args.int("minuti") ?: 10
     val intent = Intent(AlarmClock.ACTION_SNOOZE_ALARM).putExtra(AlarmClock.EXTRA_ALARM_SNOOZE_DURATION, minutes).putExtra(AlarmClock.EXTRA_SKIP_UI, true)
     if (!Device.launch(ctx, intent)) return ToolOutput.error("l'app Orologio non accetta il posticipo da fuori")
-    return ToolText.output { line("fatto", "sveglia posticipata di $minutes minuti (se stava suonando)") }
+    return ToolText.output { line("richiesta inviata", "posticipo di $minutes minuti; effetto non verificabile") }
   }
 }
 
@@ -186,11 +187,7 @@ class TimerCreaTool : AiTool<PampaiToolContext> {
     val intent = Intent(AlarmClock.ACTION_SET_TIMER).putExtra(AlarmClock.EXTRA_LENGTH, seconds).putExtra(AlarmClock.EXTRA_SKIP_UI, true)
     args.str("etichetta")?.let { intent.putExtra(AlarmClock.EXTRA_MESSAGE, it) }
     if (!Device.launch(ctx, intent)) return ToolOutput.error("nessuna app Orologio risponde ai timer su questo telefono")
-    return ToolText.output {
-      line("fatto", "timer di ${Durations.label(seconds)} avviato")
-      args.str("etichetta")?.let { line("etichetta", it) }
-      line("suona alle", Dates.label(ZonedDateTime.ofInstant(Instant.ofEpochMilli(ctx.now() + seconds * 1000L), ctx.zone)))
-    }
+    return ClockReceipts.timer(seconds, args.str("etichetta"))
   }
 }
 
@@ -211,7 +208,7 @@ class TimerEliminaTool : AiTool<PampaiToolContext> {
     val intent = Intent(AlarmClock.ACTION_DISMISS_TIMER).putExtra(AlarmClock.EXTRA_SKIP_UI, true)
     args.str("etichetta")?.let { intent.putExtra(AlarmClock.EXTRA_MESSAGE, it) }
     if (!Device.launch(ctx, intent)) return ToolOutput.error("l'app Orologio di questo telefono non permette di fermare i timer da fuori: apri l'app")
-    return ToolText.output { line("fatto", "richiesta inviata all'app Orologio (il timer, se c'era, e' fermo)") }
+    return ToolText.output { line("fatto", "richiesta inviata all'app Orologio (effetto non verificabile)") }
   }
 }
 

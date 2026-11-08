@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -65,6 +67,8 @@ import dev.pampa.pampai.feature.assistant.chat.rememberChatBackdrops
 import dev.pampa.pampai.feature.assistant.consent.consentItems
 import dev.pampa.pampai.feature.assistant.history.AriaDrawer
 import dev.pampa.pampai.feature.assistant.memory.MemoryRoute
+import dev.pampa.pampai.feature.assistant.profile.ProfileRoute
+import dev.pampa.pampai.feature.assistant.profile.ProfilePage
 import dev.pampa.pampai.feature.assistant.onboarding.OnboardingRoute
 import dev.pampa.pampai.feature.assistant.settings.AssistantSettingsViewModel
 import dev.pampa.pampai.feature.assistant.settings.SettingsRoute
@@ -75,13 +79,15 @@ import kotlinx.coroutines.launch
  * Le rotte. La home e' la chat e basta: le conversazioni di prima stanno nel cassetto, e le
  * impostazioni sono un posto in cui si va e da cui si torna, non una scheda accanto alla chat.
  */
-private object Routes {
+internal object Routes {
   const val Onboarding = "onboarding"
   const val Home = "home"
   const val Consent = "consent"
   const val Usage = "usage"
   const val Settings = "settings"
   const val Memory = "memory"
+  const val Profile = "profile"
+  fun profile(page: ProfilePage): String = if (page == ProfilePage.HUB) Profile else "profile/${page.name.lowercase()}"
 
   /** Le impostazioni, aperte su una sezione (il chip `[[impostazioni:azioni]]`) o in cima. */
   const val SettingsWithSection = "settings?section={section}"
@@ -93,6 +99,8 @@ private object Routes {
  * la voce (una scorciatoia, il trampolino), una chat nuova, l'ultima, o un testo e dei file condivisi.
  */
 data class EntryRequest(
+  val handoffToken: String? = null,
+  val settingsSection: String? = null,
   val conversationId: Long? = null,
   val voice: Boolean = false,
   val newChat: Boolean = false,
@@ -173,17 +181,32 @@ fun PampaiRoot(startAtOnboarding: Boolean, entry: EntryRequest?) {
             composable(Routes.Consent) { ConsentRoute(onBack = { navController.popBackStack() }) }
             composable(Routes.Usage) { UsageRoute(onBack = { navController.popBackStack() }) }
             composable(Routes.Memory) { MemoryRoute(onBack = { navController.popBackStack() }) }
+            ProfilePage.entries.forEach { page ->
+              composable(Routes.profile(page)) { entry ->
+                ProfileRoute(page = page, onBack = { navController.popBackStack() },
+                  onOpen = { navController.navigate(Routes.profile(it)) },
+                  onMemory = { navController.navigate(Routes.Memory) },
+                  viewModel = hiltViewModel(remember(entry) { navController.getBackStackEntry(Routes.Profile) }))
+              }
+            }
             composable(
               Routes.SettingsWithSection,
               arguments = listOf(navArgument("section") { type = NavType.StringType; nullable = true; defaultValue = null }),
             ) { backStackEntry ->
+              androidx.activity.compose.BackHandler(enabled = backStackEntry.arguments?.getString("section") != null) {
+                navController.backFromSettings()
+              }
               SettingsRoute(
+                chat = hiltViewModel(remember(backStackEntry) { navController.getBackStackEntry(Routes.Home) }),
                 section = backStackEntry.arguments?.getString("section"),
+                onOpenSection = navController::openSettingsSection,
                 bottomInset = 0.dp,
-                onBack = { navController.popBackStack() },
+                onBack = {
+                  navController.backFromSettings()
+                },
                 onOpenConsent = { navController.navigate(Routes.Consent) },
                 onOpenUsage = { navController.navigate(Routes.Usage) },
-                onOpenMemory = { navController.navigate(Routes.Memory) },
+                onOpenMemory = { navController.navigate(Routes.Profile) },
               )
             }
           }
@@ -223,7 +246,9 @@ private fun Home(
     val request = entry ?: return@LaunchedEffect
     // Un cassetto aperto sopra una chat che si mette ad ascoltare: prima si chiude.
     scope.launch { drawer.close() }
-    when {
+    if (request.handoffToken != null) {
+      importEntryHandoff(request, chat::acceptHandoff, navController::openSettingsSection)
+    } else when {
       request.conversationId != null -> chat.open(request.conversationId)
       request.last -> chat.openLast()
       request.newChat || request.sharedText != null || request.sharedUris.isNotEmpty() -> chat.newConversation()
@@ -245,9 +270,9 @@ private fun Home(
       AriaChips.SETTINGS -> when (chip.value) {
         "assistente" -> AssistantRole.openSettings(context)
         "consumi" -> navController.navigate(Routes.Usage)
-        else -> navController.navigate(Routes.settings(chip.value))
+        else -> navController.openSettingsSection(chip.value)
       }
-      AriaChips.PLACE -> chip.value?.let { chat.send("E a $it?") }
+      AriaChips.PLACE -> chip.value?.let { scope.launch { chat.send("E a $it?") } }
       AriaChips.APP -> chip.value?.let { name -> openApp(context, name) }
       AriaChips.REMINDER -> navController.navigate(Routes.Memory)
       else -> Unit
@@ -257,6 +282,7 @@ private fun Home(
   ModalNavigationDrawer(
     drawerState = drawer,
     drawerContent = {
+      BoxWithConstraints {
       ModalDrawerSheet(
         drawerState = drawer,
         // Il colore lo dipinge il Box qui sotto, dentro la registrazione del vetro; il foglio
@@ -265,7 +291,7 @@ private fun Home(
         drawerContainerColor = Color.Transparent,
         drawerShape = ContinuousCornerShape(topEnd = FluidRadius.Sheet, bottomEnd = FluidRadius.Sheet),
         windowInsets = WindowInsets(0, 0, 0, 0),
-        modifier = Modifier.fillMaxWidth(0.86f),
+        modifier = Modifier.width(minOf(maxWidth * 0.86f, 360.dp)),
       ) {
         // Sorgente prima e fondo dopo: il menu che si apre sopra il cassetto rifrange il cassetto,
         // non la chat dietro, e non campiona testo su trasparenza.
@@ -287,9 +313,10 @@ private fun Home(
             onOpenUsage = { scope.launch { drawer.close() }; navController.navigate(Routes.Usage) },
             onOpen = chat::open,
             onNewChat = chat::newConversation,
-            onOpenMemory = { scope.launch { drawer.close() }; navController.navigate(Routes.Memory) },
+            onOpenMemory = { scope.launch { drawer.close() }; navController.navigate(Routes.Profile) },
           )
         }
+      }
       }
     },
   ) {
@@ -300,7 +327,7 @@ private fun Home(
       backdrops = backdrops,
       onChip = onChip,
       onOpenMenu = { scope.launch { drawer.open() } },
-      onOpenSettings = { navController.navigate(Routes.Settings) },
+      onOpenSettings = { navController.openSettingsSection("chiavi") },
       onOpenConsent = { navController.navigate(Routes.Consent) },
       viewModel = chat,
     )
@@ -336,4 +363,23 @@ private fun ConsentRoute(onBack: () -> Unit, viewModel: AssistantSettingsViewMod
       onLater = onBack,
     )
   }
+}
+
+/** A real hub entry under every category also makes Fluid's edge swipe return to the hub. */
+internal fun NavHostController.openSettingsSection(section: String?) {
+  val inSettings = currentBackStackEntry?.destination?.route == Routes.SettingsWithSection
+  val inCategory = inSettings && currentBackStackEntry?.arguments?.getString("section") != null
+  if (inCategory) popBackStack()
+  if (!inSettings) navigate(Routes.Settings)
+  if (!section.isNullOrBlank() && dev.pampa.pampai.feature.assistant.settings.SettingsPage.fromSection(section) != dev.pampa.pampai.feature.assistant.settings.SettingsPage.HUB) navigate(Routes.settings(section))
+}
+
+internal fun NavHostController.backFromSettings() { popBackStack() }
+
+/** Route only after an explicit, valid, one-shot draft claim. Stale/recreated entries do nothing. */
+internal fun importEntryHandoff(request: EntryRequest, importDraft: (String, Long?) -> Boolean, openSection: (String?) -> Unit): Boolean {
+  val token = request.handoffToken ?: return false
+  if (!importDraft(token, request.conversationId)) return false
+  request.settingsSection?.let(openSection)
+  return true
 }

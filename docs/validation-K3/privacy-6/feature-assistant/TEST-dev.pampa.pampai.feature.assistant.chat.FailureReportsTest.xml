@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.chat.FailureReportsTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:49:46.331Z" hostname="PC_FISSO" time="0.011">
+  <properties/>
+  <testcase name="la frase di stato del livello profondo non ripete il suffisso" classname="dev.pampa.pampai.feature.assistant.chat.FailureReportsTest" time="0.007"/>
+  <testcase name="la riga del run vince sullo stato vivo e porta il codice e il messaggio del servizio" classname="dev.pampa.pampai.feature.assistant.chat.FailureReportsTest" time="0.003"/>
+  <testcase name="le parole di Aria restano al femminile" classname="dev.pampa.pampai.feature.assistant.chat.FailureReportsTest" time="0.001"/>
+  <testcase name="senza riga ne' stato non si inventa niente" classname="dev.pampa.pampai.feature.assistant.chat.FailureReportsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

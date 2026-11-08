@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import dev.antigravity.fluidengine.foundation.EngineSettings
 import dev.antigravity.fluidengine.ui.theme.AccentPreset
 import dev.antigravity.fluidengine.ui.theme.FluidTheme
+import dev.antigravity.fluidengine.ui.fluid.FluidMotionPolicyProvider
 
 /**
  * Il colore di PampAI: ametista che vira al magenta. Distinto da tutte le app Pampa (blu Fluid,
@@ -32,6 +33,8 @@ val PampaiBrand: AccentPreset = AccentPreset(
 @Composable
 fun PampaiTheme(settings: EngineSettings, content: @Composable () -> Unit) {
   FluidTheme(settings = settings, brand = PampaiBrand) {
-    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground, content = content)
+    FluidMotionPolicyProvider {
+      CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground, content = content)
+    }
   }
 }

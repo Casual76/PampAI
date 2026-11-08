@@ -1,5 +1,8 @@
 package dev.pampa.pampai.feature.assistant.session
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -61,8 +64,8 @@ internal fun SessionNotice(
   LaunchedEffect(text) { if (text != null) shown = text }
   AnimatedVisibility(
     visible = text != null,
-    enter = fadeIn() + expandVertically(),
-    exit = fadeOut() + shrinkVertically(),
+    enter = if (LocalFluidMotionPolicy.current.reducedMotion) EnterTransition.None else fadeIn() + expandVertically(),
+    exit = if (LocalFluidMotionPolicy.current.reducedMotion) ExitTransition.None else fadeOut() + shrinkVertically(),
     modifier = modifier,
   ) {
     val message = shown.orEmpty()

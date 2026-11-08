@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:57:41.454Z" hostname="PC_FISSO" time="5.551">
+  <properties/>
+  <testcase name="experiencePickerLargeFont" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="1.777"/>
+  <testcase name="pickerFitsShortViewportLargeFontWithReducedMotion" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.15"/>
+  <testcase name="composerKeepsEditWhileSendSuspends" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.068"/>
+  <testcase name="rootPickerFavoriteSearchAndImageRecovery" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.541"/>
+  <testcase name="failedPreflightLeavesDraftForExplicitRetry" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.069"/>
+  <testcase name="realPickerGroupsSearchAndEffortBeforeLongCatalog" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.205"/>
+  <testcase name="preferencesUseConversationControlAndDoNotRewriteQueuedRequests" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.187"/>
+  <testcase name="experiencePickerDark" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="1.261"/>
+  <testcase name="preparingRequestShowsFeedbackAndCanStopWithoutConsumingDraft" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.068"/>
+  <testcase name="experiencePickerLight" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="1.158"/>
+  <testcase name="longOverlayAnswerHasScrollableReadableEndAtLargeFont" classname="dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest" time="0.066"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.antigravity.fluidengine.ui.fluid.fluidReadingWidth
 import dev.antigravity.fluidengine.ui.fluid.FluidCapsuleShape
 import dev.antigravity.fluidengine.ui.fluid.GlassBackdropState
 import dev.antigravity.fluidengine.ui.fluid.GlassDefaults
@@ -87,13 +88,14 @@ internal fun ChatTopBar(
     Column(
       Modifier
         .fillMaxWidth()
+        .fluidReadingWidth()
         .statusBarsPadding()
-        .padding(bottom = 28.dp),
+        .padding(bottom = 8.dp),
     ) {
       Row(
         modifier = Modifier
           .fillMaxWidth()
-          .height(56.dp)
+          .heightIn(min = 56.dp)
           .padding(horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
       ) {
@@ -102,7 +104,7 @@ internal fun ChatTopBar(
           modifier = Modifier
             .weight(1f)
             .padding(horizontal = 8.dp),
-          horizontalAlignment = Alignment.CenterHorizontally,
+          horizontalAlignment = Alignment.Start,
         ) {
           if (title.isNotBlank()) {
             Text(
@@ -118,7 +120,7 @@ internal fun ChatTopBar(
             Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
           }
         }
-        if (onNew != null) BarIcon(Icons.Rounded.Add, "Nuova conversazione", onNew) else Spacer(Modifier.size(40.dp))
+        if (onNew != null) BarIcon(Icons.Rounded.Add, "Nuova conversazione", onNew) else Spacer(Modifier.size(48.dp))
       }
     }
   }
@@ -159,7 +161,7 @@ private fun TemporaryBadge() {
 private fun BarIcon(icon: ImageVector, description: String, onClick: () -> Unit, primary: Boolean = false) {
   Box(
     modifier = Modifier
-      .size(40.dp)
+      .size(48.dp)
       .fluidPressable(onClick = onClick, role = Role.Button),
     contentAlignment = Alignment.Center,
   ) {

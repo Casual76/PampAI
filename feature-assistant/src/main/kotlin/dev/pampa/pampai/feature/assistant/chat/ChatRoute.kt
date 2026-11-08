@@ -1,5 +1,7 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import kotlinx.coroutines.launch
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,6 +60,7 @@ import dev.antigravity.fluidengine.aiui.halo.haloMood
 import dev.antigravity.fluidengine.aiui.overlay.FluidFailureDetailsSheet
 import dev.antigravity.fluidengine.aiui.overlay.FluidFailureReport
 import dev.antigravity.fluidengine.foundation.EngineCompatibility
+import dev.antigravity.fluidengine.ui.fluid.fluidReadingWidth
 import dev.antigravity.fluidengine.ui.fluid.FluidButton
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonSize
 import dev.antigravity.fluidengine.ui.fluid.FluidButtonStyle
@@ -103,14 +106,26 @@ fun ChatRoute(
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val draft by viewModel.draft.collectAsStateWithLifecycle()
+  val handoffDraft by viewModel.handoffDraft.collectAsStateWithLifecycle()
   val speaking by viewModel.speaking.collectAsStateWithLifecycle()
   val plugins by viewModel.plugins.collectAsStateWithLifecycle()
   val plugin by viewModel.plugin.collectAsStateWithLifecycle()
   val deepNext by viewModel.deepNext.collectAsStateWithLifecycle()
   val thinkingAuto by viewModel.thinkingAuto.collectAsStateWithLifecycle()
   val remote by viewModel.remoteStatus.collectAsStateWithLifecycle()
+  val scope = androidx.compose.runtime.rememberCoroutineScope()
   val context = LocalContext.current
-  val composer = rememberComposerState()
+  val preparationLifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current
+  androidx.compose.runtime.DisposableEffect(viewModel, preparationLifecycle) {
+    val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+      if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) viewModel.onChatHidden()
+    }
+    preparationLifecycle.lifecycle.addObserver(observer)
+    onDispose { preparationLifecycle.lifecycle.removeObserver(observer); viewModel.onChatHidden() }
+  }
+  val preparingVoice by viewModel.preparingVoice.collectAsStateWithLifecycle()
+  val composerEpoch by viewModel.composerEpoch.collectAsStateWithLifecycle()
+  val composer = rememberComposerState(composerEpoch)
   // L'immagine aperta resta ricordata anche a visualizzatore chiuso: l'uscita del foglio la disegna ancora.
   var viewing by remember { mutableStateOf<Attachment?>(null) }
   var viewerOpen by remember { mutableStateOf(false) }
@@ -134,6 +149,13 @@ fun ChatRoute(
     val incoming = draft ?: return@LaunchedEffect
     composer.fill(incoming)
     viewModel.draft.value = null
+  }
+
+  LaunchedEffect(handoffDraft, composer) {
+    val incoming = handoffDraft ?: return@LaunchedEffect
+    // The handoff already advanced composerEpoch. Append if the user typed before this effect.
+    composer.fill(incoming)
+    viewModel.handoffDraft.value = null
   }
 
   // Una lista per conversazione: si apre in fondo, e tornando dalle impostazioni resta dov'era.
@@ -175,20 +197,22 @@ fun ChatRoute(
   val liveAnchor = remember { LiveAnchor() }
   val liveId = liveAnchor.resolve(state.messages, state.live)
 
-  val contextFacet = state.context?.let { "contesto ${(it.fraction * 100).toInt()}% di ${it.window / 1000}k" }
-  val topSpace = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp
+  val headerHeight = remember { mutableIntStateOf(0) }
+  val headerDensity = LocalDensity.current
+  val topSpace = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 64.dp
 
   // Il padding in fondo alla lista e' l'area che il composer copre davvero: la sua altezza misurata
   // (cresce con le righe, le pillole, gli allegati), piu' tastiera o barra di navigazione. Prima era
   // un numero fisso, e con tre righe nel campo o la tastiera aperta le ultime parole finivano sotto
-  // il vetro. Si legge in misura, non in composizione: il campo che cresce non ricompone la pagina.
+  // il vetro. Limitiamo anche il viewport: scroll-to e accessibilita' non devono considerare
+  // visibile una bolla coperta dal composer.
   val density = LocalDensity.current
   val composerHeight = remember { mutableIntStateOf(0) }
   val navigationBars = WindowInsets.navigationBars
   val ime = WindowInsets.ime
   val belowComposer = remember(navigationBars, ime) { navigationBars.union(ime) }
   val listPadding = remember(density, belowComposer, topSpace, bottomInset) {
-    ChatListPadding(top = topSpace, horizontal = 16.dp) {
+    ChatListPadding(top = { with(headerDensity) { headerHeight.intValue.toDp() }.coerceAtLeast(topSpace) }, horizontal = 16.dp) {
       with(density) { (composerHeight.intValue + belowComposer.getBottom(density)).toDp() } + bottomInset + ListBottomGap
     }
   }
@@ -253,7 +277,7 @@ fun ChatRoute(
       onToggleDeep = viewModel::toggleDeepNext,
       // Acceso: una chat nuova che non restera'. Spento: si esce dalla temporanea, e uscire
       // vuol dire che quella di prima non c'e' piu' — in entrambi i casi si riparte da bianco.
-      onToggleTemporary = { if (viewModel.state.value.temporary) viewModel.newConversation() else viewModel.newTemporaryConversation() },
+      onToggleTemporary = { viewModel.newTemporaryConversation() },
     )
   }
 
@@ -286,10 +310,13 @@ fun ChatRoute(
         state = listState,
         modifier = Modifier
           .fillMaxSize()
+          .padding(bottom = (listPadding.calculateBottomPadding() - ListBottomGap).coerceAtLeast(0.dp))
           .nestedScroll(qualityConnection)
           .glassBackdropSource(backdrops.body)
+          .fluidReadingWidth()
           .drawWithContent { if (scroll.positioned) drawContent() },
-        contentPadding = listPadding,
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp,
+          top = listPadding.calculateTopPadding(), bottom = ListBottomGap),
         verticalArrangement = Arrangement.spacedBy(20.dp),
       ) {
         state.recovery?.let {
@@ -314,7 +341,7 @@ fun ChatRoute(
               onSuggestion = { suggestion ->
                 // Con Aria al lavoro (anche per l'overlay) il suggerimento va nel campo: mandarlo
                 // adesso vorrebbe dire metterlo in coda senza che lo si sia scelto davvero.
-                if (viewModel.state.value.anyBusy) composer.fill(suggestion) else if (viewModel.send(suggestion)) scroll.revealLatest()
+                if (viewModel.state.value.anyBusy) composer.fill(suggestion) else scope.launch { if (viewModel.send(suggestion)) scroll.revealLatest() }
               },
             )
           }
@@ -360,11 +387,12 @@ fun ChatRoute(
         }
       }
 
-      ChatTopBar(
+      Box(Modifier.onSizeChanged { headerHeight.intValue = it.height }) {
+        ChatTopBar(
         title = state.conversation?.title ?: "",
         // Il contesto e' un numero da guardare quando una conversazione e' lunga, non il primo
         // messaggio che l'app da' a chi apre una chat vuota.
-        facet = contextFacet.takeIf { state.messages.size >= 4 },
+        facet = null,
         backdrop = backdrops.chrome,
         intensity = { barIntensity.value },
         onMenu = onOpenMenu,
@@ -374,6 +402,7 @@ fun ChatRoute(
         // Sopra un fondale animato i vetri ricampionano a intervalli, non a ogni fotogramma.
         resampleIntervalMillis = if (aurora.present) ChatGlassResampleMillis else 0L,
       )
+      }
 
       Box(
         Modifier
@@ -383,6 +412,7 @@ fun ChatRoute(
           .padding(bottom = bottomInset)
           // La misura comprende il margine attorno alla capsula: e' quanto della lista copre davvero.
           .onSizeChanged { composerHeight.intValue = it.height }
+          .fluidReadingWidth()
           .padding(horizontal = 12.dp, vertical = 8.dp),
       ) {
         Composer(
@@ -391,6 +421,7 @@ fun ChatRoute(
           composer = composer,
           model = ComposerModel(
             speaking = speaking,
+            preparingVoice = preparingVoice,
             thinkingAuto = thinkingAuto,
             plugins = plugins,
             plugin = plugin,
@@ -427,9 +458,9 @@ private val ListBottomGap = 12.dp
  * lista senza ricomporre la pagina.
  */
 @Stable
-private class ChatListPadding(private val top: Dp, private val horizontal: Dp, private val bottom: () -> Dp) : PaddingValues {
+internal class ChatListPadding(private val top: () -> Dp, private val horizontal: Dp, private val bottom: () -> Dp) : PaddingValues {
   override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = horizontal
-  override fun calculateTopPadding(): Dp = top
+  override fun calculateTopPadding(): Dp = top()
   override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = horizontal
   override fun calculateBottomPadding(): Dp = bottom()
 }

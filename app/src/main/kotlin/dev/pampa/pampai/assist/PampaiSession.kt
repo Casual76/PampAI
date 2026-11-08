@@ -24,6 +24,8 @@ import dev.pampa.pampai.core.assistant.service.AssistantNotifications
 import dev.pampa.pampai.feature.assistant.assist.AssistantRole
 import dev.pampa.pampai.feature.assistant.openApp
 import dev.pampa.pampai.feature.assistant.session.PampaiSessionOverlay
+import dev.pampa.pampai.feature.assistant.session.SessionModalRoot
+import dev.pampa.pampai.feature.assistant.session.DraftHandoffs
 import dev.pampa.pampai.feature.assistant.session.SessionActions
 import dev.pampa.pampai.feature.assistant.session.SessionComposeHost
 import dev.pampa.pampai.feature.assistant.session.SessionController
@@ -98,7 +100,7 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
   }
 
   override fun onCreateContentView(): View {
-    host = SessionComposeHost(context)
+    host = SessionComposeHost(context).also { it.onBack = { if (!controller.onBack()) hide() } }
     window?.window?.let { w ->
       w.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
       WindowCompat.setDecorFitsSystemWindows(w, false)
@@ -115,7 +117,9 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
     host.setContent {
       val engine by entry.engineSettings().settings.collectAsState(initial = EngineSettings())
       PampaiTheme(settings = engine) {
-        PampaiSessionOverlay(controller = controller, actions = actions)
+        SessionModalRoot(controller.shownStamp) {
+          PampaiSessionOverlay(controller = controller, actions = actions)
+        }
       }
     }
     return host
@@ -193,7 +197,7 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
   }
 
   override fun onBackPressed() {
-    if (!controller.onBack()) hide()
+    if (::host.isInitialized) host.onBackPressedDispatcher.onBackPressed() else hide()
   }
 
   override fun onComputeInsets(outInsets: Insets) {
@@ -215,21 +219,25 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
    * Prima, senza id e con il runtime occupato, partiva `EXTRA_LAST`: l'app apriva la conversazione
    * piu' recente — fissate in testa — cioe' spesso un'altra, e aprirla fermava la risposta
    * dell'overlay. Se la domanda della sessione e' in volo e la sua conversazione non e' ancora
-   * nata, si aspetta un attimo che nasca; se resta ignota l'app si apre senza cambiare
-   * conversazione, e senza fermare niente.
+   * nata, si aspetta un attimo che nasca; se resta ignota la bozza resta nell'overlay
+   * e si offre di riprovare, senza fermare niente.
    */
-  private fun expandToApp(conversationId: Long?) {
+  private fun expandToApp(conversationId: Long?, settingsSection: String? = null) {
+    if (showing == 0L) return
     val known = conversationId ?: runtime.sessionConversationId.value
     val sessionInFlight = runtime.isBusy && runtime.liveOwner.value.surface == Surface.SESSION
     if (known != null || !sessionInFlight) {
-      openApp(known, fresh = false)
+      openApp(known, fresh = known == null, transferDraft = true, settingsSection = settingsSection)
       return
     }
     val stamp = showing
     scope.launch {
       val born = withTimeoutOrNull(ConversationWaitMillis) { runtime.sessionConversationId.filterNotNull().first() }
       // Chiusa nel frattempo: l'app non si apre da sola dopo che l'utente ha mandato via Aria.
-      if (showing == stamp) openApp(born, fresh = false)
+      if (showing == stamp) {
+        if (born != null) openApp(born, fresh = false, transferDraft = true, settingsSection = settingsSection)
+        else controller.notice.value = "La conversazione si sta preparando. La bozza resta qui: riprova Apri in Aria."
+      }
     }
   }
 
@@ -239,18 +247,21 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
    * con una risposta in corso l'app si apre dov'era, perche' cambiare conversazione la fermerebbe.
    * Senza extra `MainActivity` non consuma nessuna richiesta e non tocca la chat aperta.
    */
-  private fun openApp(conversationId: Long?, fresh: Boolean) {
+  private fun openApp(conversationId: Long?, fresh: Boolean, transferDraft: Boolean = false, settingsSection: String? = null) {
     val intent = Intent(context, MainActivity::class.java)
       .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
     when {
       conversationId != null -> intent.putExtra(AssistantNotifications.EXTRA_CONVERSATION, conversationId)
       fresh && !runtime.isBusy -> intent.putExtra(MainActivity.EXTRA_NEW, true)
     }
+    val token = if (transferDraft) controller.handoff(conversationId) else null
+    token?.let { intent.putExtra(DraftHandoffs.EXTRA, it) }
+    settingsSection?.let { intent.putExtra(DraftHandoffs.SETTINGS_EXTRA, it) }
     // Lancio normale anche qui, per lo stesso motivo del reindirizzamento in onShow: una sola
     // MainActivity, nel suo task. Con startAssistantActivity l'app espansa viveva in un task
     // "assistant" a parte, e da li' il tasto di accensione non trovava piu' la chat davanti. Il
     // servizio di sessione e' legato dal sistema con il permesso di aprire activity dallo sfondo.
-    runCatching { context.startActivity(intent) }
+    runCatching { context.startActivity(intent) }.onFailure { token?.let(DraftHandoffs::discard); return }
     hide()
   }
 
@@ -259,7 +270,7 @@ class PampaiSession(context: Context) : VoiceInteractionSession(context) {
       AriaChips.URL -> chip.value?.let { runCatching { startAssistantActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }; hide() }
       AriaChips.APP -> chip.value?.let { openApp(context, it); hide() }
       AriaChips.CONVERSATION -> chip.value?.toLongOrNull()?.let { expandToApp(it) }
-      AriaChips.SETTINGS -> if (chip.value == "assistente") { AssistantRole.openSettings(context); hide() } else expandToApp(null)
+      AriaChips.SETTINGS -> if (chip.value == "assistente") { AssistantRole.openSettings(context); hide() } else expandToApp(null, settingsSection = chip.value ?: "")
       AriaChips.PLACE -> chip.value?.let { controller.ask("E a $it?") }
       AriaChips.REMINDER -> expandToApp(null)
       else -> Unit

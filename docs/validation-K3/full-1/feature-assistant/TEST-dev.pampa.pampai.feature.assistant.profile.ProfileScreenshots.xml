@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" tests="16" skipped="0" failures="1" errors="0" timestamp="2026-11-08T12:49:54.470Z" hostname="PC_FISSO" time="15.464">
+  <properties/>
+  <testcase name="deductionProvenanceDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="2.073"/>
+  <testcase name="emptyDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.811"/>
+  <testcase name="wideDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.089"/>
+  <testcase name="realMusicPeriodInSetup" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.164">
+    <failure message="java.lang.AssertionError: No node found that matches Text + InputText + EditableText contains 'fine esclusa' (ignoreCase: false) as substring in scrollable container&#10;Semantics of the node:&#10;Node #4835 at (l=0.0, t=-330.4016, r=1200.0, b=2249.5984)px&#10;CollectionInfo = 'CollectionInfo(rowCount=15, columnCount=1)'&#10;IsTraversalGroup = 'true'&#10;Shape = 'androidx.compose.foundation.VerticalScrollableClipShape@36926b86'&#10;VerticalScrollAxisRange = 'ScrollAxisRange(value=6411.0, maxValue=6411.0, reverseScrolling=false)'&#10;Actions = [GetScrollViewportLength, IndexForKey, ScrollBy, ScrollByOffset, ScrollToIndex]&#10;Has 14 children, 2 siblings&#10;Selector used: (ScrollToIndex is defined)&#10;" type="java.lang.AssertionError">java.lang.AssertionError: No node found that matches Text + InputText + EditableText contains 'fine esclusa' (ignoreCase: false) as substring in scrollable container
+Semantics of the node:
+Node #4835 at (l=0.0, t=-330.4016, r=1200.0, b=2249.5984)px
+CollectionInfo = 'CollectionInfo(rowCount=15, columnCount=1)'
+IsTraversalGroup = 'true'
+Shape = 'androidx.compose.foundation.VerticalScrollableClipShape@36926b86'
+VerticalScrollAxisRange = 'ScrollAxisRange(value=6411.0, maxValue=6411.0, reverseScrolling=false)'
+Actions = [GetScrollViewportLength, IndexForKey, ScrollBy, ScrollByOffset, ScrollToIndex]
+Has 14 children, 2 siblings
+Selector used: (ScrollToIndex is defined)
+
+	at androidx.compose.ui.test.ActionsKt.performScrollToNode(Actions.kt:256)
+	at dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots.realMusicPeriodInSetup(ProfileScreenshots.kt:100)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$testWithDisposal$1.evaluate(AndroidComposeTestRule.android.kt:418)
+	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invokeSuspend(AndroidComposeTestRule.android.kt:438)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invoke(AndroidComposeTestRule.android.kt)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1$evaluate$1.invoke(AndroidComposeTestRule.android.kt)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invokeSuspend(ComposeUiTest.android.kt:682)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invoke(ComposeUiTest.android.kt)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1$1$1$1.invoke(ComposeUiTest.android.kt)
+	at androidx.compose.ui.test.IdlingStrategy.withStrategy$suspendImpl(IdlingStrategy.android.kt:55)
+	at androidx.compose.ui.test.IdlingStrategy.withStrategy(IdlingStrategy.android.kt)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invokeSuspend(ComposeUiTest.android.kt:679)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invoke(ComposeUiTest.android.kt)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$runTest$1$1.invoke(ComposeUiTest.android.kt)
+	at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$1.invokeSuspend(TestBuilders.kt:317)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.test.TestDispatcher.processEvent$kotlinx_coroutines_test(TestDispatcher.kt:24)
+	at kotlinx.coroutines.test.TestCoroutineScheduler.tryRunNextTaskUnless$kotlinx_coroutines_test(TestCoroutineScheduler.kt:99)
+	at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt$runTest$2$1$workRunner$1.invokeSuspend(TestBuilders.kt:326)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)
+	at kotlinx.coroutines.test.TestBuildersJvmKt.createTestResult(TestBuildersJvm.kt:10)
+	at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:309)
+	at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)
+	at kotlinx.coroutines.test.TestBuildersKt__TestBuildersKt.runTest-8Mi8wO0(TestBuilders.kt:167)
+	at kotlinx.coroutines.test.TestBuildersKt.runTest-8Mi8wO0(Unknown Source)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment.runTest(ComposeUiTest.android.kt:658)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$1.evaluate(AndroidComposeTestRule.android.kt:438)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:524)
+	at org.robolectric.internal.SandboxTestRunner.executeInSandbox(SandboxTestRunner.java:494)
+	at org.robolectric.internal.SandboxTestRunner.access$900(SandboxTestRunner.java:67)
+	at org.robolectric.internal.SandboxTestRunner$7.evaluate(SandboxTestRunner.java:442)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.robolectric.internal.SandboxTestRunner.access$600(SandboxTestRunner.java:67)
+	at org.robolectric.internal.SandboxTestRunner$6.evaluate(SandboxTestRunner.java:333)
+	at org.robolectric.internal.SandboxTestRunner$3.evaluate(SandboxTestRunner.java:233)
+	at org.robolectric.internal.SandboxTestRunner$5.lambda$evaluate$0(SandboxTestRunner.java:317)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:101)
+	at java.base/java.util.concurrent.FutureTask.run(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+</failure>
+  </testcase>
+  <testcase name="emptyLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.842"/>
+  <testcase name="partialDeduction" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.323"/>
+  <testcase name="sourceScopeLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.762"/>
+  <testcase name="compactSetup" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.433"/>
+  <testcase name="profileDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.269"/>
+  <testcase name="hubDispatchesStableDestinationsAndLegacyEntry" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.102"/>
+  <testcase name="largeText" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.12"/>
+  <testcase name="profileLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.349"/>
+  <testcase name="wideSetupLargeText" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.712"/>
+  <testcase name="workerUncertainStatusDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.668"/>
+  <testcase name="actualMusicObservationDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.055"/>
+  <testcase name="workerQueuedStatusLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.692"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

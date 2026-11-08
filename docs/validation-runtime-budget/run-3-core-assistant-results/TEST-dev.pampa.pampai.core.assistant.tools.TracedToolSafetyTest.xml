@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-08T09:29:13.219Z" hostname="PC_FISSO" time="0.143">
+  <properties/>
+  <testcase name="typedOutcomesSurviveBothOverloadsPersistenceReopenAndLegacyRows" classname="dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest" time="0.112"/>
+  <testcase name="identityOverloadRecordsExternalReadAndMemoryWaitsForSafetyConfirmation" classname="dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest" time="0.031"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

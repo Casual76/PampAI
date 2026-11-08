@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchConnectionsPersistenceTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-11-08T11:58:57.068Z" hostname="PC_FISSO" time="0.55">
+  <properties/>
+  <testcase name="savedInteractiveScopeSurvivesServiceAndDatabaseRecreationThenDisappearsOnRevoke" classname="dev.pampa.pampai.core.assistant.research.ResearchConnectionsPersistenceTest" time="0.55">
+    <failure message="android.database.sqlite.SQLiteCantOpenDatabaseException: Cannot open database 'C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConnectionsPersistenceTest_savedInteractiveScopeSurvivesServiceAndDatabaseRecreationThenDisappearsOnRevoke14995844007807586849\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-connections-0d9eadc6-c7f8-417c-bd1c-0e92ad147c0c.db' with flags 0x30000000: File C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConnectionsPersistenceTest_savedInteractiveScopeSurvivesServiceAndDatabaseRecreationThenDisappearsOnRevoke14995844007807586849\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-connections-0d9eadc6-c7f8-417c-bd1c-0e92ad147c0c.db doesn't exist and CREATE_IF_NECESSARY is set, check directory permissions" type="android.database.sqlite.SQLiteCantOpenDatabaseException">android.database.sqlite.SQLiteCantOpenDatabaseException: Cannot open database 'C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConnectionsPersistenceTest_savedInteractiveScopeSurvivesServiceAndDatabaseRecreationThenDisappearsOnRevoke14995844007807586849\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-connections-0d9eadc6-c7f8-417c-bd1c-0e92ad147c0c.db' with flags 0x30000000: File C:\Users\casua\AppData\Local\Temp\robolectric-ResearchConnectionsPersistenceTest_savedInteractiveScopeSurvivesServiceAndDatabaseRecreationThenDisappearsOnRevoke14995844007807586849\dev.pampa.pampai.core.assistant.test-dataDir\databases\research-connections-0d9eadc6-c7f8-417c-bd1c-0e92ad147c0c.db doesn't exist and CREATE_IF_NECESSARY is set, check directory permissions
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:275)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:218)
+	at android.database.sqlite.SQLiteConnectionPool.openConnectionLocked(SQLiteConnectionPool.java:535)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java:222)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java:214)
+	at android.database.sqlite.SQLiteDatabase.openInner(SQLiteDatabase.java:1163)
+	at android.database.sqlite.SQLiteDatabase.open(SQLiteDatabase.java:1143)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java:1007)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java:996)
+	at android.database.sqlite.SQLiteOpenHelper.getDatabaseLocked(SQLiteOpenHelper.java:373)
+	at android.database.sqlite.SQLiteOpenHelper.getWritableDatabase(SQLiteOpenHelper.java:316)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper$OpenHelper.getWritableOrReadableDatabase(FrameworkSQLiteOpenHelper.android.kt:224)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper$OpenHelper.innerGetDatabase(FrameworkSQLiteOpenHelper.android.kt:180)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper$OpenHelper.getSupportDatabase(FrameworkSQLiteOpenHelper.android.kt:141)
+	at androidx.sqlite.db.framework.FrameworkSQLiteOpenHelper.getWritableDatabase(FrameworkSQLiteOpenHelper.android.kt:96)
+	at androidx.room.RoomDatabase.internalBeginTransaction(RoomDatabase.android.kt:695)
+	at androidx.room.RoomDatabase.beginTransaction(RoomDatabase.android.kt:690)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2042)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at app//kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1.run(RoomDatabase.android.kt:2084)
+	at androidx.room.TransactionExecutor.execute$lambda$1$lambda$0(TransactionExecutor.android.kt:38)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base@21.0.10/java.lang.Thread.run(Unknown Source)
+Caused by: android.database.sqlite.SQLiteCantOpenDatabaseException: unknown error (code 14 SQLITE_CANTOPEN): Could not open database
+	at android.database.sqlite.SQLiteConnection.nativeBinding(Native Method)
+	at android.database.sqlite.SQLiteConnection.nativeOpen(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:237)
+	... 36 more
+</failure>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

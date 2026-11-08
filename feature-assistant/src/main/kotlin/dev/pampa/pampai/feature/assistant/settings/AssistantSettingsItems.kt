@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
+import dev.pampa.pampai.feature.assistant.assist.AssistantRoleCard
+import dev.antigravity.fluidengine.aiui.settings.FluidAiSettingsPart
 import dev.antigravity.fluidengine.aiui.settings.FluidAiSettingsActions
 import dev.antigravity.fluidengine.aiui.settings.FluidAiSettingsOptions
 import dev.antigravity.fluidengine.aiui.settings.FluidAiSettingsSlots
@@ -64,18 +66,19 @@ fun TtsEngine.label(): String = when (this) {
  */
 internal val AriaAiStrings = FluidAiSettingsStrings(
   enabledTitle = "Aria",
+  enabledNeedsKey = "Configura una chiave verificata in Chiavi e privacy.",
   enabledOn = "Accesa: risponde in chat e dal tasto di accensione.",
   enabledOff = "Spenta: nessuna richiesta parte.",
   // Con la chiave gia' verificata il campo sta stretto accanto a «Verifica» e «Rimuovi»: il segnaposto
   // dell'engine ("Nuova chiave (vuoto = tieni quella salvata)") andava a capo in cinque righe. Cosa succede
   // lasciandolo vuoto lo dice gia' il sottotitolo della scheda («Chiave verificata il ...»).
   keyPlaceholderKeep = "Nuova chiave",
-  orderDetail = "Il primo risponde; gli altri fanno da riserva se la riserva automatica e' accesa nelle preferenze.",
+  orderDetail = "Ordine predefinito dei servizi, usato anche per la trascrizione. In chat risponde il modello scelto nella conversazione.",
   modelSameAsChat = " · uguale alla chat: scegline uno piu' capace e Aria ci passera' da sola sulle domande difficili",
   orPolicyDenyDetail = "Aria chiede a OpenRouter di non usarli: i modelli i cui endpoint gratuiti registrano i prompt non rispondono.",
-  thinkingDetailAuto = "Quanto il modello pensa prima di rispondere. In automatico lo decide Aria: alto sulle domande profonde, basso su quelle secche.",
+  thinkingDetailAuto = "Impegno e supporto visivo si scelgono nel controllo della conversazione.",
   actionsDetail = "Sveglie, chiamate, eventi, installazioni, azioni nelle app collegate. Quelle che contano chiedono conferma; le fidate le scegli tu.",
-  failoverDetail = "Se il servizio scelto e' al limite o non risponde, Aria passa al successivo. Spenta, resta su quello scelto e aspetta.",
+  failoverDetail = "La conversazione mantiene il modello scelto, senza cambi automatici.",
   privacyNote = "Le tue domande, gli allegati e i dati che gli strumenti leggono per rispondere partono verso il servizio scelto, con la tua chiave. Le conversazioni e la memoria restano su questo telefono.",
   recentDetail = "Solo in memoria: sparisce chiudendo l'app. I consumi completi stanno nella pagina apposta.",
 )
@@ -123,48 +126,47 @@ internal fun AssistantSettingsViewModel.fluidAiActions(onRequestConsent: () -> U
  * la guida, ordine dei servizi, modelli, preferenze, ultime richieste) e, negli slot, quello che e' di
  * PampAI: comandi rapidi, voce, permessi, azioni fidate e app collegate.
  *
- * Le chiavi degli item sono `aria-*` (`aria-keys-header`, `aria-models-header`...): [SectionKeys]
+ * Le chiavi degli item sono `aria-*` (`aria-keys-header`, `aria-models-header`...): [SettingsPage]
  * porta il chip `[[impostazioni:chiavi]]` all'intestazione giusta.
  */
-fun LazyListScope.assistantSettingsItems(
+internal fun LazyListScope.assistantSettingsItems(
   viewModel: AssistantSettingsViewModel,
   state: AssistantSettingsUiState,
   onOpenConsent: () -> Unit,
+  page: SettingsPage = SettingsPage.AI,
 ) {
-  fluidAiSettingsSection(
-    state = state.toFluidAiState(),
-    actions = viewModel.fluidAiActions(onRequestConsent = onOpenConsent),
-    strings = AriaAiStrings,
-    options = AriaAiOptions,
-    slots = FluidAiSettingsSlots(
-      afterPreferences = {
-        item(key = "aria-quick-commands") {
-          FluidListGroup(glass = true) {
-            FluidToggleRow(
-              title = "Comandi rapidi",
-              subtitle = "\"Timer di 10 minuti\", \"accendi la torcia\", \"che ore sono\": eseguiti subito sul telefono, senza chiedere all'IA. Istantanei e gratis, anche offline.",
-              checked = state.pampai.quickCommands,
-              onCheckedChange = viewModel::setQuickCommands,
-            )
-          }
-        }
-
-        item(key = "section-voce") { FluidSectionHeader(title = "Voce", detail = "Come Aria ascolta e come legge le risposte.") }
-        item { VoicePreferences(viewModel, state) }
-
-        item(key = "section-permessi") { FluidSectionHeader(title = "Permessi", detail = "Ogni strumento chiede il suo permesso solo quando serve; da qui li concedi tutti insieme.") }
-        item { PermissionsSection() }
-
-        item(key = "section-fidate") { FluidSectionHeader(title = "Azioni fidate", detail = "Le azioni che Aria fa senza chiederti conferma.") }
-        item { TrustedActionsSection(viewModel, state) }
-
-        item(key = "section-app") { FluidSectionHeader(title = "App collegate", detail = "Le app Pampa che espongono i loro strumenti ad Aria.") }
-        item { ConnectedAppsSection(viewModel) }
-      },
-    ),
-    glass = true,
-    keyPrefix = "aria",
+  val parts = when (page) {
+    SettingsPage.KEYS -> setOf(FluidAiSettingsPart.Keys, FluidAiSettingsPart.Privacy)
+    SettingsPage.MODELS -> setOf(FluidAiSettingsPart.Models)
+    SettingsPage.SERVICES -> setOf(FluidAiSettingsPart.Order)
+    SettingsPage.POLICY -> setOf(FluidAiSettingsPart.Recent)
+    SettingsPage.AI -> setOf(FluidAiSettingsPart.Enabled)
+    else -> emptySet()
+  }
+  if (parts.isNotEmpty()) fluidAiSettingsSection(
+    state = state.toFluidAiState(), actions = viewModel.fluidAiActions(onOpenConsent),
+    strings = AriaAiStrings, options = AriaAiOptions.copy(actions = false),
+    parts = parts, glass = true, keyPrefix = "aria",
   )
+  when (page) {
+    SettingsPage.VOICE -> {
+      item { VoicePreferences(viewModel, state) }
+      item { AssistantRoleCard() }
+    }
+    SettingsPage.ACTIONS -> {
+      item { FluidListGroup(glass = true) {
+        FluidToggleRow(title = "Azioni", subtitle = AriaAiStrings.actionsDetail,
+          checked = state.settings.actionsEnabled, onCheckedChange = viewModel::setActionsEnabled)
+        FluidListDivider()
+        FluidToggleRow(title = "Comandi rapidi", subtitle = "Comandi locali sul telefono, anche offline.",
+          checked = state.pampai.quickCommands, onCheckedChange = viewModel::setQuickCommands)
+      } }
+    }
+    SettingsPage.PERMISSIONS -> item { PermissionsSection() }
+    SettingsPage.TRUSTED -> item { TrustedActionsSection(viewModel, state) }
+    SettingsPage.APPS -> item { ConnectedAppsSection(viewModel) }
+    else -> Unit
+  }
 }
 
 /**

@@ -1,0 +1,51 @@
+[
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundation.kt",
+    "recorded": "e624cb86770c53bed0a23211ec6f43129e6df1c66d70941f5bd169a83ba39aba",
+    "recorded_length": 64,
+    "actual": "e624cb86770c53bed0a23211ec6f43129e6df1c66d70941f5bd169a83ba39aba",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/ExclusionScopes.kt",
+    "recorded": "cb62fdec37d320e894b0f42762c9a107bb8d3c9ea6e3c3287d471dd1da4e9631",
+    "recorded_length": 64,
+    "actual": "cb62fdec37d320e894b0f42762c9a107bb8d3c9ea6e3c3287d471dd1da4e9631",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/EvidenceAcquisition.kt",
+    "recorded": "ead3d69afe16796f54a5dc0e0cdf8025f31cd74952460201997f95993c6dece9",
+    "recorded_length": 64,
+    "actual": "ead3d69afe16796f54a5dc0e0cdf8025f31cd74952460201997f95993c6dece9",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/SourcePages.kt",
+    "recorded": "1fe0a5584a55b927f084e06e4595603a34ce2b9256ab8f49806706eca33df39c",
+    "recorded_length": 64,
+    "actual": "1fe0a5584a55b927f084e06e4595603a34ce2b9256ab8f49806706eca33df39c",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchScheduler.kt",
+    "recorded": "6b8fe0a44362ff89bef61eb917adc6c33f2038c2648b060d6f0ac4a1a59b1850",
+    "recorded_length": 64,
+    "actual": "6b8fe0a44362ff89bef61eb917adc6c33f2038c2648b060d6f0ac4a1a59b1850",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ScopedExclusionsAndCanonicalEvidenceTest.kt",
+    "recorded": "b9fbc9ba4cbf36618f346f4ab8ea947174c8be2caf1c7530de4d9798117aab93",
+    "recorded_length": 64,
+    "actual": "b9fbc9ba4cbf36618f346f4ab8ea947174c8be2caf1c7530de4d9798117aab93",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSchedulerTest.kt",
+    "recorded": "84b0d2f3809d25e19a50b39ae35086febe4441ea1f2e1492fe8d3ac641d61338",
+    "recorded_length": 64,
+    "actual": "84b0d2f3809d25e19a50b39ae35086febe4441ea1f2e1492fe8d3ac641d61338",
+    "matches": true
+  }
+]

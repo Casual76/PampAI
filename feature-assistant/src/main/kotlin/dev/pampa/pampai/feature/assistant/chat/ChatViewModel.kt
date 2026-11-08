@@ -1,5 +1,8 @@
 package dev.pampa.pampai.feature.assistant.chat
 
+import dev.pampa.pampai.core.assistant.runtime.ModelPolicy
+import dev.pampa.pampai.core.assistant.runtime.ModelPickerState
+import dev.pampa.pampai.core.assistant.runtime.ModelSelection
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -27,6 +30,7 @@ import dev.pampa.pampai.core.assistant.db.Conversation
 import dev.pampa.pampai.core.assistant.db.ConversationsRepository
 import dev.pampa.pampai.core.assistant.db.DatabaseRecovery
 import dev.pampa.pampai.core.assistant.db.Message
+import dev.pampa.pampai.core.assistant.db.MessageStatus
 import dev.pampa.pampai.core.assistant.db.MessageRole
 import dev.pampa.pampai.core.assistant.db.RecoveryNotice
 import dev.pampa.pampai.core.assistant.db.Run
@@ -75,9 +79,16 @@ data class QueuedQuestion(
   val attachments: List<PendingAttachment> = emptyList(),
   val deep: Boolean = false,
   val editOf: Message? = null,
+  val policy: ModelPolicy? = null,
+  val conversationId: Long? = null,
+  val selectedPlugin: String? = null,
+  val temporary: Boolean = false,
+  val request: AssistantRequest? = null,
 )
 
 data class ChatUiState(
+  val modelSelection: ModelSelection? = null,
+  val selection: ModelPickerState = ModelPickerState(),
   val conversation: Conversation? = null,
   val messages: List<Message> = emptyList(),
   val runs: Map<Long, Run> = emptyMap(),
@@ -208,11 +219,32 @@ class ChatViewModel @Inject constructor(
     viewModelScope.launch { pampaiSettings.setThinkingAuto(auto) }
   }
 
+  private val voicePreparation = VoicePreparation(viewModelScope)
+  val preparingVoice = voicePreparation.preparing
+
   private val pendingAttachments = MutableStateFlow<List<PendingAttachment>>(emptyList())
   private val contextEstimate = MutableStateFlow<ContextEstimate?>(null)
 
   /** La coda delle domande scritte mentre Aria lavorava. Vedi [send]. */
   private val queue = MutableStateFlow<List<QueuedQuestion>>(emptyList())
+  // Separate from composerEpoch: hiding/Stop invalidates work without clearing the visible draft.
+  private var textPreparationGeneration = 0L
+  private var chatVisible = false
+  private val queuedAdmission by lazy {
+    QueuedSendAdmission(viewModelScope, queue, engine::preflight,
+      canSubmit = { chatVisible && !runtime.isBusy && runtime.appInForeground },
+      captureOwner = {
+        val epoch = textPreparationGeneration
+        val conversation = runtime.activeConversationId.value
+        val owns = { epoch == textPreparationGeneration && conversation == runtime.activeConversationId.value }
+        owns
+      },
+      submit = ::submitPrepared,
+      failed = { question, error ->
+        backToField(listOf(question))
+        notices.tryEmit(error.message ?: "Invio non riuscito; bozza conservata.")
+      })
+  }
 
   /**
    * Chi risponde e quanto ci pensa, dal composer.
@@ -297,7 +329,7 @@ class ChatViewModel @Inject constructor(
       queued = inputs.queued,
       recovery = chat.recovery,
     )
-  }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ChatUiState())
+  }.combine(runtime.modelSelection.state) { ui, selection -> ui.copy(modelSelection = runtime.modelSelection, selection = selection) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ChatUiState())
 
   val micLevel = runtime.micLevel
   val lastMode = runtime.lastMode
@@ -316,7 +348,7 @@ class ChatViewModel @Inject constructor(
 
   init {
     viewModelScope.launch {
-      runtime.activeConversationId.collect { id -> contextEstimate.value = runCatching { engine.estimateContext(id) }.getOrNull() }
+      runtime.activeConversationId.collect { id -> voicePreparation.cancel(); contextEstimate.value = runCatching { engine.estimateContext(id) }.getOrNull() }
     }
     viewModelScope.launch {
       runtime.state.collect { if (it is AssistantState.Done) contextEstimate.value = runCatching { engine.estimateContext(runtime.activeConversationId.value) }.getOrNull() }
@@ -355,34 +387,39 @@ class ChatViewModel @Inject constructor(
    * @return false se non e' partita ne' e' in coda (vuota, o Aria spenta con le chiavi): il
    *   composer allora tiene il testo.
    */
-  fun send(text: String): Boolean {
+  suspend fun send(text: String): Boolean {
+    val epoch = textPreparationGeneration
     val attachments = pendingAttachments.value
+    val sendTarget = runtime.activeConversationId.value
+    runtime.modelSelection.loaded.first { it }
+    if (epoch != textPreparationGeneration || runtime.activeConversationId.value != sendTarget) return false
     if (text.isBlank() && attachments.isEmpty()) return false
     if (state.value.blockedByConsent) {
       notices.tryEmit("Aria e' spenta: accendila nelle impostazioni.")
       return false
     }
-    pendingAttachments.value = emptyList()
-    val deep = deepNext.value
+    val capturedConversation = runtime.activeConversationId.value
+    val capturedPlugin = plugin.value
+    val capturedTemporary = temporaryNext.value
+    val capturedDeep = deepNext.value
+    val policy = selectedPolicy(capturedConversation)
+    val request = AssistantRequest(capturedConversation, text, AskMode.TEXT, attachments, Surface.APP,
+      plugin = capturedPlugin, deep = capturedDeep, temporary = capturedTemporary, modelPolicy = policy)
+    try { if (!SendAdmission(engine::preflight).admit(request) {
+        epoch == textPreparationGeneration && capturedConversation == runtime.activeConversationId.value
+      }) return false }
+    catch (e: kotlinx.coroutines.CancellationException) { throw e }
+    catch (e: Exception) { notices.emit(e.message ?: "Impossibile leggere le immagini; bozza conservata."); return false }
+    val question = QueuedQuestion(text, attachments, capturedDeep, policy = policy, conversationId = capturedConversation, selectedPlugin = capturedPlugin, temporary = capturedTemporary, request = request)
+    if (runtime.isBusy) queue.value = queue.value + question else if (!submitPrepared(question)) return false
+    pendingAttachments.value = pendingAttachments.value.filter { it !in attachments }
     deepNext.value = false
-    val question = QueuedQuestion(text, attachments, deep)
-    if (runtime.isBusy) queue.value = queue.value + question else submit(question)
     return true
   }
 
-  private fun submit(question: QueuedQuestion) {
-    val edited = question.editOf
-    if (edited != null) {
-      runtime.submit(AssistantRequest(edited.conversationId, question.text, AskMode.TEXT, question.attachments, Surface.APP, anchor = Anchor.Edit(edited.id)))
-    } else {
-      runtime.submit(
-        AssistantRequest(
-          runtime.activeConversationId.value, question.text, AskMode.TEXT, question.attachments, Surface.APP,
-          plugin = plugin.value, deep = question.deep, temporary = temporaryNext.value,
-        ),
-      )
-    }
-  }
+  private fun submitPrepared(question: QueuedQuestion): Boolean =
+    runtime.submitIfCurrent(question.asRequest(), runtime.requestGeneration, replaceBusy = false)
+
 
   /**
    * La coda davanti a uno stato nuovo del runtime. Parte la prima domanda solo con Aria ferma e
@@ -397,25 +434,28 @@ class ChatViewModel @Inject constructor(
       return
     }
     if (!runtime.appInForeground) return
-    val next = queue.value.first()
-    queue.value = queue.value.drop(1)
-    submit(next)
+    queuedAdmission.flush()
   }
 
   /** La chat e' tornata davanti: se c'era una domanda in coda e Aria e' ferma, parte adesso. */
+  fun onChatHidden() { chatVisible = false; textPreparationGeneration++; queuedAdmission.cancel(); voicePreparation.cancel() }
+
   fun onChatVisible() {
+    chatVisible = true
     if (!runtime.isBusy) flushQueue(runtime.state.value)
   }
 
   /** Toglie una domanda dalla coda e la rimette nel campo, per correggerla o per non mandarla. */
   fun unqueue(question: QueuedQuestion) {
     if (question !in queue.value) return
+    queuedAdmission.cancel(question)
     queue.value = queue.value - question
     backToField(listOf(question))
   }
 
   /** Tutta la coda torna nel campo: una risposta fermata, un'altra conversazione aperta. */
   private fun releaseQueue() {
+    queuedAdmission.cancel()
     val released = queue.value
     if (released.isEmpty()) return
     queue.value = emptyList()
@@ -428,19 +468,37 @@ class ChatViewModel @Inject constructor(
     if (questions.any { it.deep }) deepNext.value = true
   }
 
+
   fun startVoice() {
-    val attachments = pendingAttachments.value
-    pendingAttachments.value = emptyList()
-    runtime.startListening(runtime.activeConversationId.value, Surface.APP, attachments, temporary = temporaryNext.value)
+    if (runtime.isBusy) return
+    val attached = pendingAttachments.value
+    val id = runtime.activeConversationId.value
+    val policy = selectedPolicy(id)
+    val epoch = composerEpoch.value
+    var admitted = false
+    voicePreparation.start(preflight = {
+      try { runtime.preflight(AssistantRequest(id, "", AskMode.VOICE, attached, modelPolicy = policy)); admitted = true }
+      catch (e: kotlinx.coroutines.CancellationException) { throw e }
+      catch (e: Exception) { notices.emit(e.message ?: "Bozza conservata") }
+    }, stillOwned = { admitted && epoch == composerEpoch.value && id == runtime.activeConversationId.value && !runtime.isBusy }, listen = {
+      pendingAttachments.value = pendingAttachments.value.filter { it !in attached }
+      runtime.startListening(id, Surface.APP, attached, temporary = temporaryNext.value, modelPolicy = policy)
+    })
   }
 
   fun stopVoice() = runtime.stopListening()
 
-  fun cancelVoice() = runtime.cancelListening()
+  fun cancelVoice() { voicePreparation.cancel(); runtime.cancelListening() }
 
   fun stopSpeaking() = runtime.stopSpeaking()
 
-  fun cancel() = runtime.cancel()
+  fun cancel() {
+    val preparing = preparingVoice.value
+    textPreparationGeneration++
+    releaseQueue()
+    voicePreparation.cancel()
+    if (!preparing) runtime.cancel()
+  }
 
   fun dismiss() = runtime.reset()
 
@@ -454,7 +512,44 @@ class ChatViewModel @Inject constructor(
    * conversazione (lo stato vivo resta suo, vedi [throttledState]) e la si ritrova nel cassetto.
    * Prima "Nuova chat" la interrompeva, anche quando era dell'overlay.
    */
+  /** Claim only the explicit destination. No submit, queue flush or voice action here. */
+  fun acceptHandoff(token: String, target: Long?): Boolean {
+    val value = dev.pampa.pampai.feature.assistant.session.DraftHandoffs.consume(token, target) ?: return false
+    if (target == null) newConversation() else { open(target); clearComposer() }
+    pendingAttachments.value = value.attachments
+    handoffDraft.value = value.text
+    value.policy?.let { policy ->
+      handoffPolicy = target to policy
+      val epoch = composerEpoch.value
+      viewModelScope.launch {
+        val temporary = target?.let { conversations.conversation(it)?.temporary } ?: false
+        if (composerEpoch.value != epoch || handoffPolicy != (target to policy)) return@launch
+        runtime.modelSelection.save(target, policy, temporary = temporary)
+        runtime.modelSelection.state.first { it.selected(target) == policy }
+        if (handoffPolicy == (target to policy)) handoffPolicy = null
+      }
+    }
+    return true
+  }
+
+  internal val composerEpoch = MutableStateFlow(0L)
+  private fun clearComposer() {
+    textPreparationGeneration++
+    queuedAdmission.cancel()
+    voicePreparation.cancel()
+    composerEpoch.value++
+    pendingAttachments.value = emptyList()
+    draft.value = null
+    handoffDraft.value = null
+    handoffPolicy = null
+  }
+
+  internal val handoffDraft = MutableStateFlow<String?>(null)
+  private var handoffPolicy: Pair<Long?, dev.pampa.pampai.core.assistant.runtime.ModelPolicy>? = null
+  private fun selectedPolicy(id: Long?) = handoffPolicy?.takeIf { it.first == id }?.second ?: runtime.modelSelection.state.value.selected(id)
+
   fun newConversation() {
+    clearComposer()
     releaseQueue()
     plugin.value = null
     deepNext.value = false
@@ -481,6 +576,7 @@ class ChatViewModel @Inject constructor(
     // lavoro in corso invece continua, come per "Nuova chat": aprire nell'app quella dell'overlay
     // (il gesto "espandi", una notifica) la lascia finire, e aprirne un'altra non la interrompe.
     if (conversationId != runtime.activeConversationId.value) {
+      clearComposer()
       releaseQueue()
       leaveCurrent()
       temporaryNext.value = false
@@ -497,6 +593,7 @@ class ChatViewModel @Inject constructor(
    * lascerebbe messaggi orfani.
    */
   private fun leaveCurrent() {
+    voicePreparation.cancel()
     val track = runtime.liveTrack.value
     val owner = track.owner
     if (owner.surface != Surface.APP || owner.conversationId != track.app) return
@@ -563,14 +660,23 @@ class ChatViewModel @Inject constructor(
     return true
   }
 
-  fun editAndResend(message: Message, newText: String): Boolean {
+  suspend fun editAndResend(message: Message, newText: String): Boolean {
+    val epoch = textPreparationGeneration
+    if (message.conversationId != runtime.activeConversationId.value) return false
     if (newText.isBlank()) return false
     if (state.value.blockedByConsent) {
       notices.tryEmit("Aria e' spenta: accendila nelle impostazioni.")
       return false
     }
-    val question = QueuedQuestion(newText, editOf = message)
-    if (runtime.isBusy) queue.value = queue.value + question else submit(question)
+    val policy = runtime.modelSelection.state.value.selected(message.conversationId)
+    val request = AssistantRequest(message.conversationId, newText, AskMode.TEXT, anchor = Anchor.Edit(message.id), modelPolicy = policy)
+    try { if (!SendAdmission(engine::preflight).admit(request) {
+        epoch == textPreparationGeneration && message.conversationId == runtime.activeConversationId.value
+      }) return false }
+    catch (e: kotlinx.coroutines.CancellationException) { throw e }
+    catch (e: Exception) { notices.emit(e.message ?: "Bozza conservata"); return false }
+    val question = QueuedQuestion(newText, editOf = message, policy = policy, conversationId = message.conversationId, request = request)
+    if (runtime.isBusy) queue.value = queue.value + question else if (!submitPrepared(question)) return false
     return true
   }
 
@@ -583,17 +689,31 @@ class ChatViewModel @Inject constructor(
    * profondo di default, non a quello che l'utente ha scelto.
    */
   fun regenerate(message: Message, override: ProviderOverride? = null) = viewModelScope.launch {
+    val epoch = textPreparationGeneration
+    val generation = runtime.requestGeneration
+    if (message.conversationId != runtime.activeConversationId.value) return@launch
     if (state.value.blockedByConsent) {
       notices.tryEmit("Aria e' spenta: accendila nelle impostazioni.")
       return@launch
     }
-    if (runtime.isBusy) runtime.cancel()
+    val selected = if (override != null) {
+      val id = override.chatModel ?: state.value.settings.chatModel(override.provider)
+      id?.let { ModelPolicy(dev.pampa.pampai.core.assistant.runtime.ExactModel(override.provider, it), runtime.modelSelection.state.value.selected(message.conversationId)?.effort) }
+    } else runtime.modelSelection.state.value.selected(message.conversationId)
+    val completed = override?.copy(chatModel = selected?.identity?.model, deepModel = selected?.identity?.model)
     // La domanda e' il padre della risposta: niente ricerca per posizione nella lista, che dopo un
     // cambio di conversazione a meta' tocco poteva non contenerla piu'.
     val question = if (message.role == MessageRole.USER) message else message.parentId?.let { conversations.message(it) }
-    if (question == null) return@launch
-    val completed = override?.let { if (it.deepModel == null) it.copy(deepModel = settingsStore.current().deepModel(it.provider)) else it }
-    runtime.submit(AssistantRequest(message.conversationId, question.text, AskMode.TEXT, emptyList(), Surface.APP, completed, anchor = Anchor.Regenerate(message.id)))
+    if (question == null || epoch != textPreparationGeneration || message.conversationId != runtime.activeConversationId.value) return@launch
+
+    val request = AssistantRequest(message.conversationId, question.text, AskMode.TEXT, emptyList(), Surface.APP, completed, anchor = Anchor.Regenerate(message.id), modelPolicy = selected,
+      retryResearch = override == null && message.role == MessageRole.ASSISTANT && message.status != MessageStatus.DONE)
+    try {
+      SendAdmission(engine::preflight).dispatch(request, {
+        epoch == textPreparationGeneration && message.conversationId == runtime.activeConversationId.value
+      }) { runtime.submitIfCurrent(request, generation) }
+    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+    catch (e: Exception) { notices.emit(e.message ?: "Immagini incompatibili") }
   }
 
   /**

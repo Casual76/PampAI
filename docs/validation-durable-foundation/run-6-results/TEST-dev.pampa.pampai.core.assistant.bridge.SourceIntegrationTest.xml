@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-08T09:09:36.165Z" hostname="PC_FISSO" time="0.149">
+  <properties/>
+  <testcase name="laterPageFailureAndSnapshotChangeNeverBecomeEmptySuccess" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.131"/>
+  <testcase name="legacyCatalogKeepsLegacyButGatesTypedFunctionsAndWriteIdentity" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.002"/>
+  <testcase name="schoolScopeAndFullEvidenceSurviveReceiptCodec" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.002"/>
+  <testcase name="actualAdapterDiscoversAccountAndPreservesParentIdentityWithoutGlobalAccountState" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.007"/>
+  <testcase name="spotifyEntityUsesSignedReadsAndRealCursorWithoutUpgradingOriginalWrite" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.002"/>
+  <testcase name="missingAccountOrEntityCannotBeReconciled" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

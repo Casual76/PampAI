@@ -1,0 +1,9 @@
+# Root visual integration check — pre-worker UI
+
+2026-11-08. Root opened the actual generated `knowledge-ui/profile-light.png`, `profile-provenance-dark.png` and `profile-setup-wide-2x-dark.png` through image inspection. These are three synthetic Roborazzi/Compose fixture renders, not Android/device screenshots. The UI author's separate report covers all11 captures; root does not claim to have reopened all11.
+
+Observed: visible separation of user statements, app observations and deductions; stable links for sources, per-area updates, exclusions and existing memories/reminders. Detail sheet shows source/account/period, partial coverage and unknown freshness without presenting the deduction as verified. Wide2x setup keeps a centered readable column and wraps its labels; primary/helper are explicitly unselected. Long details/forms require scrolling; static images do not prove real IME, gestures or TalkBack.
+
+No new confirmed visual defect identified in these three inspected states. This is an orchestrator integration observation, not either independent reviewer verdict or complete accessibility acceptance. No source changes made during inspection. Source/PNG/APK hashes and fresh feature60/screenshot12 test results remain in validation-profile-ui/results.json; pre-workerAPK remains frozen under knowledge-ui. Worker will update actual schedule status next; old placeholders are not a claim of active recurrence.
+
+Root also opened the two actual final worker status captures (enqueued light / uncertain dark) and their text-only recaptures under knowledge-root-final. They distinguish earliest eligibility, last attempt and completed cycle, with unknown success retained; suspension does not imply retry. A single subtitle was changed to user-facing wording rather than implementation details. Targeted two-case screenshot rerun passed; final lint/assembly command is recorded separately. These are synthetic renders, not device evidence.

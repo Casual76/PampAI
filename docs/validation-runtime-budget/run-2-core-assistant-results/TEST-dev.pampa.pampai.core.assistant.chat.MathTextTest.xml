@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.chat.MathTextTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-08T09:26:25.529Z" hostname="PC_FISSO" time="0.008">
+  <properties/>
+  <testcase name="la formula di Gemini non sparisce" classname="dev.pampa.pampai.core.assistant.chat.MathTextTest" time="0.005"/>
+  <testcase name="testo senza formule identico" classname="dev.pampa.pampai.core.assistant.chat.MathTextTest" time="0.0"/>
+  <testcase name="i dollari veri restano dollari" classname="dev.pampa.pampai.core.assistant.chat.MathTextTest" time="0.0"/>
+  <testcase name="il codice non si tocca" classname="dev.pampa.pampai.core.assistant.chat.MathTextTest" time="0.0"/>
+  <testcase name="pedici e apici in unicode" classname="dev.pampa.pampai.core.assistant.chat.MathTextTest" time="0.002"/>
+  <testcase name="frazioni, radici e simboli" classname="dev.pampa.pampai.core.assistant.chat.MathTextTest" time="0.001"/>
+  <testcase name="delimitatori a blocco" classname="dev.pampa.pampai.core.assistant.chat.MathTextTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,522 @@
+[
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\app\\lint-results-debug.xml",
+    "size": 39192,
+    "sha256": "29d51fe0bfab3797b66d7bfe1efaf89f00a6fedbdeb6def112844b0aa6d6c7a2"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\lint-results-debug.xml",
+    "size": 23409,
+    "sha256": "4e69e86c5aabe466babd53b3b112b6d1501dc45384cb9e95f0453b91825736b8"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.bridge.SourceClassificationTest.xml",
+    "size": 1069,
+    "sha256": "4ac0f26c3bb6176966fa3b0944ed95049bfc01569ac33c1235cec3ae508c1d0d"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest.xml",
+    "size": 1718,
+    "sha256": "75ff8dabdeebeb6316a8a24d2930e5d64e979c83e2ea705006807b211a00815f"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.bridge.SourceReceiptPersistenceTest.xml",
+    "size": 541,
+    "sha256": "99ac438aeef6e0d7f745b9cc5e2f1637036f62bf4779ccd085c96d5c226448d7"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.chat.GreetingsTest.xml",
+    "size": 870,
+    "sha256": "943afbc03002395d742501110c78f7b2d10616dc187e0e79d049878e778355c1"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.chat.MathTextTest.xml",
+    "size": 1201,
+    "sha256": "63e78422b88360fe1d53978e79fbef7659dcf20f9cda52b475ab02c007ad9114"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest.xml",
+    "size": 2393,
+    "sha256": "237282c4796d970ca31339175272f8b6769652d0b8863a3130df62a02d1d3853"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.db.MessageTreeTest.xml",
+    "size": 1447,
+    "sha256": "f41fa4e864c63b069d0f4a018f3a6b92665c1af4581dd7727822ee28798f6251"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.db.Migration3To4Test.xml",
+    "size": 672,
+    "sha256": "dc715c5760fcb19de28bfc5cb5bae746d015cb921c87e863d3307812d13148ba"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.db.MigrationsTest.xml",
+    "size": 1030,
+    "sha256": "151bca42b369c657b7e60b2392ea2db2c9755574427fb94d3cb787ea15de29a6"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest.xml",
+    "size": 1619,
+    "sha256": "3fceb42f1672c3dc55075497e4a57b485077dac593f402e003a4e57818e8bb8d"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.durable.CorrectionCommitTest.xml",
+    "size": 527,
+    "sha256": "2d887dffffdaa2386348e949005fda7b69145e45eda90a0911ec7dfee5cad661"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.durable.DurableFoundationTest.xml",
+    "size": 2860,
+    "sha256": "1cad5a6b354ee80e3bc65839b326463c1942397d3a781e24dccfffff38958ec4"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.durable.Migration6To7Test.xml",
+    "size": 502,
+    "sha256": "7c86fae5ba83ccabb28466d8ed1a1f28e0db0a13d27fada5ad7fc5389bac14e1"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.prompt.PreRouterTest.xml",
+    "size": 1124,
+    "sha256": "6f950e23a83801f90671862d1cfda1ec5bc7b88b48ed8f73a797055f5360ced6"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.prompt.PromptBuilderTest.xml",
+    "size": 512,
+    "sha256": "6ad1679d2bad4cbb8d7fb0cb74ac0d5199b20a960ea98a8e137ba216279638f7"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.prompt.QuickCommandsTest.xml",
+    "size": 2506,
+    "sha256": "67ad7b888416d8d53eeb5e2bbaf8af0b2d68d0a8c013aff616ac3845bcdc3547"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.receipts.CalendarReceiptsTest.xml",
+    "size": 699,
+    "sha256": "c6ab21ed935646ffff775c256614a650865dd516f9468f03acf4ff4478e1ca9e"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.receipts.Migration4To5Test.xml",
+    "size": 726,
+    "sha256": "ff18225fe417e6b41a4643081813227e3bfad25b86e27d2d8f87f2247e704180"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest.xml",
+    "size": 1786,
+    "sha256": "057b3d17b40c1cac7fb7827e03225c2d02a3d72ee58fc358e095f3fb92d2e4fb"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.reminders.ReminderRepeatTest.xml",
+    "size": 751,
+    "sha256": "ef4790aaf55b63f7a493a022e0244cfda08f2814c023e8fd96d3982ca52f0540"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest.xml",
+    "size": 2821,
+    "sha256": "d0d9e84469d0921a514c2d3bb09143f2d779cf3d0063e1e2c21e4bddaffdea32"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest.xml",
+    "size": 4026,
+    "sha256": "f1a2d27693ca2ee43dd567474ae4d9828461462d9d33e19257006375149ea0b3"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest.xml",
+    "size": 3009,
+    "sha256": "fcbd5586e56edcf9827325c5dab06425e89ed5bae31b1531aec5fefaa7127c2b"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.ResearchConnectionsPersistenceTest.xml",
+    "size": 518,
+    "sha256": "7beddd90f54b8e8b9ae144394d7d22a90f5e885d8861146989d1777d64bdbbb3"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.ResearchConsumerTest.xml",
+    "size": 6392,
+    "sha256": "872f4a59dd847115cc033be4ca9fb386571f6f546e589ef7471e7c48b51113ab"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.ResearchSchedulerTest.xml",
+    "size": 3849,
+    "sha256": "90f46fd06c9e2aff601b8f4b205f15b5ded6cee99e901cc57a918306aea3d760"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest.xml",
+    "size": 1543,
+    "sha256": "1210ede30b50e5701ed20e8ec1dc0b5e607ba00ca0402a878e09dcdf53da89d9"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.research.SourceExclusionBoundaryTest.xml",
+    "size": 896,
+    "sha256": "4bbc2af54c69d33eef14c4424a4f4b88d9e8aa98b0a2c32069e25e22ad49ecb4"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.DispatchAuditPersistenceTest.xml",
+    "size": 502,
+    "sha256": "cb45b5d450d37c77713a8148c4cedca06c05f93856c22000576f92f3089836f4"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.DynamicImagePolicyTest.xml",
+    "size": 519,
+    "sha256": "34fa36cf312ae14e0aa4e36fdfe980737eb5153a320634eed92e59f119d8f0fb"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.ImageProvenanceTest.xml",
+    "size": 686,
+    "sha256": "6444078f5f4ed0cc19ddd28f848869bad87befcc03d29570efbe95469043d6a3"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest.xml",
+    "size": 1529,
+    "sha256": "789a8b1df7268f7f1d1e4a538346c79abe2a2e29e6a97286802ecc4fab5a89b0"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest.xml",
+    "size": 2007,
+    "sha256": "6ce8c39b0b4c646fbbdca8527e7ca526f48e1968d7070504b98a8d241746c4b9"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.QuickCancellationIntegrationTest.xml",
+    "size": 554,
+    "sha256": "b9acd4c6c521accabeb9fb30f77100ee38e88548f4f61531672bd7597a6ba745"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest.xml",
+    "size": 2866,
+    "sha256": "9debe17d0cf454ff46e8bbb32e9779f356202d5ce84521a39df2778787202ba4"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.runtime.TurnCancellationTest.xml",
+    "size": 682,
+    "sha256": "fe1b4f6be5b5dd63630497a34fc52b127e72dc448f9d798f08b43a720a34d4e2"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.BridgeHostIdentityGuardTest.xml",
+    "size": 1387,
+    "sha256": "ff7fe9f0c5d3c1a827b8bc8503ba6ce5f00c59ca45894a6067cba5741af7cdf3"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.calc.CalcSupportTest.xml",
+    "size": 966,
+    "sha256": "77c8c13de974798ab1dd50871a67316f783bae90a714657592f58e5a97636b5a"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.DatesTest.xml",
+    "size": 1081,
+    "sha256": "f51a5b7fc883d23c3dbcd81d11e687fb534b5233e071613e3f9f2abca354a887"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.device.DurationsTest.xml",
+    "size": 596,
+    "sha256": "6d32848a83a6e7ce0f973ea9ad9702c9015f584cbcc611fc757d80f497f23b9b"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.music.LibraryPagesTest.xml",
+    "size": 865,
+    "sha256": "f402770ee899336d69329a5d45bc8776c4f0e2112c40a36a4a94053fea793833"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.RegistryHolderTest.xml",
+    "size": 1239,
+    "sha256": "12c0748b40ec41a5e01671239ff6d1e043e096564b99ab912fff50fb2c116901"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest.xml",
+    "size": 694,
+    "sha256": "9db5f03258f3e4074fd928a857619bf560b93aa4cbea31564bb78eddae97a656"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.tools.web.SafeFetchTest.xml",
+    "size": 734,
+    "sha256": "c321517b65a7c2592db6e8ccc2f80ea234e35f69865edc687025639071c0e90f"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.usage.VisionUsageTest.xml",
+    "size": 664,
+    "sha256": "59fea8aae22c4c77388b485178220c95674e230e692673cf42d378b292fda108"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.voice.PlainTextTest.xml",
+    "size": 1317,
+    "sha256": "0727d0b3f1f02a19b8f7e03d1ea0564bfa1dfe74234f2670e6d18d3b829cc07b"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\core-assistant\\TEST-dev.pampa.pampai.core.assistant.voice.SttPolicyTest.xml",
+    "size": 1006,
+    "sha256": "cb12304f9ea6e894dfae9dfd331ad12e26524d39da91236aab67686503507232"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.keys.AiKeyStoreTest.xml",
+    "size": 960,
+    "sha256": "7e4c1ce4d2add637baa886422bd788130a0512abdc53347a48f9bc0125a6a7d4"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.keys.AiSettingsDefaultsTest.xml",
+    "size": 2581,
+    "sha256": "9ab758a17ab773518c2bcc9798214036987cf604310fe827c54f00cfa63ec776"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.keys.AiSettingsStoreTest.xml",
+    "size": 686,
+    "sha256": "618ec9536f494aef32b0a1f58b344f517287853a83933b4293714dfb95d6ddb1"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.keys.AvoidListTest.xml",
+    "size": 1401,
+    "sha256": "bcab0a0e8d2f9e389b5353a078c9203c193467e09f9c8f864eb7a5dbac4cb74b"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.keys.GroqReconcileTest.xml",
+    "size": 1612,
+    "sha256": "6cac0b1e673eee4f7e2318a4146432282bd232d91bb8a8b7c574ee4b9780ffb1"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.net.AiErrorMapperTest.xml",
+    "size": 2882,
+    "sha256": "e252aefa1843ce3def4534f5829887e382d32aeb262852b068dc7fce83ad6d21"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.net.AiHttpServerTest.xml",
+    "size": 3069,
+    "sha256": "fdf34a33446892387305a2ea77b6c0c66d98d0a06af9c9027d767e5cba7bede6"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.net.MultipartBodyTest.xml",
+    "size": 660,
+    "sha256": "a4b5cf7a6b1758124f322c6f28e961bbd03a64345f6c61fcc6c3f19881f47b90"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.net.SseParserTest.xml",
+    "size": 1100,
+    "sha256": "0f32b990a1f4b0b71a80a679ee98c97e925f1403e289a922e92f5cbe63f90c4f"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.net.StreamTimeoutTest.xml",
+    "size": 894,
+    "sha256": "1619e1b9c8eb7b5519dfeec679838437d630ae3fe3c09860f571a00d42921075"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.AiConfirmationGateTest.xml",
+    "size": 4142,
+    "sha256": "853a82482da74b6c10a576073d01a81eb6dbee35a8bd14d892c34990ec0aeb71"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.AiDeepTierTest.xml",
+    "size": 1716,
+    "sha256": "dee747b5e88446c02ba9e46c35795373012aac780daaf7a11a0ca88ce6ded786"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.AiFailoverOrchestratorTest.xml",
+    "size": 3119,
+    "sha256": "2e27362fc0e41421d649b8892ff627ebd8e6192728732d357605eef624492edd"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.AiHierarchyTest.xml",
+    "size": 2438,
+    "sha256": "cbe6cbb59a0e47768624ea5bafcc70943bbc9810543773b03615bb84ccbc7f2a"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.AiOrchestratorTest.xml",
+    "size": 4630,
+    "sha256": "e6ff249a88ddd4770829c20759673a238fd418a42b264d425f227972ad9559a0"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.AiRouterTest.xml",
+    "size": 1454,
+    "sha256": "993f27ddf899bc8739f39433762e2a6eebc747ce9a2410e96a075cb92c22aef7"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.AiToolTimeoutTest.xml",
+    "size": 3081,
+    "sha256": "e264da323e0518b14b950c8efc4bed8dac21f491773710dabcf37c8047a1f68c"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.FailoverAndCompactorTest.xml",
+    "size": 2570,
+    "sha256": "6ce91f543465530ceba4f60ffe3e004c335d5b5983e5ca8858e39e8e76632553"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.FailoverTableTest.xml",
+    "size": 1576,
+    "sha256": "1ea816fabde6f237d57bf3ef2ef5b4446842f82727b5fdabcf8a02c77388d8a8"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.orchestrator.FailureKindsTest.xml",
+    "size": 1392,
+    "sha256": "a790eed7f5f58235b8b8ed2d0404d0f7b9e28149feea465bc1e6f8d0e0afd1fe"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.provider.CodecTest.xml",
+    "size": 2071,
+    "sha256": "bd748a79c53b367fba02e92fa9999dbd025e632c828768f373a59f4d07b7dc30"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.provider.ContentPartsTest.xml",
+    "size": 1525,
+    "sha256": "32b63375168e5de7be5da69177e28e4a814516eeb55b8a154c83cb9352de304f"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.provider.DispatchAuditTest.xml",
+    "size": 520,
+    "sha256": "0a9ebfb895dc4112d9f8dcc42b399b7136ee3c63caea0553ca2d9b29a453c980"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.provider.FailureCodecTest.xml",
+    "size": 730,
+    "sha256": "c9ff5f43a1d47a5bfc2d72576556fa1d61ad24f19ebc2aef9806c0e06cb6eb35"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.provider.OpenRouterDataPolicyTest.xml",
+    "size": 853,
+    "sha256": "847729ca9aa983c70950774cf61f436ffd961aaf6a8873146c3e28d8a81af98a"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest.xml",
+    "size": 2704,
+    "sha256": "21c92bcc6992a936e2c8e39863cad6ac6a1383ef7e3443e94ad87c5fb279eac0"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.provider.WebSearchCodecTest.xml",
+    "size": 1392,
+    "sha256": "aa0dc57908c95a51a767e92962b7e83c09fd40da5450770bc4aaa5fc18ef54b8"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.speech.SpeechCaptureTest.xml",
+    "size": 2848,
+    "sha256": "cfba1964a415fd3af563d1180d6c486565d1ee1e15d05dd12070910e761d6bea"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.tools.ModelToolTextTest.xml",
+    "size": 502,
+    "sha256": "3e05bbe5ce6f037bd37617289f79a79a43496e42e1876fef24b7bc9c2e206669"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.tools.SmallPartsTest.xml",
+    "size": 1693,
+    "sha256": "dfce3dbec4e750082824728330a4c9b2180460898df78914f6bbb29f6087f4bb"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai\\TEST-dev.antigravity.fluidengine.ai.tools.ToolContractsTest.xml",
+    "size": 1224,
+    "sha256": "2745d3a93659d8199fb2941a7b0b03a398578ad056c7cb5e534d78e804978590"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai-bridge\\TEST-dev.antigravity.fluidengine.ai.bridge.BridgeProtocolTest.xml",
+    "size": 909,
+    "sha256": "a1f1eac9adbb679dd570fb10772191b51cbf07200b182ac4111e88230924237b"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai-bridge\\TEST-dev.antigravity.fluidengine.ai.bridge.ManifestTest.xml",
+    "size": 910,
+    "sha256": "f7d35cfce9db765054d416f07edca5ec2b6783f58249d51fa0fcf905cad66248"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai-bridge\\TEST-dev.antigravity.fluidengine.ai.bridge.RemoteToolTest.xml",
+    "size": 1949,
+    "sha256": "ce28731bbeb1ff86403067d41eb955364b8f558e1e34aba726fba390f0c008d9"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\engine-ai-bridge\\TEST-dev.antigravity.fluidengine.ai.bridge.TypedProtocolTest.xml",
+    "size": 1246,
+    "sha256": "d7e24c33dc0f4629d2c585830a180220cc31ead9c095e05ae99f138cd4c879d7"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\lint-results-debug.xml",
+    "size": 18878,
+    "sha256": "9baf1ed515679c0ffdc8c26ce601c18cb8729b8a000a19add7e77c267a8a0962"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.ChatScreenshots.xml",
+    "size": 2084,
+    "sha256": "62f9c01ff8531b29386315fa3229ad8a291dc306a3d031f83cd36767eb27b317"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest.xml",
+    "size": 1473,
+    "sha256": "5ee7417b45eb47082c65c765402d8e18a5013cc9636e11772ea43e4c9baad50a"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.FailureReportsTest.xml",
+    "size": 997,
+    "sha256": "beec9bea8ff6a0ef92de4a44201c0c1c7146aafe1024048f89bad17e0cdff321"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.RunEvidenceRenderTest.xml",
+    "size": 1016,
+    "sha256": "59b524cd3f17daa7b729e4192596af6222904b343b6a0613001abd53290daf23"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.SendAdmissionTest.xml",
+    "size": 513,
+    "sha256": "a5512187458e52009c3f46f286eb41c5a51f3c0a2a0532ee687ed0e0233d2587"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.TextAdmissionOwnershipTest.xml",
+    "size": 1089,
+    "sha256": "98a14804727c8a63418a4f84b2820b5bc34b82d257fe7abac01b6af485adbdf4"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.ToolResultCardsTest.xml",
+    "size": 878,
+    "sha256": "24a538841ac5250c34b8a40224dd11e165947da555ec207d113938efc62d753f"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.UiCorrectionsTest.xml",
+    "size": 1966,
+    "sha256": "97fee09958770fdaa11bed4c977b4ae539a04ba90bb4e7656ed54250a8c57ac5"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.chat.VoicePreparationTest.xml",
+    "size": 860,
+    "sha256": "669b301b91ebb3355c0c0329e19bbf2ed19de41cdc0ba0a7c27deee4d0f7f5fd"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.memory.MemoryScreenshots.xml",
+    "size": 586,
+    "sha256": "3e86344ed5a38bb96d1e96287f7ac61ab9cb63cc9dec08ed5e601ca8a82411c1"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.profile.MusicFactPresentationTest.xml",
+    "size": 1195,
+    "sha256": "91c0379b9da1e3348c5c5e090ddac3d75fc185342c62166546ad5201d1ece436"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.profile.ProfileNavigationTest.xml",
+    "size": 511,
+    "sha256": "ba231d7196a2508f5cc716e9515751b53b961d99d06f997372709d66abc64e2a"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots.xml",
+    "size": 2923,
+    "sha256": "00394e37de977cddfb916094e70b6dd934ddbb852bbeae715017526da754e4bb"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.profile.ProfileTimeSemanticsTest.xml",
+    "size": 994,
+    "sha256": "46309615a69c0a8b1b8b7494a837aa508f65b47401880b24e1fabde58e9679cf"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest.xml",
+    "size": 2590,
+    "sha256": "3749b432460be42c088bb55ef6d876de8a9c53310fa55d5bc1b7ea213b13fa1b"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.profile.SourceFormContractTest.xml",
+    "size": 526,
+    "sha256": "e9f2a36f911c03fb58e760fc7182d7c488d86ab8c8d8518c02307e1467fe3dfb"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.session.DraftHandoffsTest.xml",
+    "size": 873,
+    "sha256": "894679ec33d0ad4a3c6b10e543a885c76105ff71100e2828939f870b07f4e523"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.session.SessionAdmissionTest.xml",
+    "size": 1171,
+    "sha256": "65511676846546e762432f10c74d173d07bbfb4aa4dd5d25cacc123ed4522244"
+  },
+  {
+    "path": "docs\\validation-K4-finalization\\final-2\\feature-assistant\\TEST-dev.pampa.pampai.feature.assistant.settings.SettingsSectionKeysTest.xml",
+    "size": 730,
+    "sha256": "4c6e3faa122fc335f58a64ecc2712db2e9c09c6aea742311d0941b3b8216aa7d"
+  }
+]

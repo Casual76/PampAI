@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.runtime.DynamicImagePolicyTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:16:48.208Z" hostname="PC_FISSO" time="0.018">
+  <properties/>
+  <testcase name="noAndUnknownPrimaryUseOnlyExplicitVerifiedHelperAndCache" classname="dev.pampa.pampai.core.assistant.runtime.DynamicImagePolicyTest" time="0.018"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

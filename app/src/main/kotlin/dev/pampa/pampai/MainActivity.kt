@@ -22,6 +22,7 @@ import dev.pampa.pampai.core.assistant.runtime.AssistantRuntime
 import dev.pampa.pampai.core.assistant.service.AssistantNotifications
 import dev.pampa.pampai.core.assistant.settings.PampaiSettings
 import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
+import dev.pampa.pampai.feature.assistant.session.DraftHandoffs
 import dev.pampa.pampai.feature.assistant.EntryRequest
 import dev.pampa.pampai.feature.assistant.PampaiRoot
 import dev.pampa.pampai.feature.assistant.theme.PampaiTheme
@@ -102,11 +103,17 @@ class MainActivity : ComponentActivity() {
     val voice = intent.getBooleanExtra(EXTRA_VOICE, false)
     val newChat = intent.getBooleanExtra(EXTRA_NEW, false)
     val last = intent.getBooleanExtra(EXTRA_LAST, false)
+    val handoff = intent.getStringExtra(DraftHandoffs.EXTRA)
+    if (handoff != null && !DraftHandoffs.canClaim(handoff, conversation)) return null
+    val settingsSection = intent.getStringExtra(DraftHandoffs.SETTINGS_EXTRA)
     val shared = sharedOf(intent)
-    if (conversation == null && !voice && !newChat && !last && shared == null) return null
+    if (conversation == null && !voice && !newChat && !last && shared == null && handoff == null) return null
     listOf(AssistantNotifications.EXTRA_CONVERSATION, EXTRA_VOICE, EXTRA_NEW, EXTRA_LAST, Intent.EXTRA_TEXT, Intent.EXTRA_STREAM)
+      .filterNot { handoff != null && it == AssistantNotifications.EXTRA_CONVERSATION }
       .forEach(intent::removeExtra)
     return EntryRequest(
+      handoffToken = handoff,
+      settingsSection = settingsSection,
       conversationId = conversation,
       voice = voice,
       newChat = newChat,

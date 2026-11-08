@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.prompt.PromptBuilderTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:06:40.642Z" hostname="PC_FISSO" time="0.001">
+  <properties/>
+  <testcase name="dal telefono bloccato le app collegate non entrano nel prompt" classname="dev.pampa.pampai.core.assistant.prompt.PromptBuilderTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" tests="35" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:48:35.757Z" hostname="PC_FISSO" time="5.213">
+  <properties/>
+  <testcase name="temporaryConsultationRejectsExcludedReadBeforeAcquisitionAndLateModelResponse" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.082"/>
+  <testcase name="latestInteractivePeriodWinsWithoutChangingTheAutonomousPlan" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.052"/>
+  <testcase name="disabledAutonomousPlanDoesNotHideReplacementInteractiveAccount" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.051"/>
+  <testcase name="forgottenSourceCheckpointCannotBeResumed" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.059"/>
+  <testcase name="explicitProfileConsentAndTargetedRetrievalRenewActualScopes" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.102"/>
+  <testcase name="changedAuthorizationRevokesSameStableGrantAndCancelsJob" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.041"/>
+  <testcase name="expiredPageCursorRestartsTwiceAndKeepsCanonicalEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.099"/>
+  <testcase name="fragmentLeaseExpiryRestartsBoundedReadInsteadOfReusingOldSnapshot" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.036"/>
+  <testcase name="disablingConsentDuringSynthesisDiscardsAutomaticProfileWrite" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.068"/>
+  <testcase name="unsupportedTypedOrMisclassifiedWriteNeverReachesRead" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.024"/>
+  <testcase name="wrongAccountReceiptCannotPopulateValidator" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.036"/>
+  <testcase name="boundedModelCallTraversesRealProviderLifecycleAndBudget" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="1.471"/>
+  <testcase name="targetedProfileDependenciesCountAgainstSynthesisRecordLimit" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.124"/>
+  <testcase name="temporaryForegroundDoesNotPersistAssociationAndCompletedRegenerationDoesNotRetry" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.064"/>
+  <testcase name="backgroundRequiresExactAreaPlanConsentAndNeverAdmitsCrossArea" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.071"/>
+  <testcase name="generalDomainWordsNeverCrossForegroundOrProfileBoundary" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.061"/>
+  <testcase name="normalMusicQuestionUsesPertinentStoredKnowledgeWhileUnrelatedQuestionUsesNone" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.14"/>
+  <testcase name="naturalGradeQuestionUsesOnlySavedGradeScopeWithoutBrandOrSetup" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.091"/>
+  <testcase name="partialFragmentCannotPublishPrematurePageCursor" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.037"/>
+  <testcase name="savedPlanCapturesPolicyScopesAndChangesCancelActiveWork" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.043"/>
+  <testcase name="actualWorkerResumesFiniteRunnerAndCompletesOnceWithoutForegroundEntry" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.205"/>
+  <testcase name="sourceHostAllowlistRejectsUnknownPackageAndAuthorityAlias" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.017"/>
+  <testcase name="cvDetailPagesReuseFullRecordsAndAggregateExactlyOnce" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.029"/>
+  <testcase name="connectedTwoSourceForegroundAndFollowupUseFixedModelWithoutProfiling" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.15"/>
+  <testcase name="sameAuthorizationRenewalPreservesVersionEpochAndCheckpoint" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.062"/>
+  <testcase name="persistedChatRetryResumesBeyond64PagesWithoutInitialReread" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="1.583"/>
+  <testcase name="sourceRevokedWhileReadReturnsCannotCommitEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.05"/>
+  <testcase name="temporaryConsultationNeverCreatesResearchOrProfileRows" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.041"/>
+  <testcase name="cvWrongYearStudentAndUnknownArgumentFailBeforeTransport" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.02"/>
+  <testcase name="unicodeFragmentsWithholdCursorThenHashAndDeduplicate" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.034"/>
+  <testcase name="reopenResumesCommittedPage" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.082"/>
+  <testcase name="modelCannotInventEvidenceAndConsentCannotBeGrantedMidRun" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.047"/>
+  <testcase name="forgetDuringSynthesisRejectsLateCommitAndDeletesEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.059"/>
+  <testcase name="failedBackgroundLimitsNeverPerformSourceReadAndCapsReopenFromFlow" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.041"/>
+  <testcase name="personalAdviceAndCommutingDoNotConsultSchoolRecordsOrStoredProfile" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.037"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

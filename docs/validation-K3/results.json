@@ -1,0 +1,248 @@
+{
+  "counts": {
+    "core-assistant": {
+      "tests": 252,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "screenshots": 0,
+      "xml": 43
+    },
+    "feature-assistant": {
+      "tests": 104,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "screenshots": 32,
+      "xml": 19
+    },
+    "engine-ai": {
+      "tests": 264,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "screenshots": 0,
+      "xml": 31
+    },
+    "engine-ai-bridge": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "screenshots": 0,
+      "xml": 4
+    }
+  },
+  "taskExecution": {
+    "core-assistant": [
+      "> Task :core-assistant:testDebugUnitTest"
+    ],
+    "feature-assistant": [
+      "> Task :feature-assistant:testDebugUnitTest"
+    ],
+    "engine-ai": [
+      "Retained K2 full-4; engine sources unchanged; not rerun in K3"
+    ],
+    "engine-ai-bridge": [
+      "Retained K2 full-4; engine sources unchanged; not rerun in K3"
+    ]
+  },
+  "lint": {
+    "core-assistant": {
+      "Warning": 24
+    },
+    "feature-assistant": {
+      "Warning": 18,
+      "Hint": 1
+    },
+    "app": {
+      "Warning": 39,
+      "Hint": 1
+    }
+  },
+  "inputCount": 681,
+  "changedInputs": [],
+  "postFullSuiteDelta": [
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchQuestionPlanner.kt",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConsumerTest.kt"
+  ],
+  "finalInputsManifest": "final-3-inputs-before.json",
+  "pngs": [
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\adaptive-compact-large-type.png",
+      "size": 196709,
+      "sha256": "b954861abb0578108730c64ac0f445f518424cb3adc14725d2d8e00cba50fa62"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\adaptive-tablet-prose.png",
+      "size": 119943,
+      "sha256": "3e9cc6510e73bf22d061778750f6471e398afcb69a8b11cfd2e4a4b01a21cad0"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\adaptive-tablet-queue.png",
+      "size": 129438,
+      "sha256": "04bb3973be12b0cce8329f796da3f02012622a174b16751bcc5dec99c9194b58"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\chat-dark.png",
+      "size": 166765,
+      "sha256": "1721fff4d1ee15c4a7cef8c5015916dc76ffc4fe40338bed7dcde7f1b51d3bd3"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\chat-light.png",
+      "size": 167270,
+      "sha256": "5395931278320954bf52ec22c8a1991081c470f06c76cf484a11f48769e7de00"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\details-dark.png",
+      "size": 130084,
+      "sha256": "fb55a35be6eb078b13ed3a3836c00c7a23c25c156300e486066382b4e31853f0"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\details-light.png",
+      "size": 128339,
+      "sha256": "14fefbaa77b00b50d81cb33900b5dbf23e319a96d019e4b9822e1c97ed3add79"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\empty-dark.png",
+      "size": 130510,
+      "sha256": "ef8a22e46d3accef0256f471d0f712137389b860261ff8cba186085b0b420ad6"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\empty-light.png",
+      "size": 129973,
+      "sha256": "a2c41367a5db9aeb5d3bcdbc53b78f9d002a359fb888f5af94ecc296b29005cf"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\experience-hub-dark.png",
+      "size": 77297,
+      "sha256": "f8cc59a97169e658c06204e24525cb59fab4007eb04cecc5c8aaf8cac378e9c0"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\experience-hub-large-font.png",
+      "size": 106411,
+      "sha256": "7210b89cd0b032a99da8475347686b96347ac42ca17c0fb53c1209c8d84cdb88"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\experience-hub-light.png",
+      "size": 75123,
+      "sha256": "02db20bcb31746d2a00f08a5f0c0c56353e1b9baebbe17079ae81331b454f1ab"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\experience-picker-dark.png",
+      "size": 134317,
+      "sha256": "7dd57a7e0957cdc32e85d583fca70cf47b186daf2d32c5ee70dc04f818b7b106"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\experience-picker-large-font.png",
+      "size": 210601,
+      "sha256": "e3a0fa2fc307ffedd58534a3a19d335d959763349c5e1131f97749bec1a0bfa5"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\experience-picker-light.png",
+      "size": 141048,
+      "sha256": "fdcf2e45889a9771ccf0077eb1242918ea4c0d34b4c65d400a72f68ec90046d0"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\flow-dark.png",
+      "size": 169202,
+      "sha256": "516d64a581f4f32b2a1510f527eab0eb92ce7ca071c6949b58dacbb4b99ea709"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\flow-light.png",
+      "size": 171305,
+      "sha256": "d4fcc6f1dfc28fd24a72eb0ae61e18ff5a73bf06c09437549ead0e44a41c2e9d"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\memory-dark.png",
+      "size": 656444,
+      "sha256": "dfae01e1d9baf6f5749323d6f30c67b289bb16162fdb52b6c2dd0b01fce5af18"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\memory-light.png",
+      "size": 583609,
+      "sha256": "8e81d51a619d7da8c0c15ce878af575a55d7845c66762929c887fa5555fb1573"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-dark.png",
+      "size": 614384,
+      "sha256": "f780855a1317726a36480c24d0abdd37c67ad4694aeb4d7fc50a54b2c93b9ee4"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-deduction-dark.png",
+      "size": 554721,
+      "sha256": "611cbd88ed1603f92fd1f819b37c225f540c6c2cb4a18f59c888773a318327d9"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-empty-dark.png",
+      "size": 539665,
+      "sha256": "3de801fa89405e3af7067bf0ff2bc798c77968a39d82906dcac09c1bfea46902"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-empty-light.png",
+      "size": 481559,
+      "sha256": "b13662ecaeb1c62397c0311f75c54b375812a095132eae258d7b0976948366d4"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-font-2x.png",
+      "size": 512847,
+      "sha256": "30c928628d89b23d334676f214929b8e2499ceb005e90b30484277ead307be8f"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-light.png",
+      "size": 536944,
+      "sha256": "bbd99c3e6a479731ace3601205df3d92ecff34b756c24ed5cebd7f97ad8b1499"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-music-observation-dark.png",
+      "size": 603450,
+      "sha256": "900cee13ed675ce8c4dc2fb2fe0b9fdecd75dfaeb5107e91ae8b87e45645fd93"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-provenance-dark.png",
+      "size": 521544,
+      "sha256": "64251124926cdffc26ef1347fdcb3d6c4119d80f5977a363918dfef1bd2d5a90"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-setup-compact.png",
+      "size": 294416,
+      "sha256": "04f8f48a461f48812154c59276d1fe191c8247bba8fe85fa8e7d408fad95ce51"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-setup-music-period-light.png",
+      "size": 666862,
+      "sha256": "8ab8d3b22e548940ff279c9a3fe1dbd5315cbdd42303f8082aa079aa28b95b41"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-setup-wide-2x-dark.png",
+      "size": 922690,
+      "sha256": "12dc3d00f6f18719344cffc3fe83a8868a0a39a819c0a6af476d51fa65ce8f7c"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-sources-light.png",
+      "size": 539141,
+      "sha256": "b4a99656ef323254c5c45a5b1ac3f601426edbb94f47bfe48cd38481c387eb6e"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-wide-dark.png",
+      "size": 783070,
+      "sha256": "acec959e9f170d0b770265630f717039abae0b2bbc844c0e6ab7882f64feed32"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-worker-enqueued-light.png",
+      "size": 501103,
+      "sha256": "e4e90f903e8d6cb7342796feb3602612382409a26a7086e7240f46a8aae35dfe"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-worker-uncertain-dark.png",
+      "size": 581455,
+      "sha256": "63e3cb633f10054ee9fa71e13333d543d768feb4e173dd484ef581c73ea8799e"
+    }
+  ],
+  "apk": {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\PampAI-knowledge-K3-debug.apk",
+    "size": 102156649,
+    "sha256": "6e3915e8dd550b9be43a2426f719bbe7f5d3937e6e6edb2ce614cea60acbb478"
+  },
+  "validation": "Core252 final-3; feature104 full-2; unchanged engine264/bridge25 retained from K2 full-4, not rerun. Final APK/core lint final-3; feature/app lint full-2. No summed repeats."
+}

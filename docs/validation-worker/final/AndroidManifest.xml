@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--   Solo la build di debug: si fonde con src/main/AndroidManifest.xml, la release non lo vede. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="dev.pampa.pampai.debug"
+    android:versionCode="9"
+    android:versionName="1.3.1" >
+
+    <uses-sdk
+        android:minSdkVersion="29"
+        android:targetSdkVersion="36" />
+
+    <!--
+     INTERNET arriva con engine-net, RECORD_AUDIO con engine-ai, VIBRATE con engine-ui,
+       REQUEST_INSTALL_PACKAGES con engine-update: il manifest fuso li ha gia'.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!--
+ PampAI e' il *cliente* del ponte fra le app: dal Fluid Engine 3.0.0 non chiede piu' nessun
+       permesso, perche' e' l'ospite a controllare la firma di chi lo chiama. Questa riga serve solo
+       a parlare con le app ancora sulla 2.x, il cui `<provider>` e' protetto da `AI_TOOLS`: e'
+       innocua se nessuna lo dichiara (non viene concesso e non da' fastidio), e va tolta quando
+       tutte le app Pampa sono sulla 3.0.
+    -->
+    <uses-permission android:name="dev.antigravity.fluidengine.permission.AI_TOOLS" /> <!-- Per trovare un riconoscitore vocale di un altro pacchetto a cui inoltrare la dettatura. -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+
+        <package android:name="dev.pampa.fluidify" />
+    </queries> <!-- Una domanda continua anche ad app chiusa: il service in primo piano la porta a termine. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" /> <!-- I tool del dispositivo. Ognuno si chiede all'utente solo quando serve, dal tool stesso. -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" /> <!-- Sideloaded updates: the app installs its own APK, so it needs to be allowed to ask. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--
+    FluidHaptics compone le vibrazioni col Vibrator, e il Vibrator vuole questo permesso: senza,
+    ogni vibrazione fallisce in silenzio (SecurityException, che il motore ingoia per non far
+    cadere l'app per un feedback). Lo dichiara il modulo che ne ha bisogno, cosi' un'app che
+    prende engine-ui non deve sapere di doverlo aggiungere: e' un permesso normale, non chiede
+    niente all'utente.
+    -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <permission
+        android:name="dev.pampa.pampai.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="dev.pampa.pampai.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <!--
+       L'assistente ascolta solo quando l'utente tocca il tasto: il permesso si chiede
+       nell'onboarding (pagina dell'assistente) o dalle impostazioni, mai a sorpresa.
+    -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:name="dev.pampa.pampai.PampaiApplication"
+        android:allowBackup="false"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:debuggable="true"
+        android:enableOnBackInvokedCallback="true"
+        android:extractNativeLibs="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PampAI" >
+
+        <!--
+      L'iniettore di guasti, comandato da adb con "am broadcast -a dev.pampa.pampai.debug.FAULT
+      -p dev.pampa.pampai.debug" e gli extra kind, provider, count, call: l'uso completo e' nel
+      KDoc di FaultReceiver (un commento XML non puo' contenere il doppio trattino delle opzioni).
+
+      exported="true" perche' il broadcast arriva da un altro uid, quello della shell di adb: un
+      receiver non esportato riceve solo dalla sua app. Un receiver di manifest su Android 14+ non
+      riceve i broadcast impliciti, ma "am broadcast -p <pacchetto>" e' esplicito e passa.
+      Accettabile per una build di debug; e per non lasciarlo aperto a qualunque app installata,
+      chi manda deve avere android.permission.DUMP, che la shell di adb ha e un'app normale non
+      puo' ottenere.
+        -->
+        <receiver
+            android:name="dev.pampa.pampai.debug.FaultReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="dev.pampa.pampai.debug.FAULT" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="dev.pampa.pampai.debug.androidx-startup"
+            android:exported="false" >
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+        <activity
+            android:name="dev.pampa.pampai.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.PampAI"
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> <!-- "Condividi con Aria": testo, immagini, PDF e file arrivano come allegati di una chat nuova. -->
+        <activity-alias
+            android:name="dev.pampa.pampai.ShareActivity"
+            android:exported="true"
+            android:label="@string/share_with_aria"
+            android:targetActivity="dev.pampa.pampai.MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/*" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="image/*" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+        </activity-alias> <!-- Il tasto "assistente" di tastiere e auricolari. -->
+        <activity
+            android:name="dev.pampa.pampai.assist.AssistTrampolineActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@style/Theme.PampAI.Transparent" >
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity> <!-- L'assistente di sistema: il servizio, la sessione e il riconoscitore passante. -->
+        <service
+            android:name="dev.pampa.pampai.assist.PampaiInteractionService"
+            android:exported="true"
+            android:permission="android.permission.BIND_VOICE_INTERACTION" >
+            <meta-data
+                android:name="android.voice_interaction"
+                android:resource="@xml/voice_interaction_service" />
+
+            <intent-filter>
+                <action android:name="android.service.voice.VoiceInteractionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="dev.pampa.pampai.assist.PampaiSessionService"
+            android:exported="true"
+            android:permission="android.permission.BIND_VOICE_INTERACTION" />
+        <service
+            android:name="dev.pampa.pampai.assist.PassthroughRecognitionService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_RECOGNITION_SERVICE" >
+            <intent-filter>
+                <action android:name="android.speech.RecognitionService" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.speech"
+                android:resource="@xml/recognition_service" />
+        </service> <!-- Il tile nelle Impostazioni rapide. -->
+        <service
+            android:name="dev.pampa.pampai.assist.PampaiTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_aria"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" >
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="false" />
+        </service>
+        <!--
+         Le foto della fotocamera a piena risoluzione (per leggere un testo serve ben piu' di
+         un'anteprima) e gli allegati salvati, aperti con l'app giusta dal fumetto della domanda.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="dev.pampa.pampai.debug.files"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/pampai_files" />
+        </provider>
+
+        <service
+            android:name="dev.pampa.pampai.core.assistant.service.AssistantForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" /> <!-- I promemoria: suonano dalla sveglia di sistema, si rimettono in coda al riavvio. -->
+        <receiver
+            android:name="dev.pampa.pampai.core.assistant.reminders.ReminderReceiver"
+            android:exported="false" />
+        <receiver
+            android:name="dev.pampa.pampai.core.assistant.reminders.BootReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver> <!-- L'accesso alle notifiche: lo attiva l'utente dalle impostazioni di sistema. -->
+        <service
+            android:name="dev.pampa.pampai.core.assistant.notifications.PampaiNotificationListener"
+            android:exported="true"
+            android:label="Aria (PampAI)"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service> <!-- Merged into the host app, so an app that depends on this module has nothing to declare. -->
+        <receiver
+            android:name="dev.antigravity.fluidengine.update.AppUpdateInstallResultReceiver"
+            android:exported="false" />
+
+        <activity
+            android:name="androidx.activity.ComponentActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+        <activity
+            android:name="androidx.compose.ui.tooling.PreviewActivity"
+            android:exported="true" />
+
+        <service
+            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+            android:directBootAware="false"
+            android:enabled="@bool/enable_system_job_service_default"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:directBootAware="false"
+            android:enabled="@bool/enable_system_foreground_service_default"
+            android:exported="false" />
+
+        <receiver
+            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+            android:directBootAware="false"
+            android:enabled="false"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+            </intent-filter>
+        </receiver>
+
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false" />
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false" />
+
+        <service
+            android:name="androidx.room.MultiInstanceInvalidationService"
+            android:directBootAware="true"
+            android:exported="false" />
+
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

@@ -1,0 +1,31 @@
+# ROOT follow-up to the final K4 reviews
+
+The immutable K4 checkpoint remains the artifact reviewed in correction R3/3. Its manifest, APK, logs and review reports are not replaced. This localized ROOT follow-up addresses concrete final-review findings under the standing instruction to resolve remaining problems and continue. No additional delegate review cycle is started, and the changed code is not represented as independently rereviewed. Source/fixture conclusions remain separate from runtime acceptance.
+
+## R2 findings and targeted changes
+
+- P1 supplied-data restriction: `onlyProvidedContent` now recognizes deictic pasted data, values and numbers, including the exact `Leggi i miei voti qui sotto; usa solo questi dati. Matematica: 7; Italiano: 8.` counterexample. The shared decision precedes profile retrieval and research selection, governs mounted source admission, and removes ordinary tool exposure. Plain `dati` alone is intentionally not sufficient: an affirmative request to use only ClasseViva data still permits its saved, authorized scope.
+- P2 legacy-memory dispatch: immutable `TurnPrivacy.storedKnowledgeAllowed` now guards `MemoriaElencoTool` before reading Room in either dispatch overload. Stored-conversation search observes the same restriction, including the inherited execution overload. A model-requested forbidden tool call returns an explicit error without reading stored content; denial does not delete saved memories.
+- Extended the actual engine pasted-data regression and mounted/foreground positive-negative cases. Two new tests cover both memory/history dispatch overloads, a permitted-memory control, and the actual Engine/Room/tool/provider/cache/title boundary with seeded sentinel memory. External provider output and unrelated platform dependencies remain substituted.
+
+## R1 findings and targeted changes
+
+- P2 ordinary publication ordering: final runtime Done and replay-cache acceptance now occur only after `TurnPrivacy.commit` returns successfully. The database transaction contains persistence/classification and accepts no UI/cache publication. Private model progress remains buffered, and source-free incremental progress retains its existing behavior.
+- The actual Engine/Room regression injects a deferred foreign-key violation at private run insertion. All answer SQL executes, but SQLite rejects COMMIT. The test checks that neither Done/private answer text nor a new cache entry escapes, then closes/reopens the test database to roll back the injected native transaction and verify that the answer/classification did not persist. An independent no-fault control verifies successful publication. This is an acceptance-order test, not a claim of automatic database recovery from arbitrary storage failures. The fixture's initial native-transaction cleanup and Windows path-length failures remain retained in separate logs/XML.
+- P2 queued safety waiting: Ricorda declares `awaitsConfirmation=true`; `needsConfirmation` remains false, so actual safety prompting stays conditional and independent of Actions. The real orchestrator and gate regression uses two distinct Ricorda calls, scaled real-time waits exceeding the ordinary tool work timeout but within each gate window, and cancellation of the second call. Room verifies only approved facts are inserted. Provider and unrelated platform boundaries remain substituted; no production timer/engine modification or wall-clock100-second device claim is made.
+
+Both independent K4 reports have now returned. Their criterion tables, disagreements and four accepted findings are preserved in [aria-K4-review.md](aria-K4-review.md). ROOT's follow-up has not been independently rereviewed, and no additional delegate review cycle is started.
+
+These deterministic language rules cover the concrete cases and nearby controls. They do not establish exhaustive understanding of arbitrary natural-language privacy instructions.
+
+## Validation provenance
+
+Validation is recorded separately in `docs/validation-K4-finalization/`. The first invocation stopped during test compilation because the new fixture imported two `Conversation` types; the fixture now uses the exact orchestrator type. No executed-test pass is inferred from that failed attempt.
+
+Final `final-5` execution: **307 core tests /47 XML**, zero failures/errors/skips; core/app lint **0 errors**,24/39 warnings, app1hint; debug app assembly passed. Build successful in3m35s. All688 declared inputs stayed fixed. Exactly seven source/test files differ from reviewed K4, all inside core-assistant/src; no feature, engine, schema, source-app or worker changes. The seven final files are copied under `final-5/sources/` with verified hashes, alongside the exact old/new input map.
+
+The **104 feature cases /19 XML** and feature lint0errors/18warnings/1hint remain K4 full-5 execution evidence. Engine264/bridge25 remain K2 retained evidence. None was rerun or added to the fresh307. Reports, methods, hashes and exact seven-file old/new mapping are in results.json, cases.json and artifact-manifest.json. Intermediate final-2's305 passing cases are archived separately and not added. The two failed307-case fixture iterations, two failed targeted fixture cases, and the one passing targeted commit case remain distinct; that passing case is included in the final307, not an extra308th case. Fixture issues were native transaction cleanup, framework interception of manual rollback, Windows path length and WAL reader isolation; the final on-disk fixture uses a short isolated filename and TRUNCATE journal mode before close/reopen.
+
+Final APK: `C:/Users/casua/AppData/Local/PampAI-qa/knowledge-K4-finalization/PampAI-knowledge-final-5.apk`;105260029bytes; SHA256 `063D6B3A1E5E9F258971B6948A8F7F8CDA83B44A87CBC556215529C331C07B2D`. APK not installed. All owned compiler invocation sessions have exited; sole runner released. Previous final-2 APK remains separately preserved under its earlier path/hash.
+
+All prior device/source/provider/OS gates remain NV. No stopped device-driver path is bypassed, no autonomous area is enabled, and no credentials, source repositories, engine/schema files, commits or publication are changed by this follow-up.

@@ -82,7 +82,7 @@ class SchermoGuardaTool : AiTool<PampaiToolContext> {
     val appName = ctx.appLabel(snapshot.foregroundPackage) ?: snapshot.foregroundPackage ?: "app sconosciuta"
     val focus = args.str("cosa")?.let { " Guarda in particolare: $it." } ?: ""
     return ToolOutput(
-      text = "ecco lo screenshot dello schermo (app: $appName).$focus Descrivi o rispondi in base a cio' che vedi.",
+      text = "Screenshot acquisito (app: $appName).$focus Usa solo il contenuto consegnato secondo la policy visiva; un'interpretazione helper non equivale a vedere i pixel.",
       parts = listOf(ContentPart.Image(jpeg, "image/jpeg")),
       escalate = true,
     )

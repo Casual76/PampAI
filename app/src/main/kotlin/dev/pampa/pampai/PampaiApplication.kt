@@ -16,7 +16,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @HiltAndroidApp
-class PampaiApplication : Application() {
+class PampaiApplication : Application(), androidx.work.Configuration.Provider {
+  @Inject lateinit var researchWorkerFactory: dev.pampa.pampai.core.assistant.research.ResearchWorkerFactory
+  @Inject lateinit var researchScheduler: dev.pampa.pampai.core.assistant.research.ResearchScheduler
+  override val workManagerConfiguration: androidx.work.Configuration
+    get() = androidx.work.Configuration.Builder().setWorkerFactory(researchWorkerFactory).build()
+
 
   @Inject lateinit var remoteConfig: EngineRemoteConfig
   @Inject lateinit var remoteCatalogs: RemoteCatalogs
@@ -27,6 +32,7 @@ class PampaiApplication : Application() {
 
   override fun onCreate() {
     super.onCreate()
+    researchScheduler.start(applicationScope)
 
     // Il file di controllo, se la copia in cache e' vecchia. Non blocca niente: finche' non
     // arriva, l'app usa l'ultima risposta valida (o i default compilati).

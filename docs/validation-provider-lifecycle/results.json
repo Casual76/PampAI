@@ -1,0 +1,29 @@
+{
+  "run": "run-5",
+  "counts": {
+    "tests": 264,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": [
+    {
+      "id": "NewerVersionAvailable",
+      "severity": "Warning",
+      "message": "A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.8.1 is available: 1.11.0"
+    }
+  ],
+  "sha256": {
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycle.kt": "a764c1199c5ede799d537c37e37cfa793f8ed709712e140ec8baf883736590a2",
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/Model.kt": "15ce0ba3107df833c8fc77cfdc95a9271f7dce54a91bc148bd47907c45cfad9c",
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenAiCompatProvider.kt": "d30dfbec8b1d520a2e90def99f14a6b9453683c42dd5f41321b28d86b6176dbf",
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/GeminiProvider.kt": "6fef3419a7f89ad91154e024d645019aff37c340d01748407ca5e459f4f66873",
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiHttp.kt": "1add760bf90460abb2c03d4fbe3c664fd3fc026385474aa9568447ccb31cb850",
+    "engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycleTest.kt": "f092624cb0e57c877fe892ceb0ea8753af8e95fab48a2e71b837c42584b2499f",
+    "engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiFailoverOrchestratorTest.kt": "3cfaf80610346f51652e812f1e6e8c49f8f3a0045f43e47563f5a69d9d4cc3fa",
+    "skill/fluid-engine/references/api/ai-provider.md": "cb98f9fa72e74d2c26ed4f2bc5763390ac654fee6ce87d1505d9fe673d37a90c",
+    "skill/fluid-engine/references/api/ai-chiavi-rete-voce.md": "bfb69c4944d03d44520853ab33b9d9ef9114aeee5cbe701c42527549f60ba926",
+    "docs/riferimento/api/ai-provider.md": "cb98f9fa72e74d2c26ed4f2bc5763390ac654fee6ce87d1505d9fe673d37a90c",
+    "docs/riferimento/api/ai-chiavi-rete-voce.md": "bfb69c4944d03d44520853ab33b9d9ef9114aeee5cbe701c42527549f60ba926"
+  }
+}

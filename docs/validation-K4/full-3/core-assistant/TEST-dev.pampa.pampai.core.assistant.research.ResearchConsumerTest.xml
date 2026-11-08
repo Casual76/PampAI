@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" tests="36" skipped="0" failures="1" errors="0" timestamp="2026-11-08T14:59:20.559Z" hostname="PC_FISSO" time="3.256">
+  <properties/>
+  <testcase name="temporaryConsultationRejectsExcludedReadBeforeAcquisitionAndLateModelResponse" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.044"/>
+  <testcase name="latestInteractivePeriodWinsWithoutChangingTheAutonomousPlan" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.044"/>
+  <testcase name="disabledAutonomousPlanDoesNotHideReplacementInteractiveAccount" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.045"/>
+  <testcase name="forgottenSourceCheckpointCannotBeResumed" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.038"/>
+  <testcase name="explicitProfileConsentAndTargetedRetrievalRenewActualScopes" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.066"/>
+  <testcase name="changedAuthorizationRevokesSameStableGrantAndCancelsJob" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.037"/>
+  <testcase name="expiredPageCursorRestartsTwiceAndKeepsCanonicalEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.066"/>
+  <testcase name="fragmentLeaseExpiryRestartsBoundedReadInsteadOfReusingOldSnapshot" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.032"/>
+  <testcase name="disablingConsentDuringSynthesisDiscardsAutomaticProfileWrite" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.052">
+    <failure message="dev.pampa.pampai.core.assistant.research.TurnPrivacyInvalidated: TURN_PRIVACY_INVALIDATED" type="dev.pampa.pampai.core.assistant.research.TurnPrivacyInvalidated">dev.pampa.pampai.core.assistant.research.TurnPrivacyInvalidated: TURN_PRIVACY_INVALIDATED
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invokeSuspend$reject(DurableFoundation.kt:73)
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invokeSuspend(DurableFoundation.kt:75)
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invoke(DurableFoundation.kt)
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invoke(DurableFoundation.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2044)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at _COROUTINE._BOUNDARY._(CoroutineDebugging.kt:42)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at dev.pampa.pampai.core.assistant.research.ResearchRunner.runTranche(ResearchRunner.kt:171)
+	at dev.pampa.pampai.core.assistant.research.ResearchConsumerTest$disablingConsentDuringSynthesisDiscardsAutomaticProfileWrite$1.invokeSuspend(ResearchConsumerTest.kt:412)
+Caused by: dev.pampa.pampai.core.assistant.research.TurnPrivacyInvalidated: TURN_PRIVACY_INVALIDATED
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invokeSuspend$reject(DurableFoundation.kt:73)
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invokeSuspend(DurableFoundation.kt:75)
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invoke(DurableFoundation.kt)
+	at dev.pampa.pampai.core.assistant.durable.DurableFoundation$withResearchAcceptance$2.invoke(DurableFoundation.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2044)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at app//kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1.run(RoomDatabase.android.kt:2084)
+	at androidx.room.TransactionExecutor.execute$lambda$1$lambda$0(TransactionExecutor.android.kt:38)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base@21.0.10/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base@21.0.10/java.lang.Thread.run(Unknown Source)
+</failure>
+  </testcase>
+  <testcase name="unsupportedTypedOrMisclassifiedWriteNeverReachesRead" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.027"/>
+  <testcase name="profileRenewalAfterExpiryNeverSubstitutesAnExactAcquisitionRead" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.151"/>
+  <testcase name="wrongAccountReceiptCannotPopulateValidator" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.028"/>
+  <testcase name="boundedModelCallTraversesRealProviderLifecycleAndBudget" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.112"/>
+  <testcase name="targetedProfileDependenciesCountAgainstSynthesisRecordLimit" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.071"/>
+  <testcase name="temporaryForegroundDoesNotPersistAssociationAndCompletedRegenerationDoesNotRetry" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.048"/>
+  <testcase name="backgroundRequiresExactAreaPlanConsentAndNeverAdmitsCrossArea" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.048"/>
+  <testcase name="generalDomainWordsNeverCrossForegroundOrProfileBoundary" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.054"/>
+  <testcase name="normalMusicQuestionUsesPertinentStoredKnowledgeWhileUnrelatedQuestionUsesNone" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.084"/>
+  <testcase name="naturalGradeQuestionUsesOnlySavedGradeScopeWithoutBrandOrSetup" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.047"/>
+  <testcase name="partialFragmentCannotPublishPrematurePageCursor" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.027"/>
+  <testcase name="savedPlanCapturesPolicyScopesAndChangesCancelActiveWork" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.055"/>
+  <testcase name="actualWorkerResumesFiniteRunnerAndCompletesOnceWithoutForegroundEntry" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.175"/>
+  <testcase name="sourceHostAllowlistRejectsUnknownPackageAndAuthorityAlias" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.019"/>
+  <testcase name="cvDetailPagesReuseFullRecordsAndAggregateExactlyOnce" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.027"/>
+  <testcase name="connectedTwoSourceForegroundAndFollowupUseFixedModelWithoutProfiling" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.113"/>
+  <testcase name="sameAuthorizationRenewalPreservesVersionEpochAndCheckpoint" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.053"/>
+  <testcase name="persistedChatRetryResumesBeyond64PagesWithoutInitialReread" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="1.295"/>
+  <testcase name="sourceRevokedWhileReadReturnsCannotCommitEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.045"/>
+  <testcase name="temporaryConsultationNeverCreatesResearchOrProfileRows" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.04"/>
+  <testcase name="cvWrongYearStudentAndUnknownArgumentFailBeforeTransport" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.019"/>
+  <testcase name="unicodeFragmentsWithholdCursorThenHashAndDeduplicate" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.039"/>
+  <testcase name="reopenResumesCommittedPage" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.08"/>
+  <testcase name="modelCannotInventEvidenceAndConsentCannotBeGrantedMidRun" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.044"/>
+  <testcase name="forgetDuringSynthesisRejectsLateCommitAndDeletesEvidence" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.049"/>
+  <testcase name="failedBackgroundLimitsNeverPerformSourceReadAndCapsReopenFromFlow" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.04"/>
+  <testcase name="personalAdviceAndCommutingDoNotConsultSchoolRecordsOrStoredProfile" classname="dev.pampa.pampai.core.assistant.research.ResearchConsumerTest" time="0.039"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

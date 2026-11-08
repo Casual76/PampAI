@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:55:07.584Z" hostname="PC_FISSO" time="0.013">
+  <properties/>
+  <testcase name="allSixProducerMutationsPreserveTheirRealConfirmationContractAndIdentity" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.003"/>
+  <testcase name="laterPageFailureAndSnapshotChangeNeverBecomeEmptySuccess" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.005"/>
+  <testcase name="knownSchoolWriteRetainsConfirmationIdentityAndBoundJobsWithoutReadBypass" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.001"/>
+  <testcase name="legacyCatalogKeepsLegacyButGatesTypedFunctionsAndWriteIdentity" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.001"/>
+  <testcase name="schoolScopeAndFullEvidenceSurviveReceiptCodec" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.001"/>
+  <testcase name="actualAdapterDiscoversAccountAndPreservesParentIdentityWithoutGlobalAccountState" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.001"/>
+  <testcase name="spotifyEntityUsesSignedReadsAndRealCursorWithoutUpgradingOriginalWrite" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.001"/>
+  <testcase name="missingAccountOrEntityCannotBeReconciled" classname="dev.pampa.pampai.core.assistant.bridge.SourceIntegrationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

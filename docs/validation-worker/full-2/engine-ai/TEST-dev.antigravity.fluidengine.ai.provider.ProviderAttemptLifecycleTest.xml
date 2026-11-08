@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:46:21.996Z" hostname="PC_FISSO" time="1.557">
+  <properties/>
+  <testcase name="malformedResponseStillSettlesDispatchedUnknownUsage" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.003"/>
+  <testcase name="auditFailureIsControlSignalBeforeAdmission" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.001"/>
+  <testcase name="streamInBandErrorAndNonStreamRecoveryEachSettle" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.004"/>
+  <testcase name="laterDenialReleasesEarlierAdmissionWithoutDispatch" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.001"/>
+  <testcase name="contextAuditCoversInternallyConstructedRouterRequest" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.003"/>
+  <testcase name="outerRetryAnd429KeepDistinctIdentityAndRateMetadata" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.003"/>
+  <testcase name="unknownUsageOnSuccessStaysNullAndContextInstanceIsNotDuplicated" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.003"/>
+  <testcase name="denialPreventsSocketAndSettlement" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.001"/>
+  <testcase name="internalFallbackHasFreshReservationAndActualBounds" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.003"/>
+  <testcase name="settlementFailureNeverReplaysSuccessAndOtherObserverStillSettles" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.002"/>
+  <testcase name="geminiFallbackAndStreamHaveSameLifecycle" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.009"/>
+  <testcase name="rejectionHeadersAndMalformedJsonRetainResponseCertainty" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.002"/>
+  <testcase name="realOrchestratorRetriesTrimAndStreamRecoveryReserveIndependently" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="1.519"/>
+  <testcase name="cancellationOfPartialStreamSettlesUnknownOnce" classname="dev.antigravity.fluidengine.ai.provider.ProviderAttemptLifecycleTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

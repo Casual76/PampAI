@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" tests="15" skipped="0" failures="1" errors="0" timestamp="2026-11-08T14:59:14.374Z" hostname="PC_FISSO" time="5.962">
+  <properties/>
+  <testcase name="publicScopeDecisionNeverUpgradesWhenANewSourceIsConnectedLater" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.081"/>
+  <testcase name="currentAnswerAndStableProofRenewalStayVisibleButNeverReplayOrToolSearch" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.099"/>
+  <testcase name="actualEngineRestoresPublicPartialSaverAndRetainsPrivateBuffering" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="5.088">
+    <failure message="java.lang.IllegalStateException: attempt to re-open an already-closed object: SQLiteDatabase: :memory:" type="java.lang.IllegalStateException">java.lang.IllegalStateException: attempt to re-open an already-closed object: SQLiteDatabase: :memory:
+	at android.database.sqlite.SQLiteClosable.acquireReference(SQLiteClosable.java:59)
+	at android.database.sqlite.SQLiteDatabase.inTransaction(SQLiteDatabase.java:863)
+	at androidx.sqlite.db.framework.FrameworkSQLiteDatabase.inTransaction(FrameworkSQLiteDatabase.android.kt:108)
+	at androidx.sqlite.driver.SupportSQLiteConnection.inTransaction(SupportSQLiteConnection.android.kt:31)
+	at androidx.room.coroutines.PassthroughConnection.inTransaction(PassthroughConnectionPool.kt:154)
+	at androidx.room.util.DBUtil__DBUtil_androidKt$performSuspending$lambda$1$$inlined$internalPerform$1.invokeSuspend(DBUtil.kt:56)
+	at androidx.room.util.DBUtil__DBUtil_androidKt$performSuspending$lambda$1$$inlined$internalPerform$1.invoke(DBUtil.kt)
+	at androidx.room.coroutines.PassthroughConnectionPool$useConnection$2.invokeSuspend(PassthroughConnectionPool.kt:59)
+	at androidx.room.coroutines.PassthroughConnectionPool$useConnection$2.invoke(PassthroughConnectionPool.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.coroutines.PassthroughConnectionPool.useConnection(PassthroughConnectionPool.kt:59)
+	at androidx.room.RoomConnectionManager.useConnection(RoomConnectionManager.android.kt:138)
+	at androidx.room.RoomDatabase.useConnection(RoomDatabase.android.kt:619)
+	at androidx.room.util.DBUtil__DBUtil_androidKt.performSuspending(DBUtil.android.kt:262)
+	at androidx.room.util.DBUtil.performSuspending(Unknown Source)
+	at dev.pampa.pampai.core.assistant.durable.DurableDao_Impl.endForeground(DurableDao_Impl.kt:2925)
+	at dev.pampa.pampai.core.assistant.durable.BudgetLedger$setForeground$2.invokeSuspend(BudgetLedger.kt:26)
+	at dev.pampa.pampai.core.assistant.durable.BudgetLedger$setForeground$2.invoke(BudgetLedger.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2044)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at _COROUTINE._BOUNDARY._(CoroutineDebugging.kt:42)
+	at androidx.room.util.DBUtil__DBUtil_androidKt.performSuspending(DBUtil.android.kt:262)
+	at dev.pampa.pampai.core.assistant.durable.BudgetLedger$setForeground$2.invokeSuspend(BudgetLedger.kt:26)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2044)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetCoordinator$foreground$5.invokeSuspend(RuntimeBudgetCoordinator.kt:76)
+	at dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetCoordinator.foreground(RuntimeBudgetCoordinator.kt:76)
+	at dev.pampa.pampai.core.assistant.runtime.AssistantEngine$execute$2.invokeSuspend(AssistantEngine.kt:166)
+	at dev.pampa.pampai.core.assistant.runtime.AssistantEngine.execute$core_assistant_debug(AssistantEngine.kt:166)
+	at dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest$actualEngineRestoresPublicPartialSaverAndRetainsPrivateBuffering$1$1$pending$1.invokeSuspend(ResearchAcceptanceTest.kt:381)
+Caused by: java.lang.IllegalStateException: attempt to re-open an already-closed object: SQLiteDatabase: :memory:
+	at android.database.sqlite.SQLiteClosable.acquireReference(SQLiteClosable.java:59)
+	at android.database.sqlite.SQLiteDatabase.inTransaction(SQLiteDatabase.java:863)
+	at androidx.sqlite.db.framework.FrameworkSQLiteDatabase.inTransaction(FrameworkSQLiteDatabase.android.kt:108)
+	at androidx.sqlite.driver.SupportSQLiteConnection.inTransaction(SupportSQLiteConnection.android.kt:31)
+	at androidx.room.coroutines.PassthroughConnection.inTransaction(PassthroughConnectionPool.kt:154)
+	at androidx.room.util.DBUtil__DBUtil_androidKt$performSuspending$lambda$1$$inlined$internalPerform$1.invokeSuspend(DBUtil.kt:56)
+	at androidx.room.util.DBUtil__DBUtil_androidKt$performSuspending$lambda$1$$inlined$internalPerform$1.invoke(DBUtil.kt)
+	at androidx.room.coroutines.PassthroughConnectionPool$useConnection$2.invokeSuspend(PassthroughConnectionPool.kt:59)
+	at androidx.room.coroutines.PassthroughConnectionPool$useConnection$2.invoke(PassthroughConnectionPool.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.coroutines.PassthroughConnectionPool.useConnection(PassthroughConnectionPool.kt:59)
+	at androidx.room.RoomConnectionManager.useConnection(RoomConnectionManager.android.kt:138)
+	at androidx.room.RoomDatabase.useConnection(RoomDatabase.android.kt:619)
+	at androidx.room.util.DBUtil__DBUtil_androidKt.performSuspending(DBUtil.android.kt:262)
+	at androidx.room.util.DBUtil.performSuspending(Unknown Source)
+	at dev.pampa.pampai.core.assistant.durable.DurableDao_Impl.endForeground(DurableDao_Impl.kt:2925)
+	at dev.pampa.pampai.core.assistant.durable.BudgetLedger$setForeground$2.invokeSuspend(BudgetLedger.kt:26)
+	at dev.pampa.pampai.core.assistant.durable.BudgetLedger$setForeground$2.invoke(BudgetLedger.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2044)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+	at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1.run(RoomDatabase.android.kt:2084)
+	at androidx.room.TransactionExecutor.execute$lambda$1$lambda$0(TransactionExecutor.android.kt:38)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+</failure>
+  </testcase>
+  <testcase name="rejectedAcceptancePreservesUncertainWriteReceiptAndNoReplayFence" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.061"/>
+  <testcase name="publicStreamingIsImmediateAndPrivateCapableStreamingRemainsBufferedBeforeFirstRead" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.055"/>
+  <testcase name="actualStoredProfileDependencyIsCarriedAcrossSynthesisAndRejectsCorrectionAtHandoff" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.063"/>
+  <testcase name="temporaryAnswerUsesSameBoundaryWithoutCreatingResearchJobsOrProfile" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.049"/>
+  <testcase name="resumedDoneJobRetainsOriginalDescriptorAndGeneratesOnlyOnce" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.069"/>
+  <testcase name="remoteAuthorizationDriftAtReturnRejectsChat" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.06"/>
+  <testcase name="explicitProfileRefusalStillAllowsSourceResearchWithoutStoredKnowledgeOrLearning" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.06"/>
+  <testcase name="forgetAtRealResearchReturnRejectsChatWithoutReplayingSettledSynthesis" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.057"/>
+  <testcase name="temporaryForgetDuringProductionCannotRecaptureANewEpoch" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.049"/>
+  <testcase name="sqliteFailureBetweenAnswerAndClassificationRollsBackBoth" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.082"/>
+  <testcase name="localRevokeAtReturnRejectsEvenAfterExplicitReconnect" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.06"/>
+  <testcase name="sourceFreeToolCommitUsesSharedRoomRollbackAndIgnoresUnrelatedEpochChanges" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.029"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

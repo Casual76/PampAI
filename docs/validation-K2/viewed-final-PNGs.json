@@ -1,0 +1,17 @@
+[
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K2\\screenshots\\profile-music-observation-dark.png",
+    "sha256": "f4fa7f14939044b864b4c043b7280482ff00497b3f6f55997638db8543aa1f71",
+    "inspection": "Opened directly after final music clarification"
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K2\\screenshots\\profile-provenance-dark.png",
+    "sha256": "aec343283319f9bb9babe42ebcb32b485f255fc567d58f98433f03e46265a6e8",
+    "inspection": "Opened directly after final music clarification"
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K2\\screenshots\\profile-font-2x.png",
+    "sha256": "c48bd1c62d7480f8ea103d3c0a2942c49145e1e5f2fad93ffebd1075b97d92b7",
+    "inspection": "Opened earlier; bytes unchanged by final clarification"
+  }
+]

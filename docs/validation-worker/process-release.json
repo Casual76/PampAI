@@ -1,0 +1,20 @@
+{
+    "checkedAtUtc":  "2026-11-08T11:03:13.0887080Z",
+    "firstInvocationUtc":  "2026-11-08T10:33:18.0175394Z",
+    "ownedProcessCount":  0,
+    "preexistingProcesses":  [
+                                 {
+                                     "pid":  14932,
+                                     "createdUtc":  "2026-11-08T09:28:27.0045880Z",
+                                     "action":  "untouched",
+                                     "preexisting":  true
+                                 },
+                                 {
+                                     "pid":  42844,
+                                     "createdUtc":  "2026-11-08T09:28:50.4952060Z",
+                                     "action":  "untouched",
+                                     "preexisting":  true
+                                 }
+                             ],
+    "invocationsEnded":  7
+}

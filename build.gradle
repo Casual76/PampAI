@@ -20,7 +20,7 @@ def localPropsFile = rootProject.file('local.properties')
 if (localPropsFile.exists()) {
   localPropsFile.withInputStream { localProps.load(it) }
 }
-def buildRoot = localProps.getProperty('pampai.buildRoot')
+def buildRoot = providers.gradleProperty('pampai.buildRoot').orNull ?: localProps.getProperty('pampai.buildRoot')
 if (buildRoot != null) {
   rootProject.layout.buildDirectory.set(file("$buildRoot/root"))
   subprojects {

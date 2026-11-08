@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.SourceExclusionBoundaryTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:56:28.180Z" hostname="PC_FISSO" time="0.181">
+  <properties/>
+  <testcase name="profileCanonicalScopeReusesEvidenceWithoutAnotherSourceRead" classname="dev.pampa.pampai.core.assistant.research.SourceExclusionBoundaryTest" time="0.103"/>
+  <testcase name="exclusionDuringExternalReadRejectsTheReturningPayload" classname="dev.pampa.pampai.core.assistant.research.SourceExclusionBoundaryTest" time="0.037"/>
+  <testcase name="excludedCachedReadAndEquivalentAggregateNeverDispatchButSchoolStillConnects" classname="dev.pampa.pampai.core.assistant.research.SourceExclusionBoundaryTest" time="0.041"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

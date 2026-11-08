@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:43:32.072Z" hostname="PC_FISSO" time="4.8">
+  <properties/>
+  <testcase name="privacyTransactionRollsBackActualMemoryInsertAndRetainsRealUncertainWriteNoReplay" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.487"/>
+  <testcase name="profileFirstRicordaWaitsForSafetyWithActionsOffAndRefusalDoesNotSave" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="2.53"/>
+  <testcase name="cancellingPendingSafetyNeverInsertsMemory" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.216"/>
+  <testcase name="currentApprovedPromotionIsIndependentAndBothToolOverloadsUseRealProvenance" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.285"/>
+  <testcase name="forgetAfterSafetyApprovalDuringProofRenewalStillPreventsTheInsert" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.169"/>
+  <testcase name="engineApprovedPromotionPersistsOnlyAfterSafetyAndTemporaryTurnNeverPromotes" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.314"/>
+  <testcase name="admittedMislabelledReadIsNotSettledOrRetainedWhenRevokedBeforeFinalCompletion" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.118"/>
+  <testcase name="actualEngineRefusedMemoryCannotReachProviderAnswerCacheOrTitle" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.124"/>
+  <testcase name="pendingProfilePromotionRejectsForgetRevokeAndCorrectionAfterConfirmation" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.327"/>
+  <testcase name="memoryRefusalDeniesBothDispatchOverloadsAndStoredConversationSearch" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.229"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

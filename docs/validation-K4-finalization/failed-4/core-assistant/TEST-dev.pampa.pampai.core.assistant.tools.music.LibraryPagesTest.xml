@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.tools.music.LibraryPagesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:55:22.464Z" hostname="PC_FISSO" time="0.004">
+  <properties/>
+  <testcase name="reads zero based pages past first and preserves repeated tracks" classname="dev.pampa.pampai.core.assistant.tools.music.LibraryPagesTest" time="0.002"/>
+  <testcase name="failure in later page never becomes empty or complete partial list" classname="dev.pampa.pampai.core.assistant.tools.music.LibraryPagesTest" time="0.001"/>
+  <testcase name="repeated page or exceeded bounded read has unknown coverage" classname="dev.pampa.pampai.core.assistant.tools.music.LibraryPagesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

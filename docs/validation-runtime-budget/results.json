@@ -1,0 +1,105 @@
+{
+  "frozenAtUtc": "2026-11-08T09:30:28.459608+00:00",
+  "finalCoreRun": 3,
+  "engineExecutedRun": 2,
+  "coreTests": {
+    "tests": 185,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "runtimeBudgetTests": {
+    "tests": 15,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "engineTests": {
+    "tests": 264,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "countsAreSeparateNotCumulative": true,
+  "coreLint": {
+    "severityCounts": {
+      "Warning": 22
+    },
+    "priorRootLintErrorIdsAbsent": true
+  },
+  "run1": {
+    "exit": 1,
+    "coreTestsExecuted": false,
+    "reason": "Room database fixture incorrectly used Closeable.use; corrected to inline try/finally close",
+    "coreProductionCompile": true,
+    "coreLint": true,
+    "coreAar": true
+  },
+  "run2": {
+    "exit": 0,
+    "coreTests": 184,
+    "runtimeBudgetTests": 14,
+    "engineTests": 264,
+    "coreLint": true,
+    "coreAar": true,
+    "duration": "1m 7s"
+  },
+  "run3": {
+    "exit": 0,
+    "coreTests": 185,
+    "runtimeBudgetTests": 15,
+    "coreLint": true,
+    "coreAar": true,
+    "duration": "1m 47s",
+    "change": "Root required fenced uncapped foreground job before any global setup; background remains capped"
+  },
+  "sourceSha256": {
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/RuntimeBudgetCoordinator.kt": "739f365df97474020b35a3288e21e806e1e4fa5d259b5af25f3175ad24396e2e",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantRuntime.kt": "135c01447af73b568ea12a57f2cb721b82fdc7a716a6df43edeeb91c4e5cf207",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantEngine.kt": "0e162507f7cbeee4c0190bb2d3dc831f22f0a00c06512e7a43d83c482cf85938",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelSelection.kt": "257c6c7890032ca6905e2d264668a72cded28f963a0bd670ca977acdc019f40d",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedger.kt": "9bd14594880e5dee8391fcf8638f67b587334a4308ead9adbd2d0166ac8edb6c",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableEntities.kt": "8352a5e7003887986058088bc593f1ed6904d7a85120b525f022d06448341c60",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/RuntimeBudgetIntegrationTest.kt": "0d5ccfcab2dd91d2bdaed88ce70932f264ebf00341444717f9fba36f0f6d5baa",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/TinyHttpServer.kt": "3c319f7289d205990e05f3b29729af91edc4f30416371d88e554e6e3e7f8c273",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/QuickCancellationIntegrationTest.kt": "efd6414ae2c4ab0ad49257354bcfe256e8f8c7ffb623264ae97390a06f1e59e3",
+    "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/SendAdmissionTest.kt": "9baf4a82b2be9e065e694d026f052e95486df2227955db45390fd532d1890b88",
+    "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/UiCorrectionsTest.kt": "4d00751ac37ec3020aec1be087fcfba829946016634f4a2becd14cbf46036398",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/InfoTools.kt": "4085819cb39739863169ca0cc0f6616fcf31b478831a39eab923821d4eb5caca",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/music/FluidifyClient.kt": "23057a1f336b642fea0155d4196897c91a8fb152cdd42af024b288557b8e56a5",
+    "core-assistant/src/main/AndroidManifest.xml": "4b77f67bc71a2cac7a19c87874ba9df00950a24c491035f89c2fc0a5c9f2036d",
+    "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/7.json": "59ce21f4f5068d7db4a338308147fc041bc8420247dddac6edbf85efc41ae6e2"
+  },
+  "engineMatchesPriorFrozenSource": {
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycle.kt": true,
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/Model.kt": true,
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenAiCompatProvider.kt": true,
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/GeminiProvider.kt": true,
+    "engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiHttp.kt": true,
+    "engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycleTest.kt": true,
+    "engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiFailoverOrchestratorTest.kt": true,
+    "skill/fluid-engine/references/api/ai-provider.md": true,
+    "skill/fluid-engine/references/api/ai-chiavi-rete-voce.md": true,
+    "docs/riferimento/api/ai-provider.md": true,
+    "docs/riferimento/api/ai-chiavi-rete-voce.md": true
+  },
+  "schema7MatchesFoundationFreeze": {
+    "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/7.json": true
+  },
+  "artifacts": [
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa-build-full\\core-assistant\\outputs\\aar\\core-assistant-debug.aar",
+      "bytes": 2192095,
+      "sha256": "ff4fe6a53964c96e19f5e0ca0233eb07ff2cc4f2280b251ae9943fd4b1d2335b"
+    }
+  ],
+  "excluded": [
+    "feature/app compilation and tests",
+    "downstream compilation",
+    "live providers/devices/credentials",
+    "background enablement",
+    "integrated runtime approval"
+  ],
+  "sourceFreeze": true,
+  "runnerReleased": true
+}

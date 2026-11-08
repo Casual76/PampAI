@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:52:50.597Z" hostname="PC_FISSO" time="2.282">
+  <properties/>
+  <testcase name="typedOutcomesSurviveBothOverloadsPersistenceReopenAndLegacyRows" classname="dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest" time="0.066"/>
+  <testcase name="identityOverloadRecordsExternalReadAndMemoryWaitsForSafetyConfirmation" classname="dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest" time="0.031"/>
+  <testcase name="queuedRicordaSafetyIncludesAllConfirmationWindowsAndCancellationKeepsOnlyApprovedMemory" classname="dev.pampa.pampai.core.assistant.tools.TracedToolSafetyTest" time="2.185"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

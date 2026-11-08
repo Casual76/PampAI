@@ -1,0 +1,17 @@
+[
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K4\\screenshots\\profile-sources-light.png",
+    "sha256": "c7293daed1b50e2ac5a28adbd58b632793a464927dddec3aaff9c5b004612f69",
+    "observation": "Actual revised legacy availability copy and saved account/actions are readable."
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K4\\screenshots\\profile-setup-music-period-light.png",
+    "sha256": "29a837201ba4de549cab2503d5e5a25eacdb38e5a830cfc86c0acea0bd4bd965",
+    "observation": "Real period and display zone remain readable; explicit model/setup still required."
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K4\\screenshots\\profile-setup-wide-2x-dark.png",
+    "sha256": "2b7fa3abb79756eb075a43999e87507d4a2fbf59031023cf7714ce03fb5fccb2",
+    "observation": "Wide large-type setup retains bounded centered column and reachable visible controls; no scroll/TalkBack assertion."
+  }
+]

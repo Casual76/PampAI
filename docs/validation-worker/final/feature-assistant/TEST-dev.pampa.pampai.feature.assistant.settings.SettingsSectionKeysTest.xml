@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.settings.SettingsSectionKeysTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:59:16.361Z" hostname="PC_FISSO" time="0.042">
+  <properties/>
+  <testcase name="focusedKeysRegistersOnlyKeysAndPrivacyEvenWithVerifiedModels" classname="dev.pampa.pampai.feature.assistant.settings.SettingsSectionKeysTest" time="0.013"/>
+  <testcase name="ogni destinazione di un chip esiste nella lista, con almeno due chiavi verificate" classname="dev.pampa.pampai.feature.assistant.settings.SettingsSectionKeysTest" time="0.029"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

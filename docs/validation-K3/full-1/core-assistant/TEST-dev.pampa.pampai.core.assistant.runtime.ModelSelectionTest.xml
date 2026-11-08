@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:48:44.699Z" hostname="PC_FISSO" time="0.009">
+  <properties/>
+  <testcase name="model pin overrides classifier and deep escalation" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.002"/>
+  <testcase name="catalog disk round trip preserves evidence and old entries stay unknown" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.002"/>
+  <testcase name="helper failure leaves original image intact and is retryable" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.002"/>
+  <testcase name="text remains usable without configured providers" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.0"/>
+  <testcase name="compatible provider elsewhere never authorizes image failover" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.0"/>
+  <testcase name="only explicitly selected verified helper permits text primary" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.0"/>
+  <testcase name="names and legacy booleans do not establish verified vision" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.0"/>
+  <testcase name="conversation policy changes leave captured requests and effort unchanged" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.002"/>
+  <testcase name="documented capabilities match exact provider identity only" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.0"/>
+  <testcase name="helper is opt in and cache respects image helper and effort" classname="dev.pampa.pampai.core.assistant.runtime.ModelSelectionTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

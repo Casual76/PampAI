@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:09:41.666Z" hostname="PC_FISSO" time="0.046">
+  <properties/>
+  <testcase name="e sparisce tutto cio' che e' personale o cambia come il telefono avvisa" classname="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" time="0.041"/>
+  <testcase name="un'app collegata non passa nemmeno con un nome ammesso" classname="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" time="0.002"/>
+  <testcase name="dal telefono bloccato restano creare sveglie e timer, torcia, volume, calcoli, web e musica" classname="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" time="0.0"/>
+  <testcase name="uno strumento nuovo resta fuori finche' nessuno lo ammette" classname="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" time="0.001"/>
+  <testcase name="e' un elenco di nomi ammessi, e ognuno esiste davvero" classname="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" time="0.0"/>
+  <testcase name="da bloccato il volume e' solo quello dei media" classname="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" time="0.001"/>
+  <testcase name="nel menu' da bloccato non restano gruppi vuoti" classname="dev.pampa.pampai.core.assistant.runtime.LockscreenPolicyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

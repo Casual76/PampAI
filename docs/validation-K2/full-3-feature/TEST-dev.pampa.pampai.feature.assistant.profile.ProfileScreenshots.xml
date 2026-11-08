@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:05:08.160Z" hostname="PC_FISSO" time="14.325">
+  <properties/>
+  <testcase name="deductionProvenanceDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="2.168"/>
+  <testcase name="emptyDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.852"/>
+  <testcase name="wideDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.979"/>
+  <testcase name="emptyLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.843"/>
+  <testcase name="partialDeduction" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.274"/>
+  <testcase name="sourceScopeLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.698"/>
+  <testcase name="compactSetup" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.396"/>
+  <testcase name="profileDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.159"/>
+  <testcase name="hubDispatchesStableDestinationsAndLegacyEntry" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.088"/>
+  <testcase name="largeText" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.667"/>
+  <testcase name="profileLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.089"/>
+  <testcase name="wideSetupLargeText" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.666"/>
+  <testcase name="workerUncertainStatusDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.667"/>
+  <testcase name="actualMusicObservationDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.05"/>
+  <testcase name="workerQueuedStatusLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.728"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

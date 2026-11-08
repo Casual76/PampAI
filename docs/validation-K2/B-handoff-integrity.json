@@ -1,0 +1,50 @@
+[
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchQuestionPlanner.kt",
+    "expected": "07306c2c86388fbf310c58ae5d296684c2b7fd92714706f4cab0e53577ab919b",
+    "actual": "07306c2c86388fbf310c58ae5d296684c2b7fd92714706f4cab0e53577ab919b",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchForeground.kt",
+    "expected": "750cadbce0b768ccd1c5c92055a330795cfe3d6d28154ddc8e860beda2ae2f4b",
+    "actual": "750cadbce0b768ccd1c5c92055a330795cfe3d6d28154ddc8e860beda2ae2f4b",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchRunner.kt",
+    "expected": "8e172873d1b03c15fbf051239e1bf395c1e7a49567a317320739c87aa6cbffe8",
+    "actual": "8e172873d1b03c15fbf051239e1bf395c1e7a49567a317320739c87aa6cbffe8",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/ConversationsRepository.kt",
+    "expected": "72c047026e763d20fc6e1c9fe204c090e656071d23a680d6be60d60c5022da2e",
+    "actual": "72c047026e763d20fc6e1c9fe204c090e656071d23a680d6be60d60c5022da2e",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantRuntime.kt",
+    "expected": "ae558f0503329bac47898a5e8a69725ae75322d401e4deef0affe205c8508f85",
+    "actual": "ae558f0503329bac47898a5e8a69725ae75322d401e4deef0affe205c8508f85",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantEngine.kt",
+    "expected": "bb2dbab423f1e5474bbc184f075751c7cee308a06623ae116c6b2df15fc4ade9",
+    "actual": "bb2dbab423f1e5474bbc184f075751c7cee308a06623ae116c6b2df15fc4ade9",
+    "matches": true
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatViewModel.kt",
+    "expected": "f39d983ba89e67bac54357eab62d4025b01e7863ed2bb434463b99bcba050433",
+    "actual": "f39d983ba89e67bac54357eab62d4025b01e7863ed2bb434463b99bcba050433",
+    "matches": true
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConsumerTest.kt",
+    "expected": "c8e2d9c82e883b1ce8532815ea8d8dabf5e996c0abf3339cb2aa905c2afe8c95",
+    "actual": "c8e2d9c82e883b1ce8532815ea8d8dabf5e996c0abf3339cb2aa905c2afe8c95",
+    "matches": true
+  }
+]

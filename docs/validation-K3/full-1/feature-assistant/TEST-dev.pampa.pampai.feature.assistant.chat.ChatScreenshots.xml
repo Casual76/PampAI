@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:49:26.990Z" hostname="PC_FISSO" time="12.767">
+  <properties/>
+  <testcase name="detailsDark" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="6.178"/>
+  <testcase name="compactLargeTypeScreenshot" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="1.536"/>
+  <testcase name="flowLight" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.648"/>
+  <testcase name="emptyDark" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.654"/>
+  <testcase name="emptyLight" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.648"/>
+  <testcase name="tabletProseReadingColumn" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.537"/>
+  <testcase name="queuedMessageRemainsAboveMeasuredComposer" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.122"/>
+  <testcase name="largeTypeKeepsModelAndStopReachable" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.086"/>
+  <testcase name="detailsLight" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.176"/>
+  <testcase name="chatDark" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.552"/>
+  <testcase name="chatLight" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.52"/>
+  <testcase name="tabletQueueHasCenteredComposerAndReachableControls" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.494"/>
+  <testcase name="failureActionsWrapAtLargeType" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.047"/>
+  <testcase name="flowDark" classname="dev.pampa.pampai.feature.assistant.chat.ChatScreenshots" time="0.568"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

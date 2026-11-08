@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.chat.TextAdmissionOwnershipTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:57:41.274Z" hostname="PC_FISSO" time="0.09">
+  <properties/>
+  <testcase name="stoppedNonCooperativePreparationCannotRemoveAReplacementQueueItem" classname="dev.pampa.pampai.feature.assistant.chat.TextAdmissionOwnershipTest" time="0.081"/>
+  <testcase name="preparingQueuedItemRemainsRecoverableAndLateHelperCannotCancelB" classname="dev.pampa.pampai.feature.assistant.chat.TextAdmissionOwnershipTest" time="0.003"/>
+  <testcase name="anotherBusyRequestKeepsPreparedQueueAndLaterFlushDispatchesExactlyOnce" classname="dev.pampa.pampai.feature.assistant.chat.TextAdmissionOwnershipTest" time="0.003"/>
+  <testcase name="suspendedEditAndRegenerationCannotDispatchAfterNavigationEvenBackToSameChat" classname="dev.pampa.pampai.feature.assistant.chat.TextAdmissionOwnershipTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

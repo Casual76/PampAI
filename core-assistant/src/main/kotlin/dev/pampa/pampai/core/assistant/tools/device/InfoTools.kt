@@ -2,8 +2,10 @@ package dev.pampa.pampai.core.assistant.tools.device
 
 import android.Manifest
 import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
@@ -20,7 +22,6 @@ import dev.antigravity.fluidengine.ai.tools.ToolText
 import dev.pampa.pampai.core.assistant.tools.PampaiGroup
 import dev.pampa.pampai.core.assistant.tools.PampaiToolContext
 import java.util.Locale
-import java.util.concurrent.Executors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -103,7 +104,7 @@ class PosizioneTool : AiTool<PampaiToolContext> {
     Device.permission(ctx, "leggere la posizione", Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)?.let { return it }
     val manager = ctx.app.getSystemService(LocationManager::class.java) ?: return ToolOutput.error("posizione non disponibile")
     if (!manager.isLocationEnabled) return ToolOutput.error("la posizione e' spenta nelle impostazioni del telefono: l'utente puo' accenderla (apri_impostazioni posizione)")
-    val location = current(manager) ?: return ToolOutput.error("nessuna posizione recente: prova fra qualche secondo, o all'aperto")
+    val location = current(ctx.app, manager) ?: return ToolOutput.error("nessuna posizione recente: prova fra qualche secondo, o all'aperto")
     val address = withContext(Dispatchers.IO) {
       runCatching {
         @Suppress("DEPRECATION")
@@ -121,7 +122,9 @@ class PosizioneTool : AiTool<PampaiToolContext> {
     }
   }
 
-  private suspend fun current(manager: LocationManager): Location? {
+  private suspend fun current(context: Context, manager: LocationManager): Location? {
+    if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+      context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) return null
     val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER).filter { manager.isProviderEnabled(it) }
     if (Build.VERSION.SDK_INT >= 30) {
       for (provider in providers.take(2)) {
@@ -129,7 +132,7 @@ class PosizioneTool : AiTool<PampaiToolContext> {
           suspendCancellableCoroutine<Location?> { continuation ->
             val signal = CancellationSignal()
             continuation.invokeOnCancellation { signal.cancel() }
-            runCatching { manager.getCurrentLocation(provider, signal, Executors.newSingleThreadExecutor()) { location -> if (continuation.isActive) continuation.resume(location) } }
+            runCatching { manager.getCurrentLocation(provider, signal, context.mainExecutor) { location -> if (continuation.isActive) continuation.resume(location) } }
               .onFailure { if (continuation.isActive) continuation.resume(null) }
           }
         }

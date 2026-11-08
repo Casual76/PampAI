@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" tests="8" skipped="0" failures="1" errors="0" timestamp="2026-11-08T14:59:08.049Z" hostname="PC_FISSO" time="4.776">
+  <properties/>
+  <testcase name="privacyTransactionRollsBackActualMemoryInsertAndRetainsRealUncertainWriteNoReplay" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.438"/>
+  <testcase name="profileFirstRicordaWaitsForSafetyWithActionsOffAndRefusalDoesNotSave" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="2.722"/>
+  <testcase name="cancellingPendingSafetyNeverInsertsMemory" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.214"/>
+  <testcase name="currentApprovedPromotionIsIndependentAndBothToolOverloadsUseRealProvenance" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.299"/>
+  <testcase name="forgetAfterSafetyApprovalDuringProofRenewalStillPreventsTheInsert" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.206"/>
+  <testcase name="engineApprovedPromotionPersistsOnlyAfterSafetyAndTemporaryTurnNeverPromotes" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.335"/>
+  <testcase name="admittedMislabelledReadIsNotSettledOrRetainedWhenRevokedBeforeFinalCompletion" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.109">
+    <failure message="java.lang.AssertionError" type="java.lang.AssertionError">java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest$admittedMislabelledReadIsNotSettledOrRetainedWhenRevokedBeforeFinalCompletion$1.invokeSuspend(MemoryClassificationIntegrationTest.kt:359)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:35)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:47)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source)
+	at dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest.admittedMislabelledReadIsNotSettledOrRetainedWhenRevokedBeforeFinalCompletion(MemoryClassificationIntegrationTest.kt:334)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:524)
+	at org.robolectric.internal.SandboxTestRunner.executeInSandbox(SandboxTestRunner.java:494)
+	at org.robolectric.internal.SandboxTestRunner.access$900(SandboxTestRunner.java:67)
+	at org.robolectric.internal.SandboxTestRunner$7.evaluate(SandboxTestRunner.java:442)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.robolectric.internal.SandboxTestRunner.access$600(SandboxTestRunner.java:67)
+	at org.robolectric.internal.SandboxTestRunner$6.evaluate(SandboxTestRunner.java:333)
+	at org.robolectric.internal.SandboxTestRunner$3.evaluate(SandboxTestRunner.java:233)
+	at org.robolectric.internal.SandboxTestRunner$5.lambda$evaluate$0(SandboxTestRunner.java:317)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:101)
+	at java.base/java.util.concurrent.FutureTask.run(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+	Suppressed: java.lang.IllegalStateException: attempt to re-open an already-closed object: SQLiteDatabase: :memory:
+		at android.database.sqlite.SQLiteClosable.acquireReference(SQLiteClosable.java:59)
+		at android.database.sqlite.SQLiteDatabase.inTransaction(SQLiteDatabase.java:863)
+		at androidx.sqlite.db.framework.FrameworkSQLiteDatabase.inTransaction(FrameworkSQLiteDatabase.android.kt:108)
+		at androidx.sqlite.driver.SupportSQLiteConnection.inTransaction(SupportSQLiteConnection.android.kt:31)
+		at androidx.room.coroutines.PassthroughConnection.inTransaction(PassthroughConnectionPool.kt:154)
+		at androidx.room.util.DBUtil__DBUtil_androidKt$performSuspending$lambda$1$$inlined$internalPerform$1.invokeSuspend(DBUtil.kt:56)
+		at androidx.room.util.DBUtil__DBUtil_androidKt$performSuspending$lambda$1$$inlined$internalPerform$1.invoke(DBUtil.kt)
+		at androidx.room.coroutines.PassthroughConnectionPool$useConnection$2.invokeSuspend(PassthroughConnectionPool.kt:59)
+		at androidx.room.coroutines.PassthroughConnectionPool$useConnection$2.invoke(PassthroughConnectionPool.kt)
+		at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+		at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+		at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+		at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+		at androidx.room.coroutines.PassthroughConnectionPool.useConnection(PassthroughConnectionPool.kt:59)
+		at androidx.room.RoomConnectionManager.useConnection(RoomConnectionManager.android.kt:138)
+		at androidx.room.RoomDatabase.useConnection(RoomDatabase.android.kt:619)
+		at androidx.room.util.DBUtil__DBUtil_androidKt.performSuspending(DBUtil.android.kt:262)
+		at androidx.room.util.DBUtil.performSuspending(Unknown Source)
+		at dev.pampa.pampai.core.assistant.durable.DurableDao_Impl.endForeground(DurableDao_Impl.kt:2925)
+		at dev.pampa.pampai.core.assistant.durable.BudgetLedger$setForeground$2.invokeSuspend(BudgetLedger.kt:26)
+		at dev.pampa.pampai.core.assistant.durable.BudgetLedger$setForeground$2.invoke(BudgetLedger.kt)
+		at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invokeSuspend(RoomDatabase.android.kt:2044)
+		at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransaction$2.invoke(RoomDatabase.android.kt)
+		at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invokeSuspend(RoomDatabase.android.kt:2058)
+		at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$withTransactionContext$transactionBlock$1.invoke(RoomDatabase.android.kt)
+		at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+		at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+		at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:165)
+		at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+		at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1$1.invokeSuspend(RoomDatabase.android.kt:2087)
+		at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+		at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+		at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+		at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+		at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+		at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+		at androidx.room.RoomDatabaseKt__RoomDatabase_androidKt$startTransactionCoroutine$2$1.run(RoomDatabase.android.kt:2084)
+		at androidx.room.TransactionExecutor.execute$lambda$1$lambda$0(TransactionExecutor.android.kt:38)
+		... 3 more
+</failure>
+  </testcase>
+  <testcase name="pendingProfilePromotionRejectsForgetRevokeAndCorrectionAfterConfirmation" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.453"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

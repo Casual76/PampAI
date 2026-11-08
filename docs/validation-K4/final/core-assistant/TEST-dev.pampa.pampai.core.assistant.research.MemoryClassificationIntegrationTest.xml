@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:09:26.208Z" hostname="PC_FISSO" time="1.759">
+  <properties/>
+  <testcase name="privacyTransactionRollsBackActualMemoryInsertAndRetainsRealUncertainWriteNoReplay" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.138"/>
+  <testcase name="profileFirstRicordaWaitsForSafetyWithActionsOffAndRefusalDoesNotSave" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.306"/>
+  <testcase name="cancellingPendingSafetyNeverInsertsMemory" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.175"/>
+  <testcase name="currentApprovedPromotionIsIndependentAndBothToolOverloadsUseRealProvenance" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.237"/>
+  <testcase name="forgetAfterSafetyApprovalDuringProofRenewalStillPreventsTheInsert" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.138"/>
+  <testcase name="engineApprovedPromotionPersistsOnlyAfterSafetyAndTemporaryTurnNeverPromotes" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.259"/>
+  <testcase name="admittedMislabelledReadIsNotSettledOrRetainedWhenRevokedBeforeFinalCompletion" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.109"/>
+  <testcase name="pendingProfilePromotionRejectsForgetRevokeAndCorrectionAfterConfirmation" classname="dev.pampa.pampai.core.assistant.research.MemoryClassificationIntegrationTest" time="0.396"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

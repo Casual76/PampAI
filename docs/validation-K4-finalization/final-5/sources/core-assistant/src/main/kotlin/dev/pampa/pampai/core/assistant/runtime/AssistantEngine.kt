@@ -1,0 +1,807 @@
+package dev.pampa.pampai.core.assistant.runtime
+
+import dev.antigravity.fluidengine.ai.orchestrator.ProviderSwitch
+import dev.pampa.pampai.core.assistant.bridge.SourceBridgePolicy
+import dev.pampa.pampai.core.assistant.db.RunImageInterpretation
+import dev.pampa.pampai.core.assistant.db.FailureDetail
+import dev.pampa.pampai.core.assistant.receipts.OperationLedger
+import dev.pampa.pampai.core.assistant.receipts.ReceiptActions
+import dev.pampa.pampai.core.assistant.receipts.LedgerAttempt
+import dev.antigravity.fluidengine.ai.provider.ToolCall
+import dev.antigravity.fluidengine.ai.tools.ToolExecution
+import dev.antigravity.fluidengine.ai.tools.ToolOutput
+import dev.antigravity.fluidengine.ai.tools.ToolResultDetails
+import dev.antigravity.fluidengine.ai.tools.ToolOutcome
+import dev.antigravity.fluidengine.ai.tools.ToolError
+import android.content.Context
+import android.util.Log
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.antigravity.fluidengine.ai.keys.AiSettingsStore
+import dev.antigravity.fluidengine.ai.keys.ThinkingLevel
+import dev.antigravity.fluidengine.ai.net.AiError
+import dev.antigravity.fluidengine.ai.net.AiHttp
+import dev.antigravity.fluidengine.ai.orchestrator.AiDiagnosticsLog
+import dev.antigravity.fluidengine.ai.orchestrator.AiOrchestrator
+import dev.antigravity.fluidengine.ai.orchestrator.AiOrchestratorConfig
+import dev.antigravity.fluidengine.ai.orchestrator.AskInput
+import dev.antigravity.fluidengine.ai.orchestrator.AskMode
+import dev.antigravity.fluidengine.ai.orchestrator.AssistantFailure
+import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
+import dev.antigravity.fluidengine.ai.orchestrator.Conversation
+import dev.antigravity.fluidengine.ai.orchestrator.Exchange
+import dev.antigravity.fluidengine.ai.orchestrator.FailureKind
+import dev.antigravity.fluidengine.ai.provider.ChatRequest
+import dev.antigravity.fluidengine.ai.provider.ContentPart
+import dev.antigravity.fluidengine.ai.provider.Message
+import dev.antigravity.fluidengine.ai.provider.ModelCapabilities
+import dev.antigravity.fluidengine.ai.provider.ModelTier
+import dev.antigravity.fluidengine.ai.provider.ProviderFactory
+import dev.antigravity.fluidengine.ai.provider.ProviderId
+import dev.antigravity.fluidengine.ai.provider.ReadyProvider
+import dev.antigravity.fluidengine.ai.provider.ReasoningLevel
+import dev.antigravity.fluidengine.ai.provider.displayName
+import dev.antigravity.fluidengine.ai.tools.ToolRegistry
+import dev.antigravity.fluidengine.ai.tools.resolvedCategory
+import dev.pampa.pampai.core.assistant.attachments.AttachmentReader
+import dev.pampa.pampai.core.assistant.db.Anchor
+import dev.pampa.pampai.core.assistant.db.ConversationsRepository
+import dev.pampa.pampai.core.assistant.db.MemoryRepository
+import dev.pampa.pampai.core.assistant.db.Turn
+import dev.pampa.pampai.core.assistant.music.FluidifyClient
+import dev.pampa.pampai.core.assistant.permissions.PermissionGate
+import dev.pampa.pampai.core.assistant.prompt.AriaChips
+import dev.pampa.pampai.core.assistant.prompt.PreRouter
+import dev.pampa.pampai.core.assistant.prompt.PromptBuilder
+import dev.pampa.pampai.core.assistant.prompt.PromptContext
+import dev.pampa.pampai.core.assistant.prompt.QuickCommands
+import dev.pampa.pampai.core.assistant.reminders.ReminderRepository
+import dev.pampa.pampai.core.assistant.remote.PampaiFlags
+import dev.pampa.pampai.core.assistant.remote.RemoteSwitches
+import dev.pampa.pampai.core.assistant.screen.ScreenContextStore
+import dev.pampa.pampai.core.assistant.settings.PampaiSettingsStore
+import dev.pampa.pampai.core.assistant.tools.Dates
+import dev.pampa.pampai.core.assistant.tools.PampaiToolContext
+import dev.pampa.pampai.core.assistant.tools.RegistryHolder
+import dev.pampa.pampai.core.assistant.tools.Surface
+import dev.pampa.pampai.core.assistant.usage.UsageRepository
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+
+/** L'esito di una domanda risolta da un comando rapido, senza modello: la UI lo mostra come tale. */
+const val LOCAL_OUTCOME = "local"
+
+/** L'esito di una domanda fermata dal kill switch remoto. */
+const val STOPPED_OUTCOME = "sospesa"
+
+private const val TAG = "AssistantEngine"
+
+/** Com'e' finita una domanda, per la notifica e per chi ha chiamato. */
+data class ExecutionResult(val conversationId: Long, val question: String, val answer: String?, val failure: FailureKind?, val cancelled: Boolean)
+
+/**
+ * Una domanda dall'inizio alla fine: la conversazione su disco, gli allegati, il contesto dei tool,
+ * il prompt, il pre-router, l'orchestratore dell'engine sul catalogo di adesso, e ogni passo
+ * scritto in Room man mano — cosi' un processo che muore lascia una domanda "fallita" e non un
+ * buco, e chi riapre l'app trova la risposta o il lavoro in corso.
+ */
+@Singleton
+class AssistantEngine @Inject constructor(
+  @ApplicationContext private val context: Context,
+  private val runtime: AssistantRuntime,
+  private val registryHolder: RegistryHolder,
+  private val providers: ProviderFactory,
+  private val settingsStore: AiSettingsStore,
+  private val pampaiSettings: PampaiSettingsStore,
+  private val conversations: ConversationsRepository,
+  private val memory: MemoryRepository,
+  private val attachments: AttachmentReader,
+  private val gate: PampaiConfirmationGate,
+  private val diagnostics: AiDiagnosticsLog,
+  private val usage: UsageRepository,
+  private val http: AiHttp,
+  private val screen: ScreenContextStore,
+  private val permissions: PermissionGate,
+  private val reminders: ReminderRepository,
+  private val fluidify: FluidifyClient,
+  private val remote: RemoteSwitches,
+  private val models: ModelsMaintenance,
+  private val operationLedger: OperationLedger,
+  private val receiptActions: ReceiptActions,
+  private val budgets: RuntimeBudgetCoordinator,
+  private val research: dev.pampa.pampai.core.assistant.research.ResearchForeground,
+) {
+
+  internal fun screenNote(request: AssistantRequest): String? = screenNoteOf(screen.current, request) { pkg ->
+    pkg?.let { runCatching { context.packageManager.getApplicationLabel(context.packageManager.getApplicationInfo(it, 0)).toString() }.getOrNull() }
+  }
+
+  /**
+   * Una conversazione in memoria e la foglia su cui finisce la sua storia. Con le versioni la
+   * storia dipende dal ramo: la copia in memoria vale solo se la domanda nuova si attacca proprio a
+   * quella foglia, altrimenti si ricostruisce dal disco (il cammino sopra la domanda).
+   */
+  private class CachedConversation(val leafId: Long?, val conversation: Conversation, val policy: ModelPolicy? = null)
+
+  /** Le conversazioni in memoria per processo: il traffico tool dell'ultima domanda vive qui, non su disco. */
+  private val memoryConversations = ConcurrentHashMap<Long, CachedConversation>()
+
+  /**
+   * Il lavoro gira sotto un [Job] figlio: e' quello che [AssistantRuntime.cancel] ferma. Fermarlo non
+   * cancella chi ha chiamato — il service deve ancora chiudere la notifica e fermarsi.
+   *
+   * [token] e' la generazione della domanda ([AssistantRuntime.takePendingRequest]): una domanda
+   * fermata fra l'accodamento e l'arrivo al service non parte nemmeno.
+   */
+  internal suspend fun execute(request: AssistantRequest, token: Long): ExecutionResult {
+    val job = Job(currentCoroutineContext()[Job])
+    if (!runtime.attach(token, job)) {
+      job.cancel()
+      return ExecutionResult(request.conversationId ?: -1L, request.question, null, null, cancelled = true)
+    }
+    return try {
+      withContext(job) { budgets.foreground(request.modelPolicy) { run(request, token) } }
+    } catch (e: CancellationException) {
+      currentCoroutineContext().ensureActive()
+      ExecutionResult(request.conversationId ?: -1L, request.question, null, null, cancelled = true)
+    } finally {
+      job.complete()
+      runtime.detach(job)
+    }
+  }
+
+  /**
+   * Lo stato di questa domanda vive in un flusso suo: l'orchestratore scrive li', il disco legge li'
+   * il testo parziale, e al runtime passa solo finche' la domanda e' quella di adesso
+   * ([AssistantRuntime.publish]). Il passaggio e' sincrono (Unconfined, partito subito): ogni stato
+   * arriva al runtime prima che l'orchestratore faccia il passo dopo, come quando ci scriveva
+   * direttamente — e una conferma chiesta da uno strumento trova gia' lo stato del suo giro.
+   */
+  private suspend fun run(request: AssistantRequest, token: Long): ExecutionResult = coroutineScope {
+    val live = MutableStateFlow<AssistantState>(AssistantState.Working(request.question, 0, 1, "thinking", 0, ProviderId.defaultOrder.first()))
+    val forwarder = launch(Dispatchers.Unconfined, start = CoroutineStart.UNDISPATCHED) { live.collect { runtime.publish(token, it) } }
+    try {
+      answer(request, token, live)
+    } finally {
+      forwarder.cancel()
+      // L'ultimo stato (Done, Failed, Cancelled) arriva comunque, anche se il passaggio era a meta'.
+      runtime.publish(token, live.value)
+    }
+  }
+
+  @OptIn(FlowPreview::class)
+  private suspend fun answer(original: AssistantRequest, token: Long, live: MutableStateFlow<AssistantState>): ExecutionResult = coroutineScope {
+    val now = System.currentTimeMillis()
+    val anchor = original.anchor
+    var request = original
+    var question = request.question
+    val locked = request.surface == Surface.SESSION && (request.locked || screen.current?.lockscreen == true)
+    // Da bloccato un catalogo ridotto (LockscreenPolicy): strumenti ammessi, router senza gruppi
+    // vuoti, niente app collegate. Da qui in poi tutto passa da questo catalogo.
+    val catalog = registryHolder.catalog.value.let { if (locked) it.lockscreen else it }
+    val registry = catalog.registry
+    // Tutto cio' che scrive sta dentro il try: un errore del disco o di un allegato finisce in uno
+    // stato Failed, non in un'eccezione che nessuno raccoglie.
+    var savedConversationId: Long? = null
+    var turn: Turn? = null
+    var persister: Job? = null
+    var used: Conversation? = null
+    var traced: PampaiToolContext? = null
+    var estimate: ContextEstimate? = null
+    var researchPrivate = false
+    var privacy: dev.pampa.pampai.core.assistant.research.TurnPrivacy? = null
+    val imageInterpretations = java.util.Collections.synchronizedList(mutableListOf<RunImageInterpretation>())
+    val recordInterpretation: (RunImageInterpretation) -> Unit = { imageInterpretations.add(it); Unit }
+    try {
+      // Guard current and replayed images before any user/assistant row is consumed.
+      preflight(request)
+      val conversationId = request.conversationId?.takeIf { conversations.conversation(it) != null }
+        // La temporanea si decide qui, alla nascita: dalla domanda dopo e' la riga su disco a dirlo.
+        ?: conversations.createConversation(question, now, source = if (request.surface == Surface.SESSION) "session" else "app", temporary = request.temporary)
+      savedConversationId = conversationId
+      request.modelPolicy?.let { runtime.modelSelection.bindConversation(conversationId, it, request.temporary || conversations.conversation(conversationId)?.temporary == true) }
+      runtime.setActiveConversation(conversationId, request.surface, token)
+      val started = conversations.startTurn(conversationId, anchor, question, request.mode, request.attachments, now)
+      val toolAttempt = operationLedger.attempt(started.conversationId, started.questionId.toString(), started.assistantId, isWrite = { SourceBridgePolicy.actionFor(it, registry.find(it)?.isAction == true) }, reconcile = receiptActions::reconcile)
+      turn = started
+      // Rigenera e modifica: la domanda e i suoi allegati sono quelli su disco (per "modifica" gli
+      // allegati ricopiati sul messaggio nuovo), non cio' che la UI si e' ricordata di passare.
+      if (anchor is Anchor.Regenerate) conversations.message(started.questionId)?.text?.let { question = it }
+      val attached = if (anchor is Anchor.Regenerate || (request.attachments.isEmpty() && anchor !is Anchor.Continue)) conversations.pendingAttachmentsOf(started.questionId) else request.attachments
+      request = request.copy(question = question, attachments = attached)
+      val messageId = started.assistantId
+
+      // Il testo parziale finisce su disco ogni 300 ms: chi riapre l'app a meta' lo trova. Quando
+      // l'orchestratore torna a lavorare dopo aver gia' scritto (un nuovo tentativo dopo uno stream
+      // rotto, un cambio di servizio, uno strumento dopo un preambolo) il parziale si svuota: la
+      // risposta che arriva riparte da zero, e prima il testo del tentativo fallito restava a schermo
+      // sotto "Penso..." per decine di secondi, poi sostituito da un altro.
+      val saver = launch(Dispatchers.IO) {
+        live
+          .mapNotNull { state ->
+            when (state) {
+              is AssistantState.Answering -> state.partial
+              is AssistantState.Working, is AssistantState.SwitchingProvider, is AssistantState.WaitingRateLimit -> ""
+              else -> null
+            }
+          }
+          .distinctUntilChanged()
+          .sample(300)
+          .collect { if (privacy?.requiresPrivacyFence != true && !researchPrivate) conversations.updatePartial(messageId, it) }
+      }
+      persister = saver
+
+      // Il kill switch remoto: una build che fa danni si ferma qui, con una frase che dice perche'.
+      remote.stopMessage()?.let { message ->
+        saver.cancelAndJoin()
+        return@coroutineScope answerLocally(request, started, live, now, message, toolsUsed = emptyList(), traces = emptyList(), outcome = STOPPED_OUTCOME)
+      }
+      val settings = settingsStore.current()
+      // Il comando rapido prima di tutto, anche prima dei servizi: "timer di 10 minuti" non ha
+      // bisogno di un modello, e deve funzionare pure senza chiavi e senza rete.
+      // Una domanda nuova o corretta ("modifica e rinvia"), non un "rigenera", che chiede il modello.
+      if (request.attachments.isEmpty() && anchor !is Anchor.Regenerate && request.override == null && pampaiSettings.current().quickCommands) {
+        val quick = runQuick(request, started, live, settings.actionsEnabled, registry, now, toolAttempt) { traced = it }
+        if (quick != null) {
+          saver.cancelAndJoin()
+          return@coroutineScope quick
+        }
+      }
+      if (!locked && request.attachments.isEmpty()) {
+        val selectedTask = research.select(question, request.research, request.deep)
+        val resumeId = if (request.retryResearch && anchor is Anchor.Regenerate && request.override == null)
+          conversations.researchRetry(conversationId, anchor.replacing, started.questionId) else null
+        request.research?.resumeJobId?.let { check(it == resumeId) { "TURN_ASSOCIATION_REQUIRED" } }
+        check(resumeId == null || selectedTask != null) { "SOURCE_SCOPE_CHANGED" }
+        val task = selectedTask?.copy(resumeJobId = resumeId)
+        if (task != null) {
+          researchPrivate = true
+          memoryConversations.remove(conversationId)
+          val answer = research.answer(conversationId, question, request.temporary || conversations.conversation(conversationId)?.temporary == true, request.modelPolicy, task) { jobId ->
+            conversations.associateResearch(started, jobId, now)
+          }
+          saver.cancelAndJoin()
+          val finished = System.currentTimeMillis()
+          conversations.acceptResearch(started, answer, now, finished)
+          // Publish only after the Room transaction commits. Research never enters the replay cache/title path.
+          memoryConversations.remove(conversationId)
+          live.value = AssistantState.Done(question = question, answer = answer.text, chips = emptyList(),
+            provider = answer.policy.identity.provider, mode = request.mode, usage = null,
+            toolsUsed = task.reads.map { it.tool }, durationMillis = finished - now)
+          return@coroutineScope ExecutionResult(conversationId, question, answer.text, null, cancelled = false)
+        }
+      }
+      val temporaryConversation = request.temporary || conversations.conversation(conversationId)?.temporary == true
+      val plannedProfileQuery = dev.pampa.pampai.core.assistant.research.ResearchQuestionPlanner.profileQuery(question)
+      val profileQuery = plannedProfileQuery?.let { planned -> request.profileQuery?.let { supplied ->
+        supplied.copy(fields = supplied.fields.filter { it in planned.fields })
+      } ?: planned }?.takeIf { it.fields.isNotEmpty() }
+      val turnPrivacy = research.captureTurn(question, profileQuery, !locked && !temporaryConversation)
+      privacy = turnPrivacy
+      val targetedProfile = turnPrivacy.promptBlock
+      var parts = request.attachments.map { it.toPart() }
+      val dispatchAttempt = java.util.UUID.randomUUID().toString()
+      val ordered = orderedProviders(request, settings, parts).map { research.guarded(it.audited(dispatchAttempt, conversationId, messageId, request.modelPolicy, conversations::recordDispatch), turnPrivacy) }
+      if (ordered.isEmpty()) throw AssistantFailure(FailureKind.NO_KEYS, null)
+      val first = ordered.first()
+      live.value = AssistantState.Classifying(question, first.provider.id)
+
+      // La storia in memoria vale se finisce proprio dove si attacca la domanda; altrimenti (un
+      // "rigenera", una versione diversa, un processo nuovo) si rilegge il cammino dal disco.
+      val conversation = rebuild(conversationId, started.questionId, now, registry)
+      if (request.modelPolicy?.helper != null) {
+        parts = runtime.modelSelection.interpretImages(parts, request.modelPolicy!!, started.conversationId, recordInterpretation)
+        val converted = conversation.exchanges.map { it.copy(attachments = runtime.modelSelection.interpretImages(it.attachments, request.modelPolicy!!, started.conversationId, recordInterpretation)) }
+        conversation.exchanges.clear()
+        conversation.exchanges.addAll(converted)
+      }
+      used = conversation
+      conversation.lastActivityMillis = now
+      val zone = ZoneId.systemDefault()
+      // Letta prima del contesto dei tool: e' lei a dire se questa e' una chat temporanea, e il
+      // tool `ricorda` deve saperlo senza tornare su disco a ogni chiamata.
+      val stored = conversations.conversation(conversationId)
+      val toolContext = PampaiToolContext(
+        app = context, zone = zone, locale = Locale.getDefault(), now = System::currentTimeMillis,
+        surface = request.surface, mode = request.mode, actionsEnabled = settings.actionsEnabled,
+        gate = gate, memory = memory, conversations = conversations, settings = pampaiSettings, http = http,
+        provider = first, deepCapabilities = first.capabilities(first.model(ModelTier.DEEP)),
+        conversationId = conversationId, capabilitiesSummary = { catalog.summary },
+        screen = screen.takeIf { request.surface == Surface.SESSION },
+        permissions = permissions, reminders = reminders, fluidify = fluidify, usage = usage, aiSettings = settingsStore,
+        connectedPackages = { catalog.connectedPackages },
+        temporary = stored?.temporary == true,
+        webSearchViaProvider = remote.isEnabled(PampaiFlags.WebSearch) && (request.modelPolicy == null || first.provider.id != ProviderId.GROQ),
+      )
+      traced = toolContext
+
+      // Il plugin: scelto adesso nel composer, o gia' sulla conversazione. Si salva, e i suoi
+      // strumenti entrano nel primo giro senza passare dal router.
+      val pluginId = request.plugin ?: stored?.plugin
+      if (request.plugin != null && stored != null && stored.plugin != request.plugin) conversations.setPlugin(conversationId, request.plugin)
+      val pluginCategory = pluginId?.let { id -> registry.categories.firstOrNull { it.id == id } }
+      val pluginGroups = pluginCategory?.let { category ->
+        registry.topGroupsOf(category).let { top -> top.filter { it.loadsWithCategory }.ifEmpty { top.take(3) } }
+      }.orEmpty()
+      if (pluginCategory != null && pluginGroups.isNotEmpty()) {
+        conversation.touch(pluginGroups)
+        conversation.loadedCategories += pluginCategory
+      }
+
+      val prompt = PromptBuilder.build(
+        PromptContext(
+          nowLabel = nowLabel(zone),
+          language = "it",
+          // La memoria parla del proprietario: dal telefono bloccato non entra nel prompt.
+          memoryBlock = if (locked || !dev.pampa.pampai.core.assistant.research.ResearchQuestionPlanner.storedKnowledgeAllowed(question)) ""
+            else listOf(memory.promptBlock(), targetedProfile).filter { it.isNotBlank() }.joinToString("\n"),
+          connectedApps = catalog.summary,
+          surface = request.surface,
+          mode = request.mode,
+          actionsEnabled = settings.actionsEnabled,
+          loadedCategories = conversation.loadedCategories.map { it.id },
+          maxSteps = config(request.surface).maxRounds,
+          screenNote = screenNote(request),
+          attachmentsNote = parts.takeIf { it.isNotEmpty() }?.let { list -> "l'utente ha allegato " + list.joinToString(", ") { it.displayName ?: "testo" } },
+          conversationTitle = stored?.title?.takeIf { stored.autoTitled },
+          pluginLabel = pluginCategory?.label,
+          temporary = stored?.temporary == true,
+          lockscreen = locked,
+        ),
+      )
+      val pre = PreRouter(catalog.preRules).decide(question, settings.actionsEnabled, parts.isNotEmpty())
+      // Da bloccato solo i gruppi che il catalogo ridotto ha davvero: un gruppo tolto non si apre
+      // passando dal pre-router.
+      val preGroups = if (locked) pre.groups.filterTo(LinkedHashSet()) { it in registry.groups } else pre.groups
+      val deep = pre.deep || request.deep
+      // Quanto pensare lo decide la domanda, non un interruttore: alto quando e' profonda o quando
+      // l'utente ha chiesto "pensa piu' a fondo", basso su una domanda secca che finisce in uno
+      // strumento, medio nel mezzo. A meno che l'utente non abbia scelto un livello fisso.
+      val pampai = pampaiSettings.current()
+      val thinking = request.modelPolicy?.effort ?: when {
+        request.modelPolicy == null && !pampai.thinkingAuto -> settings.thinking
+        deep -> ThinkingLevel.HIGH
+        pre.confident && parts.isEmpty() && question.length < 90 -> ThinkingLevel.LOW
+        else -> ThinkingLevel.MEDIUM
+      }
+      val requestRegistry = if (first.catalogue?.chat(first.chatModel)?.supportsTools == false ||
+        dev.pampa.pampai.core.assistant.research.ResearchQuestionPlanner.onlyProvidedContent(question))
+        ToolRegistry<PampaiToolContext>(emptyList(), emptyList()) else registry
+      val orchestrator = AiOrchestrator(requestRegistry, catalog.router, diagnostics, config = config(request.surface), usageSink = usage)
+      val stagedReads = java.util.Collections.synchronizedList(mutableListOf<Triple<ToolCall, ToolExecution?, ToolOutput>>())
+      val input = AskInput(
+        question = question,
+        mode = request.mode,
+        language = "it",
+        settings = settings.copy(thinking = thinking),
+        providers = ordered,
+        toolContext = toolContext,
+        systemPrompt = prompt,
+        conversation = conversation,
+        actionsEnabled = settings.actionsEnabled,
+        preselectedGroups = when {
+          pre.confident && preGroups.isNotEmpty() -> preGroups + pluginGroups
+          pluginGroups.isNotEmpty() -> pluginGroups.toSet()
+          else -> null
+        },
+        routerHint = if (pre.confident) emptySet() else preGroups + pluginGroups,
+        deepRequested = deep,
+        chipFilter = { chip -> AriaChips.accepts(chip) },
+        attachmentFallback = { part -> attachments.fallbackText(part) },
+        attachments = parts,
+        // Il servizio scelto resta quello: si cambia solo con la riserva automatica accesa, e mai
+        // quando l'utente l'ha scelto lui per questa domanda ("rigenera con...").
+        pinProvider = request.modelPolicy != null || request.override != null || !pampai.failoverEnabled,
+        prepareToolExecution = { call ->
+          if (SourceBridgePolicy.actionFor(call.name, registry.find(call.name)?.isAction == true)) toolAttempt.prepare(call)
+          else ToolExecution(java.util.UUID.randomUUID().toString())
+        },
+        onToolOutput = { call, execution, output ->
+          if (SourceBridgePolicy.actionFor(call.name, registry.find(call.name)?.isAction == true)) toolAttempt.onOutput(call, execution, output)
+          else stagedReads += Triple(call, execution, output)
+        },
+        prepareToolParts = { dynamic -> runtime.modelSelection.prepareParts(dynamic, request.modelPolicy, conversationId, recordInterpretation) },
+        onModelUnavailable = { provider, model -> models.modelUnavailable(provider, model, runtime.scope) },
+      )
+      estimate = ContextMeter.estimate(prompt, conversation, ContextMeter.historyBudget(first), registry.specsFor(conversation.loadedGroups), parts, first)
+      // A captured public turn can stream; a turn with possible private acquisition buffers all output.
+      val progress = if (turnPrivacy.requiresPrivacyFence) MutableStateFlow(live.value) else live
+      val result = withContext(turnPrivacy) { orchestrator.ask(input, progress) }
+      turnPrivacy.check()
+      // Aspettarlo, non solo fermarlo: `cancel()` torna prima che la sua ultima scrittura sia finita.
+      saver.cancelAndJoin()
+      val finished = System.currentTimeMillis()
+      turnPrivacy.commit {
+        synchronized(stagedReads) { stagedReads.toList() }.forEach { (call, execution, output) -> execution?.let {
+          conversations.acceptRead(conversationId, started.questionId.toString(), messageId, dispatchAttempt, call, it, output, finished)
+        } }
+        conversations.complete(messageId, result.answer, result.chips)
+        conversations.addRun(conversationId, messageId, result.log, finished, if (turnPrivacy.privateTurn) "private" else "ok", null, toolContext.traces, estimate?.tokens, estimate?.window, imageInterpretations.toList())
+        conversations.touch(conversationId, finished, result.provider)
+        conversations.setLoadedGroups(conversationId, conversation.loadedGroups.map { it.id })
+      } // Room must finish committing before either runtime publication or cache acceptance.
+      currentCoroutineContext().ensureActive()
+      if (turnPrivacy.privateTurn) memoryConversations.remove(conversationId)
+      else memoryConversations[conversationId] = CachedConversation(messageId, conversation, request.modelPolicy)
+      live.value = AssistantState.Done(
+        question = question, answer = result.answer, chips = result.chips, provider = result.provider, mode = request.mode,
+        usage = result.usage, toolsUsed = result.toolsUsed, durationMillis = result.log.durationMillis, tierReached = result.tierReached,
+        switches = result.log.switches,
+      )
+      // Temporary conversations do not need a title in persistent history.
+      if (!turnPrivacy.privateTurn && stored != null && !stored.autoTitled && !stored.temporary) {
+        // Prima chi ha appena risposto: se il primo della lista era al limite per la domanda,
+        // lo e' anche per il titolo, e chiederglielo lo stesso vuol dire non avere il titolo.
+        val forTitle = ordered.sortedBy { it.provider.id != result.provider }
+        runtime.scope.launch {
+          try { budgets.foreground(request.modelPolicy, "title") { autoTitle(conversationId, question, result.answer, forTitle) } }
+          catch (_: dev.antigravity.fluidengine.ai.provider.ProviderAdmissionDenied) { /* title remains pending */ }
+          catch (_: dev.antigravity.fluidengine.ai.provider.ProviderObserverFailure) { /* never replay storage failure */ }
+        }
+      }
+      ExecutionResult(conversationId, question, result.answer, null, cancelled = false)
+    } catch (e: CancellationException) {
+      if (e is dev.pampa.pampai.core.assistant.research.TurnPrivacyInvalidated) {
+        withContext(NonCancellable) {
+          persister?.cancelAndJoin()
+          savedConversationId?.let { memoryConversations.remove(it) }
+          turn?.let { started ->
+            // Retain the turn and all actual/uncertain write receipts; never retain rejected text.
+            conversations.fail(started.assistantId, FailureKind.UNKNOWN, null)
+            conversations.addFailedRun(started.conversationId, started.assistantId, now, System.currentTimeMillis(),
+              "privacy_invalidated", "TURN_PRIVACY_INVALIDATED", traced?.traces.orEmpty().filter { SourceBridgePolicy.actionFor(it.name, registry.find(it.name)?.isAction == true) },
+              imageInterpretations = imageInterpretations.toList())
+          }
+        }
+        live.value = AssistantState.Failed(question, FailureKind.UNKNOWN, null, null, null)
+        return@coroutineScope ExecutionResult(savedConversationId ?: -1L, question, null, FailureKind.UNKNOWN, cancelled = false)
+      }
+      if (e is dev.antigravity.fluidengine.ai.provider.ProviderAdmissionDenied || e is dev.antigravity.fluidengine.ai.provider.ProviderObserverFailure) {
+        withContext(NonCancellable) { persister?.cancelAndJoin() }
+        val partial = if (privacy?.requiresPrivacyFence == true || researchPrivate) null else (live.value as? AssistantState.Answering)?.partial
+        turn?.let { closeFailed(it, FailureKind.UNKNOWN, partial, now, e.message, traced, used.takeUnless { privacy?.requiresPrivacyFence == true || researchPrivate }, imageInterpretations = imageInterpretations.toList()) }
+        live.value = AssistantState.Failed(question, FailureKind.UNKNOWN, null, null, partial)
+        return@coroutineScope ExecutionResult(savedConversationId ?: -1L, question, null, FailureKind.UNKNOWN, cancelled = false)
+      }
+      // Il parziale di questa domanda, dal suo flusso: quello del runtime puo' essere gia' di un'altra.
+      val partial = if (privacy?.requiresPrivacyFence == true || researchPrivate) null else (live.value as? AssistantState.Answering)?.partial
+      withContext(NonCancellable) {
+        persister?.cancelAndJoin()
+        turn?.let { started ->
+          runCatching {
+            if (closeCancelledTurn(conversations, started, anchor !is Anchor.Continue, partial,
+                now, System.currentTimeMillis(), traced?.traces.orEmpty().filter { SourceBridgePolicy.actionFor(it.name, registry.find(it.name)?.isAction == true) }, imageInterpretations.toList())) {
+              if (privacy?.requiresPrivacyFence != true && !researchPrivate) keepCached(started, used)
+            }
+          }.onFailure { Log.w(TAG, "chiusura della domanda fermata non riuscita", it) }
+        }
+      }
+      // Se l'ha fermata l'utente la generazione e' gia' cresciuta e questo non passa: "fermata"
+      // l'ha scritto lui, subito. Passa quando a fermarla e' stato altro (il service che chiude).
+      live.value = AssistantState.Cancelled(question, partial)
+      ExecutionResult(savedConversationId ?: -1L, question, null, null, cancelled = true)
+    } catch (e: AssistantFailure) {
+      val partial = if (privacy?.requiresPrivacyFence == true || researchPrivate) null else (live.value as? AssistantState.Answering)?.partial
+      withContext(NonCancellable) { persister?.cancelAndJoin() }
+      val detail = FailureDetail(e.provider, e.reason, e.error?.httpCode, e.error?.providerMessage)
+      turn?.let { started -> closeFailed(started, e.kind, partial, now, e.error?.message ?: e.kind.name, traced, used.takeUnless { privacy?.requiresPrivacyFence == true || researchPrivate }, detail, e.switches, imageInterpretations.toList()) }
+      live.value = AssistantState.Failed(question, e.kind, e.error, e.retryAfterSec, partial, provider = e.provider, reason = e.reason)
+      ExecutionResult(savedConversationId ?: -1L, question, null, e.kind, cancelled = false)
+    } catch (e: Throwable) {
+      Log.w(TAG, "domanda fallita", e)
+      withContext(NonCancellable) { persister?.cancelAndJoin() }
+      turn?.let { started -> closeFailed(started, FailureKind.UNKNOWN, null, now, e.message ?: e::class.simpleName, traced, used.takeUnless { privacy?.requiresPrivacyFence == true || researchPrivate }, imageInterpretations = imageInterpretations.toList()) }
+      live.value = AssistantState.Failed(question, FailureKind.UNKNOWN, e as? AiError, null, null)
+      ExecutionResult(savedConversationId ?: -1L, question, null, FailureKind.UNKNOWN, cancelled = false)
+    }
+  }
+
+  /**
+   * Una risposta fallita su disco: stato, passaggio, conversazione toccata. Anche questo puo'
+   * fallire (e' il disco, spesso, il motivo): allora resta la riga del log, e lo stato Failed arriva
+   * lo stesso.
+   */
+  private suspend fun closeFailed(
+    turn: Turn,
+    kind: FailureKind,
+    partial: String?,
+    startedAt: Long,
+    error: String?,
+    traced: PampaiToolContext?,
+    used: Conversation?,
+    detail: FailureDetail? = null,
+    switches: List<ProviderSwitch> = emptyList(),
+    imageInterpretations: List<RunImageInterpretation> = emptyList(),
+  ) {
+    runCatching {
+      conversations.fail(turn.assistantId, kind, partial)
+      conversations.addFailedRun(turn.conversationId, turn.assistantId, startedAt, System.currentTimeMillis(), "failed", error, traced?.traces.orEmpty().filter { SourceBridgePolicy.actionFor(it.name, registryHolder.catalog.value.registry.find(it.name)?.isAction == true) }, detail, switches, imageInterpretations)
+      conversations.touch(turn.conversationId, System.currentTimeMillis(), null)
+      keepCached(turn, used)
+    }.onFailure { Log.w(TAG, "chiusura della domanda fallita non riuscita", it) }
+  }
+
+  /**
+   * Una risposta finita male non aggiunge niente alla storia (l'orchestratore scrive lo scambio solo
+   * quando riesce): la conversazione in memoria vale anche per la foglia nuova, e la domanda dopo,
+   * che si attacca li', non la ricostruisce dal disco.
+   */
+  private fun keepCached(turn: Turn, used: Conversation?) {
+    if (used != null) memoryConversations[turn.conversationId] = CachedConversation(turn.assistantId, used)
+  }
+
+  /**
+   * Un comando rapido ([QuickCommands]): lo strumento gira qui, senza orchestratore, e la risposta
+   * e' una frase fatta. Torna `null` se la domanda non e' un comando o lo strumento non e' riuscito
+   * in modo pulito: allora la domanda prosegue verso il modello, che sa spiegare l'errore.
+   */
+  private suspend fun runQuick(
+    request: AssistantRequest,
+    turn: Turn,
+    live: MutableStateFlow<AssistantState>,
+    actionsEnabled: Boolean,
+    registry: ToolRegistry<PampaiToolContext>,
+    startedAt: Long,
+    toolAttempt: LedgerAttempt,
+    onContext: (PampaiToolContext) -> Unit,
+  ): ExecutionResult? {
+    val match = QuickCommands.match(request.question, java.time.LocalTime.now()) ?: return null
+    val tool = match.tool?.let { name -> registry.find(name) ?: return null }
+    // Dal telefono bloccato solo quello che non tocca dati personali: aprire un'app no.
+    if (request.surface == Surface.SESSION && (request.locked || screen.current?.lockscreen == true) && match.kind == QuickCommands.Kind.OPEN_APP) return null
+    val zone = ZoneId.systemDefault()
+    val ctx = PampaiToolContext(
+      app = context, zone = zone, locale = Locale.getDefault(), now = System::currentTimeMillis,
+      surface = request.surface, mode = request.mode, actionsEnabled = actionsEnabled,
+      gate = gate, memory = memory, conversations = conversations, settings = pampaiSettings, http = http,
+      provider = null, deepCapabilities = ModelCapabilities(vision = false, documents = false),
+      conversationId = turn.conversationId,
+      permissions = permissions, reminders = reminders, fluidify = fluidify, usage = usage, aiSettings = settingsStore,
+    )
+    onContext(ctx) // cancellation cleanup must own quick-command traces before the first suspension
+    val args = buildJsonObject { match.args.forEach { (key, value) -> put(key, value) } }
+    val call = tool?.let { ToolCall("quick:${turn.questionId}", it.name, args) }
+    var execution: ToolExecution? = null
+    val output = if (tool == null || call == null) null else try {
+      execution = toolAttempt.prepare(call)
+      tool.run(args, ctx, execution).also { toolAttempt.onOutput(call, execution, it) }
+    } catch (e: CancellationException) {
+      if (execution != null && SourceBridgePolicy.actionFor(tool.name, tool.isAction)) withContext(NonCancellable) {
+        toolAttempt.onOutput(call, execution, ToolOutput("Invio interrotto; effetto non verificato. Non ripetuto automaticamente.", result = ToolResultDetails(ToolOutcome.UNCERTAIN, error = ToolError("interrupted", "Verificare nella fonte prima di ripetere"))))
+      }
+      throw e
+    } catch (e: Throwable) {
+      if (!SourceBridgePolicy.actionFor(tool.name, tool.isAction)) return null
+      val uncertain = ToolOutput("Operazione non ripetuta: esito da verificare nella fonte.", result = ToolResultDetails(ToolOutcome.UNCERTAIN, error = ToolError("tool_error", "Non e' sicuro ripetere questa azione automaticamente")))
+      toolAttempt.onOutput(call, execution, uncertain)
+      uncertain
+    }
+    // Un'azione riuscita non passa mai al modello (un secondo timer); una non fatta ci passa, e
+    // senza nessun servizio da chiamare si risponde con la frase di ripiego.
+    val answer = when (val outcome = if (output != null) QuickCommands.outcome(match, output, ZonedDateTime.now(zone)) else QuickCommands.outcome(match, null as String?, ZonedDateTime.now(zone))) {
+      is QuickCommands.Outcome.Answer -> outcome.text
+      is QuickCommands.Outcome.NotDone -> if (providers.ordered(ProviderFactory.Kind.CHAT).isEmpty()) outcome.fallback else return null
+    }
+    return answerLocally(request, turn, live, startedAt, answer, listOfNotNull(match.tool), ctx.traces)
+  }
+
+  /** Una risposta scritta qui e non dal modello (comando rapido, kill switch): su disco, in memoria, nello stato. */
+  private suspend fun answerLocally(
+    request: AssistantRequest,
+    turn: Turn,
+    live: MutableStateFlow<AssistantState>,
+    startedAt: Long,
+    answer: String,
+    toolsUsed: List<String>,
+    traces: List<dev.pampa.pampai.core.assistant.tools.PampaiToolTrace>,
+    outcome: String = LOCAL_OUTCOME,
+    selectedProvider: ProviderId? = null,
+  ): ExecutionResult {
+    val conversationId = turn.conversationId
+    val finished = System.currentTimeMillis()
+    conversations.complete(turn.assistantId, answer, emptyList())
+    conversations.addFailedRun(conversationId, turn.assistantId, startedAt, finished, outcome, null, traces)
+    conversations.touch(conversationId, finished, null)
+    // Lo scambio entra anche nella memoria della conversazione: "e allungalo di 5 minuti" deve
+    // sapere di quale timer si parla. Solo se quella in memoria e' la storia di questo ramo:
+    // altrimenti la prossima domanda la ricostruisce dal disco, dove lo scambio c'e' gia'.
+    val provider = selectedProvider ?: providers.ordered(ProviderFactory.Kind.CHAT).firstOrNull()?.provider?.id ?: ProviderId.GROQ
+    val cached = memoryConversations[conversationId]
+    if (cached != null && cached.leafId == turn.historyLeafId) {
+      cached.conversation.exchanges += Exchange(request.question, answer, emptyList(), provider, finished)
+      memoryConversations[conversationId] = CachedConversation(turn.assistantId, cached.conversation)
+    }
+    live.value = AssistantState.Done(
+      question = request.question, answer = answer, chips = emptyList(), provider = provider, mode = request.mode,
+      usage = null, toolsUsed = toolsUsed, durationMillis = finished - startedAt,
+    )
+    return ExecutionResult(conversationId, request.question, answer, null, cancelled = false)
+  }
+
+  /** I provider nell'ordine dell'utente, o quello scelto per questa domanda (rigenera con...). */
+  /** Also used by composers before clearing drafts; a chosen helper may perform image interpretation. */
+  suspend fun preflight(request: AssistantRequest) = runtime.preflight(request)
+
+  private suspend fun orderedProviders(
+    request: AssistantRequest,
+    settings: dev.antigravity.fluidengine.ai.keys.AiSettings,
+    attachments: List<ContentPart>,
+  ): List<ReadyProvider> {
+    request.modelPolicy?.let { policy ->
+      val chosen = providers.build(policy.identity.provider, settings.copy(openRouterFallbacks = emptyList())) ?: throw AssistantFailure(FailureKind.NO_KEYS, null)
+      return listOf(chosen.pinTo(policy.identity))
+    }
+    val override = request.override
+    if (override != null) {
+      // Una scelta esplicita ("rigenera con...") vince su tutto: l'ha fatta l'utente adesso.
+      val chosen = providers.build(override.provider, settings)
+      if (chosen != null) {
+        val ready = chosen.copy(chatModel = override.chatModel ?: chosen.chatModel, deepModel = override.chatModel ?: chosen.chatModel, classifierModel = override.chatModel ?: chosen.chatModel)
+        return listOf(ready)
+      }
+    }
+    return preferReader(providers.ordered(ProviderFactory.Kind.CHAT), attachments)
+  }
+
+  /**
+   * Chi sa leggere l'allegato passa davanti.
+   *
+   * L'orchestratore sa gia' salire dal modello di chat a quello profondo **dello stesso servizio**
+   * quando l'allegato lo regge solo il secondo, ma non guarda gli altri servizi. Cosi' uno
+   * screenshot mandato con Groq davanti finiva in "non riesco a leggere l'immagine con il modello
+   * che sto usando" anche con una chiave Gemini verificata due righe piu' sotto.
+   *
+   * Sposta un solo servizio, e solo se il primo non regge davvero niente: l'ordine e' una scelta
+   * dell'utente, e va rispettata in tutti i casi in cui puo' essere onorata.
+   */
+  private fun preferReader(ordered: List<ReadyProvider>, attachments: List<ContentPart>): List<ReadyProvider> {
+    if (attachments.isEmpty() || ordered.size < 2) return ordered
+    fun reads(p: ReadyProvider): Boolean {
+      val chat = p.capabilities(p.model(ModelTier.CHAT))
+      val deep = p.capabilities(p.model(ModelTier.DEEP))
+      return attachments.all { chat.accepts(it) || deep.accepts(it) }
+    }
+    if (reads(ordered.first())) return ordered
+    val index = ordered.indexOfFirst { reads(it) }
+    if (index <= 0) return ordered
+    return listOf(ordered[index]) + ordered.filterIndexed { i, _ -> i != index }
+  }
+
+  private fun config(surface: Surface): AiOrchestratorConfig = when (surface) {
+    // Una card sopra un'altra app vive un minuto e mezzo e si legge in tre righe; la chat, con il
+    // service dietro, quattro minuti e tutto lo spazio che serve.
+    Surface.SESSION -> AiOrchestratorConfig(maxRounds = 8, maxOpens = 4, toolTimeoutMillis = 90_000L, totalBudgetMillis = 90_000L, finalReserveMillis = 15_000L, toolTextChars = 4_000, maxOutputTokens = 1_200)
+    // 4000 token di risposta, non 2000: una spiegazione lunga o un file di codice tagliato a meta'
+    // non e' una risposta piu' concisa, e' una risposta rotta.
+    Surface.APP -> AiOrchestratorConfig(maxRounds = 12, maxMoreTools = 4, maxOpens = 6, toolTimeoutMillis = 90_000L, totalBudgetMillis = 240_000L, finalReserveMillis = 40_000L, toolTextChars = 4_000, maxOutputTokens = 4_000)
+  }
+
+  /**
+   * La conversazione in memoria riletta dal disco: gli scambi del cammino sopra [questionId] (con
+   * [questionId] nullo, tutto il cammino attivo) e i gruppi aperti.
+   */
+  private suspend fun rebuild(conversationId: Long, questionId: Long?, now: Long, registry: ToolRegistry<PampaiToolContext>): Conversation {
+    val conversation = Conversation(conversationId, now)
+    conversation.exchanges += conversations.exchanges(conversationId, questionId, limit = 8)
+    val stored = conversations.conversation(conversationId)
+    stored?.loadedGroups?.mapNotNull { registry.group(it) }?.let { groups ->
+      conversation.touch(groups)
+      groups.forEach { group -> group.resolvedCategory?.let { conversation.loadedCategories += it } }
+    }
+    return conversation
+  }
+
+  /**
+   * Un titolo di poche parole dal modello del router: costa nulla ed e' il pattern delle chat vere.
+   *
+   * Prova i servizi in ordine invece di fermarsi al primo. Su un piano gratuito il primo e' spesso
+   * proprio quello che ha appena esaurito i token del minuto, e un titolo mancato lascia in
+   * cronologia la domanda troncata a meta' parola.
+   */
+  private suspend fun autoTitle(conversationId: Long, question: String, answer: String, candidates: List<ReadyProvider>) {
+    for (ready in candidates) {
+      val title = runCatching {
+        ready.provider.complete(
+          ChatRequest(
+            model = ready.model(ModelTier.ROUTER),
+            messages = listOf(
+              Message.System("Scrivi un titolo di 3-6 parole, in italiano, senza punteggiatura finale e senza virgolette, per questa conversazione. Rispondi solo con il titolo."),
+              Message.User("Domanda: ${question.take(400)}\nRisposta: ${answer.take(600)}"),
+            ),
+            reasoning = ReasoningLevel.NONE,
+            maxOutputTokens = 24,
+            temperature = 0.2,
+          ),
+        ).message.text?.trim()?.trim('"', '«', '»', '.')?.takeIf { it.isNotBlank() && it.length <= 80 }
+      }.onFailure { if (it is CancellationException) throw it }.getOrNull()
+      if (title != null) {
+        conversations.rename(conversationId, title, auto = true)
+        return
+      }
+    }
+  }
+
+  private fun nowLabel(zone: ZoneId): String {
+    val now = ZonedDateTime.now(zone)
+    return "${Dates.label(now.toLocalDate())}, ${Dates.longDay(now.dayOfWeek)} ${now.dayOfMonth} ${now.month.getDisplayName(java.time.format.TextStyle.FULL, Locale.ITALIAN)} ${now.year}, ore ${now.format(DateTimeFormatter.ofPattern("HH:mm"))}, fuso ${zone.id}"
+  }
+
+  /** Il "cosa c'e' nel prompt" per l'anello del contesto, senza far partire niente. */
+  suspend fun estimateContext(conversationId: Long?): ContextEstimate? {
+    val ready = providers.ordered(ProviderFactory.Kind.CHAT).firstOrNull() ?: return null
+    val catalog = registryHolder.catalog.value
+    val now = System.currentTimeMillis()
+    // La storia del ramo mostrato: quella in memoria se finisce li', altrimenti riletta (senza
+    // metterla in memoria: e' una stima, la domanda vera decide da se').
+    val cached = conversationId?.let { memoryConversations[it] }
+    val conversation = when {
+      conversationId == null -> Conversation(-1L, now)
+      cached != null && cached.leafId == conversations.activeLeaf(conversationId) -> cached.conversation
+      else -> rebuild(conversationId, null, now, catalog.registry)
+    }
+    val prompt = PromptBuilder.build(
+      PromptContext(nowLabel(ZoneId.systemDefault()), "it", memory.promptBlock(), catalog.summary, Surface.APP, AskMode.TEXT, true, conversation.loadedCategories.map { it.id }, 12, null, null, null),
+    )
+    return ContextMeter.estimate(prompt, conversation, ContextMeter.historyBudget(ready), catalog.registry.specsFor(conversation.loadedGroups), emptyList(), ready)
+  }
+
+  /** Dimentica la conversazione in memoria: dopo una cancellazione, o una modifica che ne cambia la storia. */
+  fun forget(conversationId: Long) {
+    memoryConversations.remove(conversationId)
+    runtime.modelSelection.forget(conversationId)
+  }
+
+  /**
+   * Lasciare una chat temporanea la fa sparire: da disco e dalla memoria di questo processo.
+   *
+   * Le due cose insieme, e in un posto solo, perche' dimenticare l'una senza l'altra e' un buco:
+   * SQLite puo' riassegnare l'id appena liberato, e gli scambi rimasti in memoria su quell'id
+   * finirebbero nel prompt della prossima conversazione.
+   */
+  suspend fun dropTemporary() {
+    runCatching { conversations.deleteTemporary() }.getOrDefault(emptyList()).forEach { forget(it) }
+  }
+}
+
+/** Cosa dire al modello dello schermo sotto la sessione: quale app, cosa c'e' a disposizione, se l'utente l'ha allegato. */
+private fun AssistantEngine.screenNoteOf(snapshot: ScreenContextStore.Snapshot?, request: AssistantRequest, appLabel: (String?) -> String?): String? {
+  if (request.surface != Surface.SESSION || snapshot == null || !snapshot.available) return null
+  val app = appLabel(snapshot.foregroundPackage) ?: snapshot.foregroundPackage
+  val attached = request.attachments.any { it.name.startsWith("schermo") }
+  return buildString {
+    append(if (app != null) "l'utente stava usando $app" else "l'app sotto non e' nota")
+    append("; ")
+    append(
+      when {
+        snapshot.lockscreen -> "il telefono e' bloccato: niente lettura dello schermo"
+        attached -> "l'utente ha allegato lo schermo (o una porzione) a questo messaggio: guardalo, non serve schermo_guarda"
+        snapshot.assistExpected && snapshot.screenshotExpected -> "il testo e lo screenshot dello schermo sono disponibili con i tool schermo_leggi / schermo_guarda (categoria schermo), solo se la domanda riguarda lo schermo"
+        snapshot.assistExpected -> "il testo dello schermo e' disponibile con schermo_leggi (categoria schermo), solo se la domanda riguarda lo schermo"
+        else -> "lo schermo non e' leggibile (impostazioni dell'assistente)"
+      },
+    )
+  }
+}

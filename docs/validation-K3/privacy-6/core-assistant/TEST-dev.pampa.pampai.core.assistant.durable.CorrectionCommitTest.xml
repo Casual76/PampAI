@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.durable.CorrectionCommitTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:48:38.460Z" hostname="PC_FISSO" time="0.034">
+  <properties/>
+  <testcase name="priorCorrectionDropsConflictingLearningWithoutLosingAnswerCheckpoint" classname="dev.pampa.pampai.core.assistant.durable.CorrectionCommitTest" time="0.034"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

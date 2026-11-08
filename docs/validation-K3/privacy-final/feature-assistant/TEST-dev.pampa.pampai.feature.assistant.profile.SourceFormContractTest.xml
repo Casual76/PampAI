@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.profile.SourceFormContractTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:58:07.625Z" hostname="PC_FISSO" time="0.212">
+  <properties/>
+  <testcase name="everyPeriodFormPassesRealReadPolicyBeforeProofNegotiation" classname="dev.pampa.pampai.feature.assistant.profile.SourceFormContractTest" time="0.212"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

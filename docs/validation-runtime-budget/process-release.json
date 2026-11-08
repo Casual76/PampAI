@@ -1,0 +1,21 @@
+{
+    "OwnedGradleVersion":  "8.14.3",
+    "OwnedCommandsCompleted":  true,
+    "MatchingOwnedVersionProcesses":  0,
+    "ObservedUnrelatedProcesses":  [
+                                       {
+                                           "ProcessId":  14932,
+                                           "ParentProcessId":  38992,
+                                           "CreationDate":  "\/Date(1794130107004)\/",
+                                           "Kind":  "GradleDaemon",
+                                           "GradleVersion":  "9.3.0"
+                                       },
+                                       {
+                                           "ProcessId":  42844,
+                                           "ParentProcessId":  14932,
+                                           "CreationDate":  "\/Date(1794130130495)\/",
+                                           "Kind":  "KotlinCompileDaemon",
+                                           "GradleVersion":  ""
+                                       }
+                                   ]
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:43:36.978Z" hostname="PC_FISSO" time="1.376">
+  <properties/>
+  <testcase name="ordinaryImageProfileWiringRejectsLateStreamBeforeDiskCacheOrTitle" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.2"/>
+  <testcase name="actualEngineHonorsOnlyAttachmentAndPrivateRefusalBeforeResearchOrPromptInjection" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.262"/>
+  <testcase name="legacyCvAndRawProofCannotGuessStudentOrYear" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.055"/>
+  <testcase name="lateMountedReadNeverReturnsAfterForget" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.077"/>
+  <testcase name="compoundPersonalQuestionUsesSavedScopeWhileItsGeneralDefinitionStaysOrdinary" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.05"/>
+  <testcase name="stableSourceProofRenewsAfterSlowCompletionAndStreamingWithoutLosingTheAnswer" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.116"/>
+  <testcase name="actualMountedValidReadUsesProofChannelAndExactSavedPeriod" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.046"/>
+  <testcase name="invalidatedProfileCommitRetainsUncertainWriteLedgerAndReplayFence" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.032"/>
+  <testcase name="lateCompleteAndStreamProfileCorrectionAreTerminalAndReleaseNoContent" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.055"/>
+  <testcase name="explicitRefusalsOverrideInferenceWithoutDisablingAffirmativeSourceConsultation" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.044"/>
+  <testcase name="modelReadCannotForgeReceiptReadbackAuthorizationByRequestPrefix" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.018"/>
+  <testcase name="mountedLegacyMediaBrowserReadsFailWithoutInventingAccountScope" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.025"/>
+  <testcase name="mountedMissingContextGenericAndUnknownReadNeverReachSource" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.051"/>
+  <testcase name="revokeOrRemoteAuthorizationChangeAfterReadRejectsProviderResponse" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.079"/>
+  <testcase name="privateSuccessfulHistoryStaysVisibleButIsNotReusedAsModelContext" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.029"/>
+  <testcase name="forgottenRawAndAggregateFamiliesCannotReacquire" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.046"/>
+  <testcase name="mountedFragmentsRequireTheExactOriginatingTurnAndContinuation" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.058"/>
+  <testcase name="pendingLegacyReadAndUnboundPollNeverReleaseLatePrivateStatus" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.016"/>
+  <testcase name="atomicCommitRollsBackConversationWriteWhenLocalGenerationChanged" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.031"/>
+  <testcase name="savedScopeReplacementAndRevocationRejectMountedReads" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.053"/>
+  <testcase name="sourceFreeTurnSurvivesUnrelatedForgetAndFreshProfileCommits" classname="dev.pampa.pampai.core.assistant.research.OrdinaryTurnPrivacyTest" time="0.032"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

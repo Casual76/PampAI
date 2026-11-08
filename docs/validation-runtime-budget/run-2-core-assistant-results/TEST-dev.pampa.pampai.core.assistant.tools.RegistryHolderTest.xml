@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.tools.RegistryHolderTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-08T09:26:31.007Z" hostname="PC_FISSO" time="0.011">
+  <properties/>
+  <testcase name="theLockscreenCatalogHasNoConnectedApps" classname="dev.pampa.pampai.core.assistant.tools.RegistryHolderTest" time="0.003"/>
+  <testcase name="aParentGroupWithoutToolsOfItsOwnStaysDeclared" classname="dev.pampa.pampai.core.assistant.tools.RegistryHolderTest" time="0.001"/>
+  <testcase name="localCatalogHasAllCategoriesAndNoRemoteRules" classname="dev.pampa.pampai.core.assistant.tools.RegistryHolderTest" time="0.0"/>
+  <testcase name="remoteCatalogMountsPrefixedGroupsAndVocabularyRules" classname="dev.pampa.pampai.core.assistant.tools.RegistryHolderTest" time="0.002"/>
+  <testcase name="debugAndReleaseOfTheSameAppMountOnceAndTheOthersStay" classname="dev.pampa.pampai.core.assistant.tools.RegistryHolderTest" time="0.003"/>
+  <testcase name="aClashingAppStaysOutAloneAndSaysWhy" classname="dev.pampa.pampai.core.assistant.tools.RegistryHolderTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

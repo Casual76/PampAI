@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:07:42.334Z" hostname="PC_FISSO" time="2.046">
+  <properties/>
+  <testcase name="experienceHubLargeFont" classname="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" time="0.311"/>
+  <testcase name="composerKeysRecoveryAndCategoryBackPreserveDraftAndViewportWithoutSend" classname="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" time="0.621"/>
+  <testcase name="experienceHubLight" classname="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" time="0.241"/>
+  <testcase name="overlaySettingsHandoffImportsBeforeCategoryAndBackKeepsUnsentPixelsAndPolicy" classname="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" time="0.213"/>
+  <testcase name="experienceHubDark" classname="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" time="0.247"/>
+  <testcase name="drawerSearchKeepsNewChatAndGlobalNavigationPositions" classname="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" time="0.195"/>
+  <testcase name="attachmentMenuSeparatesConversationAndHasNoCompetingEffort" classname="dev.pampa.pampai.feature.assistant.chat.ExperienceArchitectureTest" time="0.218"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

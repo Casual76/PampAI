@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-08T09:09:44.660Z" hostname="PC_FISSO" time="0.572">
+  <properties/>
+  <testcase name="cooldownIsSharedPersistentAndForegroundBlocksBackground" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.09"/>
+  <testcase name="backgroundAreaCapAndLeaseFenceAreAuthoritativeAtEveryAttempt" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.104"/>
+  <testcase name="dispatchedUnknownSurvivesReopenAndCannotReleaseOnCancellation" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.082"/>
+  <testcase name="concurrentLastSlotHasExactlyOneWinner" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.05"/>
+  <testcase name="settlementIsIdempotentConflictsFailAndNotDispatchedReleases" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.039"/>
+  <testcase name="observedUnderuseReducesTokensAndFailedUnobservedKeepsBounds" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.078"/>
+  <testcase name="moneyRequiresTrustedCurrentBoundedTariffAndChecksOverflow" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.09"/>
+  <testcase name="observedOverrunIsChargedAndNeverHiddenByError" classname="dev.pampa.pampai.core.assistant.durable.BudgetLedgerTest" time="0.038"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,5 +1,7 @@
 package dev.pampa.pampai.core.assistant.tools.music
 
+import dev.antigravity.fluidengine.ai.tools.*
+import kotlinx.serialization.json.*
 import android.media.AudioManager
 import android.os.Bundle
 import androidx.media3.common.Player
@@ -47,20 +49,20 @@ class MusicaRiproduciTool : AiTool<PampaiToolContext> {
     val id = args.str("id")
     val what = args.str("cosa")
     if (id != null) {
-      return if (ctx.fluidify.playItem(id)) ToolText.output { line("fatto", "in riproduzione: $id") } else ToolOutput.error(NOT_RESPONDING)
+      return if (ctx.fluidify.playItem(id)) ToolText.output { line("fatto", "in riproduzione: $id") }.asMusicReceipt(args, ctx) else musicUncertain()
     }
     if (what == null) {
-      return if (ctx.fluidify.play()) ToolText.output { line("fatto", "musica ripresa"); ctx.fluidify.nowPlaying()?.item?.let { line("brano", it.line()) } } else ToolOutput.error(NOT_RESPONDING)
+      return if (ctx.fluidify.play()) ToolText.output { line("fatto", "musica ripresa"); ctx.fluidify.nowPlaying()?.item?.let { line("brano", it.line()) } }.asMusicReceipt(args, ctx) else musicUncertain()
     }
-    val results = ctx.fluidify.search(what) ?: return ToolOutput.error(NOT_RESPONDING)
-    val playlists = ctx.fluidify.children(FluidifyClient.ID_PLAYLISTS).orEmpty().filter { Text.matches(what, it.title) }
+    val results = ctx.fluidify.search(what) ?: return musicUncertain()
+    val playlists = (ctx.fluidify.children(FluidifyClient.ID_PLAYLISTS) ?: return musicUncertain()).filter { Text.matches(what, it.title) }
     val chosen = playlists.maxByOrNull { Text.score(what, it.title) } ?: results.firstOrNull()
     if (chosen == null) {
       // Il ripiego: la ricerca di Fluidify da fuori, che sa aprire anche cio' che l'albero non elenca.
-      return if (ctx.fluidify.playFromSearch(what)) ToolText.output { line("fatto", "chiesto a Fluidify di suonare \"$what\" (ricerca aperta nell'app)") } else ToolOutput.error("niente trovato per \"$what\"")
+      return if (ctx.fluidify.playFromSearch(what)) ToolText.output { line("fatto", "chiesto a Fluidify di suonare \"$what\" (ricerca aperta nell'app)") }.asMusicReceipt(args, ctx) else ToolOutput.error("niente trovato per \"$what\"")
     }
-    return if (ctx.fluidify.playItem(chosen.mediaId)) ToolText.output { line("fatto", "in riproduzione: ${chosen.line()}"); if (results.size > 1) line("altri risultati", results.drop(1).take(3).joinToString("; ") { it.line() }) }
-    else ToolOutput.error(NOT_RESPONDING)
+    return if (ctx.fluidify.playItem(chosen.mediaId)) ToolText.output { line("fatto", "in riproduzione: ${chosen.line()}"); if (results.size > 1) line("altri risultati", results.drop(1).take(3).joinToString("; ") { it.line() }) }.asMusicReceipt(args, ctx)
+    else musicUncertain()
   }
 }
 
@@ -83,12 +85,12 @@ class MusicaControlloTool : AiTool<PampaiToolContext> {
       "vai_a" -> ctx.fluidify.seekTo((args.int("secondi") ?: 0) * 1000L)
       else -> return ToolOutput.error("azione sconosciuta: $action")
     }
-    if (!ok) return ToolOutput.error(NOT_RESPONDING)
+    if (!ok) return musicUncertain()
     val now = ctx.fluidify.nowPlaying()
     return ToolText.output {
       line("fatto", args.str("azione")!!)
       now?.item?.let { line("brano", it.line() + if (now.playing) " · in riproduzione" else " · in pausa") }
-    }
+    }.asMusicReceipt(args, ctx)
   }
 }
 
@@ -142,13 +144,13 @@ class MusicaShuffleRipetiTool : AiTool<PampaiToolContext> {
     val shuffle = args.bool("shuffle")
     val repeat = args.str("ripeti")?.let { when (it) { "spento" -> Player.REPEAT_MODE_OFF; "brano" -> Player.REPEAT_MODE_ONE; "tutto" -> Player.REPEAT_MODE_ALL; else -> null } }
     if (shuffle == null && repeat == null) return ToolOutput.error("di' shuffle (true/false) o ripeti (spento, brano, tutto)")
-    if (shuffle != null && !ctx.fluidify.setShuffle(shuffle)) return ToolOutput.error(NOT_RESPONDING)
-    if (repeat != null && !ctx.fluidify.setRepeat(repeat)) return ToolOutput.error(NOT_RESPONDING)
+    if (shuffle != null && !ctx.fluidify.setShuffle(shuffle)) return musicUncertain()
+    if (repeat != null && !ctx.fluidify.setRepeat(repeat)) return musicUncertain()
     val now = ctx.fluidify.nowPlaying()
     return ToolText.output {
       line("fatto", "impostato")
       now?.let { line("shuffle", if (it.shuffle) "on" else "off"); line("ripeti", FluidifyClient.REPEAT_LABELS[it.repeat] ?: "—") }
-    }
+    }.asMusicReceipt(args, ctx)
   }
 }
 
@@ -163,8 +165,8 @@ class MusicaRadioTool : AiTool<PampaiToolContext> {
     ctx.fluidifyOrError()?.let { return it }
     ctx.actionsOrOff()?.let { return it }
     val now = ctx.fluidify.nowPlaying()?.item ?: return ToolOutput.error("nessun brano in corso da cui partire: prima musica_riproduci")
-    if (!ctx.fluidify.custom(FluidifyClient.CMD_RADIO)) return ToolOutput.error(NOT_RESPONDING)
-    return ToolText.output { line("fatto", "radio avviata da \"${now.title}\"") }
+    if (!ctx.fluidify.custom(FluidifyClient.CMD_RADIO)) return musicUncertain()
+    return ToolText.output { line("fatto", "radio avviata da \"${now.title}\"") }.asMusicReceipt(args, ctx)
   }
 }
 
@@ -179,7 +181,7 @@ class MusicaVolumeTool : AiTool<PampaiToolContext> {
     val audio = ctx.app.getSystemService(AudioManager::class.java) ?: return ToolOutput.error("audio non disponibile")
     val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
     val current = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
-    val level = args.str("livello") ?: return ToolText.output { line("volume musica", "${current * 100 / max}%") }
+    val level = args.str("livello") ?: return ToolText.output { line("volume musica", "${current * 100 / max}%") }.copy(result = ToolResultDetails(ToolOutcome.COMPLETED, data = buildJsonObject { put("volumePercent", current * 100 / max) }, sources = listOf(ToolSourceRef("android.audio"))))
     ctx.actionsOrOff()?.let { return it }
     val target = when (level.lowercase().trim()) {
       "su", "alza", "piu", "più" -> (current + maxOf(1, max / 6)).coerceAtMost(max)
@@ -189,7 +191,7 @@ class MusicaVolumeTool : AiTool<PampaiToolContext> {
       else -> level.filter { it.isDigit() }.toIntOrNull()?.let { it.coerceIn(0, 100) * max / 100 } ?: return ToolOutput.error("livello: 0-100, su, giu', muto, massimo")
     }
     audio.setStreamVolume(AudioManager.STREAM_MUSIC, target, 0)
-    return ToolText.output { line("fatto", "volume musica al ${audio.getStreamVolume(AudioManager.STREAM_MUSIC) * 100 / max}%") }
+    return ToolText.output { line("volume musica", "${audio.getStreamVolume(AudioManager.STREAM_MUSIC) * 100 / max}%") }.copy(result = ToolResultDetails(ToolOutcome.COMPLETED, data = buildJsonObject { put("volumePercent", audio.getStreamVolume(AudioManager.STREAM_MUSIC) * 100 / max) }, sources = listOf(ToolSourceRef("android.audio")), freshness = ToolFreshness(observedAtMillis = ctx.now())))
   }
 }
 
@@ -212,8 +214,8 @@ class MusicaSalvaTool : AiTool<PampaiToolContext> {
     val remove = args.bool("togli") == true
     ctx.confirm(name, if (remove) "Togliere \"${now.title}\" dai preferiti?" else "Salvare \"${now.title}\" nei preferiti?", now.artist)?.let { return it }
     val ok = ctx.fluidify.custom(FluidifyClient.CMD_LIKE, Bundle().apply { putBoolean("remove", remove); putString("uri", now.mediaId) })
-    if (!ok) return ToolOutput.error("questa versione di Fluidify non ha ancora il comando \"salva\": aggiornala dal Pampa Store [[apri:store]]")
-    return ToolText.output { line("fatto", if (remove) "tolto dai preferiti: ${now.title}" else "salvato nei preferiti: ${now.title}") }
+    if (!ok) return musicUncertain()
+    return ToolText.output { line("fatto", if (remove) "tolto dai preferiti: ${now.title}" else "salvato nei preferiti: ${now.title}") }.asMusicReceipt(args, ctx)
   }
 }
 
@@ -241,8 +243,8 @@ class MusicaPlaylistTool : AiTool<PampaiToolContext> {
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     ctx.fluidifyOrError()?.let { return it }
     val playlists = ctx.fluidify.children(FluidifyClient.ID_PLAYLISTS) ?: return ToolOutput.error(NOT_RESPONDING)
-    if (playlists.isEmpty()) return ToolText.output { line("playlist", "nessuna") }
-    return ToolText.output { items("playlist", playlists, 40) }
+    if (playlists.isEmpty()) return ToolText.output { line("playlist", "nessuna") }.copy(result = libraryReceipt(emptyList(), "playlist"))
+    return ToolText.output { items("playlist", playlists, 40) }.copy(result = libraryReceipt(playlists, "playlist"))
   }
 }
 
@@ -254,13 +256,14 @@ class PlaylistBraniTool : AiTool<PampaiToolContext> {
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     ctx.fluidifyOrError()?.let { return it }
-    val id = args.str("id") ?: args.str("nome")?.let { n ->
-      val playlists = ctx.fluidify.children(FluidifyClient.ID_PLAYLISTS) ?: return ToolOutput.error(NOT_RESPONDING)
-      playlists.filter { Text.matches(n, it.title) }.maxByOrNull { Text.score(n, it.title) }?.mediaId ?: return ToolOutput.error("playlist \"$n\" non trovata; ci sono: ${playlists.joinToString { it.title }}")
-    } ?: return ToolOutput.error("dai il nome o l'id")
-    val tracks = ctx.fluidify.children(id, 100) ?: return ToolOutput.error(NOT_RESPONDING)
-    if (tracks.isEmpty()) return ToolText.output { line("brani", "nessuno") }
-    return ToolText.output(3_000) { items("brani", tracks, 40) }
+    val playlists = ctx.fluidify.children(FluidifyClient.ID_PLAYLISTS) ?: return ToolOutput.error(NOT_RESPONDING)
+    val playlist = args.str("id")?.let { id -> playlists.firstOrNull { it.mediaId == id } }
+      ?: args.str("nome")?.let { n -> playlists.filter { Text.matches(n, it.title) }.maxByOrNull { Text.score(n, it.title) } }
+      ?: return ToolOutput.error("playlist non identificata nella libreria")
+    val tracks = ctx.fluidify.children(playlist.mediaId, 100) ?: return ToolOutput.error(NOT_RESPONDING)
+    return ToolText.output(3_000) { if (tracks.isEmpty()) line("brani", "nessuno") else items("brani", tracks, 40) }.copy(
+      result = libraryReceipt(tracks, "track").copy(entities = listOf(ToolEntityRef("fluidify", "playlist", playlist.mediaId)),
+        data = buildJsonObject { put("title", playlist.title); put("items", JsonArray(tracks.map { it.json() })) }))
   }
 }
 
@@ -317,8 +320,8 @@ class MusicaApriTool : AiTool<PampaiToolContext> {
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     ctx.fluidifyOrError()?.let { return it }
     ctx.actionsOrOff()?.let { return it }
-    ctx.fluidify.open()
-    return ToolText.output { line("fatto", "Fluidify aperta") }
+    if (!ctx.fluidify.open()) return ToolOutput.error("Fluidify non si apre")
+    return ToolText.output { line("fatto", "Fluidify aperta") }.asMusicReceipt(args, ctx)
   }
 }
 
@@ -326,3 +329,23 @@ fun musicTools(): List<AiTool<PampaiToolContext>> = listOf(
   MusicaRiproduciTool(), MusicaControlloTool(), MusicaAdessoTool(), MusicaCodaTool(), MusicaShuffleRipetiTool(), MusicaRadioTool(), MusicaVolumeTool(), MusicaSalvaTool(),
   MusicaCercaTool(), MusicaPlaylistTool(), PlaylistBraniTool(), MusicaRecentiTool(), MusicaDownloadTool(), MusicaDispositiviTool(), MusicaApriTool(),
 )
+
+private fun MusicItem.json() = buildJsonObject { put("id", mediaId); put("title", title); artist?.let { put("artist", it) }; put("browsable", browsable) }
+private fun libraryReceipt(items: List<MusicItem>, type: String) = ToolResultDetails(ToolOutcome.COMPLETED,
+  data = buildJsonObject { put("items", JsonArray(items.map { it.json() })) },
+  entities = items.map { ToolEntityRef("fluidify", type, it.mediaId) }, sources = listOf(ToolSourceRef("fluidify")),
+  coverage = ToolCoverage(complete = true), pagination = ToolPagination(hasMore = false, total = items.size.toLong()),
+  freshness = ToolFreshness(observedAtMillis = System.currentTimeMillis()))
+
+private suspend fun ToolOutput.asMusicReceipt(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
+  val observed = ctx.fluidify.nowPlaying()
+  // A MediaController call returning is dispatch evidence, not a playback/playlist mutation acknowledgement.
+  return copy(text = "Richiesta inviata a Fluidify. " + (observed?.let { "Stato osservato: ${if (it.playing) "in riproduzione" else "in pausa"}; ${it.item?.title.orEmpty()}" } ?: "Stato non disponibile."),
+    result = ToolResultDetails(ToolOutcome.ACCEPTED,
+      data = buildJsonObject { put("requested", args); observed?.let { put("playing", it.playing); put("positionMillis", it.positionMillis); it.item?.let { item -> put("item", item.json()) } } },
+      entities = observed?.item?.let { listOf(ToolEntityRef("fluidify", "track", it.mediaId)) }.orEmpty(),
+      sources = listOf(ToolSourceRef("fluidify")), freshness = observed?.let { ToolFreshness(observedAtMillis = System.currentTimeMillis()) }))
+}
+
+private fun musicUncertain() = ToolOutput("Fluidify: risposta non verificata. Nessuna ripetizione automatica.", result = ToolResultDetails(
+  ToolOutcome.UNCERTAIN, sources = listOf(ToolSourceRef("fluidify")), error = ToolError("music_unverified", "Effetto non verificato")))

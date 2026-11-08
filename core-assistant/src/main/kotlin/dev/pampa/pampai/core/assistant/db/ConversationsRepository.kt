@@ -1,5 +1,9 @@
 package dev.pampa.pampai.core.assistant.db
 
+import dev.antigravity.fluidengine.ai.tools.ToolOutcome
+
+import dev.pampa.pampai.core.assistant.receipts.ToolReceipt
+import dev.pampa.pampai.core.assistant.receipts.toReceipt
 import android.content.Context
 import androidx.room.withTransaction
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -88,6 +92,7 @@ data class Message(
   val parentId: Long? = null,
   /** Quale versione e' fra le sue sorelle ("‹ 2/3 ›"); null quando ce n'e' una sola. */
   val version: Version? = null,
+  val receipts: List<ToolReceipt> = emptyList(),
 )
 
 /**
@@ -156,12 +161,16 @@ data class Run(
   val switches: List<ProviderSwitch> = emptyList(),
   /** Il dettaglio di un fallimento, per il foglio "Dettagli": chi, con che codice, cosa ha detto. */
   val failure: FailureDetail? = null,
+  val imageInterpretations: List<RunImageInterpretation> = emptyList(),
 ) {
   val totalTokens: Int? get() = if (promptTokens == null && completionTokens == null) null else (promptTokens ?: 0) + (completionTokens ?: 0)
   val durationMillis: Long? get() = finishedAtMillis?.let { it - startedAtMillis }
 }
 
 /** Un modello che ha risposto in un passaggio: quale servizio, a quale livello, quale modello. */
+/** An actual image-to-text conversion; cache reuse is provenance, not a new helper request. */
+data class RunImageInterpretation(val provider: ProviderId, val model: String, val cached: Boolean)
+
 data class RunModel(val provider: ProviderId, val tier: ModelTier, val model: String)
 
 /**
@@ -180,7 +189,7 @@ data class SearchHit(val conversationId: Long, val conversationTitle: String, va
 private data class ChipJson(val id: String, val value: String? = null)
 
 @Serializable
-private data class TraceJson(val name: String, val millis: Long, val ok: Boolean, val chars: Int, val args: String = "", val preview: String = "", val app: String? = null)
+private data class TraceJson(val name: String, val millis: Long, val ok: Boolean, val chars: Int, val args: String = "", val preview: String = "", val app: String? = null, val outcome: String? = null)
 
 @Serializable
 private data class RunModelJson(val provider: String, val tier: String, val model: String)
@@ -191,12 +200,20 @@ private data class RunModelJson(val provider: String, val tier: String, val mode
  * una migrazione di Room: le righe vecchie (una lista di stringhe) si leggono come prima.
  */
 @Serializable
+private data class ResearchCheckpointJson(val questionId: Long, val jobId: String)
+
+@Serializable
 private data class GroupsJson(
   val groups: List<String> = emptyList(),
   val models: List<RunModelJson> = emptyList(),
   val switches: List<SwitchJson> = emptyList(),
   val failure: FailureJson? = null,
+  val imageInterpretations: List<ImageInterpretationJson> = emptyList(),
+  val researchCheckpoint: ResearchCheckpointJson? = null,
 )
+
+@Serializable
+private data class ImageInterpretationJson(val provider: String, val model: String, val cached: Boolean)
 
 @Serializable
 private data class SwitchJson(val from: String, val to: String, val reason: String)
@@ -244,14 +261,15 @@ class ConversationsRepository @Inject constructor(
       // Solo la foglia: la riga della conversazione cambia a ogni passaggio (updatedAtMillis), il
       // cammino no.
       conversationDao.observe(conversationId).map { it?.activeLeafId }.distinctUntilChanged(),
-    ) { messages, attachments, activeLeafId ->
+      db.operations().observe(conversationId),
+    ) { messages, attachments, activeLeafId, operations ->
       val byMessage = attachments.groupBy { it.messageId }
       MessageTree.path(messages, activeLeafId).map { node ->
-        node.message.toModel(byMessage[node.message.id].orEmpty().map { it.toModel() }, node.version.takeIf { it.count > 1 })
+        node.message.toModel(byMessage[node.message.id].orEmpty().map { it.toModel() }, node.version.takeIf { it.count > 1 }).copy(receipts = operations.filter { it.messageId == node.message.id || (it.isWrite && node.message.role == "ASSISTANT" && it.lineageId == node.message.parentId?.toString()) }.map { it.toReceipt() })
       }
     }
 
-  fun observeRuns(conversationId: Long): Flow<List<Run>> = runDao.observeByConversation(conversationId).map { list -> list.map { it.toModel() } }
+  fun observeRuns(conversationId: Long): Flow<List<Run>> = runDao.observeByConversation(conversationId).map { list -> list.filter { it.outcome != "research_checkpoint" }.map { it.toModel() } }
 
   fun observeTotals(): Flow<Totals> = combine(conversationDao.observeCount(), runDao.observeCount(), runDao.observeTotalTokens(), runDao.observeTotalCost()) { c, r, t, cost ->
     Totals(c, r, t, cost)
@@ -267,7 +285,7 @@ class ConversationsRepository @Inject constructor(
   /** Un messaggio solo, con i suoi allegati: la domanda di una risposta da rigenerare, per esempio. */
   suspend fun message(id: Long): Message? {
     val entity = messageDao.get(id) ?: return null
-    return entity.toModel(attachmentDao.listByMessage(id).map { it.toModel() }, null)
+    return entity.toModel(attachmentDao.listByMessage(id).map { it.toModel() }, null).copy(receipts = db.operations().forMessage(id).map { it.toReceipt() })
   }
 
   /** La foglia su cui finisce il cammino attivo (quella a cui si attacchera' la prossima domanda). */
@@ -391,23 +409,66 @@ class ConversationsRepository @Inject constructor(
    * Una versione nuova ("rigenera", "modifica e rinvia") fermata prima di dire qualcosa: se ne va
    * (messaggi, passaggi, allegati e file) e si torna al ramo che si guardava. Una risposta che ha
    * gia' del testo resta: e' una versione vera, anche se a meta'.
+   * @return true se eliminata o gia' assente; false se conservata con testo o prove di scrittura.
    */
-  suspend fun discardVersion(turn: Turn) {
-    val files = db.withTransaction {
+  suspend fun discardVersion(turn: Turn): Boolean {
+    val (discarded, files) = db.withTransaction {
       val all = messageDao.listByConversation(turn.conversationId)
-      val answer = all.firstOrNull { it.id == turn.assistantId } ?: return@withTransaction emptyList()
-      if (answer.text.isNotBlank() || answer.status == MessageStatus.DONE.name) return@withTransaction emptyList()
+      val answer = all.firstOrNull { it.id == turn.assistantId } ?: return@withTransaction true to emptyList<String>()
+      if (answer.text.isNotBlank() || answer.status == MessageStatus.DONE.name) return@withTransaction false to emptyList<String>()
       val ids = MessageTree.subtree(all, turn.userId ?: turn.assistantId).toList()
+      // Reservation is evidence even before any text was emitted. Silent cleanup must retain it.
+      if (ids.any { id -> db.operations().forMessage(id).any { it.isWrite } }) {
+        messageDao.cancel(turn.assistantId, null, MessageStatus.CANCELLED.name)
+        return@withTransaction false to emptyList<String>()
+      }
       val paths = attachmentDao.listByMessages(ids).map { it.path }
+      db.operations().deleteMessages(ids)
       attachmentDao.deleteByMessages(ids)
       runDao.deleteByMessages(ids)
       messageDao.deleteByIds(ids)
       val back = turn.previousLeafId?.takeIf { previous -> previous !in ids && all.any { it.id == previous } }
       conversationDao.setActiveLeaf(turn.conversationId, back)
-      paths
+      true to paths
     }
     deleteFiles(files)
+    return discarded
   }
+
+  /** Read text/arguments are staged in memory until the enclosing turn privacy transaction accepts them.
+   * Writes continue to reserve and settle immediately through OperationLedger. */
+  internal suspend fun acceptRead(conversationId: Long, lineage: String, messageId: Long, attempt: String,
+    call: dev.antigravity.fluidengine.ai.provider.ToolCall, execution: dev.antigravity.fluidengine.ai.tools.ToolExecution,
+    output: dev.antigravity.fluidengine.ai.tools.ToolOutput, now: Long) {
+    val result = output.result ?: dev.antigravity.fluidengine.ai.tools.ToolResultDetails(ToolOutcome.ACCEPTED)
+    db.operations().reserve(OperationEntity(execution.operationId, conversationId, lineage, messageId, attempt,
+      execution.operationId, call.name, call.arguments.toString(), false, result.outcome.name, now, now))
+    db.operations().finish(execution.operationId, result.outcome.name, output.text,
+      dev.pampa.pampai.core.assistant.receipts.ReceiptCodec.encode(result).toString(), now)
+  }
+
+  /** The actual research/chat boundary. No private answer can commit without its replay classification. */
+  suspend fun acceptResearch(turn: Turn, answer: dev.pampa.pampai.core.assistant.research.ResearchAnswer,
+    startedAt: Long, finishedAt: Long) {
+    val acceptance = requireNotNull(answer.acceptance) { "ACCEPTANCE_DESCRIPTOR_MISSING" }
+    acceptance.commit {
+      val c = conversationDao.get(turn.conversationId) ?: error("CONVERSATION_MISSING")
+      val m = messageDao.get(turn.assistantId) ?: error("TURN_MISSING")
+      val question = messageDao.get(turn.questionId) ?: error("QUESTION_MISSING")
+      check(question.conversationId == c.id && question.role == MessageRole.USER.name &&
+        question.text == acceptance.descriptor.objective &&
+        acceptance.descriptor.policyKey == dev.pampa.pampai.core.assistant.research.digest(answer.policy.toString())) { "RESEARCH_BINDING_MISMATCH" }
+      check(c.activeLeafId == turn.assistantId && m.role == MessageRole.ASSISTANT.name &&
+        m.conversationId == c.id && m.parentId == turn.questionId &&
+        m.status in setOf(MessageStatus.PENDING.name, MessageStatus.STREAMING.name)) { "TURN_SCOPE_MISMATCH" }
+      check(acceptance.descriptor.conversationId == c.id || (c.temporary && acceptance.descriptor.conversationId == null)) { "CONVERSATION_SCOPE_MISMATCH" }
+      complete(turn.assistantId, answer.text, emptyList())
+      addFailedRun(c.id, turn.assistantId, startedAt, finishedAt, "research", null)
+      touch(c.id, finishedAt, answer.policy.identity.provider)
+    }
+  }
+
+  suspend fun recordDispatch(row: DispatchAuditEntity) { db.dispatches().insert(row) }
 
   suspend fun updatePartial(messageId: Long, text: String) =
     messageDao.updatePartial(messageId, text, MessageStatus.STREAMING.name, listOf(MessageStatus.PENDING.name, MessageStatus.STREAMING.name))
@@ -447,7 +508,7 @@ class ConversationsRepository @Inject constructor(
   suspend fun setLoadedGroups(conversationId: Long, groupIds: List<String>) =
     conversationDao.setLoadedGroups(conversationId, json.encodeToString(groupIds))
 
-  suspend fun addRun(conversationId: Long, messageId: Long, log: AiRequestLog, finishedAtMillis: Long, outcome: String, error: String?, traces: List<PampaiToolTrace>, contextTokens: Int?, contextWindow: Int?): Long =
+  suspend fun addRun(conversationId: Long, messageId: Long, log: AiRequestLog, finishedAtMillis: Long, outcome: String, error: String?, traces: List<PampaiToolTrace>, contextTokens: Int?, contextWindow: Int?, imageInterpretations: List<RunImageInterpretation> = emptyList()): Long =
     runDao.insert(
       RunEntity(
         conversationId = conversationId,
@@ -460,13 +521,13 @@ class ConversationsRepository @Inject constructor(
         chatModel = log.models[ModelTier.CHAT] ?: log.model,
         deepModel = log.models[ModelTier.DEEP],
         tierReached = log.tierReached.name,
-        groupsJson = json.encodeToString(GroupsJson(log.groups, log.modelsUsed.map { RunModelJson(it.provider.id, it.tier.name, it.model) }, log.switches.map { it.toJson() })),
+        groupsJson = json.encodeToString(GroupsJson(log.groups, log.modelsUsed.map { RunModelJson(it.provider.id, it.tier.name, it.model) }, log.switches.map { it.toJson() }, imageInterpretations = imageInterpretations.map { ImageInterpretationJson(it.provider.id, it.model, it.cached) })),
         promptTokens = log.usage?.promptTokens,
         completionTokens = log.usage?.completionTokens,
         costUsd = log.usage?.costUsd,
         waitedSeconds = log.waitedSeconds,
         toolTracesJson = json.encodeToString(
-          if (traces.isNotEmpty()) traces.map { TraceJson(it.name, it.millis, it.ok, it.chars, it.args, it.preview, it.app) }
+          if (traces.isNotEmpty()) traces.map { TraceJson(it.name, it.millis, it.ok, it.chars, it.args, it.preview, it.app, it.outcome?.name) }
           else log.tools.map { TraceJson(it.name, it.millis, it.ok, it.chars) },
         ),
         outcome = outcome,
@@ -486,22 +547,61 @@ class ConversationsRepository @Inject constructor(
     traces: List<PampaiToolTrace> = emptyList(),
     failure: FailureDetail? = null,
     switches: List<ProviderSwitch> = emptyList(),
+    imageInterpretations: List<RunImageInterpretation> = emptyList(),
+    researchCheckpoint: Pair<Long, String>? = null,
   ): Long =
     runDao.insert(
       RunEntity(
         conversationId = conversationId, messageId = messageId, startedAtMillis = startedAtMillis, finishedAtMillis = finishedAtMillis,
         steps = 0, provider = failure?.provider?.id, routerModel = null, chatModel = null, deepModel = null, tierReached = null,
-        groupsJson = if (failure == null && switches.isEmpty()) null else json.encodeToString(
+        groupsJson = if (failure == null && switches.isEmpty() && imageInterpretations.isEmpty() && researchCheckpoint == null) null else json.encodeToString(
           GroupsJson(
+            researchCheckpoint = researchCheckpoint?.let { ResearchCheckpointJson(it.first, it.second) },
             switches = switches.map { it.toJson() },
+            imageInterpretations = imageInterpretations.map { ImageInterpretationJson(it.provider.id, it.model, it.cached) },
             failure = failure?.let { FailureJson(it.provider?.id, it.reason?.name, it.httpCode, it.message) },
           ),
         ),
         promptTokens = null, completionTokens = null, costUsd = null, waitedSeconds = 0,
-        toolTracesJson = traces.takeIf { it.isNotEmpty() }?.let { list -> json.encodeToString(list.map { TraceJson(it.name, it.millis, it.ok, it.chars, it.args, it.preview, it.app) }) },
+        toolTracesJson = traces.takeIf { it.isNotEmpty() }?.let { list -> json.encodeToString(list.map { TraceJson(it.name, it.millis, it.ok, it.chars, it.args, it.preview, it.app, it.outcome?.name) }) },
         outcome = outcome, error = error,
       ),
     )
+
+  /** Association is saved before acquisition, survives process death, and carries no private payload. */
+  suspend fun associateResearch(turn: Turn, jobId: String, now: Long) = db.withTransaction {
+    val c = conversationDao.get(turn.conversationId) ?: error("CONVERSATION_MISSING")
+    check(!c.temporary) { "TEMPORARY_RESEARCH_ASSOCIATION" }
+    val answer = messageDao.get(turn.assistantId) ?: error("TURN_MISSING")
+    check(answer.conversationId == turn.conversationId && answer.parentId == turn.questionId) { "TURN_SCOPE_MISMATCH" }
+    addFailedRun(turn.conversationId, turn.assistantId, now, now, "research_checkpoint", null,
+      researchCheckpoint = turn.questionId to jobId)
+  }
+
+  /** Only an explicitly retried failed/cancelled assistant sibling may carry a checkpoint forward. */
+  suspend fun researchRetry(conversationId: Long, replacing: Long, questionId: Long): String? = db.withTransaction {
+    val c = conversationDao.get(conversationId) ?: return@withTransaction null
+    if (c.temporary) return@withTransaction null
+    val answer = messageDao.get(replacing) ?: return@withTransaction null
+    check(answer.conversationId == conversationId && answer.parentId == questionId && answer.role == MessageRole.ASSISTANT.name) { "TURN_SCOPE_MISMATCH" }
+    if (answer.status !in listOf(MessageStatus.FAILED.name, MessageStatus.CANCELLED.name, MessageStatus.PENDING.name, MessageStatus.STREAMING.name)) return@withTransaction null
+    runDao.listByConversation(conversationId).filter { it.messageId == replacing }.sortedByDescending { it.id }
+      .firstNotNullOfOrNull { row -> row.groupsJson?.let { decodeGroups(it)?.researchCheckpoint } }
+      ?.also { check(it.questionId == questionId) { "TURN_SCOPE_MISMATCH" } }?.jobId
+  }
+
+  /** Read-only dispatch context; called before a draft or turn is consumed. */
+  suspend fun replayContext(conversationId: Long, anchor: Anchor, supplied: List<PendingAttachment>): Pair<List<Exchange>, List<PendingAttachment>> {
+    val questionId = when (anchor) {
+      Anchor.Continue -> null
+      is Anchor.Edit -> anchor.replacing
+      is Anchor.Regenerate -> message(anchor.replacing)?.let { if (it.role == MessageRole.USER) it.id else it.parentId }
+        ?: error("La domanda da rigenerare non esiste")
+    }
+    val current = if (anchor is Anchor.Regenerate || (anchor is Anchor.Edit && supplied.isEmpty()))
+      pendingAttachmentsOf(requireNotNull(questionId)) else supplied
+    return exchanges(conversationId, questionId, 8) to current
+  }
 
   /**
    * Le coppie domanda/risposta concluse, per ricostruire la conversazione in memoria del modello.
@@ -517,7 +617,10 @@ class ConversationsRepository @Inject constructor(
     // Chi ha risposto davvero a ciascuna domanda, dai passaggi salvati: prima era "Groq" per tutte,
     // e l'engine lo usa per decidere come riproporre la storia al modello.
     val fallbackProvider = stored?.lastProvider?.let { ProviderId.fromId(it) } ?: ProviderId.defaultOrder.first()
-    val providerByMessage = runDao.listByConversation(conversationId).mapNotNull { run -> ProviderId.fromId(run.provider)?.let { run.messageId to it } }.toMap()
+    val runs = runDao.listByConversation(conversationId)
+    // Keep the visible history; private evidence is reacquired through the current turn guard.
+    val privateMessages = runs.filter { it.outcome in setOf("private", "research", "privacy_invalidated") }.map { it.messageId }.toSet()
+    val providerByMessage = runs.mapNotNull { run -> ProviderId.fromId(run.provider)?.let { run.messageId to it } }.toMap()
     val exchanges = mutableListOf<Pair<Exchange, Long>>()
     var pendingQuestion: MessageEntity? = null
     messages.forEach { message ->
@@ -525,7 +628,7 @@ class ConversationsRepository @Inject constructor(
         MessageRole.USER.name -> pendingQuestion = message
         MessageRole.ASSISTANT.name -> {
           val question = pendingQuestion
-          if (question != null && message.status == MessageStatus.DONE.name && message.text.isNotBlank()) {
+          if (question != null && message.status == MessageStatus.DONE.name && message.text.isNotBlank() && message.id !in privateMessages) {
             exchanges += Exchange(question.text, message.text, decodeChips(message.chipsJson), providerByMessage[message.id] ?: fallbackProvider, message.createdAtMillis) to question.id
           }
           pendingQuestion = null
@@ -540,28 +643,38 @@ class ConversationsRepository @Inject constructor(
   }
 
   /** Cerca nelle conversazioni: le parole della domanda in qualsiasi messaggio, dal piu' recente. */
-  suspend fun search(query: String, limit: Int = 20): List<SearchHit> {
+  suspend fun search(query: String, limit: Int = 20, includePrivate: Boolean = true): List<SearchHit> {
     val words = query.trim().split(Regex("\\s+")).filter { it.length > 2 }
     if (words.isEmpty()) return emptyList()
     val found = messageDao.search(words.first(), limit * 4)
       .filter { message -> words.all { w -> message.text.contains(w, ignoreCase = true) } }
-      .take(limit)
+    val hiddenByConversation = mutableMapOf<Long, Set<Long>>()
     return found.mapNotNull { message ->
       val conversation = conversationDao.get(message.conversationId) ?: return@mapNotNull null
       // La chat temporanea non si cerca: non esiste per il cassetto e non deve esistere nemmeno
       // per il tool `conversazioni_cerca`, che altrimenti la ripescherebbe finche' e' aperta.
       if (conversation.temporary) return@mapNotNull null
+      // Visible user history is retained. Tool search cannot re-inject classified private
+      // answers after source/profile consent changes, bypassing fresh acquisition.
+      if (!includePrivate) {
+        val hidden = hiddenByConversation[conversation.id] ?: runDao.listByConversation(conversation.id)
+          .filter { it.outcome in setOf("private", "research", "privacy_invalidated") }.map { it.messageId }.toSet()
+          .also { hiddenByConversation[conversation.id] = it }
+        if (message.id in hidden) return@mapNotNull null
+      }
       val index = message.text.indexOf(words.first(), ignoreCase = true).coerceAtLeast(0)
       val start = (index - 80).coerceAtLeast(0)
       val end = (index + 120).coerceAtMost(message.text.length)
       SearchHit(conversation.id, conversation.title, message.id, MessageRole.valueOf(message.role), message.text.substring(start, end).replace('\n', ' '), message.createdAtMillis)
-    }
+    }.take(limit)
   }
 
   /** Una conversazione intera, con tutti i suoi rami: messaggi, passaggi, allegati e file. */
   suspend fun delete(conversationId: Long) {
     val files = attachmentDao.listByConversation(conversationId).map { it.path }
     db.withTransaction {
+      db.dispatches().deleteConversation(conversationId)
+      db.operations().deleteConversation(conversationId)
       attachmentDao.deleteByConversation(conversationId)
       runDao.deleteByConversation(conversationId)
       messageDao.deleteByConversation(conversationId)
@@ -587,6 +700,8 @@ class ConversationsRepository @Inject constructor(
 
   suspend fun deleteAll() {
     db.withTransaction {
+      db.dispatches().deleteAll()
+      db.operations().deleteAll()
       attachmentDao.deleteAll()
       runDao.deleteAll()
       messageDao.deleteAll()
@@ -676,6 +791,7 @@ class ConversationsRepository @Inject constructor(
       steps = steps, provider = ProviderId.fromId(provider), routerModel = routerModel, chatModel = chatModel, deepModel = deepModel,
       tierReached = tierReached?.let { name -> ModelTier.entries.firstOrNull { it.name == name } },
       groups = stored?.groups ?: emptyList(),
+      imageInterpretations = stored?.imageInterpretations?.mapNotNull { i -> ProviderId.fromId(i.provider)?.let { RunImageInterpretation(it, i.model, i.cached) } }.orEmpty(),
       models = stored?.models?.mapNotNull { m ->
         val provider = ProviderId.fromId(m.provider) ?: return@mapNotNull null
         val tier = ModelTier.entries.firstOrNull { it.name == m.tier } ?: return@mapNotNull null
@@ -690,7 +806,7 @@ class ConversationsRepository @Inject constructor(
         FailureDetail(ProviderId.fromId(f.provider), f.reason?.let { name -> SwitchReason.entries.firstOrNull { it.name == name } }, f.httpCode, f.message)
       },
       promptTokens = promptTokens, completionTokens = completionTokens, costUsd = costUsd, waitedSeconds = waitedSeconds,
-      tools = toolTracesJson?.let { runCatching { json.decodeFromString<List<TraceJson>>(it) }.getOrNull() }?.map { PampaiToolTrace(it.name, it.args, it.millis, it.ok, it.chars, it.preview, it.app) } ?: emptyList(),
+      tools = toolTracesJson?.let { runCatching { json.decodeFromString<List<TraceJson>>(it) }.getOrNull() }?.map { PampaiToolTrace(it.name, it.args, it.millis, it.ok, it.chars, it.preview, it.app, it.outcome?.let { name -> ToolOutcome.entries.firstOrNull { it.name == name } }) } ?: emptyList(),
       outcome = outcome, error = error, contextTokens = contextTokens, contextWindow = contextWindow,
     )
   }

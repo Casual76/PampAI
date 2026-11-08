@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:55:11.112Z" hostname="PC_FISSO" time="1.597">
+  <properties/>
+  <testcase name="publicScopeDecisionNeverUpgradesWhenANewSourceIsConnectedLater" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.079"/>
+  <testcase name="currentAnswerAndStableProofRenewalStayVisibleButNeverReplayOrToolSearch" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.087"/>
+  <testcase name="actualEngineRestoresPublicPartialSaverAndRetainsPrivateBuffering" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.835"/>
+  <testcase name="rejectedAcceptancePreservesUncertainWriteReceiptAndNoReplayFence" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.051"/>
+  <testcase name="publicStreamingIsImmediateAndPrivateCapableStreamingRemainsBufferedBeforeFirstRead" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.045"/>
+  <testcase name="actualStoredProfileDependencyIsCarriedAcrossSynthesisAndRejectsCorrectionAtHandoff" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.053"/>
+  <testcase name="temporaryAnswerUsesSameBoundaryWithoutCreatingResearchJobsOrProfile" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.04"/>
+  <testcase name="resumedDoneJobRetainsOriginalDescriptorAndGeneratesOnlyOnce" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.055"/>
+  <testcase name="remoteAuthorizationDriftAtReturnRejectsChat" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.053"/>
+  <testcase name="explicitProfileRefusalStillAllowsSourceResearchWithoutStoredKnowledgeOrLearning" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.051"/>
+  <testcase name="forgetAtRealResearchReturnRejectsChatWithoutReplayingSettledSynthesis" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.048"/>
+  <testcase name="temporaryForgetDuringProductionCannotRecaptureANewEpoch" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.042"/>
+  <testcase name="sqliteFailureBetweenAnswerAndClassificationRollsBackBoth" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.075"/>
+  <testcase name="localRevokeAtReturnRejectsEvenAfterExplicitReconnect" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.054"/>
+  <testcase name="sourceFreeToolCommitUsesSharedRoomRollbackAndIgnoresUnrelatedEpochChanges" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.028"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

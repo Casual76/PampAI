@@ -1,0 +1,17 @@
+[
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-music-observation-dark.png",
+    "sha256": "b94ac93bd475c5f98e079b74b4aadbc123cd85dd964b081a8f5aa6406962c1c5",
+    "observation": "Nested production-shaped music data, unknown measured duration and actual display zone are readable."
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-provenance-dark.png",
+    "sha256": "7e9be5d99f1093bff8156b5d5d6323c7a46e6deb43b50492b3e886527ba37916",
+    "observation": "UTC-labelled interval and fact timestamps are UTC; partial coverage and deduction uncertainty remain explicit."
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-setup-music-period-light.png",
+    "sha256": "29a837201ba4de549cab2503d5e5a25eacdb38e5a830cfc86c0acea0bd4bd965",
+    "observation": "Real string-epoch period is readable and distinct, with actual device display zone and exclusive end."
+  }
+]

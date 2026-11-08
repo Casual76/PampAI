@@ -1,0 +1,82 @@
+[
+  {
+    "apk": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\worker-final\\PampAI-worker-debug.apk",
+    "entries": 434,
+    "manifestSha256": "32073b75fa2c1d972999d1074e6e78fd18fcfc7dbd186b5509f707f651c583f3",
+    "native": {
+      "lib/arm64-v8a/libandroidx.graphics.path.so": {
+        "size": 10096,
+        "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6"
+      },
+      "lib/arm64-v8a/libdatastore_shared_counter.so": {
+        "size": 7112,
+        "sha256": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1"
+      },
+      "lib/armeabi-v7a/libandroidx.graphics.path.so": {
+        "size": 7252,
+        "sha256": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b"
+      },
+      "lib/armeabi-v7a/libdatastore_shared_counter.so": {
+        "size": 4416,
+        "sha256": "716c5d8d2cac8ca0edf65da8f139c7886b726ac79d542a14edeb94994ba6d3dc"
+      },
+      "lib/x86/libandroidx.graphics.path.so": {
+        "size": 9284,
+        "sha256": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af"
+      },
+      "lib/x86/libdatastore_shared_counter.so": {
+        "size": 5148,
+        "sha256": "cd4a1649e2c8350703146f94a6ee2bf4c3c8c9f172159f805b61a4a2abdf0659"
+      },
+      "lib/x86_64/libandroidx.graphics.path.so": {
+        "size": 10760,
+        "sha256": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0"
+      },
+      "lib/x86_64/libdatastore_shared_counter.so": {
+        "size": 6224,
+        "sha256": "fb6c9208988c49ae94943bc3236fa763ba584722e044fa4ea9a12d2941027105"
+      }
+    },
+    "dexBytes": 92356124
+  },
+  {
+    "apk": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-root-final\\PampAI-knowledge-debug.apk",
+    "entries": 434,
+    "manifestSha256": "32073b75fa2c1d972999d1074e6e78fd18fcfc7dbd186b5509f707f651c583f3",
+    "native": {
+      "lib/arm64-v8a/libandroidx.graphics.path.so": {
+        "size": 10096,
+        "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6"
+      },
+      "lib/arm64-v8a/libdatastore_shared_counter.so": {
+        "size": 7112,
+        "sha256": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1"
+      },
+      "lib/armeabi-v7a/libandroidx.graphics.path.so": {
+        "size": 7252,
+        "sha256": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b"
+      },
+      "lib/armeabi-v7a/libdatastore_shared_counter.so": {
+        "size": 4416,
+        "sha256": "716c5d8d2cac8ca0edf65da8f139c7886b726ac79d542a14edeb94994ba6d3dc"
+      },
+      "lib/x86/libandroidx.graphics.path.so": {
+        "size": 9284,
+        "sha256": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af"
+      },
+      "lib/x86/libdatastore_shared_counter.so": {
+        "size": 5148,
+        "sha256": "cd4a1649e2c8350703146f94a6ee2bf4c3c8c9f172159f805b61a4a2abdf0659"
+      },
+      "lib/x86_64/libandroidx.graphics.path.so": {
+        "size": 10760,
+        "sha256": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0"
+      },
+      "lib/x86_64/libdatastore_shared_counter.so": {
+        "size": 6224,
+        "sha256": "fb6c9208988c49ae94943bc3236fa763ba584722e044fa4ea9a12d2941027105"
+      }
+    },
+    "dexBytes": 92356080
+  }
+]

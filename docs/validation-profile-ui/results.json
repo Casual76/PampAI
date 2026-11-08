@@ -1,0 +1,164 @@
+{
+  "fullFeatureTests": {
+    "tests": 60,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "profileScreenshotTests": {
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "screenshots": [
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-dark.png",
+      "bytes": 597568,
+      "sha256": "84892dec098244b1d694aee6a17f37e304c45e7d69d28a18db3267c418e73f1c"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-deduction-dark.png",
+      "bytes": 612227,
+      "sha256": "1438d5de319e60e14d5458f34c951ff1f67a2e8b55dadcd1a959efe55162aa67"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-empty-dark.png",
+      "bytes": 539665,
+      "sha256": "3de801fa89405e3af7067bf0ff2bc798c77968a39d82906dcac09c1bfea46902"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-empty-light.png",
+      "bytes": 481559,
+      "sha256": "b13662ecaeb1c62397c0311f75c54b375812a095132eae258d7b0976948366d4"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-font-2x.png",
+      "bytes": 512847,
+      "sha256": "30c928628d89b23d334676f214929b8e2499ceb005e90b30484277ead307be8f"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-light.png",
+      "bytes": 518296,
+      "sha256": "4fb08f70037f51e207c0c7f557b0360bac84313c98ef09cf5c3b47e77dd15f0c"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-provenance-dark.png",
+      "bytes": 523773,
+      "sha256": "9f5f31ab75b97908d5e0f82f85496774ac0fe5e47ea4cc076969d64442205867"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-setup-compact.png",
+      "bytes": 294416,
+      "sha256": "04f8f48a461f48812154c59276d1fe191c8247bba8fe85fa8e7d408fad95ce51"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-setup-wide-2x-dark.png",
+      "bytes": 922690,
+      "sha256": "12dc3d00f6f18719344cffc3fe83a8868a0a39a819c0a6af476d51fa65ce8f7c"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-sources-light.png",
+      "bytes": 539141,
+      "sha256": "b4a99656ef323254c5c45a5b1ac3f601426edbb94f47bfe48cd38481c387eb6e"
+    },
+    {
+      "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\profile-wide-dark.png",
+      "bytes": 768434,
+      "sha256": "ced4806a880b7e871c3ebf5787cf6728a8cbe90b30b1b2563014ef7ee04f93de"
+    }
+  ],
+  "apk": {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-ui\\PampAI-knowledge-ui-debug.apk",
+    "bytes": 99652004,
+    "sha256": "8f205fbaaa11b7deb7704a46141261ddc19e235b7dc50db4c8661e7e0adb8ae6"
+  },
+  "frozenInputsCompared": 233,
+  "frozenInputChanges": [],
+  "sourceHashes": {
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\ProfilePresentation.kt": "cc572ddf8f5347cded7ba9cd3a1b5cf11f603db5592b5f7954f2f8d5bd361e19",
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\ProfileRoute.kt": "898b124393a4544d370f365d78d4c9015429e4ac23f6ce901241c107952513c7",
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\ProfileViewModel.kt": "6e644eea83ace477f9ac1c70145315d782b98af80458c3fd967b82a511d3769d",
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\SourcesScreen.kt": "b1a69c98787c899c0edac5b2a7e77731a94ef76e297766e51baaaaa0aded6363",
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\UpdatesRoute.kt": "83b49597cf0e0db5f918ce17e596a56ae3943a71cb760c7c8771466af470d8fb",
+    "feature-assistant\\src\\test\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\ProfileNavigationTest.kt": "1a8b4754363b58825897df2781e27d5feab27c3fd48d0a7832dc21613351447a",
+    "feature-assistant\\src\\test\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\ProfileScreenshots.kt": "a04cc13a6f565546de5103b04225bdcc46ff312a14508936489eeeca08664e0c",
+    "feature-assistant\\src\\test\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\profile\\ProfileViewModelTest.kt": "29ba21fa189931c05805de91c2e88a89e079a64c1db897f5ec77049933d2a433",
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\PampaiRoot.kt": "6b0160f00de2e1151e33f12f891ddbd591adf7de52ef164c6639186eec9ed01e",
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\history\\AriaDrawer.kt": "f9f04c255aa2afe59c912d372935bdcf40a2764874f656b7f50a1b10493029a5",
+    "feature-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\settings\\SettingsRoute.kt": "a9084b31d431c33773b059fb1ca81ed9ea549106ae8ef46eb854edea23b4ab3c",
+    "feature-assistant\\src\\test\\kotlin\\dev\\pampa\\pampai\\feature\\assistant\\chat\\ExperienceArchitectureTest.kt": "610b1e76004becb67448ff48c61e4c21fee68cf8541a78484515378598528d7a"
+  },
+  "logs": [
+    {
+      "path": "C:\\VibeCoded Projects\\PampAI\\docs\\validation-profile-ui\\full-1.log",
+      "bytes": 3546,
+      "sha256": "906c9f7c4bc635aee760db473304fc4558d44301c001cd5bb29ef6ec3ec6fdd5"
+    },
+    {
+      "path": "C:\\VibeCoded Projects\\PampAI\\docs\\validation-profile-ui\\full-2.log",
+      "bytes": 93866,
+      "sha256": "1d214d26e88d07dacf33d55ade7642b566be8fec6d8885721997a9ed6ef1dcfe"
+    },
+    {
+      "path": "C:\\VibeCoded Projects\\PampAI\\docs\\validation-profile-ui\\screenshots-1.log",
+      "bytes": 36456,
+      "sha256": "49b9a5a46a27511b701fc5cafece66b3fd7e5771e1a1b8f5d71afb7f1f786f00"
+    },
+    {
+      "path": "C:\\VibeCoded Projects\\PampAI\\docs\\validation-profile-ui\\screenshots-2.log",
+      "bytes": 77968,
+      "sha256": "153d8afbbdbc4840f2b0ef8b8db2c078b4eba2e116086697caef2c63670de0d5"
+    }
+  ],
+  "lint": {
+    "feature-assistant": {
+      "Error": 0,
+      "Warning": 18,
+      "Fatal": 0
+    },
+    "app": {
+      "Error": 0,
+      "Warning": 39,
+      "Fatal": 0
+    }
+  },
+  "processRelease": {
+    "CheckedAt": "2026-11-08T10:27:16.6432507Z",
+    "OwnedRemaining": 0,
+    "CompletedSessions": [
+      54667,
+      20046,
+      26859,
+      28508
+    ],
+    "UnrelatedProcessesLeftUntouched": [
+      {
+        "ProcessId": 14932,
+        "ParentProcessId": 38992
+      },
+      {
+        "ProcessId": 42844,
+        "ParentProcessId": 14932
+      }
+    ]
+  },
+  "lintArtifacts": [
+    {
+      "path": "docs\\validation-profile-ui\\app-lint.xml",
+      "sha256": "29d51fe0bfab3797b66d7bfe1efaf89f00a6fedbdeb6def112844b0aa6d6c7a2"
+    },
+    {
+      "path": "docs\\validation-profile-ui\\feature-assistant-lint.xml",
+      "sha256": "4debccc3f662d348eea14bb19ced163eb3757a813b6b3955a6cb350bbc4c7691"
+    }
+  ],
+  "visualInspection": {
+    "individuallyViewed": 11,
+    "limitations": [
+      "static synthetic Robolectric only",
+      "shared FluidScreen subtitle ellipsis at 2x font",
+      "no device keyboard/gesture/live-provider validation"
+    ]
+  }
+}

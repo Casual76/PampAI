@@ -1,0 +1,17 @@
+[
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-setup-music-period-light.png",
+    "sha256": "8ab8d3b22e548940ff279c9a3fe1dbd5315cbdd42303f8082aa079aa28b95b41",
+    "inspection": "Opened directly by ROOT after passing candidate validation; synthetic fixture only"
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-provenance-dark.png",
+    "sha256": "64251124926cdffc26ef1347fdcb3d6c4119d80f5977a363918dfef1bd2d5a90",
+    "inspection": "Opened directly by ROOT after passing candidate validation; synthetic fixture only"
+  },
+  {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K3\\screenshots\\profile-music-observation-dark.png",
+    "sha256": "900cee13ed675ce8c4dc2fb2fe0b9fdecd75dfaeb5107e91ae8b87e45645fd93",
+    "inspection": "Opened directly by ROOT after passing candidate validation; synthetic fixture only"
+  }
+]

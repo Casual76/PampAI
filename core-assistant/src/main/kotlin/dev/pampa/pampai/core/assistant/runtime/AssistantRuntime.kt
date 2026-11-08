@@ -82,6 +82,10 @@ data class AssistantRequest(
    * avrebbe avuto tutti gli strumenti e la memoria.
    */
   val locked: Boolean = false,
+  val modelPolicy: ModelPolicy? = null,
+  val research: dev.pampa.pampai.core.assistant.research.ResearchTask? = null,
+  val retryResearch: Boolean = false,
+  val profileQuery: dev.pampa.pampai.core.assistant.research.ProfileQuery? = null,
 )
 
 /** Cosa e' successo a un ascolto che non ha prodotto una domanda: la barra decide cosa fare. */
@@ -113,12 +117,14 @@ internal class QueuedRequest(val request: AssistantRequest, val token: Long)
 class AssistantRuntime @Inject constructor(
   @ApplicationContext private val context: Context,
   private val settingsStore: AiSettingsStore,
+  val modelSelection: ModelSelection,
   private val keyStore: AiKeyStore,
   private val gate: PampaiConfirmationGate,
   private val conversations: ConversationsRepository,
   private val stt: DualSttEngine,
   private val speaker: AriaSpeaker,
   private val usage: UsageRepository,
+  private val budgets: RuntimeBudgetCoordinator,
   private val notifications: AssistantNotifications,
   voiceConfirmation: VoiceConfirmation,
 ) {
@@ -212,7 +218,7 @@ class AssistantRuntime @Inject constructor(
     // ChatViewModel), ma un'app uccisa dal sistema mentre la chat era aperta non passa di li':
     // qui, prima che qualunque domanda possa partire, il disco torna pulito. Non serve avvisare
     // l'engine: la sua memoria per processo e' ancora vuota.
-    scope.launch { runCatching { conversations.deleteTemporary() } }
+    scope.launch { runCatching { conversations.deleteTemporary().forEach { modelSelection.forget(it) } } }
     voiceConfirmation.attach(lastModeFlow)
     // Un'azione che aspetta il si': lo stato lo dice — la card mostra Conferma/Annulla — e quando
     // la risposta arriva (o scade) si torna a com'era.
@@ -264,8 +270,25 @@ class AssistantRuntime @Inject constructor(
 
   val isBusy: Boolean get() = stateFlow.value.isBusy
 
+  /** Image preflight runs before either composer consumes its draft, and again before DB writes. */
+  suspend fun preflight(request: AssistantRequest) {
+    try { budgets.foreground(request.modelPolicy, "preflight") { preflightAssistantRequest(request, conversations, modelSelection) } }
+    catch (e: dev.antigravity.fluidengine.ai.provider.ProviderAdmissionDenied) { throw RuntimeBudgetRefusal(e.reason, e) }
+    catch (e: dev.antigravity.fluidengine.ai.provider.ProviderObserverFailure) { throw RuntimeBudgetRefusal("OBSERVER_STORAGE_FAILURE", e) }
+  }
+
   /** Fa partire una domanda: il service la esegue e la porta a termine anche ad app chiusa. */
   fun submit(request: AssistantRequest) {
+    if (isBusy) cancel()
+    enqueue(request)
+  }
+
+  /** Snapshot for a preparation which must never replace a newer request or listening session. */
+  val requestGeneration: Long get() = synchronized(lock) { generation }
+
+  /** Recheck and dispatch atomically: a suspended preparation cannot cancel a newer owner. */
+  fun submitIfCurrent(request: AssistantRequest, expectedGeneration: Long, replaceBusy: Boolean = true): Boolean = synchronized(lock) {
+    if (generation != expectedGeneration || (!replaceBusy && isBusy)) return false
     if (isBusy) cancel()
     enqueue(request)
   }
@@ -282,7 +305,8 @@ class AssistantRuntime @Inject constructor(
     if (text.isEmpty() && request.attachments.isEmpty()) return false
     val queued = synchronized(lock) {
       if (expected != null && expected != generation) return false
-      val made = QueuedRequest(request.copy(question = text.ifEmpty { "Guarda l'allegato." }), ++generation)
+      val made = QueuedRequest(request.copy(question = text.ifEmpty { "Guarda l'allegato." }, modelPolicy = request.modelPolicy ?: modelSelection.state.value.selected(request.conversationId)), ++generation)
+      modelSelection.activeAttempt.value = made.request.modelPolicy
       pending = made
       beforeConfirmation = null
       lastModeFlow.value = request.mode
@@ -331,6 +355,7 @@ class AssistantRuntime @Inject constructor(
       beforeConfirmation = state
     } else {
       stateFlow.value = state
+      if (!state.isBusy) modelSelection.activeAttempt.value = null
     }
     true
   }
@@ -383,6 +408,7 @@ class AssistantRuntime @Inject constructor(
    * scrive su disco, ma il suo stato non passa piu' (la generazione e' cresciuta).
    */
   fun cancel() {
+    modelSelection.activeAttempt.value = null
     val job = synchronized(lock) {
       generation++
       pending = null
@@ -413,7 +439,8 @@ class AssistantRuntime @Inject constructor(
    * se fosse stata scritta. Se nessuno parla nei primi secondi esce [VoiceEvent.InitialSilence] e la
    * barra passa al testo; se si e' parlato senza esito, [VoiceEvent.HeardNothing].
    */
-  fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList(), temporary: Boolean = false, locked: Boolean = false) {
+  fun startListening(conversationId: Long?, surface: Surface = Surface.APP, attachments: List<PendingAttachment> = emptyList(), temporary: Boolean = false, locked: Boolean = false, modelPolicy: ModelPolicy? = null) {
+    val selectedPolicy = modelPolicy ?: modelSelection.state.value.selected(conversationId)
     if (isBusy) cancel()
     speaker.stop()
     val previous = voiceJob
@@ -445,7 +472,7 @@ class AssistantRuntime @Inject constructor(
           mirror.cancel()
         }
         when {
-          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface, temporary = temporary, locked = locked), expected = token)
+          result != null -> enqueue(AssistantRequest(conversationId, result.text, AskMode.VOICE, attachments, surface, temporary = temporary, locked = locked, modelPolicy = selectedPolicy), expected = token)
           stt.state.value == SttState.InitialSilence -> if (publish(token, AssistantState.Idle)) {
             stt.reset()
             voiceEventsFlow.tryEmit(VoiceEvent.InitialSilence)
@@ -524,3 +551,15 @@ data class LiveOwner(val surface: Surface, val conversationId: Long?)
  * dell'overlay, e il padrone dello stato vivo. Scritta in un colpo solo ([AssistantRuntime.liveTrack]).
  */
 data class LiveTrack(val app: Long?, val session: Long?, val owner: LiveOwner)
+
+/** Exact shared image admission and preparation; read-only until the caller consumes its draft. */
+suspend fun preflightAssistantRequest(
+  request: AssistantRequest,
+  conversations: ConversationsRepository,
+  modelSelection: ModelSelection,
+) {
+    val replay = request.conversationId?.let { conversations.replayContext(it, request.anchor, request.attachments) }
+    val parts = (replay?.second ?: request.attachments).map { it.toPart() } + replay?.first.orEmpty().flatMap { it.attachments }
+    check(modelSelection.accepts(request.modelPolicy, parts.any { it is dev.antigravity.fluidengine.ai.provider.ContentPart.Image })) { "Scegli un modello con immagini verificate o un supporto visivo esplicito. La bozza e' conservata." }
+    request.modelPolicy?.takeIf { it.helper != null }?.let { modelSelection.interpretImages(parts, it, request.conversationId) }
+  }

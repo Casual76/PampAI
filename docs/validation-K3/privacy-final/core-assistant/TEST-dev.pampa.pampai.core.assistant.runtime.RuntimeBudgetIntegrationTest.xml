@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:56:29.029Z" hostname="PC_FISSO" time="0.605">
+  <properties/>
+  <testcase name="helperCacheAndChildRouterWebContextsShareExecution" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.044"/>
+  <testcase name="internalAndOuterRetriesEachReserveRealAttempt" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.045"/>
+  <testcase name="storageObserverFailureNeverReplaysCompletedTransport" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.033"/>
+  <testcase name="serverFallbackCandidatesCannotSpendOutsidePolicy" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.03"/>
+  <testcase name="backgroundNeverUsesUncappedForegroundAndYieldsForPriorityAndFences" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.047"/>
+  <testcase name="ordinaryPreSetupChatIsUncappedButStillSettled" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.033"/>
+  <testcase name="foregroundJobBeforeGlobalSetupIsUncappedButKeepsLeaseAndSourceFences" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.04"/>
+  <testcase name="concurrentLastSlotAllowsExactlyOneActualWire" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.042"/>
+  <testcase name="wrongExactModelIsTerminalBeforeSocket" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.031"/>
+  <testcase name="boundsAndMoneyRefuseBeforeTransportAndPreservePriorityCleanup" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.032"/>
+  <testcase name="droppedOutputLimitCannotSpendSecondWire" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.033"/>
+  <testcase name="expiredGlobalConfigurationNeverReopensUncappedPath" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.035"/>
+  <testcase name="quotaCooldownSurvivesNewExecutionEvenUncapped" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.051"/>
+  <testcase name="recoveryRejectsActiveMarkerAndClearsOnlyAbandonedIds" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.028"/>
+  <testcase name="unknownCancelledStreamRetainsReservationAcrossReopen" classname="dev.pampa.pampai.core.assistant.runtime.RuntimeBudgetIntegrationTest" time="0.079"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

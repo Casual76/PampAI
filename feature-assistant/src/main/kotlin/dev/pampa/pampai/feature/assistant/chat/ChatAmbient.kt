@@ -67,11 +67,11 @@ private const val AuroraFadeInMs = 400
 private const val AuroraFadeOutMs = 600
 
 /** L'ampiezza al lavoro e in scrittura: con il picco di [FluidAuroraSpec] fa 0.12 in chiaro e 0.18 in scuro. */
-private const val WorkingAmplitude = 0.6f
+private const val WorkingAmplitude = 0.12f
 
 /** In ascolto l'ampiezza parte da qui e sale con la voce fino a 0.75: fra due sillabe resta qualcosa. */
-private const val ListeningFloor = 0.25f
-private const val ListeningRange = 0.5f
+private const val ListeningFloor = 0.10f
+private const val ListeningRange = 0.20f
 
 /**
  * Lo stato dell'aurora: una presenza da 0 a 1 che sfuma in entrata e in uscita, e [present], la

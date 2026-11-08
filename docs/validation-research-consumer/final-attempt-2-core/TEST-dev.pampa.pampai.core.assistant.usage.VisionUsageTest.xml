@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.usage.VisionUsageTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:00:30.827Z" hostname="PC_FISSO" time="0.02">
+  <properties/>
+  <testcase name="helper usage preserves provider cost and correlation" classname="dev.pampa.pampai.core.assistant.usage.VisionUsageTest" time="0.008"/>
+  <testcase name="cancelled helper still records attempt without private error text" classname="dev.pampa.pampai.core.assistant.usage.VisionUsageTest" time="0.012"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

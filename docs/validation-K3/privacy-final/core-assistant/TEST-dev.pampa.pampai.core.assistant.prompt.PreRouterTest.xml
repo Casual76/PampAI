@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.prompt.PreRouterTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-08T13:56:14.487Z" hostname="PC_FISSO" time="0.011">
+  <properties/>
+  <testcase name="lo schermo e gli allegati chiedono il livello profondo" classname="dev.pampa.pampai.core.assistant.prompt.PreRouterTest" time="0.009"/>
+  <testcase name="una domanda che nomina un gruppo solo lo decide senza chiamare nessuno" classname="dev.pampa.pampai.core.assistant.prompt.PreRouterTest" time="0.001"/>
+  <testcase name="un'azione con le azioni spente non e' mai decisa da sola" classname="dev.pampa.pampai.core.assistant.prompt.PreRouterTest" time="0.0"/>
+  <testcase name="una chiacchiera non ha gruppi e non e' profonda" classname="dev.pampa.pampai.core.assistant.prompt.PreRouterTest" time="0.0"/>
+  <testcase name="piu' gruppi sfiorati vanno al router come suggerimento" classname="dev.pampa.pampai.core.assistant.prompt.PreRouterTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

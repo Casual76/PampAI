@@ -1,0 +1,1722 @@
+[
+  {
+    "path": "app/build.gradle",
+    "sha256": "7634d16254a1a2610c42257225f2698845704f9d8c8a4a2e6021e0e38164d695",
+    "size": 4838
+  },
+  {
+    "path": "app/src/debug/AndroidManifest.xml",
+    "sha256": "a242b7b8a2fd8e9b6159117055407c02f4227f0703d1e421930c14aed11bb308",
+    "size": 1354
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultInjector.kt",
+    "sha256": "180c07f8ac1f217c62ebfc498f690eae23532d456e766414aec836a632fd6fd7",
+    "size": 2646
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultPlan.kt",
+    "sha256": "17a2e921b54830977363f3ae1481022bf4685ea2c0749ef56ab481edd71ca027",
+    "size": 4667
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultReceiver.kt",
+    "sha256": "3d017529a9f10ea83821f3b86ea2ff2b33de35b3a02dc54a306731bee35ca73e",
+    "size": 4483
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultWire.kt",
+    "sha256": "0c9aa743995ba340ee3e01aba2ecb5916e4acb886f4751b8483b7edf0e8c939b",
+    "size": 14589
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultyProvider.kt",
+    "sha256": "eacb28bd2e070887c54a15768bc4a9557b96c6bd7614f0aa09438cfaf4ebe0a2",
+    "size": 6167
+  },
+  {
+    "path": "app/src/debug/res/values/strings.xml",
+    "sha256": "35e2336cab47780ff54a12968fadbc8f11f18af8226f8944f99bd9d69173ae26",
+    "size": 347
+  },
+  {
+    "path": "app/src/main/AndroidManifest.xml",
+    "sha256": "aa9afa49ba4a75b48a096dc1ce9589808bc45f4ba293778465c34965507bbb88",
+    "size": 5771
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/AppShortcuts.kt",
+    "sha256": "584519e028fb02ba5f0c771ff78a8ccc459760c6d4cccb08f487596294af1efb",
+    "size": 1913
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/AssistTrampolineActivity.kt",
+    "sha256": "7492f8122e26c34f72e0ba134efe7ae93b992145821f8b60bdbb690afc4b340b",
+    "size": 926
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiInteractionService.kt",
+    "sha256": "f69c77900f12c1a87d96d3792236e87612ed3ffff5bd0e7ebbd983ca830e45b7",
+    "size": 2894
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiSession.kt",
+    "sha256": "726ced4559cc7e02154ecc6629b8648bc313154e09975d5d2fbfe993046b4df5",
+    "size": 13792
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiSessionService.kt",
+    "sha256": "24bc02f4c7007f6fbaff83af0d4995e0ee1a2ba8faffbe156bb4498101702db5",
+    "size": 415
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiTileService.kt",
+    "sha256": "444df5fe8ca1f8156d823990ecf07469f1eefd2def9d65db3dbf57d04f7770c5",
+    "size": 1800
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PassthroughRecognitionService.kt",
+    "sha256": "8c5f12c940d739d90d19fa183500569bfcdf10679b15a5ff48e7d9c33e594a52",
+    "size": 3983
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/SessionEntryPoint.kt",
+    "sha256": "38f9175f59a3987da5ecb08a021ab33d62ba4d85b62bc3249efeb0f93aefe51b",
+    "size": 982
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/di/EngineModule.kt",
+    "sha256": "f89c70a4d2c1f753ffed0f27d706b10741e00bae0bd0a8ba62043d29780bb993",
+    "size": 1947
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/MainActivity.kt",
+    "sha256": "800eeee770cb5fc745729eb14e16cd4828bd6ab63578c186514f434c1ef692c7",
+    "size": 6887
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/PampaiApplication.kt",
+    "sha256": "931c33965cfb5241eeb4b48931d0fea826edb26c788b55e26e9bf2c5ce741bd2",
+    "size": 3104
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_launcher_background.xml",
+    "sha256": "40f6b93bcbc5b0766175e5a98a7def5c5d502dec946ac886cc69baf1d024618b",
+    "size": 788
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_launcher_foreground.xml",
+    "sha256": "dde343f67dbc1a9236f7b6b7d72194e47938bd121422935102aca02aad259741",
+    "size": 1618
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_shortcut_chat.xml",
+    "sha256": "75ebc221a6ac7a3ed95c917e56d090850cd890ae6648dcde90f23686db3865bf",
+    "size": 640
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_shortcut_history.xml",
+    "sha256": "c940c14353236048b620339cf2f363496d3b7e28448582b133e814e839b0bc17",
+    "size": 713
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_shortcut_mic.xml",
+    "sha256": "b5c73071ca3a4db86a5ffe2bb6a4dc3cfd7ad884829534050b0be77ea2c3e1be",
+    "size": 721
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_tile_aria.xml",
+    "sha256": "98ad31265e38dfa448122458ad19a3bf3e8257dcfc2a5b64eb9811d17f94fa57",
+    "size": 887
+  },
+  {
+    "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+    "sha256": "52b0af9260c8ff74c2e9fc0fbec79e869fc604b512c1fef0072da54b4cdb9632",
+    "size": 338
+  },
+  {
+    "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+    "sha256": "52b0af9260c8ff74c2e9fc0fbec79e869fc604b512c1fef0072da54b4cdb9632",
+    "size": 338
+  },
+  {
+    "path": "app/src/main/res/values/strings.xml",
+    "sha256": "6b74a3f1f0264e20443cd46068462e715340ff6b44344ab8857ab9f390ad0cee",
+    "size": 209
+  },
+  {
+    "path": "app/src/main/res/values/themes.xml",
+    "sha256": "5d351c69df429bdd7c7af301637b7e9654ad80e3c60c69fbc43f8e49ad84a6f5",
+    "size": 1839
+  },
+  {
+    "path": "app/src/main/res/xml/recognition_service.xml",
+    "sha256": "360dab3e0b472503816f5b6b36b198e1dfbc8c6117f3391b215389d39324057a",
+    "size": 183
+  },
+  {
+    "path": "app/src/main/res/xml/voice_interaction_service.xml",
+    "sha256": "29364b8cf921522165500ead207ace5055061365d4fd0ef6696d0cb59f56831b",
+    "size": 485
+  },
+  {
+    "path": "app/src/testDebug/kotlin/dev/pampa/pampai/debug/FaultInjectorTest.kt",
+    "sha256": "d42ab86c30e063dd2f9c23210d541aec3f9900defecc266a7c64857f1495dc15",
+    "size": 12490
+  },
+  {
+    "path": "build.gradle",
+    "sha256": "55703733c0024b41b2f501812bc0f6f22638bbc80deb488a9134b4a21d698a48",
+    "size": 1450
+  },
+  {
+    "path": "core-assistant/build.gradle",
+    "sha256": "9e3db0f72d0d735210e334f1a5bbb3e4d90407c47ab7baff326951c5d863dcd8",
+    "size": 3466
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/3.json",
+    "sha256": "5bbf848ee4e96ac21926d9412f0bde99934a41b0fa8b745d52b65e5f90f1d99e",
+    "size": 18927
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/4.json",
+    "sha256": "bb0b4e2bfe3655399ce580789e936c3985ef3697faf4666836b798fda918a316",
+    "size": 19219
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/5.json",
+    "sha256": "e3a31f6d24c3c55a91082353b73aacbd9ffdc0d9dc65400f6a459ad487bd68f9",
+    "size": 23031
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/6.json",
+    "sha256": "1a1b940a1997a61ba7224d47c83355d849487955d6b7ae969e1b1e6ddab27ee6",
+    "size": 25889
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/7.json",
+    "sha256": "59ce21f4f5068d7db4a338308147fc041bc8420247dddac6edbf85efc41ae6e2",
+    "size": 56008
+  },
+  {
+    "path": "core-assistant/src/main/AndroidManifest.xml",
+    "sha256": "4b77f67bc71a2cac7a19c87874ba9df00950a24c491035f89c2fc0a5c9f2036d",
+    "size": 2842
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/attachments/Attachments.kt",
+    "sha256": "912d5b585c394222e31e10cfe3caa8e9031ea4ae2a8a928d631668ccad77a6e1",
+    "size": 3590
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/RemoteCatalogs.kt",
+    "sha256": "f291cab9c82a822038cf399f9f1be819b168fb3cb95766c6c2e6117887edf365",
+    "size": 5155
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/SignedPlaylistReader.kt",
+    "sha256": "ca580161369753b9376327947257c211211b463fd172cf59f1f5458603273b13",
+    "size": 5481
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceBridgePolicy.kt",
+    "sha256": "4dd08c9914e280645a54906ec9aefb6b3e3889c1fe142b720b9519442a3966be",
+    "size": 2811
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/chat/Greetings.kt",
+    "sha256": "cbff58a85004a22848a59eddf53469b12c84bde6ce3351eae737bda0812ecbbf",
+    "size": 3218
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/chat/MathText.kt",
+    "sha256": "e0c3321fba1bd95918a199312ee0ccf39b91b01e5db14641f5c96f9468ae7e0b",
+    "size": 6665
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/ConversationsRepository.kt",
+    "sha256": "72c047026e763d20fc6e1c9fe204c090e656071d23a680d6be60d60c5022da2e",
+    "size": 41372
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/DatabaseRecovery.kt",
+    "sha256": "a568b345c5792f57e43260e2e6e8e4338d1788bce686e935a96cb554eced7afd",
+    "size": 2175
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/DispatchAuditEntity.kt",
+    "sha256": "12cf7c54990a5b13e075092ebe7494e9a844be40e62431afd0ebf5c8177ad195",
+    "size": 952
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/MemoryRepository.kt",
+    "sha256": "0aca4db66f666d74c6b9c46614d02ee6087ef5ae393c2b7d8b712fa150dba76a",
+    "size": 3035
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/MessageTree.kt",
+    "sha256": "f43eaee9e8b878790ffa04e40ae114bc5f7b43d224ede5bb054d05e5f0b8d7d6",
+    "size": 6003
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/OperationEntity.kt",
+    "sha256": "cfd4628124372400c72851ffd3792ed3ee415aa645a5b6d06e77d7b2181ad2c4",
+    "size": 2539
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/PampaiDatabase.kt",
+    "sha256": "50893585e2017b650a0eb7f5ba0cb131c62e3c79e2b3604a41cbdd0bd867ba45",
+    "size": 18008
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/debug/ProviderDecorator.kt",
+    "sha256": "cb9356b509f9a665a553bef5b820d90e3a170c837c347280925655c967f78bd1",
+    "size": 1102
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/di/AssistantModule.kt",
+    "sha256": "8b100496e3da97cdc04a8b497b983afc7f3b2a46e1be852402b306411bcfe48e",
+    "size": 3624
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/di/DatabaseModule.kt",
+    "sha256": "aad564f995f894f3d5323e17caacf400d5b3b6d27d22c1b5ae5156a01dcc988a",
+    "size": 10492
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedger.kt",
+    "sha256": "9bd14594880e5dee8391fcf8638f67b587334a4308ead9adbd2d0166ac8edb6c",
+    "size": 10986
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableEntities.kt",
+    "sha256": "80959b8b3472298b5780322b6d96c0de42b63849c4d537cf74fba401153c8f0e",
+    "size": 12680
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundation.kt",
+    "sha256": "e624cb86770c53bed0a23211ec6f43129e6df1c66d70941f5bd169a83ba39aba",
+    "size": 26933
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/EvidenceAcquisition.kt",
+    "sha256": "ead3d69afe16796f54a5dc0e0cdf8025f31cd74952460201997f95993c6dece9",
+    "size": 819
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/ExclusionScopes.kt",
+    "sha256": "cb62fdec37d320e894b0f42762c9a107bb8d3c9ea6e3c3287d471dd1da4e9631",
+    "size": 2882
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/music/FluidifyClient.kt",
+    "sha256": "23057a1f336b642fea0155d4196897c91a8fb152cdd42af024b288557b8e56a5",
+    "size": 7949
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/notifications/PampaiNotificationListener.kt",
+    "sha256": "82421111022c7a7093b90643912927c88255d3b01577de58ac88f0bded034c14",
+    "size": 5094
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/permissions/PermissionGate.kt",
+    "sha256": "b45bc473791c215a819e10408175d641659422b94fc0109a132c82f1796408c3",
+    "size": 4740
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/AriaChips.kt",
+    "sha256": "4f90815e32a18d5feaac7fee874fd9323a6b7a67638058c7ce8a3ace4708bbd2",
+    "size": 712
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/PreRouter.kt",
+    "sha256": "34f1f7a082c4a4f5119f40b94c4aad17b681445f335cc8e84a278348d78ecb71",
+    "size": 5639
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/PromptBuilder.kt",
+    "sha256": "21c0c3e9c8349c13b59c076949c58d2b85d52fd6fabea20611052d9dedf27f32",
+    "size": 11830
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/QuickCommands.kt",
+    "sha256": "8496b6724b6f92e5998e8c87a9454ba1b4edd4fa2bbe628042f42a7a12602232",
+    "size": 24892
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/CalendarReceipts.kt",
+    "sha256": "0fc337d969bbc229f5c8227d379b794186af79abaabd8cc72462d8c5fdcbd9f7",
+    "size": 2970
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/ClockReceipts.kt",
+    "sha256": "2caf78e55169b7792073399e2c08707a353d44fe2de362ac14b92a521e9a30a9",
+    "size": 763
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/OperationLedger.kt",
+    "sha256": "0d398462184614749fc799e488d41a5cd49ae0aaac087e575b46ca566d85c72e",
+    "size": 5549
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/ReceiptActions.kt",
+    "sha256": "2b779308f1b43d1f79c1fa7846ee623e835acfbcd42837bec0625f7f307c77db",
+    "size": 6364
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/ReceiptCodec.kt",
+    "sha256": "1fc8ef9d7bbe7e4579618e36df40910dc6b8b94318f7473798e1a326948ea314",
+    "size": 3146
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/reminders/Reminders.kt",
+    "sha256": "a74bfee857df8b82cd78f7fb9217c45f3210993311b4427646279fe279e51d72",
+    "size": 12148
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/remote/RemoteSwitches.kt",
+    "sha256": "2d56f7f6e238eb212beb65aa882d9a3194adfc7f447e9371b2df62a4d6243a81",
+    "size": 3067
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/BackgroundResearchGuard.kt",
+    "sha256": "cd211e06f7631865002f35a6cfc6d573b7accdc4f81e1fc6321fef3130c7822a",
+    "size": 429
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchBindings.kt",
+    "sha256": "1e63f529be0c194bae014cdfb09963a119ea1259bb8020df9ef115961407153f",
+    "size": 506
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConnections.kt",
+    "sha256": "dfe207c0d455de1ed9950218c8f12ee58d1aacaac4e913bf716ce8334018997b",
+    "size": 1502
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchContracts.kt",
+    "sha256": "b5f944fba9ac1e54cf6685901f50a12d705d685031fbd41ae4b7247ed0a13601",
+    "size": 2276
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchForeground.kt",
+    "sha256": "750cadbce0b768ccd1c5c92055a330795cfe3d6d28154ddc8e860beda2ae2f4b",
+    "size": 4717
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchModel.kt",
+    "sha256": "003c3b78bf5779676b19afa271be09a37b789da1a9dcd17deb6ae2eb7741f86d",
+    "size": 3860
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchProfile.kt",
+    "sha256": "2a12d7c90b6540861f363c9f6aa898d7c4b8b1aaedbbfed958232ebf42e7be33",
+    "size": 4751
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchQuestionPlanner.kt",
+    "sha256": "07306c2c86388fbf310c58ae5d296684c2b7fd92714706f4cab0e53577ab919b",
+    "size": 3103
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchRunner.kt",
+    "sha256": "8e172873d1b03c15fbf051239e1bf395c1e7a49567a317320739c87aa6cbffe8",
+    "size": 20462
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchScheduler.kt",
+    "sha256": "6b8fe0a44362ff89bef61eb917adc6c33f2038c2648b060d6f0ac4a1a59b1850",
+    "size": 14482
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchScheduleStore.kt",
+    "sha256": "fceb7076825d6c72f3f473a63cc19f583b0faf90e8a6f83d7ecbf51fea756bf8",
+    "size": 1624
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSetup.kt",
+    "sha256": "c7440ab45f07bb198fa64e2a83be86d05906d07fe5d597e4143aaad478e82e32",
+    "size": 3150
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSources.kt",
+    "sha256": "83329542976561b93efe31c6701edfab4b489722c49076039bfd82ff695e9c26",
+    "size": 12695
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchTransport.kt",
+    "sha256": "faada2f4d6ecf796581cd2e65623f77cf0e145d347801777856971332afac97b",
+    "size": 6427
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchWorker.kt",
+    "sha256": "199f87e89a80f8af60b5dc46de75971963cccebccfb7ed7bfbc276454b63a95d",
+    "size": 4038
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/SourcePages.kt",
+    "sha256": "1fe0a5584a55b927f084e06e4595603a34ce2b9256ab8f49806706eca33df39c",
+    "size": 8098
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantEngine.kt",
+    "sha256": "bb2dbab423f1e5474bbc184f075751c7cee308a06623ae116c6b2df15fc4ade9",
+    "size": 46491
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantRuntime.kt",
+    "sha256": "ae558f0503329bac47898a5e8a69725ae75322d401e4deef0affe205c8508f85",
+    "size": 26962
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ContextMeter.kt",
+    "sha256": "1bf7a9c68fc93096953fc83efb1929cf7d3e96804cf433a80dfe52397941479d",
+    "size": 2402
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/DispatchAudit.kt",
+    "sha256": "54c8538970190d2a2336047effe0efaca4915c1ef91de703fe0591384198a98a",
+    "size": 1503
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ImageInterpretationCache.kt",
+    "sha256": "79f044e83d5b9dfdcef6962ef12b5a11e7c7fc4b689fe5dce30cc917cbd5c742",
+    "size": 1826
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/LockscreenPolicy.kt",
+    "sha256": "95fc1ceabf18de20be34919a2191e5face6c9e18028693340ca5afc0ea660cbf",
+    "size": 4727
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelSelection.kt",
+    "sha256": "257c6c7890032ca6905e2d264668a72cded28f963a0bd670ca977acdc019f40d",
+    "size": 9976
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelsMaintenance.kt",
+    "sha256": "929231d37c5513b81f8032160adc10563561311c5b7b0734922e3b04b5ac6dad",
+    "size": 2742
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/PampaiConfirmationGate.kt",
+    "sha256": "846f9ca5d994740fd108401c6002198b552312847e46b24996168e8e1d12fdb1",
+    "size": 2310
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/RuntimeBudgetCoordinator.kt",
+    "sha256": "94d3b11ec67c0b4192c908d399a56edb282f7579aeefe79496366c7a2f35d41e",
+    "size": 10476
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/TurnCancellation.kt",
+    "sha256": "6916064a7955ba7b1359fefa95645e8497e4c24e7f3fb790f99debe071049585",
+    "size": 1163
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/screen/ScreenContextStore.kt",
+    "sha256": "4b7df94487d1d84c98415594b893dbd92fe0223704fbbbe6670f106ccbc7fb82",
+    "size": 6356
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/service/AssistantForegroundService.kt",
+    "sha256": "7d2771bf386f64ad20813e50a76ec942f40b287794c94f5094a15099c76c3882",
+    "size": 3937
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/service/AssistantNotifications.kt",
+    "sha256": "cae7d8242ebe7cb8e47a8ae408075b4958af50aa88e041ab7ddca9079fb1496d",
+    "size": 10014
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/settings/PampaiSettingsStore.kt",
+    "sha256": "2e3e93ae91a684f97089e2b006adc7f139d21ad8dda72d083d3e1ccf81590bb6",
+    "size": 5943
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/aria/AriaExtraTools.kt",
+    "sha256": "8dc3c9de33e9a14ef5ec077a184eea728c5dc11a9832f7bd12609a8a21437599",
+    "size": 8730
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/aria/AriaTools.kt",
+    "sha256": "b82044973c114f928c8d7e84be75a97a4601ba9f4ca610674967180012572596",
+    "size": 7719
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/calc/CalcTools.kt",
+    "sha256": "aba02143666a222a847ff90d16a6ac728ac604c8b6bd360ee67b6669d8b9de40",
+    "size": 15481
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/CalendarTools.kt",
+    "sha256": "3ebc870384dc1e440becf522ebdc3cc56b93d6e646c43aaeb75e21a1ad81656e",
+    "size": 17881
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/ClockTools.kt",
+    "sha256": "ed804058f791822202c53d74068e3bc6d626910237d1ad3cd9e7cbab47a7aff4",
+    "size": 14731
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/ContactTools.kt",
+    "sha256": "d14d5dd479536e3cbd686f5510b7cfeedc8bb3fa5f74931164fbe87322f356ca",
+    "size": 13477
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/DeviceSupport.kt",
+    "sha256": "766c2076793020c135af460a232b25f3a782c5969c2dd018ad0755dca1bab378",
+    "size": 4919
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/InfoTools.kt",
+    "sha256": "4085819cb39739863169ca0cc0f6616fcf31b478831a39eab923821d4eb5caca",
+    "size": 8772
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/NotificationTools.kt",
+    "sha256": "e4b33199870033ab9069f3c30e0b20a1c44bfb064aea322cdddc4455a2c8c2f8",
+    "size": 7619
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/OpenTools.kt",
+    "sha256": "043bc5f5aa9a3dcdbdf89cf2b5b3b34996bb96a9dda49c38b6e5c999a902605f",
+    "size": 7946
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/ReminderTools.kt",
+    "sha256": "1b395af6d8bd1094ccffaccf9e1324b36c14bec484b8a3fb09f45da255edce4c",
+    "size": 5321
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/SystemTools.kt",
+    "sha256": "d5f15143994ad0e1db04f20bdad3ea4d43fa63ec203804482130ab6ced489902",
+    "size": 12480
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/music/LibraryPages.kt",
+    "sha256": "34278e899b03553f8e78bf8dc562e8a2cabeb2064ba2f496c9876b4f0e251b84",
+    "size": 585
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/music/MusicTools.kt",
+    "sha256": "6904fa3e882312b863949573cc43572dc013c911f998b74e88df6c23faa448c8",
+    "size": 22338
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/PampaiCatalog.kt",
+    "sha256": "8cb63bf30da894e6bccc01f55edaa4988fd288ba51e295762f22e3ba93749455",
+    "size": 3805
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/PampaiToolContext.kt",
+    "sha256": "241ed1fb88b5e4ee744c3ae99db0f63ffef712103dd2081285c58def028f06e3",
+    "size": 6341
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/RegistryBuilder.kt",
+    "sha256": "1735963d70e67154a2f17bb8fce49af82982b3093e0db572dc78d8700cd8a45c",
+    "size": 11135
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/screen/ScreenTools.kt",
+    "sha256": "ac4d98f6d8b6250d3eaafb2edc2de326f456a05281aa3105681ae85ddd0fca63",
+    "size": 8033
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/ToolSupport.kt",
+    "sha256": "eed91ee563b1b066ed939cb6b21264ec21ee2a95322b87256d74c033ec3bbb2c",
+    "size": 10992
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/web/WebTools.kt",
+    "sha256": "4ed3fea0adf7fbf9db178074332fe74d30b14f2f46e6e8b2d08a59bd634701f1",
+    "size": 17592
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/usage/UsageRepository.kt",
+    "sha256": "7b9081c5817d24ae5e88fecfd7b1182f0b3131b9fc7499cbdac13af3666bcc09",
+    "size": 8121
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/AriaSpeaker.kt",
+    "sha256": "a339b66b284e81d4bfddd75fa59948f75e6c47c5024b4e0e9edc5c15137e226b",
+    "size": 11214
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/CloudTts.kt",
+    "sha256": "80d0448bdc94263456144d1fe779f4443b4af703438a5e4eceebdd99c914e2f7",
+    "size": 8036
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/DualSttEngine.kt",
+    "sha256": "ea392713720cdd65e79f9053e46f64dec6b203a3d775dfdeee883cb8645a4f2c",
+    "size": 15966
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/PlainText.kt",
+    "sha256": "f23bdd5fa5c7733f5051d2435b21bf9af2513d5d2e7746da82135c3efb5d2668",
+    "size": 3983
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/SttPolicy.kt",
+    "sha256": "813b2029274b13a647ae915e53420c5ce6e1f8e9d007d63d49d3af284bf697a5",
+    "size": 1962
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/SystemRecognizer.kt",
+    "sha256": "1292c3beb519809d1460750660b8cd574b63dee8fb8481518420eff940077d16",
+    "size": 6112
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/TeePcmSource.kt",
+    "sha256": "f76c7d481d65721b1e0ea45c524d1eb4371d38c9fec4668f98ed665a47699af7",
+    "size": 2625
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/VoiceConfirmation.kt",
+    "sha256": "0f7ad36d6cf6835c5176fd555ccfa7977bab659eb128ed8e2347bc9c871d36de",
+    "size": 2383
+  },
+  {
+    "path": "core-assistant/src/main/res/drawable/ic_stat_aria.xml",
+    "sha256": "26d93de2a3a472700da6221041a8c2bca0ebe861c28c97a906f5374a7ae09a2a",
+    "size": 590
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceIntegrationTest.kt",
+    "sha256": "7425a80b9adf3fad794310e5d4f054c619ff4d7c11fafcb3e58977252965d9db",
+    "size": 7731
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceReceiptPersistenceTest.kt",
+    "sha256": "8e3041a185458fa857cd6e5eb3a84e30acefbfa8e427de0cbc91857da8c4e20b",
+    "size": 2425
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/chat/GreetingsTest.kt",
+    "sha256": "eea46d1be9565558930979dab85542325955e95dbca298ede130313eba7c77ee",
+    "size": 1662
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/chat/MathTextTest.kt",
+    "sha256": "5350c385ae42352830352c48533ece765383fcb6e9e9b0ccf381b4752fff02e6",
+    "size": 1780
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/ConversationsTreeRepositoryTest.kt",
+    "sha256": "6b9048fa443f1b23075e8b839e31da1537db8eca32f616e89d1615916c16938c",
+    "size": 14732
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/MessageTreeTest.kt",
+    "sha256": "61225f0c1571d107b92f8a5721a22b006ac74184e434df27ec663d9fa307bac3",
+    "size": 5967
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/Migration3To4Test.kt",
+    "sha256": "4e85f64f1143c6a80e296ec9646b435d40bb34f0aa160cea9078f73b95bc42ab",
+    "size": 6748
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/MigrationsTest.kt",
+    "sha256": "cfe6e9cce21682abcc5844d4f31bd57e8b55b3a51c5505aa23beeef1c708cbbd",
+    "size": 3521
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedgerTest.kt",
+    "sha256": "66c01f3bc62a5a23af7694a0eba8a4bcd7e96ad488d8c788b9c56ecd5ec62eef",
+    "size": 7207
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/CorrectionCommitTest.kt",
+    "sha256": "89b10d7e8d5350ba2111d8ecb082ad042113afc81cbcd943eeb950c775a52e35",
+    "size": 2687
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundationTest.kt",
+    "sha256": "7a104366911ba7685a3a00b2fa5fcee0119ee3ebbc9abab34e0ffe1da2a32c53",
+    "size": 14616
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/Migration6To7Test.kt",
+    "sha256": "3232843cecf745ff576693be92a468d50d49f3aeeac0f8ffbad42be7a8fa9941",
+    "size": 2951
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/prompt/PreRouterTest.kt",
+    "sha256": "373e127906cf8ae2e5583d4dc8fa923fea5a0517213a4726328c03483274424a",
+    "size": 2262
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/prompt/PromptBuilderTest.kt",
+    "sha256": "73d5458dc5cdd25e51378b76b6e71ba490b34ed94caf88bfe106163e89cffc6d",
+    "size": 1310
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/prompt/QuickCommandsTest.kt",
+    "sha256": "26cb787aeadf7ba5b946fa71a555c7f19f427a65548afa98897fddfc25e84c01",
+    "size": 15483
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/receipts/CalendarReceiptsTest.kt",
+    "sha256": "b9b70809bf8a38ea81af22cf09a7c59113b863d4f5ceacc49b8427cbe4e35ae4",
+    "size": 2972
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/receipts/Migration4To5Test.kt",
+    "sha256": "c53126c38cda72fa0f695406b0c1033a09a71f214c8d77602568139150362035",
+    "size": 3973
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/receipts/OperationLedgerTest.kt",
+    "sha256": "a51218c18b47bff6fb1150c3a7b83879f1e6375c407a0ab1428b221393650c78",
+    "size": 8063
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/reminders/ReminderRepeatTest.kt",
+    "sha256": "e3bc3b1fa014e1270233b41f4117a0c0e2abe37860073e88862534db3b7e80ae",
+    "size": 1681
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConnectionsPersistenceTest.kt",
+    "sha256": "020fd9b6792ebf2a242e8343b28026bb67343d01111fef5eddc964a33b9cfb7a",
+    "size": 1944
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConsumerTest.kt",
+    "sha256": "c8e2d9c82e883b1ce8532815ea8d8dabf5e996c0abf3339cb2aa905c2afe8c95",
+    "size": 43231
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSchedulerTest.kt",
+    "sha256": "84b0d2f3809d25e19a50b39ae35086febe4441ea1f2e1492fe8d3ac641d61338",
+    "size": 19216
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ScopedExclusionsAndCanonicalEvidenceTest.kt",
+    "sha256": "b9fbc9ba4cbf36618f346f4ab8ea947174c8be2caf1c7530de4d9798117aab93",
+    "size": 11224
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/SourceExclusionBoundaryTest.kt",
+    "sha256": "e4689ffc3e32fe60b50c6c093f17ec49665371dff5770d6e5dcdade46aa9dc8f",
+    "size": 8041
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/DispatchAuditPersistenceTest.kt",
+    "sha256": "cf8ba7dcff19bb24ae07cd5cb2a3adb5ba009e235d5f3f2aa69dbede331fe333",
+    "size": 3044
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/DynamicImagePolicyTest.kt",
+    "sha256": "7504ba32b2bb37971fead010c81ebb48705ff580e2efebeacc5abc94c86e6e4c",
+    "size": 1579
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/ImageProvenanceTest.kt",
+    "sha256": "5b16356bd15edf352e73eed57896ce6a2928bbd4a9fb93f4dee473850a7fcb1b",
+    "size": 6012
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/LockscreenPolicyTest.kt",
+    "sha256": "439b1e1e67157704f52831096e7d6afb67a0d2d66ec9c60aa23e7d3177c54a1a",
+    "size": 5540
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelSelectionTest.kt",
+    "sha256": "7177ae0595d9d8c82275029425c7548df7a26634cec7bca5810368af34adc86e",
+    "size": 5724
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/QuickCancellationIntegrationTest.kt",
+    "sha256": "9b8b0ae4962986e3ea332651747c1f0e94a66084b1580c88599b6e285028d8a7",
+    "size": 5091
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/RuntimeBudgetIntegrationTest.kt",
+    "sha256": "0d5ccfcab2dd91d2bdaed88ce70932f264ebf00341444717f9fba36f0f6d5baa",
+    "size": 16387
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/TinyHttpServer.kt",
+    "sha256": "3c319f7289d205990e05f3b29729af91edc4f30416371d88e554e6e3e7f8c273",
+    "size": 4816
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/TurnCancellationTest.kt",
+    "sha256": "aaf49299f6bdd374a1d7c9d26afb0d852087c9754b32502ff86873f725e2c102",
+    "size": 5236
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/BridgeHostIdentityGuardTest.kt",
+    "sha256": "26e48a377fbad73ec8354d4d6a8d7da0158955f81fdb8725014e58dd4c53b7e2",
+    "size": 7762
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/calc/CalcSupportTest.kt",
+    "sha256": "8f12dd6963740f896cc3a82e8d2d40090118f63072b9ea2ad4e6848e59abf5be",
+    "size": 1881
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/DatesTest.kt",
+    "sha256": "311be2563882f8b3a4c3e8b8f53f1468ac119c6e0272b133c8450a2a2c32e4df",
+    "size": 2619
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/device/DurationsTest.kt",
+    "sha256": "626e95982741bbdc35a0717cda5dce78f39471911208cbcc139e10001f6f289a",
+    "size": 950
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/music/LibraryPagesTest.kt",
+    "sha256": "b70ccf9fc27e0ccef7d2e501169ff68cae90d9006322866c4e29c5028ca78bfc",
+    "size": 1276
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/RegistryHolderTest.kt",
+    "sha256": "70889b70103e1656e3c21cecf605130a97b5434ff2695ef4cf1ac8559d52b250",
+    "size": 9563
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/TracedToolSafetyTest.kt",
+    "sha256": "3121174eff8fc2273e08ce36139171332e1e21afc028810275a026f4724c381f",
+    "size": 7782
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/web/SafeFetchTest.kt",
+    "sha256": "476b5e032403fdba7af211370db321d82e4a08ea75c86078f0f171aa0ed3bdab",
+    "size": 1135
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/usage/VisionUsageTest.kt",
+    "sha256": "ecf675e1d8bd5394321743f055b8c1ca6d461e08e6443f7942cebe537e96c806",
+    "size": 2009
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/voice/PlainTextTest.kt",
+    "sha256": "3ad7e04fcc8462acd1ecba941a0258a94ebc29810a79e20a296dd88e44f279d6",
+    "size": 3668
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/voice/SttPolicyTest.kt",
+    "sha256": "610626f2332acf6f048f738f1888c40ad8fb1e28e37dcf9eecdf299468fc59c5",
+    "size": 2294
+  },
+  {
+    "path": "engine/engine-ai/build.gradle",
+    "sha256": "271f0558e62f9c0273d79e280b20e398d417bd5c17c563604e117208c1e6c1e0",
+    "size": 1119
+  },
+  {
+    "path": "engine/engine-ai/src/main/AndroidManifest.xml",
+    "sha256": "aff1ab6bd0302e1ca896bfae40a21a801f5c6dbe9d19e07e99d90deafa8661fe",
+    "size": 373
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiDataStores.kt",
+    "sha256": "b9b86a96c3dcb8491539e1528e2bcc6b6937084e1133da3fa8c935c02cb9e7b5",
+    "size": 2347
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiKeyStore.kt",
+    "sha256": "3bc5331d09e5870f5ef328c5efd1060c06c4726666e9449573f80043bc61308d",
+    "size": 4730
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiKeyVerifier.kt",
+    "sha256": "6918f2e3d688c39c01aa91b074a8b69f8ef2f9d59da92954e5f4f2735698af78",
+    "size": 19074
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiSettingsStore.kt",
+    "sha256": "baae141fe5f07775e9c843b2106d2de4ed3eb8fd89eda15214a2a779247e1996",
+    "size": 17052
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/SecretCipher.kt",
+    "sha256": "e052de67a1cff828b72c445f520bf1c1cca5fe10565bdaa3907908425e93572b",
+    "size": 3836
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiError.kt",
+    "sha256": "d391607474366bdeb8b687c719e13aa6ad57c387802499d1f2d248faa937ba83",
+    "size": 4484
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiErrorMapper.kt",
+    "sha256": "3a6eb9d739442dec5a8e06d674d15fa85eb1c6bbb399219cfc1027b010051587",
+    "size": 11373
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiHttp.kt",
+    "sha256": "1add760bf90460abb2c03d4fbe3c664fd3fc026385474aa9568447ccb31cb850",
+    "size": 9281
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/Json.kt",
+    "sha256": "fc6f8e7ae462fca0939ba011a77bf08785dce91ea4ab7c252547db1a740a934d",
+    "size": 1176
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/MultipartBody.kt",
+    "sha256": "81ef73a58fac20dd02724b9adf028cf843facf7ae6c674b94b36d36fdeee21e7",
+    "size": 1553
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/SseParser.kt",
+    "sha256": "def43e1d8b44598e17b758445fbe25d2119d4a7289e647cfa631669d436bb51a",
+    "size": 1204
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiConfirmationGate.kt",
+    "sha256": "2b9b9b3c9f5e925b9a31a8e47347c54a03de35cc6c9c78931ac0532626a51dc5",
+    "size": 9874
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiDiagnosticsLog.kt",
+    "sha256": "8b24129ddb6a67db26664648772188e0e20f32d093a67bc981e7428b9dd4b6fc",
+    "size": 4728
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiOrchestrator.kt",
+    "sha256": "ffcf35037fba89156854c6207c3fafedb4f01677b6f1b69b148cdd8d686ad89b",
+    "size": 63738
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiRouter.kt",
+    "sha256": "bb0fe63d5781e0e600a723c5654df03808af01a50f469e0cde071f5d133963a2",
+    "size": 14286
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiUsageSink.kt",
+    "sha256": "98b2e415af3b3ec04fa13f8abc59a6a3351b4da1bb00b01716bcae43b191a06e",
+    "size": 1494
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AssistantState.kt",
+    "sha256": "69bb7435c1bc42dc6504611f8751918801cec771b4ee8f12f35957e0cf06b2fb",
+    "size": 6810
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/Conversation.kt",
+    "sha256": "888f54b4603e3635a324670f4fc38a3ecad487491b1b62488e2051c292dcf8ce",
+    "size": 5780
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailoverPolicy.kt",
+    "sha256": "2b40f5ad5fc412626b3c36adba480fdc99110ab432169ec0b8b35828a738c2e2",
+    "size": 8711
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailureKinds.kt",
+    "sha256": "16f9b783ffc5bd9bf20c0d3565cf1f077b1a13a8fe0cefbb1a5a7d2291e6b08f",
+    "size": 1918
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/Capabilities.kt",
+    "sha256": "bb1b1c5db4dc27d232e85da491d4bddd0fcd6057519c495e676c9719939d30c0",
+    "size": 4392
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/GeminiProvider.kt",
+    "sha256": "6fef3419a7f89ad91154e024d645019aff37c340d01748407ca5e459f4f66873",
+    "size": 20747
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/GroqProvider.kt",
+    "sha256": "ccf456bd6f2655c7241910ea09a17d1a1a38852bec42144df6c4387dbce4a47a",
+    "size": 3124
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/Model.kt",
+    "sha256": "15ce0ba3107df833c8fc77cfdc95a9271f7dce54a91bc148bd47907c45cfad9c",
+    "size": 10243
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ModelCatalog.kt",
+    "sha256": "ae4565b946301eedbc25eff05fdf02aeeaecea9091e3d22b54e61fe9d95b68fb",
+    "size": 7001
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenAiCompatCodec.kt",
+    "sha256": "f923142d2640770ad404ca9ec4e01f61b970b0ba0200100027144dd110092a4d",
+    "size": 11390
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenAiCompatProvider.kt",
+    "sha256": "d30dfbec8b1d520a2e90def99f14a6b9453683c42dd5f41321b28d86b6176dbf",
+    "size": 7342
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenRouterCatalog.kt",
+    "sha256": "47e222732f4022338feadbf48df1de9754f3754c981508bf6a4b2833ed542f3c",
+    "size": 2499
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenRouterProvider.kt",
+    "sha256": "b9ea3c9cd44462b756089d253b6d7173496f5d1487810d9e91c743b09105e20d",
+    "size": 6330
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycle.kt",
+    "sha256": "a764c1199c5ede799d537c37e37cfa793f8ed709712e140ec8baf883736590a2",
+    "size": 7631
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderFactory.kt",
+    "sha256": "f51a2b65b984d2904d4ca85174f0992b71b5cedff74504da3778b09eff74e715",
+    "size": 4282
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderId.kt",
+    "sha256": "54942cb292f0c4344b3c572f41328aa1bbee7b7b21086308d59c9a20341f25e5",
+    "size": 804
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ToolCallAssembler.kt",
+    "sha256": "2ac3d301361a87d2e26a613416e1c1357dd6164d1a684b05c53db0d594677ed2",
+    "size": 2278
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/speech/AndroidPcmSource.kt",
+    "sha256": "5be40c465b647e4a6ea91f7f1b940f7fbb101b834a02c22a2ee513cd904ce9a1",
+    "size": 5133
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/speech/SpeechCapture.kt",
+    "sha256": "423eddc09135045d9a2553d9484972d4fab27ce863fa1dd6c1ad1c2ca98e8779",
+    "size": 12658
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/speech/Transcriber.kt",
+    "sha256": "b567480995b75440f2e5a394979e574274ffa4cce7233c3b962a3b9319ce25f2",
+    "size": 2414
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/tools/ToolArgumentValidator.kt",
+    "sha256": "f40a4814c2536771082c4e301f258451ca064470f5c0d5bde85ed4d8d549cd7c",
+    "size": 5255
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/tools/ToolResults.kt",
+    "sha256": "42737f260aa1030987c7c536ba68e97c81cd5a47bff8b72bf7eb19d8454226d0",
+    "size": 3078
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/tools/Tools.kt",
+    "sha256": "6da5ac8faf63581c76ae47bea77343f31dd1a75d32b5c415cab76f515c2dcd3d",
+    "size": 19368
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AiKeyStoreTest.kt",
+    "sha256": "6f279f8bb383d5d633c6a2174bd8286efb69acf579d03995985afacc47cd83a6",
+    "size": 3853
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AiSettingsDefaultsTest.kt",
+    "sha256": "f58394cf10e192f0ba47f98db3478367eb360814af10bf100ebc8f87d7270ace",
+    "size": 9255
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AiSettingsStoreTest.kt",
+    "sha256": "0e0e211c1b86ceeefb27577c2d516f3445afa63fc91603d68e31352cdd69a71c",
+    "size": 2148
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AvoidListTest.kt",
+    "sha256": "cf0475935158831a19a725043b3eea7c8066017f78c668d540390cd427cc67f5",
+    "size": 9649
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/GroqReconcileTest.kt",
+    "sha256": "d7cb925923efe0c3c5eee288e08ee54e6337a304bbe90019a0845e9f1be027a2",
+    "size": 8032
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/AiErrorMapperTest.kt",
+    "sha256": "f31a0b49c84acdec0a085b3c02decf4c2902ab1400b94aeb82a42914ec36862c",
+    "size": 13009
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/AiHttpServerTest.kt",
+    "sha256": "3b5c88f809a650e681f41ce6c224675cd36ceaef1bebce21f3ac924ec5750def",
+    "size": 6361
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/MultipartBodyTest.kt",
+    "sha256": "d7e92953b194463a67e303ba9788dc19824b6b35e60bad90fb407e615344961a",
+    "size": 1447
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/SseParserTest.kt",
+    "sha256": "917d5514c4c889f25ac440d57f2a278302ec77746bf4bde7356303f5b5a72d44",
+    "size": 1419
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/StreamTimeoutTest.kt",
+    "sha256": "4f508930a4d5b7342d5120878b3477b2032650c438a30bb4eb97d4d91c5ef75f",
+    "size": 6871
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/TinyHttpServer.kt",
+    "sha256": "1c94570132dd0d4a34dd80b6b829df12ed75d470f39d3ef8e3de5924a7b224c2",
+    "size": 4811
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiConfirmationGateTest.kt",
+    "sha256": "95f3d0c6315c4f771b5d9067f2a3124bdb02ebb3ddbb7364d530e4e8fb3400e0",
+    "size": 17162
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiDeepTierTest.kt",
+    "sha256": "8932df732c3afaa32bceeb4eeb14e87623593378972014b077ccd3d9f62e6b13",
+    "size": 11387
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiFailoverOrchestratorTest.kt",
+    "sha256": "3cfaf80610346f51652e812f1e6e8c49f8f3a0045f43e47563f5a69d9d4cc3fa",
+    "size": 19341
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiHierarchyTest.kt",
+    "sha256": "521382467d566f65e23be1570a2c428d677741b5f8a571fd894c438e5d0c5293",
+    "size": 19115
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiOrchestratorTest.kt",
+    "sha256": "6a4f8dfd40efd1c45947e0794db787878d6710adc06f84b480746f4b31873e0b",
+    "size": 31372
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiRouterTest.kt",
+    "sha256": "10bd44961dd7e2cc80a2a84c9269c957b8623729794148ec75a3cb38b8d0c64e",
+    "size": 6054
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiToolTimeoutTest.kt",
+    "sha256": "4dca2e0bc480aa578e51230409e041f46708c08c50b32828c7f7c527e02ce18c",
+    "size": 18085
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailoverAndCompactorTest.kt",
+    "sha256": "973747ec61be87341b2c170ebe6686f23334faa60bbf136d9e8b74f9820e57c3",
+    "size": 9847
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailoverTableTest.kt",
+    "sha256": "709046e337bb776ec8e88d129809bb9e0d6a17e6e4e36ee056173c99bfb7b4b8",
+    "size": 6171
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailureKindsTest.kt",
+    "sha256": "4f05ba10ce6c61aca534dfae9d34473d2aa2e606121e5d70e45f45d322be6dc6",
+    "size": 7377
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/CodecTest.kt",
+    "sha256": "9f58517451773bdeea2e8c351f2392a1e825d6f8586550f0cd65c4ef3bd6c2d9",
+    "size": 11271
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/ContentPartsTest.kt",
+    "sha256": "be00aa722fa0c99edd3d7508be9cdccbf82627e79f3d68a587c3e7db0be9ba72",
+    "size": 6981
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/DispatchAuditTest.kt",
+    "sha256": "c161eb7ea6d8381c0d247486ce1fc35272d03c6f29935b89a1d13a54b8b0df72",
+    "size": 3284
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/FailureCodecTest.kt",
+    "sha256": "b0c8a80c9a51d3c603aa287a7f376e92cb872f0fba6f19781648fbf8b54c8906",
+    "size": 2327
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/OpenRouterDataPolicyTest.kt",
+    "sha256": "67ad63baffb70cf302a00b8bc12c761eb4fab3bc87b4b7c2d48d877ebd14db65",
+    "size": 2020
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycleTest.kt",
+    "sha256": "f092624cb0e57c877fe892ceb0ea8753af8e95fab48a2e71b837c42584b2499f",
+    "size": 14121
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/WebSearchCodecTest.kt",
+    "sha256": "09cfc32645351ea514009e0e4cb5cce43dfd96046c60de1262790d957cbf721e",
+    "size": 6154
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/speech/SpeechCaptureTest.kt",
+    "sha256": "bb965e839faa590882a9c390534b2c4717ca0015363f7e1a92e83611a1c64c07",
+    "size": 11642
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/tools/ModelToolTextTest.kt",
+    "sha256": "722c39e81c72fa3aa23279b69ff317c934e9f175fa324c0fbb888b0952ab7e9a",
+    "size": 891
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/tools/SmallPartsTest.kt",
+    "sha256": "e949275220725b320b147ad528b8beeeafcf7045ef272ad6861374bc050b1181",
+    "size": 4677
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/tools/ToolContractsTest.kt",
+    "sha256": "1d7cf48530ccb29b1599c1b52ec4229d08dee9f57a531e978715b38a4d3195fa",
+    "size": 2950
+  },
+  {
+    "path": "engine/engine-ai-bridge/build.gradle",
+    "sha256": "1fcb4fe4a31a2e813198217f3156e88a21559a9745f89141c68f2ef25574180f",
+    "size": 901
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/AndroidManifest.xml",
+    "sha256": "676da27d3507caa8ea9def131f2804126bd58afe11495c1160f27a3af13ee61a",
+    "size": 613
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/AiToolClient.kt",
+    "sha256": "29276531d41e5bc5c2c61b151bab0842c5bf5aad144b22995ef0530fe38d087d",
+    "size": 8194
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/AiToolHostProvider.kt",
+    "sha256": "8966f4ac9a5a907e39e89d96542075f54314121877e2333f18f8385bf12c9ebd",
+    "size": 17693
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/BridgeProtocol.kt",
+    "sha256": "195b5a04de82ade4ca0cb9ff9d169439371b016d2af0788b016963899365a82e",
+    "size": 15614
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/RemoteTools.kt",
+    "sha256": "709b699dda718eff03a6ab26cd0ec50491fec40729c707813bf3472b9bd325c1",
+    "size": 10205
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/TypedResultCodec.kt",
+    "sha256": "3d71a4eb02a323656827c48bf313ec896bd767e5822682ef5fc91ac46220c8b4",
+    "size": 3147
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/BridgeProtocolTest.kt",
+    "sha256": "cf04ee23dbc222a56a9c8cdb3ed8a0130efa394ccec8a6c1c7c7e96d4114f482",
+    "size": 6866
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/ManifestTest.kt",
+    "sha256": "eb48f765b28a3581f49eb55a3290860d080c30425117d9be2de6dda07c3a0210",
+    "size": 1739
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/RemoteToolTest.kt",
+    "sha256": "496ef27eed935ef209c7dcab3a43b54d12c3f786825b4ddf3457722f4dfae2af",
+    "size": 9839
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/TypedProtocolTest.kt",
+    "sha256": "09f9c8e2656f62edd994127b53b888cedf5b8c5272268c16aff7a8ae6792314c",
+    "size": 3637
+  },
+  {
+    "path": "feature-assistant/build.gradle",
+    "sha256": "e8365db44264f2f06498166ffaa4a0e11c5511735da4d4886ba8aa48407ef6b6",
+    "size": 2737
+  },
+  {
+    "path": "feature-assistant/src/main/AndroidManifest.xml",
+    "sha256": "eaee9a399031b8109f5139fdd0a68f422c0805bb180fdf0fe5b3702991eee086",
+    "size": 714
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/assist/AssistantRoleCard.kt",
+    "sha256": "a6391b160a0679b962f84625698cbf341f59b8de9bb238a883b4af5ea9f19657",
+    "size": 3880
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AnswerBody.kt",
+    "sha256": "61a2fefb2c3593bf837a71afee7c41cb2b4d705985bbe0d1cb728ac59ce61f22",
+    "size": 3722
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AnswerHeader.kt",
+    "sha256": "36395569858dcd8c00842802bbde0984caf969d0d2023505451f95f475d15185",
+    "size": 5373
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AriaMark.kt",
+    "sha256": "f1a5652c13d912d85474046592d55d37483bea8935e3f6b6dc572681c9c8571f",
+    "size": 2469
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AriaStrings.kt",
+    "sha256": "0f5896adb83e1819c4e045cf34c0133306991bdabf05889421a568ef0b82ee08",
+    "size": 1450
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AssistantComposer.kt",
+    "sha256": "0802068ffc3fb772e73e59cf121f23578e563a3ef677af09005857311871dddb",
+    "size": 7244
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AssistantControls.kt",
+    "sha256": "73b698bb8cdd943066e18842399b3874c38902264ebce65d3b690e84a7258787",
+    "size": 1726
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AssistantTexts.kt",
+    "sha256": "12cd6c844fbed412776aba4730029b78b67c2358e2d5d5b853951e6dac8778c2",
+    "size": 7729
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AttachmentFiles.kt",
+    "sha256": "d95fb087caac763d4183166dc3c1c2835831d87419e7c136d7e37384c6c1098b",
+    "size": 1938
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatAmbient.kt",
+    "sha256": "c8f0e75235f3c000bd50ccb1d14a2d3e1187feedbc99b7f508005354a868a9c7",
+    "size": 10395
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatBackdrops.kt",
+    "sha256": "ad37f0cfd170950c3c88db1b29a111c7c4c54077841c50981052bc22902e45ad",
+    "size": 1256
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatCanvas.kt",
+    "sha256": "aa1a355ff0ca623bf820278f6e5e575beb04e497f4f3b4208f2925e296cae8cc",
+    "size": 2393
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatComposer.kt",
+    "sha256": "f8fbd2c552f81989321da3bf67d64a4f1a3feef558bbfff7320ba1321008c5be",
+    "size": 20138
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatMessages.kt",
+    "sha256": "301d56dbf0f71f9ebc32463bdeccf86b94262581d50d3929aa594f6fcad62d76",
+    "size": 18811
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatRoute.kt",
+    "sha256": "211af1842a4f0e720a920aa042f2afd7f2f3aa7b0da027f16bbc6cd57ca7d868",
+    "size": 28660
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatTopBar.kt",
+    "sha256": "3c0b55cad4f69299375f34397663570aabf455a78ae1890c98da8cbff5d8e151",
+    "size": 7329
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatViewModel.kt",
+    "sha256": "f39d983ba89e67bac54357eab62d4025b01e7863ed2bb434463b99bcba050433",
+    "size": 38616
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ComposerMenus.kt",
+    "sha256": "effa246edb2ad1768f63191206717517932bc3a1daa1337e222bd092647e588c",
+    "size": 12634
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ExactModelPicker.kt",
+    "sha256": "92801750843ae4930838a0733d18fc4d86af2561f964d366f109b9ce9947a748",
+    "size": 7110
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/FailureReports.kt",
+    "sha256": "2fd2ab6d88317082b32fb32c3ccaf10fba45fbfd44e3c0b37e2bde548ef03681",
+    "size": 1511
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/MarkdownLite.kt",
+    "sha256": "93061206a5609161584e97280a6a2cc0186094ffeae0ff983dbd410590f336c2",
+    "size": 421
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/QueuedSendAdmission.kt",
+    "sha256": "0babca6019879b27cd86d193f4cfa76b78e8aff62e948b6dad3fdfb161bd1fcb",
+    "size": 2170
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/RunSteps.kt",
+    "sha256": "1a847907b034dac6cef3f669dec8b992c7cefda7404b97a0e9d6df4afc841e14",
+    "size": 13505
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/SendAdmission.kt",
+    "sha256": "1423d9da036ba6cf93e73e5cf4a25dd4f3ee4cf079f16fee3057b5e23d6f4749",
+    "size": 1168
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ToolResultCards.kt",
+    "sha256": "f0c27881822c2ad2a7c30b1788ed47fe68b4446b4ae2c79ae6ad119f678f8e79",
+    "size": 5358
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/VersionSwitcher.kt",
+    "sha256": "48d5bf2199f3d4bacb94d369a1f0f2c62b3e6536edf6ee627bc2adf03cae6dd1",
+    "size": 5954
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/VoicePreparation.kt",
+    "sha256": "22261c5fc858d4a65e1e1f9a4b28bf50dde9a8d1e08d685ce0c32334f5e88d8d",
+    "size": 1282
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/consent/ConsentContent.kt",
+    "sha256": "1941501722fb95df8d5409ad15c61b80e4e6c516e8a411a202fe93fb6c50a980",
+    "size": 3750
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/history/AriaDrawer.kt",
+    "sha256": "f9f04c255aa2afe59c912d372935bdcf40a2764874f656b7f50a1b10493029a5",
+    "size": 15017
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/history/HistoryViewModel.kt",
+    "sha256": "471211bbcef510f6802a7b37401334be03c33af910067962c578f02fbe413e62",
+    "size": 3678
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/memory/MemoryRoute.kt",
+    "sha256": "b04958d721ebcbb9d86cb304fe3d333f4974db7017fde8c7f663bcc4d85470df",
+    "size": 9907
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/memory/MemoryViewModel.kt",
+    "sha256": "53907bb1b3eb45cbb035ffce8433366273de3a829893e354853d48ca94f27757",
+    "size": 2159
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/onboarding/OnboardingRoute.kt",
+    "sha256": "e28bc79049ec9ef97b8da41a18837dc51cde5be19b67fc20648f95e691b8131d",
+    "size": 7439
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/PampaiRoot.kt",
+    "sha256": "6b0160f00de2e1151e33f12f891ddbd591adf7de52ef164c6639186eec9ed01e",
+    "size": 19506
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/MusicFactPresentation.kt",
+    "sha256": "7dba0a3faebb286d1dd554c4ed83410ae29e15671c1eef5f1cdedd063d9fbe44",
+    "size": 2973
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfilePresentation.kt",
+    "sha256": "0e9e5a002c0d28db20f5c0cf9c33da96caf8e9ef5d838833d8d7e1839fd8447b",
+    "size": 10353
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileRoute.kt",
+    "sha256": "898b124393a4544d370f365d78d4c9015429e4ac23f6ce901241c107952513c7",
+    "size": 10927
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileViewModel.kt",
+    "sha256": "0c6505538a74e142e6877f7519b83f9c11c0b5205ef19f031c369d81289f9730",
+    "size": 11012
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/SourcesScreen.kt",
+    "sha256": "b1a69c98787c899c0edac5b2a7e77731a94ef76e297766e51baaaaa0aded6363",
+    "size": 6383
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/UpdatesRoute.kt",
+    "sha256": "2d3935e36854f5b63dc523f4804b8144f17e2c552921e65fafb312c233eab8ff",
+    "size": 15183
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/DraftHandoffs.kt",
+    "sha256": "203f082248fecb16accdf5b8c75005eebd1ed95931d657e4c2501a1d21c8a489",
+    "size": 1718
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionBar.kt",
+    "sha256": "953827c85cd9b4bd19b3a97b3f26f363c61c15a1ce7b9513463a7fbacfa35c3b",
+    "size": 4007
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionCard.kt",
+    "sha256": "b9d122335573fa4828b733d3aaf667fb939ace5187a6f0550f81581dfbd89db5",
+    "size": 16024
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionComposeHost.kt",
+    "sha256": "ddb477d30755b3542e9c5e862ecd04607a496dedb837f8932d67933c46381619",
+    "size": 3509
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionController.kt",
+    "sha256": "53925ca0cf7161a89abe47f2153efedace24d364a84bd81af9998e457e872e0d",
+    "size": 15918
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionModalRoot.kt",
+    "sha256": "53a0b7da78dfd8798a3b9f792fc86b0f853babbb39882935fce9f85ece862db5",
+    "size": 901
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionNotice.kt",
+    "sha256": "141fe2347617d68fa4220ac6334389e4b7d3c296e027af4b065ac5c7fa66b9a6",
+    "size": 5050
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionOverlay.kt",
+    "sha256": "a97a46d045e29ee64c32bd8327b0c48b3a333b77c0047d9992b9ffdb90840e91",
+    "size": 14956
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/AssistantSettingsItems.kt",
+    "sha256": "fe3fe7dd92d606f0297dfb7b2fb5281c2913252ec1106ca4590ad36aa3807365",
+    "size": 12166
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/AssistantSettingsViewModel.kt",
+    "sha256": "5e916acc36c01d63c410b0aaaf40f4df935e09e605a41609a8b83a3f5e7ddfc0",
+    "size": 8209
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/ConnectedAppsSettings.kt",
+    "sha256": "527dbc96f3ee4f2b4e86712c38970e0e6072759bbccfdf2c100f5621ffde54d1",
+    "size": 3123
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/PermissionsSettings.kt",
+    "sha256": "a0514afaed29bf578c23cf8399cdecf55670d79b139ab95be53c19ecacc9f728",
+    "size": 7793
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/SettingsRoute.kt",
+    "sha256": "a9084b31d431c33773b059fb1ca81ed9ea549106ae8ef46eb854edea23b4ab3c",
+    "size": 8049
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/theme/PampaiTheme.kt",
+    "sha256": "58710f453a8e3db249878f4cdf7adba73058a17d80701df25d49ca53897a4cff",
+    "size": 1725
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/usage/UsageRoute.kt",
+    "sha256": "0f762ed16317da60a7935697fdc48028d2ad9ec2cfe1d0b6636d212b51cd63de",
+    "size": 8452
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/usage/UsageViewModel.kt",
+    "sha256": "a3afe895822ad01decad8aa2273294fc56ff6e027261219c2cd2c1292a4f80b8",
+    "size": 5893
+  },
+  {
+    "path": "feature-assistant/src/main/res/xml/pampai_files.xml",
+    "sha256": "558c1f576c60cfe7bf9205f6aaee54318ac7aa17ac287fa168206ca9eaf0bf08",
+    "size": 163
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatScreenshots.kt",
+    "sha256": "7e064b290d5fc7b9405e0a6f40d67b99d7658567c06d50e772956f36105cb111",
+    "size": 17351
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/ExperienceArchitectureTest.kt",
+    "sha256": "610b1e76004becb67448ff48c61e4c21fee68cf8541a78484515378598528d7a",
+    "size": 10770
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/FailureReportsTest.kt",
+    "sha256": "8f43660fe26808bb7caf34b150d8180eb1d34198fdc943c1abc81db1b93af61c",
+    "size": 4371
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/RunEvidenceRenderTest.kt",
+    "sha256": "0151d29ba5d0719615585348c9b6908d53a4cfc17907435a3a24709f92c3d73b",
+    "size": 4480
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/SendAdmissionTest.kt",
+    "sha256": "9baf4a82b2be9e065e694d026f052e95486df2227955db45390fd532d1890b88",
+    "size": 5094
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/TextAdmissionOwnershipTest.kt",
+    "sha256": "2890ee924673b7057a57735afa95436fcf80389e6c38484a70a7dcee4c194307",
+    "size": 4266
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/ToolResultCardsTest.kt",
+    "sha256": "102b912e134f55c8325b3bbac00bd7fcc81abc5879b5d1af8a5306d4b84ce5df",
+    "size": 2604
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/UiCorrectionsTest.kt",
+    "sha256": "4d00751ac37ec3020aec1be087fcfba829946016634f4a2becd14cbf46036398",
+    "size": 16917
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/VoicePreparationTest.kt",
+    "sha256": "d4d453fe8f2dcbc120a6d5106db5214acc5954e7c03ae80e9ff9be9b83238e72",
+    "size": 2594
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/memory/MemoryScreenshots.kt",
+    "sha256": "321f1170e5e873a81dac9d666cc66579c2c02afdd0b0a4e497a34492a82577fd",
+    "size": 2221
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/MusicFactPresentationTest.kt",
+    "sha256": "5b5e0bf9ef16f4f84d60b9ad95272a3274ca7b0ed973d651b041966812142e9e",
+    "size": 2397
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileNavigationTest.kt",
+    "sha256": "1a8b4754363b58825897df2781e27d5feab27c3fd48d0a7832dc21613351447a",
+    "size": 3013
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileScreenshots.kt",
+    "sha256": "f5108a52bd96782c706a0535a3a116ee93e00623546a710ad72462ddaab8e3cf",
+    "size": 9065
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileViewModelTest.kt",
+    "sha256": "3d26583bcae35507cc1e5007650759f016eb5f4ee8720cbf5b31bebdb4580056",
+    "size": 10139
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/SourceFormContractTest.kt",
+    "sha256": "6bf7c06c30bcabaf7f7ef5fc5ceab4717976d50b36c0be649ea4a0e20c36f7de",
+    "size": 2111
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/session/DraftHandoffsTest.kt",
+    "sha256": "72f9ee0427a7575cee37ae433987c6193cc21830f9b8ebe3ab3ec26c507bed07",
+    "size": 2387
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/session/SessionAdmissionTest.kt",
+    "sha256": "4049cec0ac2d89a5a574de4ea7ac8cfe85a37e3325b285c5a681acfe717cf4a5",
+    "size": 4091
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/settings/SettingsSectionKeysTest.kt",
+    "sha256": "bdf9fbe8e3028dfd926aa9b1e5718b8fe4fb6c4340f109f88f8aa9745906cd3c",
+    "size": 3964
+  },
+  {
+    "path": "gradle/libs.versions.toml",
+    "sha256": "38699fba047c3fd285d3d5f469a16709f78667c1add99fb219de3aa828e0313e",
+    "size": 4646
+  },
+  {
+    "path": "settings.gradle",
+    "sha256": "df6f13b5b51376e57c2c28656cc0925cd07c0ba26af4f8808b6a019d0da657d5",
+    "size": 780
+  }
+]

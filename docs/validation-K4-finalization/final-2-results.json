@@ -1,0 +1,96 @@
+{
+  "buildSuccessful": true,
+  "counts": {
+    "core-assistant": {
+      "tests": 305,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": 47,
+      "execution": "fresh final-2"
+    },
+    "feature-assistant": {
+      "tests": 104,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": 19,
+      "execution": "retained K4 full-5 execution; feature sources unchanged, not rerun"
+    },
+    "engine-ai": {
+      "tests": 264,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": 31,
+      "execution": "retained K2 full-4 execution, not rerun"
+    },
+    "engine-ai-bridge": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml": 4,
+      "execution": "retained K2 full-4 execution, not rerun"
+    }
+  },
+  "lint": {
+    "core-assistant": {
+      "counts": {
+        "Warning": 24
+      },
+      "execution": "current invocation"
+    },
+    "feature-assistant": {
+      "counts": {
+        "Warning": 18,
+        "Hint": 1
+      },
+      "execution": "retained K4; feature inputs unchanged"
+    },
+    "app": {
+      "counts": {
+        "Warning": 39,
+        "Hint": 1
+      },
+      "execution": "current invocation"
+    }
+  },
+  "inputCount": 688,
+  "changedDuringBuild": [],
+  "inputManifest": "final-2-inputs-before.json",
+  "finalLog": "final-2.log",
+  "sourceDelta": [
+    {
+      "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchQuestionPlanner.kt",
+      "old": "88d86e020bd48949e9e732ce8600fef17b000ed417ba1805d7a25fb796f155de",
+      "new": "475887b682410f721b19f3a34f2b25c555210acf955366b81e8f6d27a7fbcacb"
+    },
+    {
+      "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/TurnPrivacy.kt",
+      "old": "7714313ecb3240f0c3cf7dadca1aafd88e20c37ac1b22066df157ebf79a81d16",
+      "new": "a6590316fce2a8ebe42b7fd29c8ffa0ba816a25fe37b7f6f255e2a21f104d116"
+    },
+    {
+      "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/aria/AriaTools.kt",
+      "old": "b6cc1ddd4341dcf3f0a11f33c8590f0bf133fcfce7d94c9a2486b9e44e6ceedf",
+      "new": "32660e3f898b9fc80b3386c9d32ede74a31f523a5ae0712d61c26f8bb78a1088"
+    },
+    {
+      "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/MemoryClassificationIntegrationTest.kt",
+      "old": "92cf385dde8307e7f3fe9090be9287e9d519d323dfbaf633dd2b64d382ee8a63",
+      "new": "321e4e1ea30cc34e374715f4248428f246b46d0a6ec751fd0e9f26929e407379"
+    },
+    {
+      "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/OrdinaryTurnPrivacyTest.kt",
+      "old": "c7cd1c19380ad304593e0bba6d9e7b2c4d368403c961820e38d11b80f3640369",
+      "new": "efe778a176b6f0868aefe8d5e60169f993a836a75e79d54d5ad7cd2968b8706b"
+    }
+  ],
+  "apk": {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa\\knowledge-K4-finalization\\PampAI-knowledge-debug.apk",
+    "size": 105260029,
+    "sha256": "56eb763fe28266fd25ec0da30f5c6f6ef020de0fae26523879693d14c54e9545"
+  },
+  "limits": "ROOT localized follow-up; not independently rereviewed, device installed or runtime approved. No autonomous area enabled."
+}

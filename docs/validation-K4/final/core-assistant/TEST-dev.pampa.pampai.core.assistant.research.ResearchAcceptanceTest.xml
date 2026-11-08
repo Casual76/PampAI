@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:09:13.730Z" hostname="PC_FISSO" time="9.99">
+  <properties/>
+  <testcase name="publicScopeDecisionNeverUpgradesWhenANewSourceIsConnectedLater" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="5.392"/>
+  <testcase name="currentAnswerAndStableProofRenewalStayVisibleButNeverReplayOrToolSearch" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.923"/>
+  <testcase name="actualEngineRestoresPublicPartialSaverAndRetainsPrivateBuffering" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="2.432"/>
+  <testcase name="rejectedAcceptancePreservesUncertainWriteReceiptAndNoReplayFence" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.166"/>
+  <testcase name="publicStreamingIsImmediateAndPrivateCapableStreamingRemainsBufferedBeforeFirstRead" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.083"/>
+  <testcase name="actualStoredProfileDependencyIsCarriedAcrossSynthesisAndRejectsCorrectionAtHandoff" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.147"/>
+  <testcase name="temporaryAnswerUsesSameBoundaryWithoutCreatingResearchJobsOrProfile" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.1"/>
+  <testcase name="resumedDoneJobRetainsOriginalDescriptorAndGeneratesOnlyOnce" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.135"/>
+  <testcase name="remoteAuthorizationDriftAtReturnRejectsChat" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.109"/>
+  <testcase name="explicitProfileRefusalStillAllowsSourceResearchWithoutStoredKnowledgeOrLearning" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.104"/>
+  <testcase name="forgetAtRealResearchReturnRejectsChatWithoutReplayingSettledSynthesis" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.091"/>
+  <testcase name="temporaryForgetDuringProductionCannotRecaptureANewEpoch" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.057"/>
+  <testcase name="sqliteFailureBetweenAnswerAndClassificationRollsBackBoth" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.104"/>
+  <testcase name="localRevokeAtReturnRejectsEvenAfterExplicitReconnect" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.107"/>
+  <testcase name="sourceFreeToolCommitUsesSharedRoomRollbackAndIgnoresUnrelatedEpochChanges" classname="dev.pampa.pampai.core.assistant.research.ResearchAcceptanceTest" time="0.039"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\casua\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.18.2\62f38a6faf7f069d661b79a07d566f504b0b20c4\byte-buddy-agent-1.18.2.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

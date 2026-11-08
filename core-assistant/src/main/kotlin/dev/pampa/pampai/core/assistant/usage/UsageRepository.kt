@@ -5,6 +5,7 @@ import dev.antigravity.fluidengine.ai.orchestrator.AiUsageEvent
 import dev.antigravity.fluidengine.ai.orchestrator.AiUsageSink
 import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderId
+import dev.antigravity.fluidengine.ai.provider.ChatTurn
 import dev.pampa.pampai.core.assistant.db.UsageEventDao
 import dev.pampa.pampai.core.assistant.db.UsageEventEntity
 import javax.inject.Inject
@@ -15,6 +16,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /** Cosa ha consumato una chiamata: un evento per riga, dal piu' recente. */
 data class UsageEvent(
@@ -89,6 +92,22 @@ class UsageRepository @Inject constructor(private val dao: UsageEventDao) : AiUs
   suspend fun countToday(provider: ProviderId, dayStartMillis: Long): Int = dao.countSince(dayStartMillis, provider.id)
 
   suspend fun clear() = dao.deleteAll()
+
+  /** Helper calls happen during preflight too. Account only real calls, including failures;
+   * cached descriptions never reach this method. Persist even if the caller was cancelled. */
+  suspend fun recordVision(provider: ProviderId, model: String, turn: ChatTurn?, durationMillis: Long,
+    conversationId: Long?, error: Throwable?) = withContext(NonCancellable + Dispatchers.IO) {
+    dao.insert(UsageEventEntity(
+      atMillis = System.currentTimeMillis(), provider = provider.id, model = model, kind = "VISION_HELPER",
+      promptTokens = turn?.usage?.promptTokens, completionTokens = turn?.usage?.completionTokens,
+      costUsd = turn?.usage?.costUsd ?: CostTable.estimate(provider, model, turn?.usage),
+      durationMillis = durationMillis, conversationId = conversationId,
+      // Do not store arbitrary exception messages, which may contain request details.
+      error = error?.let { if (it is AiError) describe(it) else it.javaClass.simpleName },
+      rateLimited = error is AiError.RateLimited, remainingRequests = turn?.rateLimit?.remainingRequests,
+      remainingTokens = turn?.rateLimit?.remainingTokens,
+    ))
+  }
 
   /**
    * L'errore in una riga per i Consumi. Con quello che ha detto il servizio (engine 2.8.0, gia' corto

@@ -1,5 +1,7 @@
 package dev.pampa.pampai.core.assistant.prompt
 
+import dev.antigravity.fluidengine.ai.tools.ToolOutcome
+import dev.antigravity.fluidengine.ai.tools.ToolOutput
 import dev.pampa.pampai.core.assistant.tools.ACTIONS_OFF
 import dev.pampa.pampai.core.assistant.tools.Dates
 import dev.pampa.pampai.core.assistant.tools.Text
@@ -293,6 +295,21 @@ object QuickCommands {
 
   private val hhmm: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+  /** A dispatched action is never retried by falling through to the model. Typed evidence
+   * owns its wording: an accepted clock intent does not prove a running timer or deadline. */
+  fun outcome(match: Match, output: ToolOutput, now: ZonedDateTime): Outcome {
+    val result = output.result ?: return outcome(match, output.text, now)
+    if (!match.acts) return outcome(match, output.text, now)
+    val fallback = when (result.outcome) {
+      ToolOutcome.ACCEPTED -> "Comando inviato; esito non ancora verificato."
+      ToolOutcome.COMPLETED -> "Operazione completata."
+      ToolOutcome.PARTIAL -> "Operazione completata solo in parte. Non la ripeto automaticamente."
+      ToolOutcome.UNCERTAIN -> "Comando inviato, ma esito non verificabile. Non lo ripeto automaticamente."
+      ToolOutcome.ERROR -> result.error?.message ?: "Operazione non riuscita."
+    }
+    return Outcome.Answer(output.text.trim().ifBlank { fallback })
+  }
+
   /**
    * Com'e' finito il comando, dal risultato dello strumento ([output], null per quelli senza).
    *
@@ -323,9 +340,8 @@ object QuickCommands {
 
   private fun actionReply(match: Match, lines: Map<String, String>, now: ZonedDateTime): String? = when (match.kind) {
     Kind.TIMER -> Durations.parseSeconds(match.args["durata"])?.let { seconds ->
-      val end = now.plusSeconds(seconds.toLong())
       val label = match.args["etichetta"]?.let { " per $it" } ?: ""
-      "Timer di ${Durations.label(seconds)}$label avviato: suona alle ${end.format(hhmm)}."
+      "Richiesta timer di ${Durations.label(seconds)}$label inviata a Orologio. Avvio e scadenza non verificabili."
     }
     Kind.ALARM -> match.args["ora"]?.let { at ->
       Dates.parseTime(at)?.let { time ->

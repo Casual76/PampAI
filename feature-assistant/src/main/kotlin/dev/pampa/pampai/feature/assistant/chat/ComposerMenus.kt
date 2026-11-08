@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -202,6 +203,7 @@ internal fun MenuRow(
   Row(
     modifier = Modifier
       .fillMaxWidth()
+      .then(Modifier.heightIn(min = 48.dp))
       .fluidPressable(onClick = onClick, role = Role.Button, pressedScale = 1f, haptic = null)
       .padding(horizontal = 16.dp, vertical = 11.dp),
     verticalAlignment = Alignment.CenterVertically,
@@ -222,4 +224,11 @@ internal fun MenuRow(
 @Composable
 internal fun MenuDivider() {
   Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).height(1.dp).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)))
+}
+
+@Composable
+internal fun MenuSectionLabel(title: String) {
+  Text(title, style = MaterialTheme.typography.labelMedium,
+    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
 }

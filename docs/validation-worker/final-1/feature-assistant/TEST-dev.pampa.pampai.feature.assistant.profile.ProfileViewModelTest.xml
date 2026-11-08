@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:52:28.370Z" hostname="PC_FISSO" time="2.107">
+  <properties/>
+  <testcase name="correctionForgetAndReenablePreserveCanonicalScope" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="1.703"/>
+  <testcase name="ordinaryRenewalAndRevokeUseSeparateServices" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.069"/>
+  <testcase name="explicitSaveDisablesBeforePersistingExactPlanAndEnabling" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.066"/>
+  <testcase name="mismatchedAccountRefusedBeforeService" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.029"/>
+  <testcase name="failedPlanWriteLeavesAreaDisabled" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.023"/>
+  <testcase name="schedulerObservationDoesNotInventSuccessAndTranslatesSuspension" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.025"/>
+  <testcase name="queuedRevokeIsNotLostDuringPendingConnect" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.063"/>
+  <testcase name="defaultSetupCannotAuthorizeAndDoesNotAdoptChatModel" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.029"/>
+  <testcase name="failedConnectDoesNotAdoptIdentityOrReportSuccess" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.025"/>
+  <testcase name="sourceScopeUsesRealSchoolSectionsAndNeverAdoptsSchoolUiYear" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.013"/>
+  <testcase name="scopeBudgetAndPeriodAreExplicit" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.015"/>
+  <testcase name="priorUnknownTrafficCannotBeHiddenInNewGlobalWindow" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.019"/>
+  <testcase name="partialAndInvalidDeductionsRemainHonestAndLoadingEnds" classname="dev.pampa.pampai.feature.assistant.profile.ProfileViewModelTest" time="0.027"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

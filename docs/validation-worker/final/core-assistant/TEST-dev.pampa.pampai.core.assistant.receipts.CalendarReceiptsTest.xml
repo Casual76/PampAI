@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.receipts.CalendarReceiptsTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:57:33.555Z" hostname="PC_FISSO" time="0.051">
+  <properties/>
+  <testcase name="null cursor cannot certify deletion but actual absence can" classname="dev.pampa.pampai.core.assistant.receipts.CalendarReceiptsTest" time="0.031"/>
+  <testcase name="matching entity readback proves completed and mismatch stays uncertain" classname="dev.pampa.pampai.core.assistant.receipts.CalendarReceiptsTest" time="0.02"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

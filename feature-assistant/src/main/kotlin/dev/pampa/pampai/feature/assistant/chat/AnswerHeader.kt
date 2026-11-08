@@ -18,6 +18,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.antigravity.fluidengine.ai.orchestrator.AssistantState
@@ -112,7 +115,7 @@ internal fun AnswerHeader(header: AnswerHeaderState) {
         color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Medium,
         // Lo stesso spazio sotto della traccia (RunSteps): scambiandosi, il testo sotto non si muove.
-        modifier = Modifier.padding(bottom = 8.dp),
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.padding(bottom = 8.dp),
       )
       is AnswerHeaderState.Steps -> RunSteps(shown.run)
       AnswerHeaderState.None -> Unit

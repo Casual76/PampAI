@@ -1,0 +1,3442 @@
+[
+  {
+    "path": "app/build.gradle",
+    "size": 4838,
+    "sha256": "7634d16254a1a2610c42257225f2698845704f9d8c8a4a2e6021e0e38164d695"
+  },
+  {
+    "path": "app/src/debug/AndroidManifest.xml",
+    "size": 1354,
+    "sha256": "a242b7b8a2fd8e9b6159117055407c02f4227f0703d1e421930c14aed11bb308"
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultInjector.kt",
+    "size": 2646,
+    "sha256": "180c07f8ac1f217c62ebfc498f690eae23532d456e766414aec836a632fd6fd7"
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultPlan.kt",
+    "size": 4667,
+    "sha256": "17a2e921b54830977363f3ae1481022bf4685ea2c0749ef56ab481edd71ca027"
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultReceiver.kt",
+    "size": 4483,
+    "sha256": "3d017529a9f10ea83821f3b86ea2ff2b33de35b3a02dc54a306731bee35ca73e"
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultWire.kt",
+    "size": 14589,
+    "sha256": "0c9aa743995ba340ee3e01aba2ecb5916e4acb886f4751b8483b7edf0e8c939b"
+  },
+  {
+    "path": "app/src/debug/kotlin/dev/pampa/pampai/debug/FaultyProvider.kt",
+    "size": 6167,
+    "sha256": "eacb28bd2e070887c54a15768bc4a9557b96c6bd7614f0aa09438cfaf4ebe0a2"
+  },
+  {
+    "path": "app/src/debug/res/values/strings.xml",
+    "size": 347,
+    "sha256": "35e2336cab47780ff54a12968fadbc8f11f18af8226f8944f99bd9d69173ae26"
+  },
+  {
+    "path": "app/src/main/AndroidManifest.xml",
+    "size": 5771,
+    "sha256": "aa9afa49ba4a75b48a096dc1ce9589808bc45f4ba293778465c34965507bbb88"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/MainActivity.kt",
+    "size": 6887,
+    "sha256": "800eeee770cb5fc745729eb14e16cd4828bd6ab63578c186514f434c1ef692c7"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/PampaiApplication.kt",
+    "size": 3104,
+    "sha256": "931c33965cfb5241eeb4b48931d0fea826edb26c788b55e26e9bf2c5ce741bd2"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/AppShortcuts.kt",
+    "size": 1913,
+    "sha256": "584519e028fb02ba5f0c771ff78a8ccc459760c6d4cccb08f487596294af1efb"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/AssistTrampolineActivity.kt",
+    "size": 926,
+    "sha256": "7492f8122e26c34f72e0ba134efe7ae93b992145821f8b60bdbb690afc4b340b"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiInteractionService.kt",
+    "size": 2894,
+    "sha256": "f69c77900f12c1a87d96d3792236e87612ed3ffff5bd0e7ebbd983ca830e45b7"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiSession.kt",
+    "size": 13792,
+    "sha256": "726ced4559cc7e02154ecc6629b8648bc313154e09975d5d2fbfe993046b4df5"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiSessionService.kt",
+    "size": 415,
+    "sha256": "24bc02f4c7007f6fbaff83af0d4995e0ee1a2ba8faffbe156bb4498101702db5"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PampaiTileService.kt",
+    "size": 1800,
+    "sha256": "444df5fe8ca1f8156d823990ecf07469f1eefd2def9d65db3dbf57d04f7770c5"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/PassthroughRecognitionService.kt",
+    "size": 3983,
+    "sha256": "8c5f12c940d739d90d19fa183500569bfcdf10679b15a5ff48e7d9c33e594a52"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/assist/SessionEntryPoint.kt",
+    "size": 982,
+    "sha256": "38f9175f59a3987da5ecb08a021ab33d62ba4d85b62bc3249efeb0f93aefe51b"
+  },
+  {
+    "path": "app/src/main/kotlin/dev/pampa/pampai/di/EngineModule.kt",
+    "size": 1947,
+    "sha256": "f89c70a4d2c1f753ffed0f27d706b10741e00bae0bd0a8ba62043d29780bb993"
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_launcher_background.xml",
+    "size": 788,
+    "sha256": "40f6b93bcbc5b0766175e5a98a7def5c5d502dec946ac886cc69baf1d024618b"
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_launcher_foreground.xml",
+    "size": 1618,
+    "sha256": "dde343f67dbc1a9236f7b6b7d72194e47938bd121422935102aca02aad259741"
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_shortcut_chat.xml",
+    "size": 640,
+    "sha256": "75ebc221a6ac7a3ed95c917e56d090850cd890ae6648dcde90f23686db3865bf"
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_shortcut_history.xml",
+    "size": 713,
+    "sha256": "c940c14353236048b620339cf2f363496d3b7e28448582b133e814e839b0bc17"
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_shortcut_mic.xml",
+    "size": 721,
+    "sha256": "b5c73071ca3a4db86a5ffe2bb6a4dc3cfd7ad884829534050b0be77ea2c3e1be"
+  },
+  {
+    "path": "app/src/main/res/drawable/ic_tile_aria.xml",
+    "size": 887,
+    "sha256": "98ad31265e38dfa448122458ad19a3bf3e8257dcfc2a5b64eb9811d17f94fa57"
+  },
+  {
+    "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+    "size": 338,
+    "sha256": "52b0af9260c8ff74c2e9fc0fbec79e869fc604b512c1fef0072da54b4cdb9632"
+  },
+  {
+    "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+    "size": 338,
+    "sha256": "52b0af9260c8ff74c2e9fc0fbec79e869fc604b512c1fef0072da54b4cdb9632"
+  },
+  {
+    "path": "app/src/main/res/values/strings.xml",
+    "size": 209,
+    "sha256": "6b74a3f1f0264e20443cd46068462e715340ff6b44344ab8857ab9f390ad0cee"
+  },
+  {
+    "path": "app/src/main/res/values/themes.xml",
+    "size": 1839,
+    "sha256": "5d351c69df429bdd7c7af301637b7e9654ad80e3c60c69fbc43f8e49ad84a6f5"
+  },
+  {
+    "path": "app/src/main/res/xml/recognition_service.xml",
+    "size": 183,
+    "sha256": "360dab3e0b472503816f5b6b36b198e1dfbc8c6117f3391b215389d39324057a"
+  },
+  {
+    "path": "app/src/main/res/xml/voice_interaction_service.xml",
+    "size": 485,
+    "sha256": "29364b8cf921522165500ead207ace5055061365d4fd0ef6696d0cb59f56831b"
+  },
+  {
+    "path": "app/src/testDebug/kotlin/dev/pampa/pampai/debug/FaultInjectorTest.kt",
+    "size": 12490,
+    "sha256": "d42ab86c30e063dd2f9c23210d541aec3f9900defecc266a7c64857f1495dc15"
+  },
+  {
+    "path": "build.gradle",
+    "size": 1450,
+    "sha256": "55703733c0024b41b2f501812bc0f6f22638bbc80deb488a9134b4a21d698a48"
+  },
+  {
+    "path": "core-assistant/build.gradle",
+    "size": 3466,
+    "sha256": "9e3db0f72d0d735210e334f1a5bbb3e4d90407c47ab7baff326951c5d863dcd8"
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/3.json",
+    "size": 18927,
+    "sha256": "5bbf848ee4e96ac21926d9412f0bde99934a41b0fa8b745d52b65e5f90f1d99e"
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/4.json",
+    "size": 19219,
+    "sha256": "bb0b4e2bfe3655399ce580789e936c3985ef3697faf4666836b798fda918a316"
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/5.json",
+    "size": 23031,
+    "sha256": "e3a31f6d24c3c55a91082353b73aacbd9ffdc0d9dc65400f6a459ad487bd68f9"
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/6.json",
+    "size": 25889,
+    "sha256": "1a1b940a1997a61ba7224d47c83355d849487955d6b7ae969e1b1e6ddab27ee6"
+  },
+  {
+    "path": "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/7.json",
+    "size": 56008,
+    "sha256": "59ce21f4f5068d7db4a338308147fc041bc8420247dddac6edbf85efc41ae6e2"
+  },
+  {
+    "path": "core-assistant/src/main/AndroidManifest.xml",
+    "size": 2842,
+    "sha256": "4b77f67bc71a2cac7a19c87874ba9df00950a24c491035f89c2fc0a5c9f2036d"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/attachments/Attachments.kt",
+    "size": 3590,
+    "sha256": "912d5b585c394222e31e10cfe3caa8e9031ea4ae2a8a928d631668ccad77a6e1"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/RemoteCatalogs.kt",
+    "size": 5155,
+    "sha256": "f291cab9c82a822038cf399f9f1be819b168fb3cb95766c6c2e6117887edf365"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/SignedPlaylistReader.kt",
+    "size": 5660,
+    "sha256": "07cdb16c762a0ff8d45b921858059804477d2cb091eebaafbc817d3bd1f14868"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceBridgePolicy.kt",
+    "size": 8198,
+    "sha256": "bc338e6794e4822e7ea6c4fcd955b6409822ad2f668c4db9ab7342bc3bdf8047"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/chat/Greetings.kt",
+    "size": 3218,
+    "sha256": "cbff58a85004a22848a59eddf53469b12c84bde6ce3351eae737bda0812ecbbf"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/chat/MathText.kt",
+    "size": 6665,
+    "sha256": "e0c3321fba1bd95918a199312ee0ccf39b91b01e5db14641f5c96f9468ae7e0b"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/ConversationsRepository.kt",
+    "size": 44903,
+    "sha256": "e60c438f15079b75e89c415d1bbd9bd4b2d85af112edea3c3534b953f24a232d"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/DatabaseRecovery.kt",
+    "size": 2175,
+    "sha256": "a568b345c5792f57e43260e2e6e8e4338d1788bce686e935a96cb554eced7afd"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/DispatchAuditEntity.kt",
+    "size": 952,
+    "sha256": "12cf7c54990a5b13e075092ebe7494e9a844be40e62431afd0ebf5c8177ad195"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/MemoryRepository.kt",
+    "size": 3035,
+    "sha256": "0aca4db66f666d74c6b9c46614d02ee6087ef5ae393c2b7d8b712fa150dba76a"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/MessageTree.kt",
+    "size": 6003,
+    "sha256": "f43eaee9e8b878790ffa04e40ae114bc5f7b43d224ede5bb054d05e5f0b8d7d6"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/OperationEntity.kt",
+    "size": 2539,
+    "sha256": "cfd4628124372400c72851ffd3792ed3ee415aa645a5b6d06e77d7b2181ad2c4"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/PampaiDatabase.kt",
+    "size": 18008,
+    "sha256": "50893585e2017b650a0eb7f5ba0cb131c62e3c79e2b3604a41cbdd0bd867ba45"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/debug/ProviderDecorator.kt",
+    "size": 1102,
+    "sha256": "cb9356b509f9a665a553bef5b820d90e3a170c837c347280925655c967f78bd1"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/di/AssistantModule.kt",
+    "size": 3624,
+    "sha256": "8b100496e3da97cdc04a8b497b983afc7f3b2a46e1be852402b306411bcfe48e"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/di/DatabaseModule.kt",
+    "size": 10492,
+    "sha256": "aad564f995f894f3d5323e17caacf400d5b3b6d27d22c1b5ae5156a01dcc988a"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedger.kt",
+    "size": 10986,
+    "sha256": "9bd14594880e5dee8391fcf8638f67b587334a4308ead9adbd2d0166ac8edb6c"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableEntities.kt",
+    "size": 12680,
+    "sha256": "80959b8b3472298b5780322b6d96c0de42b63849c4d537cf74fba401153c8f0e"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundation.kt",
+    "size": 29593,
+    "sha256": "3ffa8cee9a41ed872a487845aaa470342b486e60cf30ec4dbc73dc60cecdfd6b"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/EvidenceAcquisition.kt",
+    "size": 819,
+    "sha256": "ead3d69afe16796f54a5dc0e0cdf8025f31cd74952460201997f95993c6dece9"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/ExclusionScopes.kt",
+    "size": 2882,
+    "sha256": "cb62fdec37d320e894b0f42762c9a107bb8d3c9ea6e3c3287d471dd1da4e9631"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/music/FluidifyClient.kt",
+    "size": 7949,
+    "sha256": "23057a1f336b642fea0155d4196897c91a8fb152cdd42af024b288557b8e56a5"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/notifications/PampaiNotificationListener.kt",
+    "size": 5094,
+    "sha256": "82421111022c7a7093b90643912927c88255d3b01577de58ac88f0bded034c14"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/permissions/PermissionGate.kt",
+    "size": 4740,
+    "sha256": "b45bc473791c215a819e10408175d641659422b94fc0109a132c82f1796408c3"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/AriaChips.kt",
+    "size": 712,
+    "sha256": "4f90815e32a18d5feaac7fee874fd9323a6b7a67638058c7ce8a3ace4708bbd2"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/PreRouter.kt",
+    "size": 5639,
+    "sha256": "34f1f7a082c4a4f5119f40b94c4aad17b681445f335cc8e84a278348d78ecb71"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/PromptBuilder.kt",
+    "size": 11830,
+    "sha256": "21c0c3e9c8349c13b59c076949c58d2b85d52fd6fabea20611052d9dedf27f32"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/prompt/QuickCommands.kt",
+    "size": 24892,
+    "sha256": "8496b6724b6f92e5998e8c87a9454ba1b4edd4fa2bbe628042f42a7a12602232"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/CalendarReceipts.kt",
+    "size": 2970,
+    "sha256": "0fc337d969bbc229f5c8227d379b794186af79abaabd8cc72462d8c5fdcbd9f7"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/ClockReceipts.kt",
+    "size": 763,
+    "sha256": "2caf78e55169b7792073399e2c08707a353d44fe2de362ac14b92a521e9a30a9"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/OperationLedger.kt",
+    "size": 5549,
+    "sha256": "0d398462184614749fc799e488d41a5cd49ae0aaac087e575b46ca566d85c72e"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/ReceiptActions.kt",
+    "size": 6364,
+    "sha256": "2b779308f1b43d1f79c1fa7846ee623e835acfbcd42837bec0625f7f307c77db"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/receipts/ReceiptCodec.kt",
+    "size": 3146,
+    "sha256": "1fc8ef9d7bbe7e4579618e36df40910dc6b8b94318f7473798e1a326948ea314"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/reminders/Reminders.kt",
+    "size": 12148,
+    "sha256": "a74bfee857df8b82cd78f7fb9217c45f3210993311b4427646279fe279e51d72"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/remote/RemoteSwitches.kt",
+    "size": 3067,
+    "sha256": "2d56f7f6e238eb212beb65aa882d9a3194adfc7f447e9371b2df62a4d6243a81"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/BackgroundResearchGuard.kt",
+    "size": 429,
+    "sha256": "cd211e06f7631865002f35a6cfc6d573b7accdc4f81e1fc6321fef3130c7822a"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchAcceptance.kt",
+    "size": 2090,
+    "sha256": "a0dd6b92dbae0c6d1c31a1a48b82d1731b39173232ae31a6a9b221053b4965db"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchBindings.kt",
+    "size": 506,
+    "sha256": "1e63f529be0c194bae014cdfb09963a119ea1259bb8020df9ef115961407153f"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConnections.kt",
+    "size": 1502,
+    "sha256": "dfe207c0d455de1ed9950218c8f12ee58d1aacaac4e913bf716ce8334018997b"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchContracts.kt",
+    "size": 2409,
+    "sha256": "9e87619fb343167f7bcf0d491221460ffcaf73dee5dc215c84fe677e5c5d9032"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchForeground.kt",
+    "size": 6931,
+    "sha256": "638086260d655aaeaab338df4bd101b445771ca5ec04d05723229a597d9c63a4"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchModel.kt",
+    "size": 3860,
+    "sha256": "003c3b78bf5779676b19afa271be09a37b789da1a9dcd17deb6ae2eb7741f86d"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchProfile.kt",
+    "size": 4895,
+    "sha256": "894ca6fbdd478dfd5936c757bf5dc4621f050cbe1b6831c49200ca3069603fe9"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchQuestionPlanner.kt",
+    "size": 8810,
+    "sha256": "475887b682410f721b19f3a34f2b25c555210acf955366b81e8f6d27a7fbcacb"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchRunner.kt",
+    "size": 22768,
+    "sha256": "f8436ad2563a8ae8e960ed86586a0378c2f78d236ca22d1f2876b0e31d9d161f"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchScheduleStore.kt",
+    "size": 1624,
+    "sha256": "fceb7076825d6c72f3f473a63cc19f583b0faf90e8a6f83d7ecbf51fea756bf8"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchScheduler.kt",
+    "size": 14482,
+    "sha256": "6b8fe0a44362ff89bef61eb917adc6c33f2038c2648b060d6f0ac4a1a59b1850"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSetup.kt",
+    "size": 3150,
+    "sha256": "c7440ab45f07bb198fa64e2a83be86d05906d07fe5d597e4143aaad478e82e32"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSources.kt",
+    "size": 12806,
+    "sha256": "7a9fc1453ec93a326595e109426fa2bb9bfe9b2172f6dc4434f9d4f29cad5e87"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchTransport.kt",
+    "size": 6427,
+    "sha256": "faada2f4d6ecf796581cd2e65623f77cf0e145d347801777856971332afac97b"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/ResearchWorker.kt",
+    "size": 4038,
+    "sha256": "199f87e89a80f8af60b5dc46de75971963cccebccfb7ed7bfbc276454b63a95d"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/SourcePages.kt",
+    "size": 8098,
+    "sha256": "1fe0a5584a55b927f084e06e4595603a34ce2b9256ab8f49806706eca33df39c"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/research/TurnPrivacy.kt",
+    "size": 6827,
+    "sha256": "a6590316fce2a8ebe42b7fd29c8ffa0ba816a25fe37b7f6f255e2a21f104d116"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantEngine.kt",
+    "size": 50825,
+    "sha256": "9cdea4c80b84f8ceecca2423c3c34799bbda5ec767e53c603b56024bf7e17f97"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/AssistantRuntime.kt",
+    "size": 26962,
+    "sha256": "ae558f0503329bac47898a5e8a69725ae75322d401e4deef0affe205c8508f85"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ContextMeter.kt",
+    "size": 2402,
+    "sha256": "1bf7a9c68fc93096953fc83efb1929cf7d3e96804cf433a80dfe52397941479d"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/DispatchAudit.kt",
+    "size": 1503,
+    "sha256": "54c8538970190d2a2336047effe0efaca4915c1ef91de703fe0591384198a98a"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ImageInterpretationCache.kt",
+    "size": 1826,
+    "sha256": "79f044e83d5b9dfdcef6962ef12b5a11e7c7fc4b689fe5dce30cc917cbd5c742"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/LockscreenPolicy.kt",
+    "size": 4727,
+    "sha256": "95fc1ceabf18de20be34919a2191e5face6c9e18028693340ca5afc0ea660cbf"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelSelection.kt",
+    "size": 9976,
+    "sha256": "257c6c7890032ca6905e2d264668a72cded28f963a0bd670ca977acdc019f40d"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelsMaintenance.kt",
+    "size": 2742,
+    "sha256": "929231d37c5513b81f8032160adc10563561311c5b7b0734922e3b04b5ac6dad"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/PampaiConfirmationGate.kt",
+    "size": 2310,
+    "sha256": "846f9ca5d994740fd108401c6002198b552312847e46b24996168e8e1d12fdb1"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/RuntimeBudgetCoordinator.kt",
+    "size": 10476,
+    "sha256": "94d3b11ec67c0b4192c908d399a56edb282f7579aeefe79496366c7a2f35d41e"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/runtime/TurnCancellation.kt",
+    "size": 1163,
+    "sha256": "6916064a7955ba7b1359fefa95645e8497e4c24e7f3fb790f99debe071049585"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/screen/ScreenContextStore.kt",
+    "size": 6356,
+    "sha256": "4b7df94487d1d84c98415594b893dbd92fe0223704fbbbe6670f106ccbc7fb82"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/service/AssistantForegroundService.kt",
+    "size": 3937,
+    "sha256": "7d2771bf386f64ad20813e50a76ec942f40b287794c94f5094a15099c76c3882"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/service/AssistantNotifications.kt",
+    "size": 10014,
+    "sha256": "cae7d8242ebe7cb8e47a8ae408075b4958af50aa88e041ab7ddca9079fb1496d"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/settings/PampaiSettingsStore.kt",
+    "size": 5943,
+    "sha256": "2e3e93ae91a684f97089e2b006adc7f139d21ad8dda72d083d3e1ccf81590bb6"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/LegacySourceReadGuard.kt",
+    "size": 1080,
+    "sha256": "d3abb13927023a21252db82d6e185a25062aedb015d61051091ab373343dc159"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/PampaiCatalog.kt",
+    "size": 3805,
+    "sha256": "8cb63bf30da894e6bccc01f55edaa4988fd288ba51e295762f22e3ba93749455"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/PampaiToolContext.kt",
+    "size": 6341,
+    "sha256": "241ed1fb88b5e4ee744c3ae99db0f63ffef712103dd2081285c58def028f06e3"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/RegistryBuilder.kt",
+    "size": 11363,
+    "sha256": "b61b304c92422b54fd0cf32f6ca171675d388e159bedcd212eff80e96ccc3d9c"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/ToolSupport.kt",
+    "size": 10992,
+    "sha256": "eed91ee563b1b066ed939cb6b21264ec21ee2a95322b87256d74c033ec3bbb2c"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/aria/AriaExtraTools.kt",
+    "size": 8730,
+    "sha256": "8dc3c9de33e9a14ef5ec077a184eea728c5dc11a9832f7bd12609a8a21437599"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/aria/AriaTools.kt",
+    "size": 9113,
+    "sha256": "32660e3f898b9fc80b3386c9d32ede74a31f523a5ae0712d61c26f8bb78a1088"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/calc/CalcTools.kt",
+    "size": 15481,
+    "sha256": "aba02143666a222a847ff90d16a6ac728ac604c8b6bd360ee67b6669d8b9de40"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/CalendarTools.kt",
+    "size": 17881,
+    "sha256": "3ebc870384dc1e440becf522ebdc3cc56b93d6e646c43aaeb75e21a1ad81656e"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/ClockTools.kt",
+    "size": 14731,
+    "sha256": "ed804058f791822202c53d74068e3bc6d626910237d1ad3cd9e7cbab47a7aff4"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/ContactTools.kt",
+    "size": 13477,
+    "sha256": "d14d5dd479536e3cbd686f5510b7cfeedc8bb3fa5f74931164fbe87322f356ca"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/DeviceSupport.kt",
+    "size": 4919,
+    "sha256": "766c2076793020c135af460a232b25f3a782c5969c2dd018ad0755dca1bab378"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/InfoTools.kt",
+    "size": 8772,
+    "sha256": "4085819cb39739863169ca0cc0f6616fcf31b478831a39eab923821d4eb5caca"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/NotificationTools.kt",
+    "size": 7619,
+    "sha256": "e4b33199870033ab9069f3c30e0b20a1c44bfb064aea322cdddc4455a2c8c2f8"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/OpenTools.kt",
+    "size": 7946,
+    "sha256": "043bc5f5aa9a3dcdbdf89cf2b5b3b34996bb96a9dda49c38b6e5c999a902605f"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/ReminderTools.kt",
+    "size": 5321,
+    "sha256": "1b395af6d8bd1094ccffaccf9e1324b36c14bec484b8a3fb09f45da255edce4c"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/device/SystemTools.kt",
+    "size": 12480,
+    "sha256": "d5f15143994ad0e1db04f20bdad3ea4d43fa63ec203804482130ab6ced489902"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/music/LibraryPages.kt",
+    "size": 585,
+    "sha256": "34278e899b03553f8e78bf8dc562e8a2cabeb2064ba2f496c9876b4f0e251b84"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/music/MusicTools.kt",
+    "size": 22338,
+    "sha256": "6904fa3e882312b863949573cc43572dc013c911f998b74e88df6c23faa448c8"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/screen/ScreenTools.kt",
+    "size": 8033,
+    "sha256": "ac4d98f6d8b6250d3eaafb2edc2de326f456a05281aa3105681ae85ddd0fca63"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/tools/web/WebTools.kt",
+    "size": 17592,
+    "sha256": "4ed3fea0adf7fbf9db178074332fe74d30b14f2f46e6e8b2d08a59bd634701f1"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/usage/UsageRepository.kt",
+    "size": 8121,
+    "sha256": "7b9081c5817d24ae5e88fecfd7b1182f0b3131b9fc7499cbdac13af3666bcc09"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/AriaSpeaker.kt",
+    "size": 11214,
+    "sha256": "a339b66b284e81d4bfddd75fa59948f75e6c47c5024b4e0e9edc5c15137e226b"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/CloudTts.kt",
+    "size": 8036,
+    "sha256": "80d0448bdc94263456144d1fe779f4443b4af703438a5e4eceebdd99c914e2f7"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/DualSttEngine.kt",
+    "size": 15966,
+    "sha256": "ea392713720cdd65e79f9053e46f64dec6b203a3d775dfdeee883cb8645a4f2c"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/PlainText.kt",
+    "size": 3983,
+    "sha256": "f23bdd5fa5c7733f5051d2435b21bf9af2513d5d2e7746da82135c3efb5d2668"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/SttPolicy.kt",
+    "size": 1962,
+    "sha256": "813b2029274b13a647ae915e53420c5ce6e1f8e9d007d63d49d3af284bf697a5"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/SystemRecognizer.kt",
+    "size": 6112,
+    "sha256": "1292c3beb519809d1460750660b8cd574b63dee8fb8481518420eff940077d16"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/TeePcmSource.kt",
+    "size": 2625,
+    "sha256": "f76c7d481d65721b1e0ea45c524d1eb4371d38c9fec4668f98ed665a47699af7"
+  },
+  {
+    "path": "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/voice/VoiceConfirmation.kt",
+    "size": 2383,
+    "sha256": "0f7ad36d6cf6835c5176fd555ccfa7977bab659eb128ed8e2347bc9c871d36de"
+  },
+  {
+    "path": "core-assistant/src/main/res/drawable/ic_stat_aria.xml",
+    "size": 590,
+    "sha256": "26d93de2a3a472700da6221041a8c2bca0ebe861c28c97a906f5374a7ae09a2a"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceClassificationTest.kt",
+    "size": 6617,
+    "sha256": "e371769b42045e65ac761081daadf049e8340324d17d5ab2ee76786fa4754073"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceIntegrationTest.kt",
+    "size": 13940,
+    "sha256": "743583875b51afb54430d56ecf5d20db84bfa5d74a3394efd5f7e25a0ac94db0"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/bridge/SourceReceiptPersistenceTest.kt",
+    "size": 2466,
+    "sha256": "0feeb06482e2bd5717cc29330ef661c9df677084d8361b53129dced9f4c56a50"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/chat/GreetingsTest.kt",
+    "size": 1662,
+    "sha256": "eea46d1be9565558930979dab85542325955e95dbca298ede130313eba7c77ee"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/chat/MathTextTest.kt",
+    "size": 1780,
+    "sha256": "5350c385ae42352830352c48533ece765383fcb6e9e9b0ccf381b4752fff02e6"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/ConversationsTreeRepositoryTest.kt",
+    "size": 14732,
+    "sha256": "6b9048fa443f1b23075e8b839e31da1537db8eca32f616e89d1615916c16938c"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/MessageTreeTest.kt",
+    "size": 5967,
+    "sha256": "61225f0c1571d107b92f8a5721a22b006ac74184e434df27ec663d9fa307bac3"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/Migration3To4Test.kt",
+    "size": 6748,
+    "sha256": "4e85f64f1143c6a80e296ec9646b435d40bb34f0aa160cea9078f73b95bc42ab"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/MigrationsTest.kt",
+    "size": 3521,
+    "sha256": "cfe6e9cce21682abcc5844d4f31bd57e8b55b3a51c5505aa23beeef1c708cbbd"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedgerTest.kt",
+    "size": 7207,
+    "sha256": "66c01f3bc62a5a23af7694a0eba8a4bcd7e96ad488d8c788b9c56ecd5ec62eef"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/CorrectionCommitTest.kt",
+    "size": 2687,
+    "sha256": "89b10d7e8d5350ba2111d8ecb082ad042113afc81cbcd943eeb950c775a52e35"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundationTest.kt",
+    "size": 14608,
+    "sha256": "a46e814739278856504f08f8599db0dc2ee6e79006fe0da64197fd12517610f0"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/Migration6To7Test.kt",
+    "size": 2951,
+    "sha256": "3232843cecf745ff576693be92a468d50d49f3aeeac0f8ffbad42be7a8fa9941"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/prompt/PreRouterTest.kt",
+    "size": 2262,
+    "sha256": "373e127906cf8ae2e5583d4dc8fa923fea5a0517213a4726328c03483274424a"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/prompt/PromptBuilderTest.kt",
+    "size": 1310,
+    "sha256": "73d5458dc5cdd25e51378b76b6e71ba490b34ed94caf88bfe106163e89cffc6d"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/prompt/QuickCommandsTest.kt",
+    "size": 15483,
+    "sha256": "26cb787aeadf7ba5b946fa71a555c7f19f427a65548afa98897fddfc25e84c01"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/receipts/CalendarReceiptsTest.kt",
+    "size": 2972,
+    "sha256": "b9b70809bf8a38ea81af22cf09a7c59113b863d4f5ceacc49b8427cbe4e35ae4"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/receipts/Migration4To5Test.kt",
+    "size": 3973,
+    "sha256": "c53126c38cda72fa0f695406b0c1033a09a71f214c8d77602568139150362035"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/receipts/OperationLedgerTest.kt",
+    "size": 8063,
+    "sha256": "a51218c18b47bff6fb1150c3a7b83879f1e6375c407a0ab1428b221393650c78"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/reminders/ReminderRepeatTest.kt",
+    "size": 1681,
+    "sha256": "e3bc3b1fa014e1270233b41f4117a0c0e2abe37860073e88862534db3b7e80ae"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/MemoryClassificationIntegrationTest.kt",
+    "size": 29103,
+    "sha256": "321e4e1ea30cc34e374715f4248428f246b46d0a6ec751fd0e9f26929e407379"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/OrdinaryTurnPrivacyTest.kt",
+    "size": 37334,
+    "sha256": "efe778a176b6f0868aefe8d5e60169f993a836a75e79d54d5ad7cd2968b8706b"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchAcceptanceTest.kt",
+    "size": 24361,
+    "sha256": "2821d0bf40d8bb2ca25f25e6b55e5fd79baa19091526a01b6c745bceca81f1ff"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConnectionsPersistenceTest.kt",
+    "size": 1896,
+    "sha256": "c8ca261dc82fb8a41899ca014834757a332a5b633138c5912ea70b24e79a938d"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchConsumerTest.kt",
+    "size": 49697,
+    "sha256": "3e13e24cb019c7d298add5bcc18b10ac4f9d3dd1af564b610a8479f4c85707d2"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ResearchSchedulerTest.kt",
+    "size": 19216,
+    "sha256": "84b0d2f3809d25e19a50b39ae35086febe4441ea1f2e1492fe8d3ac641d61338"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/ScopedExclusionsAndCanonicalEvidenceTest.kt",
+    "size": 11209,
+    "sha256": "877e12852a40746034562cb9a69b984fe6947eb2dd746406ac670ca7b3901755"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/research/SourceExclusionBoundaryTest.kt",
+    "size": 8041,
+    "sha256": "e4689ffc3e32fe60b50c6c093f17ec49665371dff5770d6e5dcdade46aa9dc8f"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/DispatchAuditPersistenceTest.kt",
+    "size": 3044,
+    "sha256": "cf8ba7dcff19bb24ae07cd5cb2a3adb5ba009e235d5f3f2aa69dbede331fe333"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/DynamicImagePolicyTest.kt",
+    "size": 1579,
+    "sha256": "7504ba32b2bb37971fead010c81ebb48705ff580e2efebeacc5abc94c86e6e4c"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/ImageProvenanceTest.kt",
+    "size": 6012,
+    "sha256": "5b16356bd15edf352e73eed57896ce6a2928bbd4a9fb93f4dee473850a7fcb1b"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/LockscreenPolicyTest.kt",
+    "size": 5540,
+    "sha256": "439b1e1e67157704f52831096e7d6afb67a0d2d66ec9c60aa23e7d3177c54a1a"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/ModelSelectionTest.kt",
+    "size": 5724,
+    "sha256": "7177ae0595d9d8c82275029425c7548df7a26634cec7bca5810368af34adc86e"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/QuickCancellationIntegrationTest.kt",
+    "size": 5091,
+    "sha256": "9b8b0ae4962986e3ea332651747c1f0e94a66084b1580c88599b6e285028d8a7"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/RuntimeBudgetIntegrationTest.kt",
+    "size": 16387,
+    "sha256": "0d5ccfcab2dd91d2bdaed88ce70932f264ebf00341444717f9fba36f0f6d5baa"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/TinyHttpServer.kt",
+    "size": 4816,
+    "sha256": "3c319f7289d205990e05f3b29729af91edc4f30416371d88e554e6e3e7f8c273"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/runtime/TurnCancellationTest.kt",
+    "size": 5236,
+    "sha256": "aaf49299f6bdd374a1d7c9d26afb0d852087c9754b32502ff86873f725e2c102"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/BridgeHostIdentityGuardTest.kt",
+    "size": 7762,
+    "sha256": "26e48a377fbad73ec8354d4d6a8d7da0158955f81fdb8725014e58dd4c53b7e2"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/DatesTest.kt",
+    "size": 2619,
+    "sha256": "311be2563882f8b3a4c3e8b8f53f1468ac119c6e0272b133c8450a2a2c32e4df"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/RegistryHolderTest.kt",
+    "size": 9563,
+    "sha256": "70889b70103e1656e3c21cecf605130a97b5434ff2695ef4cf1ac8559d52b250"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/TracedToolSafetyTest.kt",
+    "size": 7782,
+    "sha256": "3121174eff8fc2273e08ce36139171332e1e21afc028810275a026f4724c381f"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/calc/CalcSupportTest.kt",
+    "size": 1881,
+    "sha256": "8f12dd6963740f896cc3a82e8d2d40090118f63072b9ea2ad4e6848e59abf5be"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/device/DurationsTest.kt",
+    "size": 950,
+    "sha256": "626e95982741bbdc35a0717cda5dce78f39471911208cbcc139e10001f6f289a"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/music/LibraryPagesTest.kt",
+    "size": 1276,
+    "sha256": "b70ccf9fc27e0ccef7d2e501169ff68cae90d9006322866c4e29c5028ca78bfc"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/tools/web/SafeFetchTest.kt",
+    "size": 1135,
+    "sha256": "476b5e032403fdba7af211370db321d82e4a08ea75c86078f0f171aa0ed3bdab"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/usage/VisionUsageTest.kt",
+    "size": 2009,
+    "sha256": "ecf675e1d8bd5394321743f055b8c1ca6d461e08e6443f7942cebe537e96c806"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/voice/PlainTextTest.kt",
+    "size": 3668,
+    "sha256": "3ad7e04fcc8462acd1ecba941a0258a94ebc29810a79e20a296dd88e44f279d6"
+  },
+  {
+    "path": "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/voice/SttPolicyTest.kt",
+    "size": 2294,
+    "sha256": "610626f2332acf6f048f738f1888c40ad8fb1e28e37dcf9eecdf299468fc59c5"
+  },
+  {
+    "path": "engine/engine-ai-bridge/build.gradle",
+    "size": 901,
+    "sha256": "1fcb4fe4a31a2e813198217f3156e88a21559a9745f89141c68f2ef25574180f"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/AndroidManifest.xml",
+    "size": 613,
+    "sha256": "676da27d3507caa8ea9def131f2804126bd58afe11495c1160f27a3af13ee61a"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/AiToolClient.kt",
+    "size": 8194,
+    "sha256": "29276531d41e5bc5c2c61b151bab0842c5bf5aad144b22995ef0530fe38d087d"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/AiToolHostProvider.kt",
+    "size": 17693,
+    "sha256": "8966f4ac9a5a907e39e89d96542075f54314121877e2333f18f8385bf12c9ebd"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/BridgeProtocol.kt",
+    "size": 15614,
+    "sha256": "195b5a04de82ade4ca0cb9ff9d169439371b016d2af0788b016963899365a82e"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/RemoteTools.kt",
+    "size": 10205,
+    "sha256": "709b699dda718eff03a6ab26cd0ec50491fec40729c707813bf3472b9bd325c1"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/main/kotlin/dev/antigravity/fluidengine/ai/bridge/TypedResultCodec.kt",
+    "size": 3147,
+    "sha256": "3d71a4eb02a323656827c48bf313ec896bd767e5822682ef5fc91ac46220c8b4"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/BridgeProtocolTest.kt",
+    "size": 6866,
+    "sha256": "cf04ee23dbc222a56a9c8cdb3ed8a0130efa394ccec8a6c1c7c7e96d4114f482"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/ManifestTest.kt",
+    "size": 1739,
+    "sha256": "eb48f765b28a3581f49eb55a3290860d080c30425117d9be2de6dda07c3a0210"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/RemoteToolTest.kt",
+    "size": 9839,
+    "sha256": "496ef27eed935ef209c7dcab3a43b54d12c3f786825b4ddf3457722f4dfae2af"
+  },
+  {
+    "path": "engine/engine-ai-bridge/src/test/kotlin/dev/antigravity/fluidengine/ai/bridge/TypedProtocolTest.kt",
+    "size": 3637,
+    "sha256": "09f9c8e2656f62edd994127b53b888cedf5b8c5272268c16aff7a8ae6792314c"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/AndroidManifest.xml",
+    "size": 269,
+    "sha256": "5a2366cdb4a31af8de781c4efe3d7620c12b9d868765ae1078ee59f400acd967"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/FluidAiUiDemo.kt",
+    "size": 11048,
+    "sha256": "5b4e39a8fac8006aa82acbfd129255de1a0a689107dfb6825fe300cbc11cb2a3"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/chat/FluidChatActions.kt",
+    "size": 4789,
+    "sha256": "58f6728ad55a53b1fa95d3565c42d447da1cdf92483412794fca4e6743b3c5ad"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/chat/FluidChatBubbles.kt",
+    "size": 23157,
+    "sha256": "592a5be19e0b13038b4bd6c843bd2011827610ad08bb74ea4b77d56bd406ce1c"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/chat/FluidComposer.kt",
+    "size": 33104,
+    "sha256": "1a76b7a45e9806fb327f2cf8244669d22011b5aa4037e08b181884297799d6aa"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/chat/FluidFollowBottom.kt",
+    "size": 14689,
+    "sha256": "fee397395c6557bc6beedca014e1e57b2d00484a29ae4dad7f6d1bcbfb0e8864"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/halo/FluidAssistantHalo.kt",
+    "size": 6266,
+    "sha256": "72f5c1e3c0a0b330b9124ed6afe21aa4250665aebaade4eac74f1eccc7970727"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/halo/FluidHaloField.kt",
+    "size": 23641,
+    "sha256": "7cc7ca7a628864015cebfa5b28adb62bb9e5910b85e632079eef776f65249ffd"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/markdown/FluidAssistantMarkdown.kt",
+    "size": 831,
+    "sha256": "a7e05bf98eb67d4203fc23a40dfe2c4079760657a8e0f5076b0cf1dcd73d244e"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidAssistantCard.kt",
+    "size": 10083,
+    "sha256": "929813e5414249b62ddab5235faa48ed1be8475c39b3f4bdcea5cd85b7ba846b"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidAssistantDock.kt",
+    "size": 16212,
+    "sha256": "9f8df388d32a5975f54c2ec67eeeec02f6b44201696aab41c7df10436fc3489b"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidAssistantHaptics.kt",
+    "size": 2561,
+    "sha256": "879b9cc5e27a2396bd239fa9d9ec39d6d3398c5aa520850c5572640929cf63d5"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidAssistantOverlay.kt",
+    "size": 19333,
+    "sha256": "dedec9f68b657b404fbaf31dc918ceff72281dd5ecd39ae5a5f78538c574412b"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidAssistantOverlayState.kt",
+    "size": 3989,
+    "sha256": "a77afd7725a0cd82821377dadb259d5be2fd8f1e077dd09310d65d901279f929"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidAssistantParts.kt",
+    "size": 8791,
+    "sha256": "da7ff8a7910294c900a9a4f7a15f495b560b7cb9e10f10a2d263e2adde066d3f"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidAssistantTextBar.kt",
+    "size": 5383,
+    "sha256": "6aed51276e51cf152ff0065943d44d9fccd94527365a79792d31d51c448c03f4"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidFailureDetailsSheet.kt",
+    "size": 5210,
+    "sha256": "96d0f98b05a53cdba6676f46bee47ef105d95e92346e1d075923539746da37c7"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidFailureReport.kt",
+    "size": 4259,
+    "sha256": "8503cdf222802300aa974dac089d87fa500de859b5a8b8165978da554d47d10d"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/overlay/FluidSpeaker.kt",
+    "size": 5281,
+    "sha256": "9301f092fb174979f5305c3f1a013966aa14986225278bfb8df88fd2ce2e4233"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/settings/FluidAiDetails.kt",
+    "size": 10611,
+    "sha256": "cbb73868cd31a46d04f7a925f507aef14a344b5f08ab86b949065db460920b40"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/settings/FluidAiKeySetup.kt",
+    "size": 10697,
+    "sha256": "17a46a40be640f6d859dbeef6608384ea35753a773ee44edf5eafa80eb087542"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/settings/FluidAiSettingsLogic.kt",
+    "size": 9663,
+    "sha256": "42677e1849bb858d5f17c3c7df0e7ef3b768a5734959107d0be751ba9b830c02"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/settings/FluidAiSettingsSection.kt",
+    "size": 24788,
+    "sha256": "c80ed1295f953244e2d6bd0852923c6b4c3e3aa1b704b074496117d8c93fecd3"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/settings/FluidModelPicker.kt",
+    "size": 12397,
+    "sha256": "5d25a082dfa17af5d4d6217314435d0ab366c89b9902183e14948f4d0a7cca9b"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/settings/FluidProviderOrderList.kt",
+    "size": 6210,
+    "sha256": "3ecc33dfc813669b8703a2831dbd9c2465c13d1a09230af2b782375c5a62ed87"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/strings/FluidAiSettingsStrings.kt",
+    "size": 22279,
+    "sha256": "304ff2f155889b842f2dd1d9b12734db7e0044b8cc7f46785822383122a59757"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/strings/FluidAssistantStrings.kt",
+    "size": 15020,
+    "sha256": "8c0467f8aa328552095557c7166abce91726b0891645421ff6d8be499965abc9"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/strings/FluidAssistantTexts.kt",
+    "size": 9111,
+    "sha256": "3967704f09e0a4e6f53afd09a62034f9adc27274d6a50a0c2e6289224d062940"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/main/kotlin/dev/antigravity/fluidengine/aiui/strings/FluidChatStrings.kt",
+    "size": 3766,
+    "sha256": "b0257b38b8ffb39b84522b12be29ef1121ad14e7245a1dfcd4a83886a2c4c8f4"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/test/kotlin/dev/antigravity/fluidengine/aiui/FluidAiSettingsLogicTest.kt",
+    "size": 22752,
+    "sha256": "c40398462ed205672d5dda19e2a5f941458534279844ee86b36952f79fde3570"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/test/kotlin/dev/antigravity/fluidengine/aiui/FluidAssistantTextsTest.kt",
+    "size": 10756,
+    "sha256": "d1b12ea29c720fc362061d4751b998ccd859698dafb1b4bb78a9d11f6ac9e759"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/test/kotlin/dev/antigravity/fluidengine/aiui/FluidChatLogicTest.kt",
+    "size": 12099,
+    "sha256": "be7bb71ac24741f1cfe350eef45636043084af460122933ee2c62641ad09742a"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/test/kotlin/dev/antigravity/fluidengine/aiui/FluidEnglishStringsTest.kt",
+    "size": 8582,
+    "sha256": "63fe3a3c6a42f0434be5e6bec5350d4eea6f2c33b494d0a469f7af2ddca8c526"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/test/kotlin/dev/antigravity/fluidengine/aiui/FluidHaloMathTest.kt",
+    "size": 9652,
+    "sha256": "923ab1eac88ccde8546d0629346368767628a83542686a4abc7744acddb0bb55"
+  },
+  {
+    "path": "engine/engine-ai-ui/src/test/kotlin/dev/antigravity/fluidengine/aiui/FluidOverlayLogicTest.kt",
+    "size": 10882,
+    "sha256": "a184880190aff0d33981cbb00c2780b561f30539851a0333440982dc1920546f"
+  },
+  {
+    "path": "engine/engine-ai/build.gradle",
+    "size": 1119,
+    "sha256": "271f0558e62f9c0273d79e280b20e398d417bd5c17c563604e117208c1e6c1e0"
+  },
+  {
+    "path": "engine/engine-ai/src/main/AndroidManifest.xml",
+    "size": 373,
+    "sha256": "aff1ab6bd0302e1ca896bfae40a21a801f5c6dbe9d19e07e99d90deafa8661fe"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiDataStores.kt",
+    "size": 2347,
+    "sha256": "b9b86a96c3dcb8491539e1528e2bcc6b6937084e1133da3fa8c935c02cb9e7b5"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiKeyStore.kt",
+    "size": 4730,
+    "sha256": "3bc5331d09e5870f5ef328c5efd1060c06c4726666e9449573f80043bc61308d"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiKeyVerifier.kt",
+    "size": 19074,
+    "sha256": "6918f2e3d688c39c01aa91b074a8b69f8ef2f9d59da92954e5f4f2735698af78"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/AiSettingsStore.kt",
+    "size": 17052,
+    "sha256": "baae141fe5f07775e9c843b2106d2de4ed3eb8fd89eda15214a2a779247e1996"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/keys/SecretCipher.kt",
+    "size": 3836,
+    "sha256": "e052de67a1cff828b72c445f520bf1c1cca5fe10565bdaa3907908425e93572b"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiError.kt",
+    "size": 4484,
+    "sha256": "d391607474366bdeb8b687c719e13aa6ad57c387802499d1f2d248faa937ba83"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiErrorMapper.kt",
+    "size": 11373,
+    "sha256": "3a6eb9d739442dec5a8e06d674d15fa85eb1c6bbb399219cfc1027b010051587"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/AiHttp.kt",
+    "size": 9281,
+    "sha256": "1add760bf90460abb2c03d4fbe3c664fd3fc026385474aa9568447ccb31cb850"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/Json.kt",
+    "size": 1176,
+    "sha256": "fc6f8e7ae462fca0939ba011a77bf08785dce91ea4ab7c252547db1a740a934d"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/MultipartBody.kt",
+    "size": 1553,
+    "sha256": "81ef73a58fac20dd02724b9adf028cf843facf7ae6c674b94b36d36fdeee21e7"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/net/SseParser.kt",
+    "size": 1204,
+    "sha256": "def43e1d8b44598e17b758445fbe25d2119d4a7289e647cfa631669d436bb51a"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiConfirmationGate.kt",
+    "size": 9874,
+    "sha256": "2b9b9b3c9f5e925b9a31a8e47347c54a03de35cc6c9c78931ac0532626a51dc5"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiDiagnosticsLog.kt",
+    "size": 4728,
+    "sha256": "8b24129ddb6a67db26664648772188e0e20f32d093a67bc981e7428b9dd4b6fc"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiOrchestrator.kt",
+    "size": 63738,
+    "sha256": "ffcf35037fba89156854c6207c3fafedb4f01677b6f1b69b148cdd8d686ad89b"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiRouter.kt",
+    "size": 14286,
+    "sha256": "bb0fe63d5781e0e600a723c5654df03808af01a50f469e0cde071f5d133963a2"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiUsageSink.kt",
+    "size": 1494,
+    "sha256": "98b2e415af3b3ec04fa13f8abc59a6a3351b4da1bb00b01716bcae43b191a06e"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AssistantState.kt",
+    "size": 6810,
+    "sha256": "69bb7435c1bc42dc6504611f8751918801cec771b4ee8f12f35957e0cf06b2fb"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/Conversation.kt",
+    "size": 5780,
+    "sha256": "888f54b4603e3635a324670f4fc38a3ecad487491b1b62488e2051c292dcf8ce"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailoverPolicy.kt",
+    "size": 8711,
+    "sha256": "2b40f5ad5fc412626b3c36adba480fdc99110ab432169ec0b8b35828a738c2e2"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailureKinds.kt",
+    "size": 1918,
+    "sha256": "16f9b783ffc5bd9bf20c0d3565cf1f077b1a13a8fe0cefbb1a5a7d2291e6b08f"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/Capabilities.kt",
+    "size": 4392,
+    "sha256": "bb1b1c5db4dc27d232e85da491d4bddd0fcd6057519c495e676c9719939d30c0"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/GeminiProvider.kt",
+    "size": 20747,
+    "sha256": "6fef3419a7f89ad91154e024d645019aff37c340d01748407ca5e459f4f66873"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/GroqProvider.kt",
+    "size": 3124,
+    "sha256": "ccf456bd6f2655c7241910ea09a17d1a1a38852bec42144df6c4387dbce4a47a"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/Model.kt",
+    "size": 10243,
+    "sha256": "15ce0ba3107df833c8fc77cfdc95a9271f7dce54a91bc148bd47907c45cfad9c"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ModelCatalog.kt",
+    "size": 7001,
+    "sha256": "ae4565b946301eedbc25eff05fdf02aeeaecea9091e3d22b54e61fe9d95b68fb"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenAiCompatCodec.kt",
+    "size": 11390,
+    "sha256": "f923142d2640770ad404ca9ec4e01f61b970b0ba0200100027144dd110092a4d"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenAiCompatProvider.kt",
+    "size": 7342,
+    "sha256": "d30dfbec8b1d520a2e90def99f14a6b9453683c42dd5f41321b28d86b6176dbf"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenRouterCatalog.kt",
+    "size": 2499,
+    "sha256": "47e222732f4022338feadbf48df1de9754f3754c981508bf6a4b2833ed542f3c"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/OpenRouterProvider.kt",
+    "size": 6330,
+    "sha256": "b9ea3c9cd44462b756089d253b6d7173496f5d1487810d9e91c743b09105e20d"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycle.kt",
+    "size": 7631,
+    "sha256": "a764c1199c5ede799d537c37e37cfa793f8ed709712e140ec8baf883736590a2"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderFactory.kt",
+    "size": 4282,
+    "sha256": "f51a2b65b984d2904d4ca85174f0992b71b5cedff74504da3778b09eff74e715"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderId.kt",
+    "size": 804,
+    "sha256": "54942cb292f0c4344b3c572f41328aa1bbee7b7b21086308d59c9a20341f25e5"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/provider/ToolCallAssembler.kt",
+    "size": 2278,
+    "sha256": "2ac3d301361a87d2e26a613416e1c1357dd6164d1a684b05c53db0d594677ed2"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/speech/AndroidPcmSource.kt",
+    "size": 5133,
+    "sha256": "5be40c465b647e4a6ea91f7f1b940f7fbb101b834a02c22a2ee513cd904ce9a1"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/speech/SpeechCapture.kt",
+    "size": 12658,
+    "sha256": "423eddc09135045d9a2553d9484972d4fab27ce863fa1dd6c1ad1c2ca98e8779"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/speech/Transcriber.kt",
+    "size": 2414,
+    "sha256": "b567480995b75440f2e5a394979e574274ffa4cce7233c3b962a3b9319ce25f2"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/tools/ToolArgumentValidator.kt",
+    "size": 5255,
+    "sha256": "f40a4814c2536771082c4e301f258451ca064470f5c0d5bde85ed4d8d549cd7c"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/tools/ToolResults.kt",
+    "size": 3078,
+    "sha256": "42737f260aa1030987c7c536ba68e97c81cd5a47bff8b72bf7eb19d8454226d0"
+  },
+  {
+    "path": "engine/engine-ai/src/main/kotlin/dev/antigravity/fluidengine/ai/tools/Tools.kt",
+    "size": 19368,
+    "sha256": "6da5ac8faf63581c76ae47bea77343f31dd1a75d32b5c415cab76f515c2dcd3d"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AiKeyStoreTest.kt",
+    "size": 3853,
+    "sha256": "6f279f8bb383d5d633c6a2174bd8286efb69acf579d03995985afacc47cd83a6"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AiSettingsDefaultsTest.kt",
+    "size": 9255,
+    "sha256": "f58394cf10e192f0ba47f98db3478367eb360814af10bf100ebc8f87d7270ace"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AiSettingsStoreTest.kt",
+    "size": 2148,
+    "sha256": "0e0e211c1b86ceeefb27577c2d516f3445afa63fc91603d68e31352cdd69a71c"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/AvoidListTest.kt",
+    "size": 9649,
+    "sha256": "cf0475935158831a19a725043b3eea7c8066017f78c668d540390cd427cc67f5"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/keys/GroqReconcileTest.kt",
+    "size": 8032,
+    "sha256": "d7cb925923efe0c3c5eee288e08ee54e6337a304bbe90019a0845e9f1be027a2"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/AiErrorMapperTest.kt",
+    "size": 13009,
+    "sha256": "f31a0b49c84acdec0a085b3c02decf4c2902ab1400b94aeb82a42914ec36862c"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/AiHttpServerTest.kt",
+    "size": 6361,
+    "sha256": "3b5c88f809a650e681f41ce6c224675cd36ceaef1bebce21f3ac924ec5750def"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/MultipartBodyTest.kt",
+    "size": 1447,
+    "sha256": "d7e92953b194463a67e303ba9788dc19824b6b35e60bad90fb407e615344961a"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/SseParserTest.kt",
+    "size": 1419,
+    "sha256": "917d5514c4c889f25ac440d57f2a278302ec77746bf4bde7356303f5b5a72d44"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/StreamTimeoutTest.kt",
+    "size": 6871,
+    "sha256": "4f508930a4d5b7342d5120878b3477b2032650c438a30bb4eb97d4d91c5ef75f"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/net/TinyHttpServer.kt",
+    "size": 4811,
+    "sha256": "1c94570132dd0d4a34dd80b6b829df12ed75d470f39d3ef8e3de5924a7b224c2"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiConfirmationGateTest.kt",
+    "size": 17162,
+    "sha256": "95f3d0c6315c4f771b5d9067f2a3124bdb02ebb3ddbb7364d530e4e8fb3400e0"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiDeepTierTest.kt",
+    "size": 11387,
+    "sha256": "8932df732c3afaa32bceeb4eeb14e87623593378972014b077ccd3d9f62e6b13"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiFailoverOrchestratorTest.kt",
+    "size": 19341,
+    "sha256": "3cfaf80610346f51652e812f1e6e8c49f8f3a0045f43e47563f5a69d9d4cc3fa"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiHierarchyTest.kt",
+    "size": 19115,
+    "sha256": "521382467d566f65e23be1570a2c428d677741b5f8a571fd894c438e5d0c5293"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiOrchestratorTest.kt",
+    "size": 31372,
+    "sha256": "6a4f8dfd40efd1c45947e0794db787878d6710adc06f84b480746f4b31873e0b"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiRouterTest.kt",
+    "size": 6054,
+    "sha256": "10bd44961dd7e2cc80a2a84c9269c957b8623729794148ec75a3cb38b8d0c64e"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/AiToolTimeoutTest.kt",
+    "size": 18085,
+    "sha256": "4dca2e0bc480aa578e51230409e041f46708c08c50b32828c7f7c527e02ce18c"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailoverAndCompactorTest.kt",
+    "size": 9847,
+    "sha256": "973747ec61be87341b2c170ebe6686f23334faa60bbf136d9e8b74f9820e57c3"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailoverTableTest.kt",
+    "size": 6171,
+    "sha256": "709046e337bb776ec8e88d129809bb9e0d6a17e6e4e36ee056173c99bfb7b4b8"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/orchestrator/FailureKindsTest.kt",
+    "size": 7377,
+    "sha256": "4f05ba10ce6c61aca534dfae9d34473d2aa2e606121e5d70e45f45d322be6dc6"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/CodecTest.kt",
+    "size": 11271,
+    "sha256": "9f58517451773bdeea2e8c351f2392a1e825d6f8586550f0cd65c4ef3bd6c2d9"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/ContentPartsTest.kt",
+    "size": 6981,
+    "sha256": "be00aa722fa0c99edd3d7508be9cdccbf82627e79f3d68a587c3e7db0be9ba72"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/DispatchAuditTest.kt",
+    "size": 3284,
+    "sha256": "c161eb7ea6d8381c0d247486ce1fc35272d03c6f29935b89a1d13a54b8b0df72"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/FailureCodecTest.kt",
+    "size": 2327,
+    "sha256": "b0c8a80c9a51d3c603aa287a7f376e92cb872f0fba6f19781648fbf8b54c8906"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/OpenRouterDataPolicyTest.kt",
+    "size": 2020,
+    "sha256": "67ad63baffb70cf302a00b8bc12c761eb4fab3bc87b4b7c2d48d877ebd14db65"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/ProviderAttemptLifecycleTest.kt",
+    "size": 14121,
+    "sha256": "f092624cb0e57c877fe892ceb0ea8753af8e95fab48a2e71b837c42584b2499f"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/provider/WebSearchCodecTest.kt",
+    "size": 6154,
+    "sha256": "09cfc32645351ea514009e0e4cb5cce43dfd96046c60de1262790d957cbf721e"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/speech/SpeechCaptureTest.kt",
+    "size": 11642,
+    "sha256": "bb965e839faa590882a9c390534b2c4717ca0015363f7e1a92e83611a1c64c07"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/tools/ModelToolTextTest.kt",
+    "size": 891,
+    "sha256": "722c39e81c72fa3aa23279b69ff317c934e9f175fa324c0fbb888b0952ab7e9a"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/tools/SmallPartsTest.kt",
+    "size": 4677,
+    "sha256": "e949275220725b320b147ad528b8beeeafcf7045ef272ad6861374bc050b1181"
+  },
+  {
+    "path": "engine/engine-ai/src/test/kotlin/dev/antigravity/fluidengine/ai/tools/ToolContractsTest.kt",
+    "size": 2950,
+    "sha256": "1d7cf48530ccb29b1599c1b52ec4229d08dee9f57a531e978715b38a4d3195fa"
+  },
+  {
+    "path": "engine/engine-config/src/main/kotlin/dev/antigravity/fluidengine/config/EngineRemoteConfig.kt",
+    "size": 4684,
+    "sha256": "eea18bb950578c582ae123ce28be5973a7c5e3548bc21e61ac26e36602cf348e"
+  },
+  {
+    "path": "engine/engine-foundation/src/main/kotlin/dev/antigravity/fluidengine/foundation/AppUpdate.kt",
+    "size": 3016,
+    "sha256": "466a3af101c86452c267ccbd2c1c1d66aa2835657cb6b9889a7c3eb0a57c1e03"
+  },
+  {
+    "path": "engine/engine-foundation/src/main/kotlin/dev/antigravity/fluidengine/foundation/EngineConfig.kt",
+    "size": 2902,
+    "sha256": "be69373d67d1aaf49b445943cb41419e2e08665af622d3db22669219d3327613"
+  },
+  {
+    "path": "engine/engine-foundation/src/main/kotlin/dev/antigravity/fluidengine/foundation/EngineManifest.kt",
+    "size": 6842,
+    "sha256": "f49de67373382d64fb25b4e6af17cfc07dc4d2756f2435dc2eb4bde980ec1990"
+  },
+  {
+    "path": "engine/engine-foundation/src/main/kotlin/dev/antigravity/fluidengine/foundation/EngineSettings.kt",
+    "size": 2013,
+    "sha256": "5651e1d365f5f1a38341a1f54b498b6b58e75933c343080860fe6e949dfc217a"
+  },
+  {
+    "path": "engine/engine-foundation/src/main/kotlin/dev/antigravity/fluidengine/foundation/EngineVersion.kt",
+    "size": 3157,
+    "sha256": "ea340df1afc1ed9c0771d6ceb7eea92020ab10977f9348b22477be5d67c9c6d7"
+  },
+  {
+    "path": "engine/engine-foundation/src/main/kotlin/dev/antigravity/fluidengine/foundation/SyncStatus.kt",
+    "size": 1023,
+    "sha256": "056e4840ae93cbecde8ee036367475098029b1c3ca44c9d87a30bad2c59f6f74"
+  },
+  {
+    "path": "engine/engine-foundation/src/test/kotlin/dev/antigravity/fluidengine/foundation/EngineConfigTest.kt",
+    "size": 4983,
+    "sha256": "2c91208fe68581a1dcf6e19902c9ffae21deba4490eea0bf7b38a8080f85fcc3"
+  },
+  {
+    "path": "engine/engine-foundation/src/test/kotlin/dev/antigravity/fluidengine/foundation/EngineVersionTest.kt",
+    "size": 1182,
+    "sha256": "5143140fad8dbc679f8197c89aaaca29f4808a1f8fa207dda0767817e7b7dc06"
+  },
+  {
+    "path": "engine/engine-net/src/main/AndroidManifest.xml",
+    "size": 228,
+    "sha256": "f37dc4c8603e0bc73d5d66af725a9d0efe3d1e3e724c9ed1a53c8fd20454adb5"
+  },
+  {
+    "path": "engine/engine-net/src/main/kotlin/dev/antigravity/fluidengine/net/EngineHttp.kt",
+    "size": 5714,
+    "sha256": "91e3771e70488203ed153a081dfd24e5f729a78a02bd79c656e6d60256e1eca7"
+  },
+  {
+    "path": "engine/engine-storage/src/main/kotlin/dev/antigravity/fluidengine/storage/EngineStore.kt",
+    "size": 5569,
+    "sha256": "8b775f9442505da11909376886f2de805daa7e8eb2ce106f5ea4d7af0ee9f51f"
+  },
+  {
+    "path": "engine/engine-ui/src/main/AndroidManifest.xml",
+    "size": 615,
+    "sha256": "3dab1cb297bd587b8e8c642c2aba76bf1bf45faf3df3766af6f7130895a77668"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidAmbient.kt",
+    "size": 9748,
+    "sha256": "63049c4ad304c5aa53f110866f91a2d1b70b088bd9bfc33c55156a53b7366a27"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidAmbientSurface.kt",
+    "size": 1871,
+    "sha256": "371072dd15f85a7e6466aa954203edbfe2a0964552341e47b9b6e358952acd20"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidAppearance.kt",
+    "size": 22884,
+    "sha256": "0b18ef31edd4c084a6660b695210412843406b89df3afc02cb13d6beaebacac7"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidButtonGesture.kt",
+    "size": 23351,
+    "sha256": "60c75d4edf30dd26d085618b790969d2b7d4728d72d58981d96f833d0e806c37"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidClock.kt",
+    "size": 2288,
+    "sha256": "287d114018f8eefcf9b655d9715307d8ff2b55ecd413fd6c83d2728e2b50f55e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidCollapsingHeader.kt",
+    "size": 13677,
+    "sha256": "4346fbbc60c00af40e8c89c0b0bbfeb158a10b8f7ae15f78069f5480e07014a8"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidColumns.kt",
+    "size": 9834,
+    "sha256": "e9de4a334249fbc758fd36f79c119690835b9948b7958165c17b27b0d1fdfa69"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidContainerScaffold.kt",
+    "size": 3275,
+    "sha256": "c850f6905782a00dcfa99f9f1a66d5a5d543d8e11090eee3f30985021ee58575"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidContent.kt",
+    "size": 3023,
+    "sha256": "589edd57f42fe710fac28ef1f6da98cd063d0fc328fe0deb3fa8a0b65d7af881"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidControls.kt",
+    "size": 40532,
+    "sha256": "f72a7fdbc93e2ce5ccac85c3387eed424e10127dcaa1ae4e2b05071e55a295ba"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFastScroller.kt",
+    "size": 26236,
+    "sha256": "001709fba148d9ad21338da92ce2e2cb904e14bee550a64608c4d791946583e4"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFillContrast.kt",
+    "size": 4750,
+    "sha256": "2d9c49aa2a1a8f6844b65d7c18a4251d039f0c995d811b60d7f0ea2182c37e33"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFloatingCapsule.kt",
+    "size": 16902,
+    "sha256": "b9c87ef3ee6e776a2a5fa24adc95395ae1cc4cfa332ae8c22bf73ae9958c1d06"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFloatingTabBar.kt",
+    "size": 165039,
+    "sha256": "114be45954a6a1f97c4e7f2749760aad096bcef04be6b0a6e63fe7389ec3c1b1"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFoldingTabBar.kt",
+    "size": 12060,
+    "sha256": "8ba47a145fd27c6b780c1922163e91fe3ed2886f1a46a3daa05be8b84e53f4d3"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassControls.kt",
+    "size": 30084,
+    "sha256": "b7bf9f0ac99ce77946dea8155cebc6dce609918817fd2cb8849b0934ea4eced3"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassGroups.kt",
+    "size": 9562,
+    "sha256": "4b6a099dd5827a252f8b38fc2077e6db3be58b17659bfad171d667f2c2db304b"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassMenuButton.kt",
+    "size": 9858,
+    "sha256": "1ffb0a4cc1fcd6a0822e53b1de8a794b4d03c73eae2770f2571a39f38ae43a0c"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassMenuPanel.kt",
+    "size": 25137,
+    "sha256": "4ff96b1b7350c4598f6851dce72fec9612783da6e55e0ffc43d6cbdaf0137a64"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassModal.kt",
+    "size": 117359,
+    "sha256": "783a272bedaf28f30025ab993ba2cdb7bf350e00dbfb6194128307355c7f544e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassQuality.kt",
+    "size": 7366,
+    "sha256": "540706e5950e0a88e54c216c34f89116cb8499cb08419765586223c06e0b5e8a"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGooey.kt",
+    "size": 4564,
+    "sha256": "50f019e233d44c3d7bf8e258a6424e56d44d0f3fa34a0051a0939e9eeada4a5b"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGridColumns.kt",
+    "size": 997,
+    "sha256": "2d1c13c6c76a53f11ce2348cc3223c09c04c17d3d6893c06c1a80f15863c60fc"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidHero.kt",
+    "size": 26030,
+    "sha256": "88e11b716f0301542eeab2a7489fa69dccdff3653ec4f8c44fd18544b203ad03"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidImageViewer.kt",
+    "size": 21977,
+    "sha256": "ea42ecb1cc31ff4676ec769fe856513ff060d21bcc94a113427cf0a15ef69589"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidInteractions.kt",
+    "size": 20233,
+    "sha256": "83830e5a1c95f416a53e336965bae2e39063c04ae23e18701bf21b99de28a131"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidLabels.kt",
+    "size": 8967,
+    "sha256": "6009f2720b69bd56afa24ace1cbaac02414c905da6738d8eafa7a8d0f7452e2f"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidLicenses.kt",
+    "size": 7588,
+    "sha256": "8467de066275ae3dc3ef8a04a6532abd26af0df1aa7cf8162fca7cc8c8624cfc"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidListDetail.kt",
+    "size": 12015,
+    "sha256": "aecaaf993c385d5e39c19e2aae98e891eb75ce89f402ac85826f883d01a03817"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidLiveDot.kt",
+    "size": 6002,
+    "sha256": "25ee4f41de64cdb63ea173218505779f2087956afd1966d214b20ac66114d098"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMarkdown.kt",
+    "size": 22408,
+    "sha256": "ed0765e7cd67c5f631dd1361dc281b39d26f94857156c997b51b696abe0278e5"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMarkdownParser.kt",
+    "size": 24097,
+    "sha256": "f6e019a8def69673f33cec69148f6d2d474304634c967152e43e00c8176e4ce6"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenu.kt",
+    "size": 25422,
+    "sha256": "760d31e4bdec2249e5115b61541386cd1e730f837e43dc52c2b6e898dd230819"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuJourney.kt",
+    "size": 32575,
+    "sha256": "3395868bfbb5eda6ddfca1ac6811ff0ed45fa2f112d23503bdbe3a3af8cc74ea"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuLayer.kt",
+    "size": 34689,
+    "sha256": "3edf5556cc23a16a599dad4e5ce2850c1f75678f6b85208a19d444a365ac76f4"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMotion.kt",
+    "size": 31283,
+    "sha256": "4ff6cf82e658da4e199e03f5c055c687f6a0f3d88ad6d203e57f2d9f02ec29e4"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMotionPolicy.kt",
+    "size": 1442,
+    "sha256": "e452ca6099f24a90b9a524a70fda071207ed15f4ddbe7bb5709f143c6724afdc"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidNotification.kt",
+    "size": 50362,
+    "sha256": "1e8036862430ee0f60db84cc8a0cf9b774570e083cd80b4f8629b8f1ff813900"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidOverscroll.kt",
+    "size": 2438,
+    "sha256": "e0036198bc8073b62f4ccec3ff093e48a98d660dbff4564b541c0caca00f9e65"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPagerDots.kt",
+    "size": 9453,
+    "sha256": "8c509db4f96cee80b0a7a3a479b42f3e8276f40f32aaf4611b9d75ec6ab1ba32"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPaneScaffold.kt",
+    "size": 8184,
+    "sha256": "ba57e9468edfcd9ba7b4d0271f69449aad59779ab1f80800736adfeda6f60ff8"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPress.kt",
+    "size": 29679,
+    "sha256": "312b52280ec2be2e9f425827f66beaeef25b3d3c8a5087849c437bcc4be3eeef"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidProgress.kt",
+    "size": 7284,
+    "sha256": "391b24f6c756ce597a43c09dc9a3fa384d6c72a2d9d104e27a7d7a36510fcef5"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPromptAlert.kt",
+    "size": 7770,
+    "sha256": "1ff31d1d7ed682d3f295c10521f4b403975bb209547af3f1031484a303cafc9a"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidReadingWidth.kt",
+    "size": 2775,
+    "sha256": "f4f3f01c7a525746d3244245a78b14de5d5c28dc587a0642107bd8a96d6b913e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidReorderable.kt",
+    "size": 35597,
+    "sha256": "0c118e5e7194db6889e2c5b5c297e7ef0fec52ef883abf083936c72cda2cca6c"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidScreen.kt",
+    "size": 75824,
+    "sha256": "39e7caa07b5575d3cad88b0169d140abce9ecb7232789f991a0a090fb60ef725"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidScrollPhysics.kt",
+    "size": 12889,
+    "sha256": "2813cbdc9b96080a1ef9b3269056f92558b34919e7ff67619441908fc3388230"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidScrubber.kt",
+    "size": 59017,
+    "sha256": "50a47ba6277735d5605bc7638fc12f28a0a21b5dc021e1d8ea1fff129f06c65e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSearchField.kt",
+    "size": 20538,
+    "sha256": "0990d5290fb31cc68a5fa3411c4ce0086a0a782280f9de026943b71c3305985e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSectionIndex.kt",
+    "size": 36812,
+    "sha256": "e91f412b4e3af0958292c17ddbbee1e68236ad6077ed54bc52e7b75555104391"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSelectionMark.kt",
+    "size": 7625,
+    "sha256": "98c6720a762854b4db1340e55a2a45ced576f8add67d0100771738e15d36ccc5"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSettingRows.kt",
+    "size": 19597,
+    "sha256": "6cb882b246ca8aeb0413d781efeab5353f394e88c5bdddf14cd8f6231c337764"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidShape.kt",
+    "size": 13240,
+    "sha256": "8d63e710afe2f3e46775e3bd0dae9ea67ec9fff05811336c911cb4dbea9fea3c"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSheet.kt",
+    "size": 18632,
+    "sha256": "31c2579e46cbe8427feb5a6ee4eb3a179f254e7d0dc60734b86f4d4e3267d3da"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSheetScaffold.kt",
+    "size": 17477,
+    "sha256": "376db55ad769af1daa16aff7a31ef6e6304c4a268c00e5ce31235431021be17f"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSidebar.kt",
+    "size": 7068,
+    "sha256": "f271b8d745d58877db7929cf3dde877afef6a0eb1ef92e05da9eb33bd1c93531"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSkeleton.kt",
+    "size": 11399,
+    "sha256": "f17c9318fc9cfbeb25e1aebd62c7d94a7bff22bd5ee5ff43cb728e9e4a1baaeb"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSlider.kt",
+    "size": 34620,
+    "sha256": "1830fe1918dda2117d04928e05f43c3617fee19dd94be117c1ea502477c97f40"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSpokenText.kt",
+    "size": 5670,
+    "sha256": "ca3d7e491c0e0b3d9024232236fdac70b88f9d4a21e91e9b1af86385da8d504a"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidStepProgress.kt",
+    "size": 11319,
+    "sha256": "16b87901637ac1f6c6f707ea1f7698b4b750dc2c3cbf597d9d1c95b86148c9bf"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSwitch.kt",
+    "size": 26744,
+    "sha256": "f191328447fab40ec31139f7d8b646105865d507e4028f6e9ea5829bf6bf22b4"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidTabBar.kt",
+    "size": 21169,
+    "sha256": "2e3bf279f8e6e1bb7fd32ad5c3c0d23d5a54da1ad8399ad022f8663d56e15a39"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidTextEdit.kt",
+    "size": 2825,
+    "sha256": "83c2ecd68002842c0f76d3de81b2c4e7cffcc5618f893124ed255e75d386ef4a"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidTextField.kt",
+    "size": 18389,
+    "sha256": "b486c734794be0e573db18745605db8497c35baa480a5f92903592d136cd58dd"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidTextReveal.kt",
+    "size": 10618,
+    "sha256": "4eb623e422b604344752a67bce24d2b9697faf39097b13ec98551e41d055efac"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidType.kt",
+    "size": 6430,
+    "sha256": "47e1a80a01a6bf8d5478aad55fc76d1052f78763e5411e71d3a8d3e36672e9bb"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidUpdateController.kt",
+    "size": 7401,
+    "sha256": "d7dcb4fe872c0de90fccee1a0334c2d000e926762eb61cd6f043d249c8e22269"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidUpdateModel.kt",
+    "size": 20733,
+    "sha256": "d114489519c6f50728abf5c132b7c9b2a44cbf0e864b812633f29f66b4824754"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidUpdateUi.kt",
+    "size": 21686,
+    "sha256": "11936397bbee82f0bb51de62be1c3731dbc8e91d66d28e4d7ceb6b3a79ad841b"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidVividCard.kt",
+    "size": 10064,
+    "sha256": "471c2c2a7de1f7360f644f6127f491720eeb153c75035299a3d2478b0074d2be"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/GlassContrast.kt",
+    "size": 7760,
+    "sha256": "5db227bf08442bddd49e659d78d5bbd71caea5dfc4335c51251bb7b2458e81d1"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluid/GlassMaterial.kt",
+    "size": 96370,
+    "sha256": "e2bd36d861ccb6914c03cdf1cd55914d7767ef452f6959cbc53c2bef7901fcc8"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidForm.kt",
+    "size": 7937,
+    "sha256": "5f288c660227f65f5ac285808ad8a55d13406944dde9750c01b15e8c123ea9c7"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidFormPresets.kt",
+    "size": 6139,
+    "sha256": "ec120a139277ba2105b9810cb0c0db6d64a8691f1ab99257b532934b9df89bc1"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidMorphMenu.kt",
+    "size": 27450,
+    "sha256": "c8a29510b3828471a9ee2bac1814b0f40f24461e49c64a6eea02986edd460a17"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsClip.kt",
+    "size": 1553,
+    "sha256": "12373aa45d7c159ba31f57a967ee9308624c32e93b92ac4b2c271583927eb087"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsEffects.kt",
+    "size": 13772,
+    "sha256": "30c81dfdb5909774633893ae72b1d0b61b6365d104e2826e22474f94231809d5"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsGeometry.kt",
+    "size": 17732,
+    "sha256": "d2d0c52d40da03010a47e955a47129b43c1ebc04e03d53c8301ac4379b9d8727"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsJourney.kt",
+    "size": 13791,
+    "sha256": "a17562019b170508580aa6c33b432b6783533202a1573d037ae05ee6a78aed91"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsLiquid.kt",
+    "size": 26840,
+    "sha256": "384c6a1ead1be7f64299ea46f4892ca9b594a4597d9d5fcbe6082649530ed8fc"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsMaterial.kt",
+    "size": 10192,
+    "sha256": "797c19da67f6333a98b386ea86c99dbf194d932d738e552c6418d8a19bb62f8e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsRim.kt",
+    "size": 22330,
+    "sha256": "37ce03b59afd39c7ec537133028c90bbd357ff62f98e240064fa06d4c7139531"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsRings.kt",
+    "size": 9596,
+    "sha256": "f17b12746314ca0b15e6c0458dbcc499a3fbb438eabb1283c579e5a4e9154122"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsShaders.kt",
+    "size": 23885,
+    "sha256": "682d5464e05ddc92d44dcc351a57c96e66b597a71cd5fa1cdc09d9892fcc7240"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsShadow.kt",
+    "size": 13719,
+    "sha256": "368a06ec423ae3b12abd447456b6d5d8a921964b9e3ced33e69a59d36328bab8"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsShape.kt",
+    "size": 3774,
+    "sha256": "20a4baaace3bbf7d73edea2cdf898a0a6d8c1831ecdbd61f4b4df388c96cde44"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsState.kt",
+    "size": 56094,
+    "sha256": "a109fdfc98af0f7cfa347868ea65be0707f372e23cb17618f7dd9d525a50c869"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsSurface.kt",
+    "size": 24604,
+    "sha256": "6f6dcd0472aac39e77f9890a6a7b1dbd412934964088273a2fe98e83e8485b83"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsTier.kt",
+    "size": 4771,
+    "sha256": "2f0859f1f58595ef2de085f38ee486fd5bc8c4d4c2833bafd4d1f2a0cdcc47b1"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/Backdrop.kt",
+    "size": 4757,
+    "sha256": "f11c49422ca75ce5dd1f4b52f955aace6a1bc64911e98813c5e8ced0b19a25aa"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/BackdropEffectScope.kt",
+    "size": 4293,
+    "sha256": "c7cc7336ebade5e005ebc40b8a9e59e19d3cdcd4055faae7df2e255dab1688ba"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/DrawBackdropModifier.kt",
+    "size": 56818,
+    "sha256": "b1d30ee9802f71fb7b6babc8fc2a2469001eba20209726a003f7b3cc95fa0b53"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/FluidGlassDiagnostics.kt",
+    "size": 1590,
+    "sha256": "e8f10fa324c2fabe92612875797bcd680971304e1230e6b6be94e7acebe00d48"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/GlassNesting.kt",
+    "size": 13878,
+    "sha256": "de33d454e612a36bad030a5306e78a0e54463a94733514d9342cddeb8233b219"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/Platform.kt",
+    "size": 1820,
+    "sha256": "b61e191e923566b496f219edd2f9033e44b699c2f0ec87532f5dec0b1131575d"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/RuntimeShader.kt",
+    "size": 4956,
+    "sha256": "8365350dae99a0f9aa916de0f93ba0f0308d0c5a791f63d5678c89f45f80f0c4"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/RuntimeShaderCache.kt",
+    "size": 3788,
+    "sha256": "c75455341b5a1a3b2508ba8339e2cfd837a6c5f72c8b6db8bead7ca11391a09b"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/backdrops/Backdrop.kt",
+    "size": 3215,
+    "sha256": "2b2a43511f1b3a3bd2c94dbcdda2e6c3b512a6fc9bd4ffe48c50ddc69b5f5f6b"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/backdrops/CanvasBackdrop.kt",
+    "size": 2398,
+    "sha256": "bb72056c30812355182e65051e58f210a4ef394349c1e871aabaca61777afca2"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/backdrops/CombinedBackdrop.kt",
+    "size": 6756,
+    "sha256": "706f755917db95999894384bc2b130da450920c4b18ea2b91e272b3afd01ec45"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/backdrops/EmptyBackdrop.kt",
+    "size": 2184,
+    "sha256": "494f9316c9db60f6a7ab9cd8a6d18feb6c50b8de49871b1bb647f8982ea1ccbc"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/backdrops/LayerBackdrop.kt",
+    "size": 8205,
+    "sha256": "400c0c34d8d99ed3fb8ab71f6192835ddf9710067d8dcee10006e20f85d2c4cf"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/backdrops/LayerBackdropModifier.kt",
+    "size": 5532,
+    "sha256": "8dbbeae5495b7f317b8cb758b841809b0c2d6c2eaec02f088fabae1290d25f64"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/effects/Blur.kt",
+    "size": 2259,
+    "sha256": "ba2577f9fd5fffb393e90b22e85352efdf23ab82abf8392df35064e578b40a4a"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/effects/ColorFilter.kt",
+    "size": 3613,
+    "sha256": "2282db9e67e53d30b86aefc34e224672a8fd05b5eaba4d059956c22dfa881ff1"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/effects/Lens.kt",
+    "size": 6506,
+    "sha256": "8916114cbec92b7a88dc592375a22c050efa42f414f25b9ec63d74fe0c3dc12d"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/effects/RenderEffect.kt",
+    "size": 2729,
+    "sha256": "b5f529f16022a02582694c8e86170832bd4c4a044e1bf59d078e6f84e79f249c"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/highlight/Highlight.kt",
+    "size": 2185,
+    "sha256": "fdb5b4cfa23c6e8495441298b712991d2d694e52468f0e9c5b6e6d6bdd21ac7c"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/highlight/HighlightModifier.kt",
+    "size": 14017,
+    "sha256": "9187ca10dabb5bb85474db1be596181d3d4c91f5fb11727212bba5928b2abbd5"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/highlight/HighlightStyle.kt",
+    "size": 7260,
+    "sha256": "3bacb4cddb8c6838a51dcbff2e7bcd42be2fc453f758b149ad5efa884d308431"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/internal/InverseLayerScope.kt",
+    "size": 5731,
+    "sha256": "0f427ac7533cd9d58ba8e9d8595d8f78fe7161bc7b453c0e545a43043d09cbc3"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/internal/LayerRecorder.kt",
+    "size": 2517,
+    "sha256": "fc8347e1da68b9f0d6602a80304fb12d328d673f28138cf987976eb2b9e94163"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/internal/Outline.kt",
+    "size": 1963,
+    "sha256": "3969c91b147a73ee9227b16fa690c30864e0abf1c70dfb1d6e4a9b97cf4600f4"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/internal/Paint.kt",
+    "size": 2035,
+    "sha256": "0817f7c161daad781f7ca25d04f47d0675443d34b7990af066b478e55aebb290"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/internal/RenderEffect.kt",
+    "size": 3165,
+    "sha256": "a7120d52e640811570d7aa577fbf408276c5207a822b85d6286a38b47ed5f315"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/internal/Shaders.kt",
+    "size": 6688,
+    "sha256": "fe9672f86931e573a7e83b5c7c8bc0bf3baefaf007354484cbc38772a4134ca7"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/internal/ShapeProvider.kt",
+    "size": 7682,
+    "sha256": "76477f7dc3e7fe01d6ff82e1e1dddcd389d9e1da55e6f721a22926536a98fddd"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/shadow/InnerShadow.kt",
+    "size": 2827,
+    "sha256": "42b2fcffe78892f21724b2afb915b71280260e3baa3dadb1f0567201ad27aad3"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/shadow/InnerShadowModifier.kt",
+    "size": 10527,
+    "sha256": "2006ff7b9fa2f528481034515292e20b3af5c639afb86ca2085b93eafba1f0e6"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/shadow/Shadow.kt",
+    "size": 2255,
+    "sha256": "6555f3d02056f5170aeb81d00ebdaf61d632944d29269a3b15eb87cc60bace9d"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/shadow/ShadowModifier.kt",
+    "size": 7570,
+    "sha256": "253599e2aa846b109cf1fc18cb08a984373c1045fffd23b13d9c6bdb980fb6f1"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/interaction/GlassDrop.kt",
+    "size": 15488,
+    "sha256": "4517b8638f75a4ff5711c7eab6f072dd5ddb7d481093cc830bd39bb826678c3e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/glass/interaction/GlassInteraction.kt",
+    "size": 26083,
+    "sha256": "6f52eb3a3a5b6947e93ad710abbc84a3b7103d8292a303f923a15b6be979673a"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/haptics/AndroidFluidHaptics.kt",
+    "size": 14384,
+    "sha256": "6cc12ad26499717ac2d534666a38595430e6835894ce2327f4baea44e058d49d"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHapticDetents.kt",
+    "size": 4923,
+    "sha256": "0eb16ae26f6b224c81f3327b8ad12c0755e7c9591dee5f1ac450e8645d36fd01"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHapticGrain.kt",
+    "size": 10120,
+    "sha256": "3482c7ef4976b3f6028379bcd78306cb5e3498e2d69a90c5f2a7202590501a40"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHapticTrace.kt",
+    "size": 13936,
+    "sha256": "7502dcc3db676dc2df99e10166457f8a65be67622be8b6a86d10aa21142828be"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHaptics.kt",
+    "size": 16643,
+    "sha256": "3a592da3fd5ef58aa89ee42ddad8ab5cde21cc25204d3f5800acd27b9a0f7126"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidViewlessHaptics.kt",
+    "size": 3626,
+    "sha256": "7e76189145fb6fb031a753da8788da9561d5de1f48d2e90ba1ec1dd7aa0cd167"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/navigation/FluidNavHost.kt",
+    "size": 9949,
+    "sha256": "2bf71bf4658a8596b67237bbfa9d427e39b3b02915effe6ef75773eb00679695"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/navigation/FluidPageNavigator.kt",
+    "size": 7813,
+    "sha256": "caa2dc8ffecb2a9a6e49b472631da87fd508e9d3894fda17c97cf22be20e2a20"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/navigation/FluidPeerNavigation.kt",
+    "size": 2751,
+    "sha256": "af29c8ef3112e57cbe49f110121e45c396a74ccf7e809ae171dda4546269f4ec"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageAnchoredBar.kt",
+    "size": 25409,
+    "sha256": "e6edebbe4bfb5ec8ee89e226d6d81c2a99a2a65a098234f933606713fffd5b37"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageBar.kt",
+    "size": 6186,
+    "sha256": "e61d988494ce3eb292c719fcb9c29db71abf163c09822de64a99e2cbd9759477"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageHost.kt",
+    "size": 22333,
+    "sha256": "39f70056b2f2e96f202fff6b30d237f03bba692832c7be866a4ecdd1fe39459f"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageHostState.kt",
+    "size": 27410,
+    "sha256": "8b5cf08e8088231f83e6d214bad38114a26a6cab1070e38c232f9442eefbba6e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageInput.kt",
+    "size": 18254,
+    "sha256": "afa8779e79631eb15620814db37e81cf37edbd183675d8de47adaf0bc2abaaa5"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageMotion.kt",
+    "size": 22800,
+    "sha256": "703b1cf8e058a69d70c970169216d98a616f612abe60808092984c27c87310db"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageTransition.kt",
+    "size": 3736,
+    "sha256": "4c0404d9f5adca369a27fda064636f6c4a24820a220906c599e22104faeef4ab"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/theme/FluidComponents.kt",
+    "size": 73148,
+    "sha256": "fb7aee090e47827f2c16dc61109f01c10630667c2f8a02ba5875d5f30f061b6d"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/theme/FluidListRowHeadline.kt",
+    "size": 6392,
+    "sha256": "e565f5f07e9d8a077e92a49a2b1ea2dade3533341b166a1a4409fc1ba0695a8c"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/theme/FluidTheme.kt",
+    "size": 18898,
+    "sha256": "7d9c638c7fcbf7de009b24df82d3b03d1a2e5bb60eb9e0177f8e9defe6fca8c1"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/theme/Motion.kt",
+    "size": 999,
+    "sha256": "d7c8656f62111cc93c1b7a7630f76695f8aa600ec2c020630df5164bd779e2ab"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/theme/RouteMotion.kt",
+    "size": 13448,
+    "sha256": "daff3f7a0b3fec82ce8b077e197121937aaf3ac70a47f96cb0a4e235595d7a19"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/tutorial/FluidCoachMark.kt",
+    "size": 17745,
+    "sha256": "61bc42356bf677a3844d092385dfc4604b8c7fc82a293a48a564ba0d8f83238d"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/tutorial/FluidGestureHintAnimation.kt",
+    "size": 7557,
+    "sha256": "52c913aaa8e9b803c12a11fae8378d9cd966f9149ad8c641e4b3ac49c3d3ea79"
+  },
+  {
+    "path": "engine/engine-ui/src/main/kotlin/dev/antigravity/fluidengine/ui/tutorial/FluidTutorial.kt",
+    "size": 10471,
+    "sha256": "b20108e673ad489a47bcfa50d48999e7c1dca0617cadf80482027509df9d038e"
+  },
+  {
+    "path": "engine/engine-ui/src/main/res/font/inter_bold.ttf",
+    "size": 420428,
+    "sha256": "288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f"
+  },
+  {
+    "path": "engine/engine-ui/src/main/res/font/inter_display_bold.ttf",
+    "size": 418856,
+    "sha256": "b74c8e0dd744b3347faca4c96bc7b2e32f7d6f62300a79b1d1a99331e44a5bc4"
+  },
+  {
+    "path": "engine/engine-ui/src/main/res/font/inter_display_semibold.ttf",
+    "size": 418540,
+    "sha256": "0310d7a325896129730c6c8cf9a6e0f81ee258bedf77b1ff059b2a7b75f74e02"
+  },
+  {
+    "path": "engine/engine-ui/src/main/res/font/inter_medium.ttf",
+    "size": 417300,
+    "sha256": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872"
+  },
+  {
+    "path": "engine/engine-ui/src/main/res/font/inter_regular.ttf",
+    "size": 411640,
+    "sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82"
+  },
+  {
+    "path": "engine/engine-ui/src/main/res/font/inter_semibold.ttf",
+    "size": 419744,
+    "sha256": "78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidAmbientTest.kt",
+    "size": 3832,
+    "sha256": "8e96093317ef8aa37222fb3a5c886ef42dc6cb4cca892cc080b73d255fc30020"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidAppearanceTest.kt",
+    "size": 8383,
+    "sha256": "4c654ece060665b16f8c852874b8aec63bd280eba8ac705ede10645624b811ec"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidChromeMotionTest.kt",
+    "size": 5161,
+    "sha256": "09496cb9a8e58c5cb28095f11e01e169e6b10056b8ffaa9d6446a0f6eaf0326a"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidChromeTransitionTest.kt",
+    "size": 2039,
+    "sha256": "f5267e56db1f412e7fd4622227064a62ffa7d81483f0ee9677c52e07a8c6c22d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidColumnsTest.kt",
+    "size": 1667,
+    "sha256": "0ffc5677b05033ac351121e1f19270ad9633e88dd3daaa9099d2caa3923ed0c8"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidContrastTest.kt",
+    "size": 2955,
+    "sha256": "80bdf8123ce39cece03eb4e053171c38a22d8ef4d0d0e3eb9f4d29e156d2e21a"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidEnglishStringsTest.kt",
+    "size": 5981,
+    "sha256": "3ae38aca9b5470fc42cb05eb463bb1aa304a43c91f67a404895a5451541069ad"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFastScrollTest.kt",
+    "size": 5772,
+    "sha256": "6dbcb9aab7f8be9c371812744625d1ebe24cbbb209d42a6ae84ba207921fe4a8"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFillContrastTest.kt",
+    "size": 7154,
+    "sha256": "c43a2117383decefa042a11b2708abc171a77383bc39b6d96633db23e0face67"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFloatingCapsuleTest.kt",
+    "size": 3881,
+    "sha256": "9fab9e85f021e32067435a20176d28b8e5ffcda5d52c0d6d06b75a58ecaa468b"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFloatingTabBarBlurTest.kt",
+    "size": 5910,
+    "sha256": "cd7c3e9e525c11304957a2206d9c05a41df63f45e59008b397fbc35051aa9901"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFloatingTabBarLayoutTest.kt",
+    "size": 3936,
+    "sha256": "9d3c128c9eead1bc866d206066f449304d95b694c557b4d796f4f204e2009902"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidFloatingTabBarScrollTest.kt",
+    "size": 3814,
+    "sha256": "255e9d61a979ac3c2e50395674883bff80cb524855100cff92014d4b147597a2"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassControlsTest.kt",
+    "size": 4911,
+    "sha256": "9d24053f361b403472408a3a41bb6ba522b7cd0df79d04009ea2c0f66f11fb77"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassGroupsTest.kt",
+    "size": 3303,
+    "sha256": "00fdc36147b0ab26773d619f63426da0a5b7d853ea3887e90603080384285e11"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassModalContentTest.kt",
+    "size": 2383,
+    "sha256": "330e9cd988af3b4f0a5010550a180942feb9d170a9d670f8ce943f7463bf07a2"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassModalStateTest.kt",
+    "size": 4889,
+    "sha256": "ec4dbd2ff151daf7e6f220feb4fc09cd2669368c54b85ac64bce8b4632505f76"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassQualityTest.kt",
+    "size": 3280,
+    "sha256": "ccda239aced3ec1057a243fd0326612599c79da7363471870d414423c3ef59bc"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGlassSizeTest.kt",
+    "size": 4551,
+    "sha256": "c2486e1ee5c8d3eb77db169a09cfbee79ab785ec34da03bca0aed76c28f37f4e"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidGridColumnsTest.kt",
+    "size": 862,
+    "sha256": "759edb3f6565b6d0fd7707b44046289385e8425adc00a9f9dd4470f580608197"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidHeroLayoutTest.kt",
+    "size": 1534,
+    "sha256": "44af863268d3f5399a78eb74b92fddc69dbacc1aaf9671afd5828f2555676e63"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidListDetailLayoutTest.kt",
+    "size": 1380,
+    "sha256": "45c14746a745512da9bc00a2239531855fa21c67e337c6cd3b4ebcb89087db80"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidLiveDotTest.kt",
+    "size": 2204,
+    "sha256": "2b0da52640f403869503ee04cdc092ccee3d4b845b39b194bc63dab6d1aee5fb"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMarkdownParserTest.kt",
+    "size": 14021,
+    "sha256": "d4d298f971beec0ea8980e47e86d0a66a083cc664229549ac41bf6c9dbb32aee"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuGeometryTest.kt",
+    "size": 9552,
+    "sha256": "1a0723a8b781554c66c12e5d12f74c67edf6597a7f97c1a6fbcfbeec51eadb4c"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuJourneyTest.kt",
+    "size": 10121,
+    "sha256": "67fb168c9814caf2daa86f95514027633857ed9b3c3161e3992ee2fe30e94b7a"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuMotionTest.kt",
+    "size": 13686,
+    "sha256": "5630f2454460a1f9aa2ed1c02bac14a0722e83447aff8dcd7fc4cecd04cfba4d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuPanelTest.kt",
+    "size": 7902,
+    "sha256": "757cd4143e5105072f3d5bd91ab0349d7f7428df3e488361d5647704b626d129"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuPanelWidthTest.kt",
+    "size": 1864,
+    "sha256": "9e270bc217d0d7b046b839e9b8d9359053061c1dca76c1a782a24fa6746e5f96"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuRelayTest.kt",
+    "size": 16845,
+    "sha256": "25ed3d4ca8a6ae070008222183c6aadb9fa2b40a3bd5d0b168267bb5e30c7543"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMenuSelectionTest.kt",
+    "size": 13141,
+    "sha256": "effbb68126f33a3dd6252fa429a9e6659e0224c1f4bf78e806e244300284b860"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMotionPolicyTest.kt",
+    "size": 768,
+    "sha256": "67d089ca39384d19581a21e7eb0447b509dbbedf8db94c4b1d0841325bce7fcc"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidMotionTokensTest.kt",
+    "size": 15134,
+    "sha256": "4b93e1695c9ef9de04e71bcc22aaee1c1a2a6fb675525e0046f8c1058d75c580"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidNotificationGestureTest.kt",
+    "size": 16482,
+    "sha256": "66d29b0d031b40f93fa01acbd66df3aa3c40e5d48cacfe799e915a15b634223d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidNotificationHostStateTest.kt",
+    "size": 7635,
+    "sha256": "90c9165f9b458ee1e982aa8a081fecc9dd7a89d13b868ea2e95a283466232648"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPagerDotsTest.kt",
+    "size": 3791,
+    "sha256": "beaa4ccebd3ec115459a5da383bddd02e508a136744a4ceb7300ec3d2680f0b7"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPaneLayoutTest.kt",
+    "size": 3312,
+    "sha256": "59e04eff6038284055c4838f303f76ca24e4293a3d262c879794d244fa5a1906"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPressTest.kt",
+    "size": 34994,
+    "sha256": "585d2f2153a977e896c1ae5742bc05d89a95a8ffe0291d0e7f4b08cfb31c6b67"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPromptAlertTest.kt",
+    "size": 2368,
+    "sha256": "7cadb92695ea818cb35fccb0d0035e2b04a5b4b0b9fcbaa18af8c731585e8626"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidPuckInkTest.kt",
+    "size": 4548,
+    "sha256": "555a77c3ffcbc5fa613cb411dd12deabf67020e98dd8350e9430d2a88c897c1d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidReadingWidthTest.kt",
+    "size": 1723,
+    "sha256": "3fcc1a24f3151779ba9cb43db3f2094b2002bebca68aee35d1a495d2e04dc93a"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidReorderTest.kt",
+    "size": 9257,
+    "sha256": "df669e9a1ec749970d3f7395932f35529edc76ce61591a258dd025d3a763cccf"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidScrollPhysicsTest.kt",
+    "size": 7225,
+    "sha256": "03d9a1315b30634cee6b02f3f4c0f1ea0a36204cbc0de4143df666032e50bc1f"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidScrubberTest.kt",
+    "size": 20269,
+    "sha256": "e99dcd50ee856561e864fee4480b97dd2cdd8a60d06f94ee2ff0640925db3888"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSearchFieldTest.kt",
+    "size": 2785,
+    "sha256": "814423e2759ec3be0e6a00dbb91be8677fa4aa793ba30cd6947bf230442ab0c4"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSectionIndexTest.kt",
+    "size": 3022,
+    "sha256": "813a216737ac12eb6ca2d29f3ff7967426fccd42aaae49b0e03f4b8bc815829e"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSegmentedRtlTest.kt",
+    "size": 4636,
+    "sha256": "e506ae3bdfbf0b74fd18046b5a68e40ce3fabe7494c040bc0767fd7237fdc19a"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSelectionMarkTest.kt",
+    "size": 1735,
+    "sha256": "f15be31fc75aad8d29a0b6a9062cbb34a09f37e2d314f39d670b40845a794e6f"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSheetScaffoldLayoutTest.kt",
+    "size": 3376,
+    "sha256": "dbd946bb36f8621a63b361af8150ac27cbe1dc7c5d2c3eb82ddbae8922b1cc02"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSkeletonTest.kt",
+    "size": 2549,
+    "sha256": "f98c719fe14353e439266ab487fa9afb739951239a3a20eb1667a987cb1da009"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSliderClaimTest.kt",
+    "size": 2938,
+    "sha256": "00848541a51fc8e2a4a2087f13250180ad31c385b58e0744db35498d7a2d1c9f"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSliderSnapTest.kt",
+    "size": 3903,
+    "sha256": "7971d5f99e476277dad80c36311c417e57aae9a640b0ce0f859c5f8c091e42a9"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSpokenTextTest.kt",
+    "size": 2344,
+    "sha256": "0899c68de9ae426738a302a36666cdc360a67423b3585d4b2cbc356076eab397"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidStepProgressTest.kt",
+    "size": 1992,
+    "sha256": "a5a0f0790690482ace31107e8a1f89c47dd36e09ac12cb129d3b0e7097dcc461"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidSystemContrastTest.kt",
+    "size": 8265,
+    "sha256": "014223b178b2505f6a83b66b6e7fd2b4e05c4b6de84dfc6effe5d6b62cf92f39"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidTextEditTest.kt",
+    "size": 3097,
+    "sha256": "2d83f46bc7efafe076cad070f02029a737bc69432a531141f9e397a6334352f6"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidTextRevealTest.kt",
+    "size": 6179,
+    "sha256": "58be1e56936f35a5a7502dca1fe8109d50d832d36f409d8dbf1c71130b130f17"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidUpdateControllerTest.kt",
+    "size": 5775,
+    "sha256": "d581fc886cd70d01e773b90fb1a79e3a133b4fb09cd33aa12abf521138eadd4d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidUpdateModelTest.kt",
+    "size": 11695,
+    "sha256": "23beee62eb737df8a468e3ed7f90ac6c41f9962ea865717774be0f9d8fc80f94"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidVividColorsTest.kt",
+    "size": 6384,
+    "sha256": "8eb354ab8acc42dc0c088029a53fbbef4475f76d5f48bb56a8295be49d0973b7"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/FluidZoomTest.kt",
+    "size": 6733,
+    "sha256": "78d77dbd4bd733e20d2f5b3009acd506b98c9ec121c00211df518fa9c44d8211"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/GlassMaterialStateTest.kt",
+    "size": 8670,
+    "sha256": "a5cb7dfeeafc6554ba50c246ce014cf8688caf8f15b4d4064f742cf41e65b19d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/GlassPanelMaterialTest.kt",
+    "size": 4186,
+    "sha256": "7f897c057c2d5aabc5d3a60ad6d41052b1b40b4abbf9484fb4ce511974830fc8"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/GlassRimRecipeTest.kt",
+    "size": 7254,
+    "sha256": "eb69dda566a53dc0a879c8e976cba30786ea58a5d6aacd21cdebcba3cafbf35a"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluid/GlassSizeRuleTest.kt",
+    "size": 16977,
+    "sha256": "43bae2feb6ed8aecfe608ecb097845dae11461c70522956f8241ecc5058429ef"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/DepthEffectWeightTest.kt",
+    "size": 1491,
+    "sha256": "fa27630d578028f0a06335ed285a7c58e537ab0d6b2d3f255a80a417273d250f"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/DropPlanTest.kt",
+    "size": 11443,
+    "sha256": "b02fbe81e6750a48a4ead82cc043d871bf8f1ec8e6a10bcc79bba7e666bdc0b4"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/DropRimTest.kt",
+    "size": 4122,
+    "sha256": "f5b082d44df6985e8fe7825a2c5d16a6fd68d594071bd1ee8f1ae6d9cbfdf763"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/ExternalDriveStartFrameTest.kt",
+    "size": 7732,
+    "sha256": "be703dd201a15a7c91898b70f7ddf9285e9a7a2b14b6647c644611116227ce41"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/ExternalGroupDriveTest.kt",
+    "size": 4333,
+    "sha256": "4de3a3ab7d92c4272062504e8cfa564af925bd5ed65e4ade756b0b12e21a2228"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidFormGeometryTest.kt",
+    "size": 3703,
+    "sha256": "f458afbf8f808be62ac5712d7cb6c8380a235499c9c2d8e15195b78c8c014e4d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsCancelTest.kt",
+    "size": 3389,
+    "sha256": "f78075613b5aca3d205db574091b4efb1c0bbc142c52d8fb9960d2d0cba1d630"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsJourneyTest.kt",
+    "size": 8800,
+    "sha256": "f4fd1ef1c3805736d60aeaa20e2292431b4b2ec857f7444627cd11d573f9d203"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsMaterialTest.kt",
+    "size": 11937,
+    "sha256": "22af902c1b49d5d7581c0bd4882a0cbc34586f38c29c2a2b90927753b7403d44"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/FluidPhysicsTierTest.kt",
+    "size": 2805,
+    "sha256": "fa46d2b241460ada047a2b38c277e30a87aeb00541841a532729d684caa1aa15"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/LiquidDropTest.kt",
+    "size": 12244,
+    "sha256": "e3e5105084e457ba88af714df5efe3951059fc31721d82e8eaba49308d2b6685"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/MatchedRingsTest.kt",
+    "size": 3177,
+    "sha256": "a8473dc490b09b1d7ca2402ada9727b95afd5da8674a321f2fe8e60cd5144e53"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/MorphOvershootTest.kt",
+    "size": 8192,
+    "sha256": "89bfec235276eb29965c42e9d6104256af22f75c1cda8bd2e3b812a2f0e8555d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/PieceMatchingTest.kt",
+    "size": 2775,
+    "sha256": "6f3d53ea0114d3c1342b6b364b413e6e3e184e5bf35d6f98f8725f41dbe9e292"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/PolySdfMathTest.kt",
+    "size": 3963,
+    "sha256": "23c58d94b48337617539ac97e9d55e02b5e1c1d025bb969a28512425ad01ac32"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/RestStateDisciplineTest.kt",
+    "size": 6292,
+    "sha256": "783c2a4ba44d52b1ec8a8ded426befce891fc035ba92920caa8d6c799811a592"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/SlabParamLerpTest.kt",
+    "size": 6258,
+    "sha256": "1d03b18f688e6ebe846cfea9fc8310b5526f54d0e93f95741e823022fe3009ea"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/fluidphysics/UniformScaleMappingTest.kt",
+    "size": 1269,
+    "sha256": "d32e55854c4c943ca0b519260f388012d087d8e15fa915fbf116f88ab5e52819"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/BackdropTextureCapTest.kt",
+    "size": 2541,
+    "sha256": "2469d8650cf8e23a9e0cfb0d869a69a16beeed9e19ebf4d157165cc33da702f0"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/GlassNestingTest.kt",
+    "size": 6106,
+    "sha256": "57568866d9c95b60391bd816dc1d471f80a2ba4f6a86b0c7944d6b6cfedfe3b4"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/glass/backdrop/SourceGoneHoldTest.kt",
+    "size": 2001,
+    "sha256": "b9316ce0678569f36c0dcb07270c82c2c2496268789a19bc7b17f1d19380098c"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/glass/interaction/GlassDropFaceTest.kt",
+    "size": 4013,
+    "sha256": "a690179527f453c827c5198abc4b067db5c8abd38e079a321f7601511b003a3d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/glass/interaction/GlassDropSquashTest.kt",
+    "size": 9259,
+    "sha256": "7f59c86b19f6fc580a27038e517cf073c269d77bbafa1e40b593cfc299836f05"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/glass/interaction/GlowRecipeTest.kt",
+    "size": 6702,
+    "sha256": "d6c00a632528f2ec3f11dc96d5ad13bd50fa57e55c6e78b81bdf6d1b78f29b3d"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHapticDetentsTest.kt",
+    "size": 3028,
+    "sha256": "e16cc60741c9f4f316037d023cfe9a6be16f68815fc841ad6e7e2d5c7f8a1484"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHapticGrainTest.kt",
+    "size": 7330,
+    "sha256": "c8ee708a7f3800c417578b9ddb097a90d2df4f2508a537cb6247cf99c2280311"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHapticTraceTest.kt",
+    "size": 12352,
+    "sha256": "929c038b48e984cd65f04dc764b1392c83f5e894b7de13f00031c1188b2b2ca3"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidHapticsTest.kt",
+    "size": 15519,
+    "sha256": "67c3981c717c7eb6377172843985459c639023f1f638d1911e41a3e2c2d671ca"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/haptics/FluidViewlessHapticsTest.kt",
+    "size": 7104,
+    "sha256": "10dcad3db842f2ad6b1704724e8598c154de9f541e4e099ec9b24bff612c2481"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/page/FluidPageMotionTest.kt",
+    "size": 20174,
+    "sha256": "e90dcd585d603a7ba6eb884ffb7b89e913ab6a2cb79cf16d7f1c3d82ee56b2e5"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/theme/FluidListRowLabelsTest.kt",
+    "size": 2366,
+    "sha256": "25b33cfed06d5721874be84698142d0a9aec804504226cc3153ccc6aa745e314"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/theme/FluidThemeColorSchemeTest.kt",
+    "size": 7597,
+    "sha256": "45ac0ef3500f409b83437abe4603d6aedc88778e553f6c7188de01e0457ae625"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/tutorial/FluidCoachMarkPlacementTest.kt",
+    "size": 2648,
+    "sha256": "de41da415d1ae3f646489d4a251bd2ee1d92df5069f7db4d3d6968a40c2dd153"
+  },
+  {
+    "path": "engine/engine-ui/src/test/kotlin/dev/antigravity/fluidengine/ui/tutorial/FluidTutorialPolicyTest.kt",
+    "size": 6749,
+    "sha256": "6769ad4a8a1db0c10b95ea0048cbebfc382c25b6d7e6021363bb43f038c95426"
+  },
+  {
+    "path": "engine/engine-update/src/main/AndroidManifest.xml",
+    "size": 573,
+    "sha256": "3c60bd444c135d832e7c44a6442ef1b977b6e59c493319d03bee24dd3122dfa1"
+  },
+  {
+    "path": "engine/engine-update/src/main/kotlin/dev/antigravity/fluidengine/update/AndroidAppUpdateInstaller.kt",
+    "size": 15676,
+    "sha256": "f2aa33172196dc4d64104580b0dc2907085f453ec48551867cdfeb9080bff679"
+  },
+  {
+    "path": "engine/engine-update/src/main/kotlin/dev/antigravity/fluidengine/update/EngineAppUpdater.kt",
+    "size": 4134,
+    "sha256": "bc12427b8a86b7aeb2e821c6a240ac5a26c1660082bc2da3936170c80f5f5b43"
+  },
+  {
+    "path": "engine/engine-update/src/test/kotlin/dev/antigravity/fluidengine/update/ApkRejectionTest.kt",
+    "size": 2398,
+    "sha256": "260d7f4b8f8f58c8cb3b1942a2c8552d660c3edd17e649f837d4732b58bc4e64"
+  },
+  {
+    "path": "engine/engine-update/src/test/kotlin/dev/antigravity/fluidengine/update/ChecksumRejectionTest.kt",
+    "size": 930,
+    "sha256": "0405bd7c8f73d0795928a28c7ee7e556b78958e6ec242c5df37f1119d4ce62fc"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/ambient/FluidAmbient.kt",
+    "size": 5577,
+    "sha256": "a3b0fd751d03c1f6ceac02beae079b27877173eec24430db9d6178facf35d61a"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/components/FluidArcRow.kt",
+    "size": 4272,
+    "sha256": "0c922e1d806114339419b9cceee31cda23281d56d06f3d7dfc7f9cbb5cbce8ef"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/components/FluidEdgeLevelArc.kt",
+    "size": 2869,
+    "sha256": "e571a0c25c40b50f8adce0a3af9ca169328c28722f66aead6b57abd6bfb48d9e"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/components/FluidEdgeProgressRing.kt",
+    "size": 12777,
+    "sha256": "68444e67d8de3e06bc219ca942f3105604742e2850fb99b9fd67bc14b283c546"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/components/FluidRotary.kt",
+    "size": 3447,
+    "sha256": "d2b211cb226d6d60c9faedc320fa52320f606cbe5a4d52840e31d5e2d84a9b25"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/components/FluidWearList.kt",
+    "size": 11950,
+    "sha256": "170b7e9ea34fc1af57a16ee420475691db8e78523e77acdcd650caf1ecba280e"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/components/FluidWearRows.kt",
+    "size": 7495,
+    "sha256": "d2e59800852e4ae3351c4db6e30a6025b13fed93ef9babc039ee24e262e0daf3"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/components/FluidWearToast.kt",
+    "size": 4685,
+    "sha256": "44b222b881ac83ad819fc7c18cbcd6e7c31b60194d54c97a0d62d0884d92c0d8"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/glass/FluidGlassBadge.kt",
+    "size": 1933,
+    "sha256": "be002edd519424ff7c159db21cf11d77e80e0791cdfedd5eea969e07886953d9"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/glass/FluidGlassBurst.kt",
+    "size": 6592,
+    "sha256": "8089505fd90d6968ed6c964807dd1601144f4566dfaa02409ae95ce014c6fa26"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/glass/FluidGlassCapsule.kt",
+    "size": 2897,
+    "sha256": "700d875931e2529db63386418ff2153dbb5c10465601ef9bd9c370ead2b2951b"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/glass/FluidGlassDisc.kt",
+    "size": 7483,
+    "sha256": "551b2de3d4ae33d64fedec9ffaf7fd60bee40b4c577a079325c18d9a6a896a4d"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/glass/FluidGlassTimePill.kt",
+    "size": 2688,
+    "sha256": "467d3a5a0792a92fa269d1e58c3d302e23e74911906458696f34e07ef2c85698"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/glass/FluidWearGlass.kt",
+    "size": 4882,
+    "sha256": "03c998b5cbdb6413a6ec89cbeb2db3001e61e34ec1164a5c5fb2cfb19e565a8d"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/theme/FluidWearAccent.kt",
+    "size": 3274,
+    "sha256": "5076f2e5c744c79d81063f273484e1566302b305aa55a806993809efbdff7b4e"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/theme/FluidWearDimens.kt",
+    "size": 3018,
+    "sha256": "33a6252751955471215ac3ce60c066912eb16ddc9b6ff7b612c9c748f481c2d9"
+  },
+  {
+    "path": "engine/engine-wear/src/main/kotlin/dev/antigravity/fluidengine/wear/theme/FluidWearTheme.kt",
+    "size": 7390,
+    "sha256": "20cb630fb327c6ae183dfce751ca686a485cd30438e5fe7ea72ddfd405044cab"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/ambient/BurnInOffsetTest.kt",
+    "size": 847,
+    "sha256": "a4f6716aa7c5f0f061ca4ca9e1457302912f431520586a2de1574d33ddcdc87a"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/components/FluidArcRowTest.kt",
+    "size": 1398,
+    "sha256": "034e6bace8d1fb0d9fa1bb777fc21a4e9643cfe239e8428804c26f1800c2d6cf"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/components/FluidEdgeProgressRingTest.kt",
+    "size": 1739,
+    "sha256": "aaca868e754335e1f59aeff50e343e255ba7e85468787569001f2e15c4d6c76a"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/components/FluidWearListPlanTest.kt",
+    "size": 3044,
+    "sha256": "6700866790c938223c707c3c0f1b83e7fb0131f1a87146f71b47751a41d68b62"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/components/FluidWearMotionTest.kt",
+    "size": 1613,
+    "sha256": "03a7b59fee0a4449436300c5269323c5a9994c4dc623ee85908a837e450255c7"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/components/RotaryAccumulatorTest.kt",
+    "size": 1053,
+    "sha256": "a2d60080a0d7656134152c6aee75560bde2352815f2cc877ac91449433ad23e2"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/theme/FluidWearAccentTest.kt",
+    "size": 709,
+    "sha256": "bf1ed2212e637993cbb664c250d7356c77a691e370c16464d806cccea6a2f2db"
+  },
+  {
+    "path": "engine/engine-wear/src/test/kotlin/dev/antigravity/fluidengine/wear/theme/FluidWearColorSchemeTest.kt",
+    "size": 1543,
+    "sha256": "16d40af93ca18300549061acf60be7371ca765e7e16f4fd10e2f28a483886b14"
+  },
+  {
+    "path": "engine/engine-widget/src/main/kotlin/dev/antigravity/fluidengine/widget/EngineWidgetComponents.kt",
+    "size": 11511,
+    "sha256": "0bb895896328c216f4fa616e941c5f96e0a5af14f6670301a012fb03e8a532d8"
+  },
+  {
+    "path": "engine/engine-widget/src/main/kotlin/dev/antigravity/fluidengine/widget/EngineWidgetLayout.kt",
+    "size": 2848,
+    "sha256": "489878039601ff25f71830096c6d99dc82bf129f5b1d5aea388c98dfc5678901"
+  },
+  {
+    "path": "engine/engine-widget/src/main/kotlin/dev/antigravity/fluidengine/widget/EngineWidgetPalette.kt",
+    "size": 9914,
+    "sha256": "0ba88ca14cb48c4c7d67003d61f3a73596882d81b598898e59ccd809d418c489"
+  },
+  {
+    "path": "engine/engine-widget/src/test/kotlin/dev/antigravity/fluidengine/widget/EngineWidgetArgbTest.kt",
+    "size": 2551,
+    "sha256": "06ef14cd0403d04d1213fdb51c08598b5030bb0b152b3c26a4ed1939dd9be8f9"
+  },
+  {
+    "path": "engine/engine-widget/src/test/kotlin/dev/antigravity/fluidengine/widget/EngineWidgetLayoutTest.kt",
+    "size": 2229,
+    "sha256": "cbd766a2c9b412c64c4803bc88635225129439f47b70c00debadcb569a25b93b"
+  },
+  {
+    "path": "feature-assistant/build.gradle",
+    "size": 2737,
+    "sha256": "e8365db44264f2f06498166ffaa4a0e11c5511735da4d4886ba8aa48407ef6b6"
+  },
+  {
+    "path": "feature-assistant/src/main/AndroidManifest.xml",
+    "size": 714,
+    "sha256": "eaee9a399031b8109f5139fdd0a68f422c0805bb180fdf0fe5b3702991eee086"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/PampaiRoot.kt",
+    "size": 19506,
+    "sha256": "6b0160f00de2e1151e33f12f891ddbd591adf7de52ef164c6639186eec9ed01e"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/assist/AssistantRoleCard.kt",
+    "size": 3880,
+    "sha256": "a6391b160a0679b962f84625698cbf341f59b8de9bb238a883b4af5ea9f19657"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AnswerBody.kt",
+    "size": 3722,
+    "sha256": "61a2fefb2c3593bf837a71afee7c41cb2b4d705985bbe0d1cb728ac59ce61f22"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AnswerHeader.kt",
+    "size": 5373,
+    "sha256": "36395569858dcd8c00842802bbde0984caf969d0d2023505451f95f475d15185"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AriaMark.kt",
+    "size": 2469,
+    "sha256": "f1a5652c13d912d85474046592d55d37483bea8935e3f6b6dc572681c9c8571f"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AriaStrings.kt",
+    "size": 1450,
+    "sha256": "0f5896adb83e1819c4e045cf34c0133306991bdabf05889421a568ef0b82ee08"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AssistantComposer.kt",
+    "size": 7244,
+    "sha256": "0802068ffc3fb772e73e59cf121f23578e563a3ef677af09005857311871dddb"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AssistantControls.kt",
+    "size": 1726,
+    "sha256": "73b698bb8cdd943066e18842399b3874c38902264ebce65d3b690e84a7258787"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AssistantTexts.kt",
+    "size": 7729,
+    "sha256": "12cd6c844fbed412776aba4730029b78b67c2358e2d5d5b853951e6dac8778c2"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/AttachmentFiles.kt",
+    "size": 1938,
+    "sha256": "d95fb087caac763d4183166dc3c1c2835831d87419e7c136d7e37384c6c1098b"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatAmbient.kt",
+    "size": 10395,
+    "sha256": "c8f0e75235f3c000bd50ccb1d14a2d3e1187feedbc99b7f508005354a868a9c7"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatBackdrops.kt",
+    "size": 1256,
+    "sha256": "ad37f0cfd170950c3c88db1b29a111c7c4c54077841c50981052bc22902e45ad"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatCanvas.kt",
+    "size": 2393,
+    "sha256": "aa1a355ff0ca623bf820278f6e5e575beb04e497f4f3b4208f2925e296cae8cc"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatComposer.kt",
+    "size": 20138,
+    "sha256": "f8fbd2c552f81989321da3bf67d64a4f1a3feef558bbfff7320ba1321008c5be"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatMessages.kt",
+    "size": 18811,
+    "sha256": "301d56dbf0f71f9ebc32463bdeccf86b94262581d50d3929aa594f6fcad62d76"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatRoute.kt",
+    "size": 28660,
+    "sha256": "211af1842a4f0e720a920aa042f2afd7f2f3aa7b0da027f16bbc6cd57ca7d868"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatTopBar.kt",
+    "size": 7329,
+    "sha256": "3c0b55cad4f69299375f34397663570aabf455a78ae1890c98da8cbff5d8e151"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatViewModel.kt",
+    "size": 38616,
+    "sha256": "f39d983ba89e67bac54357eab62d4025b01e7863ed2bb434463b99bcba050433"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ComposerMenus.kt",
+    "size": 12634,
+    "sha256": "effa246edb2ad1768f63191206717517932bc3a1daa1337e222bd092647e588c"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ExactModelPicker.kt",
+    "size": 7110,
+    "sha256": "92801750843ae4930838a0733d18fc4d86af2561f964d366f109b9ce9947a748"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/FailureReports.kt",
+    "size": 1511,
+    "sha256": "2fd2ab6d88317082b32fb32c3ccaf10fba45fbfd44e3c0b37e2bde548ef03681"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/MarkdownLite.kt",
+    "size": 421,
+    "sha256": "93061206a5609161584e97280a6a2cc0186094ffeae0ff983dbd410590f336c2"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/QueuedSendAdmission.kt",
+    "size": 2170,
+    "sha256": "0babca6019879b27cd86d193f4cfa76b78e8aff62e948b6dad3fdfb161bd1fcb"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/RunSteps.kt",
+    "size": 13505,
+    "sha256": "1a847907b034dac6cef3f669dec8b992c7cefda7404b97a0e9d6df4afc841e14"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/SendAdmission.kt",
+    "size": 1168,
+    "sha256": "1423d9da036ba6cf93e73e5cf4a25dd4f3ee4cf079f16fee3057b5e23d6f4749"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/ToolResultCards.kt",
+    "size": 5358,
+    "sha256": "f0c27881822c2ad2a7c30b1788ed47fe68b4446b4ae2c79ae6ad119f678f8e79"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/VersionSwitcher.kt",
+    "size": 5954,
+    "sha256": "48d5bf2199f3d4bacb94d369a1f0f2c62b3e6536edf6ee627bc2adf03cae6dd1"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/chat/VoicePreparation.kt",
+    "size": 1282,
+    "sha256": "22261c5fc858d4a65e1e1f9a4b28bf50dde9a8d1e08d685ce0c32334f5e88d8d"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/consent/ConsentContent.kt",
+    "size": 3750,
+    "sha256": "1941501722fb95df8d5409ad15c61b80e4e6c516e8a411a202fe93fb6c50a980"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/history/AriaDrawer.kt",
+    "size": 15017,
+    "sha256": "f9f04c255aa2afe59c912d372935bdcf40a2764874f656b7f50a1b10493029a5"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/history/HistoryViewModel.kt",
+    "size": 3678,
+    "sha256": "471211bbcef510f6802a7b37401334be03c33af910067962c578f02fbe413e62"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/memory/MemoryRoute.kt",
+    "size": 9907,
+    "sha256": "b04958d721ebcbb9d86cb304fe3d333f4974db7017fde8c7f663bcc4d85470df"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/memory/MemoryViewModel.kt",
+    "size": 2159,
+    "sha256": "53907bb1b3eb45cbb035ffce8433366273de3a829893e354853d48ca94f27757"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/onboarding/OnboardingRoute.kt",
+    "size": 7439,
+    "sha256": "e28bc79049ec9ef97b8da41a18837dc51cde5be19b67fc20648f95e691b8131d"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/MusicFactPresentation.kt",
+    "size": 3211,
+    "sha256": "4d1f068eb2ff5d9c182676703ee2231b50b38f98f2ec0bbb68bc774cb6fa1f36"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfilePresentation.kt",
+    "size": 10773,
+    "sha256": "09ad5706e79ed8722fbe0a572b5382f3c2d865a11a8679384624b44283b42060"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileRoute.kt",
+    "size": 11079,
+    "sha256": "3822c6eef9aedd5704ed53538dfe86b85d101d0febd9e82413ae9a7a3121b4f3"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileViewModel.kt",
+    "size": 11012,
+    "sha256": "0c6505538a74e142e6877f7519b83f9c11c0b5205ef19f031c369d81289f9730"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/SourcesScreen.kt",
+    "size": 6448,
+    "sha256": "c666b81a31446785fb3398bd99fefe78647f95ae343ea5713c286c9eb9651b5a"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/profile/UpdatesRoute.kt",
+    "size": 15289,
+    "sha256": "f60e3fa0ab3bd007b4df34cd5f7bb52407b84b5aaf741126287d4f051625b938"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/DraftHandoffs.kt",
+    "size": 1718,
+    "sha256": "203f082248fecb16accdf5b8c75005eebd1ed95931d657e4c2501a1d21c8a489"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionBar.kt",
+    "size": 4007,
+    "sha256": "953827c85cd9b4bd19b3a97b3f26f363c61c15a1ce7b9513463a7fbacfa35c3b"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionCard.kt",
+    "size": 16024,
+    "sha256": "b9d122335573fa4828b733d3aaf667fb939ace5187a6f0550f81581dfbd89db5"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionComposeHost.kt",
+    "size": 3509,
+    "sha256": "ddb477d30755b3542e9c5e862ecd04607a496dedb837f8932d67933c46381619"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionController.kt",
+    "size": 15918,
+    "sha256": "53925ca0cf7161a89abe47f2153efedace24d364a84bd81af9998e457e872e0d"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionModalRoot.kt",
+    "size": 901,
+    "sha256": "53a0b7da78dfd8798a3b9f792fc86b0f853babbb39882935fce9f85ece862db5"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionNotice.kt",
+    "size": 5050,
+    "sha256": "141fe2347617d68fa4220ac6334389e4b7d3c296e027af4b065ac5c7fa66b9a6"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/session/SessionOverlay.kt",
+    "size": 14956,
+    "sha256": "a97a46d045e29ee64c32bd8327b0c48b3a333b77c0047d9992b9ffdb90840e91"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/AssistantSettingsItems.kt",
+    "size": 12166,
+    "sha256": "fe3fe7dd92d606f0297dfb7b2fb5281c2913252ec1106ca4590ad36aa3807365"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/AssistantSettingsViewModel.kt",
+    "size": 8209,
+    "sha256": "5e916acc36c01d63c410b0aaaf40f4df935e09e605a41609a8b83a3f5e7ddfc0"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/ConnectedAppsSettings.kt",
+    "size": 3123,
+    "sha256": "527dbc96f3ee4f2b4e86712c38970e0e6072759bbccfdf2c100f5621ffde54d1"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/PermissionsSettings.kt",
+    "size": 7793,
+    "sha256": "a0514afaed29bf578c23cf8399cdecf55670d79b139ab95be53c19ecacc9f728"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/settings/SettingsRoute.kt",
+    "size": 8049,
+    "sha256": "a9084b31d431c33773b059fb1ca81ed9ea549106ae8ef46eb854edea23b4ab3c"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/theme/PampaiTheme.kt",
+    "size": 1725,
+    "sha256": "58710f453a8e3db249878f4cdf7adba73058a17d80701df25d49ca53897a4cff"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/usage/UsageRoute.kt",
+    "size": 8452,
+    "sha256": "0f762ed16317da60a7935697fdc48028d2ad9ec2cfe1d0b6636d212b51cd63de"
+  },
+  {
+    "path": "feature-assistant/src/main/kotlin/dev/pampa/pampai/feature/assistant/usage/UsageViewModel.kt",
+    "size": 5893,
+    "sha256": "a3afe895822ad01decad8aa2273294fc56ff6e027261219c2cd2c1292a4f80b8"
+  },
+  {
+    "path": "feature-assistant/src/main/res/xml/pampai_files.xml",
+    "size": 163,
+    "sha256": "558c1f576c60cfe7bf9205f6aaee54318ac7aa17ac287fa168206ca9eaf0bf08"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/ChatScreenshots.kt",
+    "size": 17351,
+    "sha256": "7e064b290d5fc7b9405e0a6f40d67b99d7658567c06d50e772956f36105cb111"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/ExperienceArchitectureTest.kt",
+    "size": 10770,
+    "sha256": "610b1e76004becb67448ff48c61e4c21fee68cf8541a78484515378598528d7a"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/FailureReportsTest.kt",
+    "size": 4371,
+    "sha256": "8f43660fe26808bb7caf34b150d8180eb1d34198fdc943c1abc81db1b93af61c"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/RunEvidenceRenderTest.kt",
+    "size": 4480,
+    "sha256": "0151d29ba5d0719615585348c9b6908d53a4cfc17907435a3a24709f92c3d73b"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/SendAdmissionTest.kt",
+    "size": 5094,
+    "sha256": "9baf4a82b2be9e065e694d026f052e95486df2227955db45390fd532d1890b88"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/TextAdmissionOwnershipTest.kt",
+    "size": 4266,
+    "sha256": "2890ee924673b7057a57735afa95436fcf80389e6c38484a70a7dcee4c194307"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/ToolResultCardsTest.kt",
+    "size": 2604,
+    "sha256": "102b912e134f55c8325b3bbac00bd7fcc81abc5879b5d1af8a5306d4b84ce5df"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/UiCorrectionsTest.kt",
+    "size": 16917,
+    "sha256": "4d00751ac37ec3020aec1be087fcfba829946016634f4a2becd14cbf46036398"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/chat/VoicePreparationTest.kt",
+    "size": 2594,
+    "sha256": "d4d453fe8f2dcbc120a6d5106db5214acc5954e7c03ae80e9ff9be9b83238e72"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/memory/MemoryScreenshots.kt",
+    "size": 2221,
+    "sha256": "321f1170e5e873a81dac9d666cc66579c2c02afdd0b0a4e497a34492a82577fd"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/MusicFactPresentationTest.kt",
+    "size": 3012,
+    "sha256": "16dd1dbeb2e1b2780bf8aec9941fc940e7d2dfe8d32a990895b5a967c561fc18"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileNavigationTest.kt",
+    "size": 3013,
+    "sha256": "1a8b4754363b58825897df2781e27d5feab27c3fd48d0a7832dc21613351447a"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileScreenshots.kt",
+    "size": 10235,
+    "sha256": "f35e453122fbdc92227f1218ec88dccd6428f71848866929392b25da18bbd185"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileTimeSemanticsTest.kt",
+    "size": 2002,
+    "sha256": "d07d96fd03247b890b1cd0bfd839d7e650bfa938a1ebaa9ef41a15d5eaa80fe0"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/ProfileViewModelTest.kt",
+    "size": 10139,
+    "sha256": "3d26583bcae35507cc1e5007650759f016eb5f4ee8720cbf5b31bebdb4580056"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/profile/SourceFormContractTest.kt",
+    "size": 2255,
+    "sha256": "984524fc1fd0dcde9ca4f6b9a8a7eb793f9cb94ae747306864218d3739165d66"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/session/DraftHandoffsTest.kt",
+    "size": 2387,
+    "sha256": "72f9ee0427a7575cee37ae433987c6193cc21830f9b8ebe3ab3ec26c507bed07"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/session/SessionAdmissionTest.kt",
+    "size": 4091,
+    "sha256": "4049cec0ac2d89a5a574de4ea7ac8cfe85a37e3325b285c5a681acfe717cf4a5"
+  },
+  {
+    "path": "feature-assistant/src/test/kotlin/dev/pampa/pampai/feature/assistant/settings/SettingsSectionKeysTest.kt",
+    "size": 3964,
+    "sha256": "bdf9fbe8e3028dfd926aa9b1e5718b8fe4fb6c4340f109f88f8aa9745906cd3c"
+  },
+  {
+    "path": "gradle/libs.versions.toml",
+    "size": 4646,
+    "sha256": "38699fba047c3fd285d3d5f469a16709f78667c1add99fb219de3aa828e0313e"
+  },
+  {
+    "path": "settings.gradle",
+    "size": 780,
+    "sha256": "df6f13b5b51376e57c2c28656cc0925cd07c0ba26af4f8808b6a019d0da657d5"
+  }
+]

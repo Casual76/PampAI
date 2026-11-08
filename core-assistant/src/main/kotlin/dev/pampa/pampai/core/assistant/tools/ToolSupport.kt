@@ -1,6 +1,9 @@
 package dev.pampa.pampai.core.assistant.tools
 
+import dev.antigravity.fluidengine.ai.tools.ToolOutcome
+
 import dev.antigravity.fluidengine.ai.tools.AiTool
+import dev.antigravity.fluidengine.ai.tools.ToolExecution
 import dev.antigravity.fluidengine.ai.tools.ToolOutput
 import java.text.Normalizer
 import java.time.DayOfWeek
@@ -182,6 +185,8 @@ data class PampaiToolTrace(
   val preview: String,
   /** L'app collegata che l'ha eseguito, null se locale. */
   val app: String? = null,
+  /** Authoritative when present; null keeps legacy boolean evidence unverified. */
+  val outcome: ToolOutcome? = null,
 )
 
 /**
@@ -192,14 +197,21 @@ data class PampaiToolTrace(
 class TracedTool(private val inner: AiTool<PampaiToolContext>, private val app: String? = null) : AiTool<PampaiToolContext> by inner {
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
+    return traced(args, ctx) { inner.run(args, ctx) }
+  }
+
+  override suspend fun run(args: JsonObject, ctx: PampaiToolContext, execution: ToolExecution): ToolOutput =
+    traced(args, ctx) { inner.run(args, ctx, execution) }
+
+  private suspend fun traced(args: JsonObject, ctx: PampaiToolContext, invoke: suspend () -> ToolOutput): ToolOutput {
     val started = System.currentTimeMillis()
     val output = try {
-      inner.run(args, ctx)
+      invoke()
     } catch (e: CancellationException) {
-      ctx.trace(PampaiToolTrace(inner.name, compact(args), System.currentTimeMillis() - started, ok = false, chars = 0, preview = "fermato prima di finire", app = app))
+      ctx.trace(PampaiToolTrace(inner.name, compact(args), System.currentTimeMillis() - started, ok = false, chars = 0, preview = "fermato prima di finire", app = app, outcome = ToolOutcome.UNCERTAIN))
       throw e
     } catch (e: Throwable) {
-      ctx.trace(PampaiToolTrace(inner.name, compact(args), System.currentTimeMillis() - started, ok = false, chars = 0, preview = "eccezione: ${e.message ?: e::class.simpleName}", app = app))
+      ctx.trace(PampaiToolTrace(inner.name, compact(args), System.currentTimeMillis() - started, ok = false, chars = 0, preview = "eccezione: ${e.message ?: e::class.simpleName}", app = app, outcome = ToolOutcome.UNCERTAIN))
       throw e
     }
     ctx.trace(
@@ -207,10 +219,12 @@ class TracedTool(private val inner: AiTool<PampaiToolContext>, private val app: 
         name = inner.name,
         args = compact(args),
         millis = System.currentTimeMillis() - started,
-        ok = !output.text.startsWith("errore"),
+        ok = output.result?.outcome?.let { it == ToolOutcome.COMPLETED || it == ToolOutcome.ACCEPTED }
+          ?: !output.text.startsWith("errore", ignoreCase = true),
         chars = output.text.length,
         preview = output.text.take(PREVIEW_CHARS),
         app = app,
+        outcome = output.result?.outcome ?: if (output.text.startsWith("errore", ignoreCase = true)) ToolOutcome.ERROR else null,
       ),
     )
     return output

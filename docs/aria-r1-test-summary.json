@@ -1,0 +1,20 @@
+{
+  "engine-ai": {
+    "tests": 248,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "engine-ai-bridge": {
+    "tests": 25,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "core-assistant": {
+    "tests": 133,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

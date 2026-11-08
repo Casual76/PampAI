@@ -30,18 +30,18 @@ internal fun Modifier.chatWash(): Modifier {
   val cool = MaterialTheme.colorScheme.tertiary
   return this.drawBehind {
     // Un velo verticale dall'alto, poi due aloni ai due angoli che il testo non occupa mai.
-    drawRect(Brush.verticalGradient(listOf(warm.copy(alpha = 0.10f), Color.Transparent), startY = 0f, endY = size.height * 0.55f))
+    drawRect(Brush.verticalGradient(listOf(warm.copy(alpha = 0.025f), Color.Transparent), startY = 0f, endY = size.height * 0.55f))
     val topCentre = Offset(size.width * 0.88f, size.height * 0.08f)
     val topRadius = size.width * 0.95f
     drawCircle(
-      brush = Brush.radialGradient(listOf(warm.copy(alpha = 0.16f), Color.Transparent), center = topCentre, radius = topRadius),
+      brush = Brush.radialGradient(listOf(warm.copy(alpha = 0.025f), Color.Transparent), center = topCentre, radius = topRadius),
       radius = topRadius,
       center = topCentre,
     )
     val bottomCentre = Offset(size.width * 0.06f, size.height * 0.82f)
     val bottomRadius = size.width * 1.05f
     drawCircle(
-      brush = Brush.radialGradient(listOf(cool.copy(alpha = 0.14f), Color.Transparent), center = bottomCentre, radius = bottomRadius),
+      brush = Brush.radialGradient(listOf(cool.copy(alpha = 0.02f), Color.Transparent), center = bottomCentre, radius = bottomRadius),
       radius = bottomRadius,
       center = bottomCentre,
     )

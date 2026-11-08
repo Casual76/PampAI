@@ -10,6 +10,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
+import org.junit.Assert.assertTrue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -28,6 +43,7 @@ import dev.antigravity.fluidengine.ai.provider.ModelTier
 import dev.antigravity.fluidengine.ai.provider.ProviderId
 import dev.antigravity.fluidengine.aiui.overlay.FluidFailureDetailsContent
 import dev.antigravity.fluidengine.aiui.overlay.FluidFailureReport
+import dev.antigravity.fluidengine.ui.fluid.fluidReadingWidth
 import dev.antigravity.fluidengine.foundation.EngineSettings
 import dev.antigravity.fluidengine.foundation.ThemeMode
 import dev.pampa.pampai.core.assistant.db.FailureDetail
@@ -114,10 +130,17 @@ class ChatScreenshots {
       keys = mapOf(ProviderId.GROQ to KeyState(true, 1L), ProviderId.GEMINI to KeyState(true, 1L)),
     )
     val actions = AnswerActions(regenerateWith = listOf(ProviderId.GROQ, ProviderId.GEMINI))
+    val composerHeight = remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+    val padding = remember(density) {
+      ChatListPadding(top = { 80.dp }, horizontal = 16.dp) {
+        with(density) { composerHeight.intValue.toDp() } + 12.dp
+      }
+    }
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
       LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 80.dp, bottom = 140.dp),
+        modifier = Modifier.fluidReadingWidth().fillMaxSize().padding(bottom = (padding.calculateBottomPadding() - 12.dp).coerceAtLeast(0.dp)).testTag("flow-conversation"),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
       ) {
         if (empty) item { EmptyGreeting() }
@@ -129,7 +152,7 @@ class ChatScreenshots {
         }
       }
       ChatTopBar(title = if (empty) "" else "Meteo a Firenze", facet = null, backdrop = backdrops.chrome, intensity = { 1f }, onMenu = {}, onNew = {}, temporary = false)
-      Box(Modifier.align(Alignment.BottomCenter).padding(12.dp)) {
+      Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { composerHeight.intValue = it.height }.fluidReadingWidth().padding(12.dp)) {
         Composer(backdrop = backdrops.chrome, state = state, composer = rememberComposerState())
       }
     }
@@ -157,10 +180,17 @@ class ChatScreenshots {
     val state = ChatUiState(messages = flow, live = live, settings = AiSettings(enabled = false))
     val composer = rememberComposerState().apply { text = "E una per la merenda?" }
     val actions = AnswerActions(regenerateWith = listOf(ProviderId.GROQ, ProviderId.GEMINI))
+    val composerHeight = remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+    val padding = remember(density) {
+      ChatListPadding(top = { 80.dp }, horizontal = 16.dp) {
+        with(density) { composerHeight.intValue.toDp() } + 12.dp
+      }
+    }
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
       LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 80.dp, bottom = 190.dp),
+        modifier = Modifier.fluidReadingWidth().fillMaxSize().padding(bottom = (padding.calculateBottomPadding() - 12.dp).coerceAtLeast(0.dp)).testTag("flow-conversation"),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
       ) {
         flow.forEach { m ->
@@ -172,7 +202,7 @@ class ChatScreenshots {
         item { QueuedBubble(QueuedQuestion("E per cena?"), onCancel = {}) }
       }
       ChatTopBar(title = "Meteo a Firenze", facet = null, backdrop = backdrops.chrome, intensity = { 1f }, onMenu = {}, onNew = {}, temporary = false)
-      Box(Modifier.align(Alignment.BottomCenter).padding(12.dp)) {
+      Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { composerHeight.intValue = it.height }.fluidReadingWidth().padding(12.dp)) {
         Composer(backdrop = backdrops.chrome, state = state, composer = composer)
       }
     }
@@ -200,6 +230,77 @@ class ChatScreenshots {
     rule.setContent { PampaiTheme(EngineSettings(themeMode = mode, dynamicColorEnabled = false)) { content() } }
     rule.waitForIdle()
     rule.onRoot().captureRoboImage(File(out, "$name.png").absolutePath)
+  }
+
+  @Test fun queuedMessageRemainsAboveMeasuredComposer() {
+    rule.setContent {
+      PampaiTheme(EngineSettings(themeMode = ThemeMode.LIGHT, dynamicColorEnabled = false)) { Flow() }
+    }
+    val queued = rule.onNodeWithText("E per cena?")
+    rule.onNodeWithTag("flow-conversation").performScrollToNode(hasText("E per cena?"))
+    queued.assertIsDisplayed()
+    rule.waitForIdle()
+    val messageBounds = queued.fetchSemanticsNode().boundsInRoot
+    val composerBounds = rule.onNodeWithTag("aria-composer").fetchSemanticsNode().boundsInRoot
+    assertTrue("Last queued message must remain above the measured composer", messageBounds.bottom <= composerBounds.top)
+  }
+
+  @Test fun largeTypeKeepsModelAndStopReachable() {
+    rule.setContent {
+      PampaiTheme(EngineSettings(themeMode = ThemeMode.DARK, dynamicColorEnabled = false)) {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, 1.8f)) { Flow() }
+      }
+    }
+    rule.onNodeWithText(modelLabel(ChatUiState(settings = AiSettings(enabled = false)), true)).assertIsDisplayed()
+    rule.onNodeWithTag("aria-composer").assertIsDisplayed()
+    rule.onNodeWithContentDescription(AriaChatStrings.stop).assertIsDisplayed()
+  }
+
+  @Test fun failureActionsWrapAtLargeType() {
+    rule.setContent {
+      PampaiTheme(EngineSettings(themeMode = ThemeMode.LIGHT, dynamicColorEnabled = false)) {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, 1.8f)) {
+          Box(Modifier.fillMaxSize().padding(16.dp)) {
+            AssistantMessage(
+              msg(4, MessageRole.ASSISTANT, "", status = MessageStatus.FAILED,
+                failure = FailureKind.RATE_LIMITED, version = Version(1, 3, null, 21L)),
+              run(4, failure = limit, outcome = "failed"), null, null, AnswerActions())
+          }
+        }
+      }
+    }
+    rule.onNodeWithText("Riprova").assertIsDisplayed()
+    rule.onNodeWithText("Dettagli").assertIsDisplayed()
+    val root = rule.onRoot().fetchSemanticsNode().boundsInRoot
+    val details = rule.onNodeWithText("Dettagli").fetchSemanticsNode().boundsInRoot
+    assertTrue("Details action must remain inside the viewport", details.right <= root.right && details.bottom <= root.bottom)
+  }
+
+  @Test
+  @Config(qualifiers = "w1280dp-h800dp-xhdpi")
+  fun tabletQueueHasCenteredComposerAndReachableControls() {
+    rule.setContent { PampaiTheme(EngineSettings(themeMode = ThemeMode.DARK, dynamicColorEnabled = false)) { Flow() } }
+    rule.onNodeWithTag("flow-conversation").performScrollToNode(hasText("E per cena?"))
+    rule.onNodeWithText("E per cena?").assertIsDisplayed()
+    rule.onNodeWithContentDescription(AriaChatStrings.stop).assertIsDisplayed()
+    val root = rule.onRoot().fetchSemanticsNode().boundsInRoot
+    val composer = rule.onNodeWithTag("aria-composer").fetchSemanticsNode().boundsInRoot
+    assertTrue("Tablet composer leaves useful margins", composer.width < root.width * 0.65f)
+    assertTrue("Composer remains centered", kotlin.math.abs(composer.center.x - root.center.x) < 2f)
+    val queued = rule.onNodeWithText("E per cena?").fetchSemanticsNode().boundsInRoot
+    assertTrue("Queued question remains above composer", queued.bottom <= composer.top)
+    rule.onRoot().captureRoboImage(File(out, "adaptive-tablet-queue.png").absolutePath)
+  }
+
+  @Test
+  @Config(qualifiers = "w1280dp-h800dp-xhdpi")
+  fun tabletProseReadingColumn() = shoot("adaptive-tablet-prose", ThemeMode.LIGHT) { Screen(empty = false) }
+
+  @Test fun compactLargeTypeScreenshot() = shoot("adaptive-compact-large-type", ThemeMode.DARK) {
+    val density = LocalDensity.current
+    CompositionLocalProvider(LocalDensity provides Density(density.density, 1.8f)) { Flow() }
   }
 
   @Test fun chatLight() = shoot("chat-light", ThemeMode.LIGHT) { Screen(empty = false) }

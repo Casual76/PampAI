@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:09:35.685Z" hostname="PC_FISSO" time="0.24">
+  <properties/>
+  <testcase name="forgottenRecordScrubsEquivalentEvidenceAndDependentProfileWhileIndependentEvidenceRemains" classname="dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest" time="0.035"/>
+  <testcase name="refreshControlsReuseCanonicalContentWithExactAcquisitionBinding" classname="dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest" time="0.054"/>
+  <testcase name="distinctReferencedUnionCountsReusedRowsAcrossPagesAndStepsWithoutDoubleCounting" classname="dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest" time="0.044"/>
+  <testcase name="scopedForgetLeavesIndependentSchoolUsableAndBlocksEquivalentMusicReads" classname="dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest" time="0.031"/>
+  <testcase name="sourceExclusionDoesNotBlockAnotherSourceAndRevocationRejectsLateCommit" classname="dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest" time="0.026"/>
+  <testcase name="reopenHonorsExclusions" classname="dev.pampa.pampai.core.assistant.research.ScopedExclusionsAndCanonicalEvidenceTest" time="0.05"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

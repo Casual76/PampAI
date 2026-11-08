@@ -2,8 +2,8 @@ package dev.pampa.pampai.feature.assistant.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -28,7 +27,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.antigravity.fluidengine.ai.orchestrator.AnswerChip
@@ -245,7 +243,7 @@ internal fun AssistantMessage(
   FluidAssistantBubble(
     text = shown,
     modifier = modifier.semantics { customActions = versionAccessibilityActions(message.version, !actions.versionsLocked, actions.onVersion) },
-    streaming = live is AssistantState.Answering,
+    streaming = live is AssistantState.Answering && !dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy.current.reducedMotion,
     settled = settled,
     // Una per messaggio: una versione vecchia ritrovata con le frecce e' gia' letta, non si rivela.
     contentKey = message.id,
@@ -259,6 +257,7 @@ internal fun AssistantMessage(
     onChip = actions.onChip,
     switchLine = switchLine,
     actions = {
+      ToolResultCards(message.receipts)
       AnswerActionRow(
         message = message,
         run = run,
@@ -269,7 +268,7 @@ internal fun AssistantMessage(
         actions = actions,
       )
     },
-    animateSize = live != null,
+    animateSize = live != null && !dev.antigravity.fluidengine.ui.fluid.LocalFluidMotionPolicy.current.reducedMotion,
     strings = AriaChatStrings,
     assistantStrings = AriaAssistantStrings,
   )
@@ -286,7 +285,7 @@ internal fun AssistantMessage(
  * timer.
  */
 @Composable
-private fun RowScope.AnswerActionRow(
+private fun AnswerActionRow(
   message: Message,
   run: Run?,
   text: String,
@@ -295,6 +294,7 @@ private fun RowScope.AnswerActionRow(
   onDetails: () -> Unit,
   actions: AnswerActions,
 ) {
+  FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
   val local = run?.outcome == LOCAL_OUTCOME || run?.outcome == STOPPED_OUTCOME
   val hasText = text.isNotBlank()
   message.version?.let { version -> VersionSwitcher(version, enabled = !actions.versionsLocked, onSelect = actions.onVersion) }
@@ -310,10 +310,8 @@ private fun RowScope.AnswerActionRow(
     Spacer(Modifier.width(4.dp))
     FluidPillAction(Icons.Rounded.Info, "Dettagli", onClick = onDetails)
   }
-  if (!retry) run?.let {
-    Spacer(Modifier.width(4.dp))
-    Text(telemetry(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
   }
+
 }
 
 /**

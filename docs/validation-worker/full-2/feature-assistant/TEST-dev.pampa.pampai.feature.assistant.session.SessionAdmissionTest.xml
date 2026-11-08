@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.session.SessionAdmissionTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:46:01.031Z" hostname="PC_FISSO" time="1.317">
+  <properties/>
+  <testcase name="stopDuringPreflightCannotSubmitOrConsumeAttachments" classname="dev.pampa.pampai.feature.assistant.session.SessionAdmissionTest" time="1.037"/>
+  <testcase name="newerRuntimeOwnerRejectsLateOverlayWithoutConsumingDraftOrImage" classname="dev.pampa.pampai.feature.assistant.session.SessionAdmissionTest" time="0.079"/>
+  <testcase name="unchangedIdleOwnerAdmitsOnceAndConsumesCapturedImage" classname="dev.pampa.pampai.feature.assistant.session.SessionAdmissionTest" time="0.056"/>
+  <testcase name="alreadyBusyOtherConversationIsNeverReplacedByOverlay" classname="dev.pampa.pampai.feature.assistant.session.SessionAdmissionTest" time="0.057"/>
+  <testcase name="hiddenSessionCannotDispatchAfterPreflight" classname="dev.pampa.pampai.feature.assistant.session.SessionAdmissionTest" time="0.087"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

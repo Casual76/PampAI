@@ -20,8 +20,9 @@ class MigrationsTest {
 
   @Test
   fun `le migrazioni coprono ogni passo fino alla versione del database`() {
-    val steps = PAMPAI_MIGRATIONS.map { it.startVersion to it.endVersion }
-    assertEquals(listOf(1 to 2, 2 to 3, 3 to 4), steps)
+    // 4 -> 5 is Room AutoMigration (additive table only), registered by the database itself.
+    val steps = PAMPAI_MIGRATIONS.map { it.startVersion to it.endVersion } + listOf(4 to 5, 5 to 6, 6 to 7)
+    assertEquals(listOf(1 to 2, 2 to 3, 3 to 4, 4 to 5, 5 to 6, 6 to 7), steps)
     assertEquals(PAMPAI_DB_VERSION, steps.last().second)
     // Nessun salto: ogni migrazione riparte da dove finisce quella prima.
     steps.zipWithNext().forEach { (before, after) -> assertEquals(before.second, after.first) }

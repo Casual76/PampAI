@@ -1,0 +1,320 @@
+{
+  "run": 6,
+  "coreTests": {
+    "tests": 170,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "newFoundationTests": 24,
+  "engineTestsReexecuted": false,
+  "sourceProofTestsExecuted": false,
+  "lint": {
+    "errors": 4,
+    "warnings": 22,
+    "issues": [
+      {
+        "id": "MissingPermission",
+        "severity": "Error",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\InfoTools.kt",
+            "line": "132",
+            "column": "27"
+          }
+        ]
+      },
+      {
+        "id": "MissingPermission",
+        "severity": "Error",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\InfoTools.kt",
+            "line": "139",
+            "column": "49"
+          }
+        ]
+      },
+      {
+        "id": "ExactAlarm",
+        "severity": "Error",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\AndroidManifest.xml",
+            "line": "11",
+            "column": "34"
+          }
+        ]
+      },
+      {
+        "id": "GradleDependency",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\build.gradle",
+            "line": "92",
+            "column": "22"
+          }
+        ]
+      },
+      {
+        "id": "NewerVersionAvailable",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\build.gradle",
+            "line": "86",
+            "column": "22"
+          }
+        ]
+      },
+      {
+        "id": "NewerVersionAvailable",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\build.gradle",
+            "line": "90",
+            "column": "22"
+          }
+        ]
+      },
+      {
+        "id": "UnsafeOptInUsageError",
+        "severity": "Error",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\music\\FluidifyClient.kt",
+            "line": "151",
+            "column": "36"
+          }
+        ]
+      },
+      {
+        "id": "TrustAllX509TrustManager",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\Users\\casua\\.gradle\\caches\\modules-2\\files-2.1\\org.bouncycastle\\bcpkix-jdk15to18\\1.72\\32faf4d74dbc333fb3a7a6c80c30417cf888fc7a\\bcpkix-jdk15to18-1.72.jar"
+          }
+        ]
+      },
+      {
+        "id": "TrustAllX509TrustManager",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\Users\\casua\\.gradle\\caches\\modules-2\\files-2.1\\org.bouncycastle\\bcpkix-jdk15to18\\1.72\\32faf4d74dbc333fb3a7a6c80c30417cf888fc7a\\bcpkix-jdk15to18-1.72.jar"
+          }
+        ]
+      },
+      {
+        "id": "TrustAllX509TrustManager",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\Users\\casua\\.gradle\\caches\\modules-2\\files-2.1\\org.bouncycastle\\bcpkix-jdk15to18\\1.72\\32faf4d74dbc333fb3a7a6c80c30417cf888fc7a\\bcpkix-jdk15to18-1.72.jar"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\attachments\\Attachments.kt",
+            "line": "44",
+            "column": "34"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\ContactTools.kt",
+            "line": "149",
+            "column": "45"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\ContactTools.kt",
+            "line": "178",
+            "column": "48"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\ContactTools.kt",
+            "line": "179",
+            "column": "48"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\ContactTools.kt",
+            "line": "180",
+            "column": "44"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\ContactTools.kt",
+            "line": "208",
+            "column": "47"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\OpenTools.kt",
+            "line": "72",
+            "column": "29"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\tools\\device\\OpenTools.kt",
+            "line": "93",
+            "column": "62"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\permissions\\PermissionGate.kt",
+            "line": "84",
+            "column": "69"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\permissions\\PermissionGate.kt",
+            "line": "86",
+            "column": "106"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\permissions\\PermissionGate.kt",
+            "line": "86",
+            "column": "209"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\receipts\\ReceiptActions.kt",
+            "line": "58",
+            "column": "22"
+          }
+        ]
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\src\\main\\kotlin\\dev\\pampa\\pampai\\core\\assistant\\screen\\ScreenContextStore.kt",
+            "line": "98",
+            "column": "7"
+          }
+        ]
+      },
+      {
+        "id": "UseTomlInstead",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\build.gradle",
+            "line": "86",
+            "column": "22"
+          }
+        ]
+      },
+      {
+        "id": "UseTomlInstead",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\build.gradle",
+            "line": "90",
+            "column": "22"
+          }
+        ]
+      },
+      {
+        "id": "UseTomlInstead",
+        "severity": "Warning",
+        "locations": [
+          {
+            "file": "C:\\VibeCoded Projects\\PampAI\\core-assistant\\build.gradle",
+            "line": "92",
+            "column": "22"
+          }
+        ]
+      }
+    ]
+  },
+  "assemble": "PASSED",
+  "combinedExit": 1,
+  "combinedFailure": "lintDebug outside owned foundation files",
+  "runner": "RELEASED",
+  "sourceSha256": {
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedger.kt": "4869b4cf60071356a21ebfb039772458f1245b5d4f12e00e48e2cfd3e5cf8612",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableEntities.kt": "4163f23abbca67a878739f309d30bf89cdd735285ff14fb181cf27392ce87ecd",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundation.kt": "dc760ef4d3667799c8e0294098dd08e491c5e5797576e98e2a409ff7b306456e",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/BudgetLedgerTest.kt": "66c01f3bc62a5a23af7694a0eba8a4bcd7e96ad488d8c788b9c56ecd5ec62eef",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/DurableFoundationTest.kt": "a751c13fc424a337eac0f940ac5b9c09b3d3b3a74ff4dbe079df5df4dd1cfa10",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/durable/Migration6To7Test.kt": "3232843cecf745ff576693be92a468d50d49f3aeeac0f8ffbad42be7a8fa9941",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/db/PampaiDatabase.kt": "50893585e2017b650a0eb7f5ba0cb131c62e3c79e2b3604a41cbdd0bd867ba45",
+    "core-assistant/src/main/kotlin/dev/pampa/pampai/core/assistant/di/DatabaseModule.kt": "27af7dbd68e7a21b1bfc2ba6b95c72e4357469353f7207fba395c9aa3f748cb9",
+    "core-assistant/src/test/kotlin/dev/pampa/pampai/core/assistant/db/MigrationsTest.kt": "cfe6e9cce21682abcc5844d4f31bd57e8b55b3a51c5505aa23beeef1c708cbbd",
+    "core-assistant/schemas/dev.pampa.pampai.core.assistant.db.PampaiDatabase/7.json": "59ce21f4f5068d7db4a338308147fc041bc8420247dddac6edbf85efc41ae6e2",
+    "docs/aria-durable-foundation.md": "8a6ec718a8426577beca52f7fa102bf3a34dfad882a532cbb61cc5a6ccb83ead"
+  },
+  "artifact": {
+    "path": "C:\\Users\\casua\\AppData\\Local\\PampAI-qa-build-full\\core-assistant\\outputs\\aar\\core-assistant-debug.aar",
+    "bytes": 2125425,
+    "sha256": "52a0896b3d85f5e80450f48e15df4025a2bd41a7085b242b1ca5a4ff030c6273"
+  }
+}

@@ -1,9 +1,12 @@
 package dev.pampa.pampai.core.assistant.tools.device
 
+import dev.pampa.pampai.core.assistant.receipts.CalendarReceipts
 import android.Manifest
 import android.content.ContentUris
 import android.content.ContentValues
 import android.provider.CalendarContract
+import dev.antigravity.fluidengine.ai.tools.*
+import kotlinx.serialization.json.*
 import dev.antigravity.fluidengine.ai.tools.AiTool
 import dev.antigravity.fluidengine.ai.tools.AiToolGroup
 import dev.antigravity.fluidengine.ai.tools.Args.bool
@@ -40,7 +43,7 @@ internal object CalendarAccess {
       CalendarContract.Instances.ALL_DAY, CalendarContract.Instances.EVENT_LOCATION, CalendarContract.Instances.CALENDAR_DISPLAY_NAME,
     )
     val out = mutableListOf<CalendarEvent>()
-    ctx.app.contentResolver.query(uri, projection, null, null, "${CalendarContract.Instances.BEGIN} ASC")?.use { c ->
+    (ctx.app.contentResolver.query(uri, projection, null, null, "${CalendarContract.Instances.BEGIN} ASC") ?: error("calendario non disponibile" )).use { c ->
       while (c.moveToNext()) {
         val title = c.getString(1)?.takeIf { it.isNotBlank() } ?: "(senza titolo)"
         if (query != null && !Text.matches(query, title)) continue
@@ -101,7 +104,11 @@ class EventiCalendarioTool : AiTool<PampaiToolContext> {
         events.take(40).forEach { line(CalendarAccess.label(ctx, it)) }
         if (events.size > 40) line("altri", events.size - 40)
       }
-    }
+    }.copy(result = ToolResultDetails(ToolOutcome.COMPLETED,
+      data = buildJsonObject { put("items", buildJsonArray { events.forEach { e -> add(buildJsonObject { put("id", e.eventId); put("title", e.title); put("begin", e.begin); put("end", e.end) }) } }) },
+      entities = events.map { ToolEntityRef("android.calendar", "event", it.eventId.toString(), ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, it.eventId).toString()) },
+      sources = listOf(ToolSourceRef("android.calendar")), coverage = ToolCoverage(true, from.toString(), to.toString()),
+      freshness = ToolFreshness(observedAtMillis = ctx.now()), pagination = ToolPagination(hasMore = false, total = events.size.toLong())))
   }
 }
 
@@ -164,23 +171,27 @@ class EventoCreaTool : AiTool<PampaiToolContext> {
       args.str("note")?.let { put(CalendarContract.Events.DESCRIPTION, it) }
     }
     val uri = withContext(Dispatchers.IO) { runCatching { ctx.app.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values) }.getOrNull() }
-      ?: return ToolOutput.error("il calendario ha rifiutato l'evento")
+      ?: return CalendarReceipts.uncertain("Invio evento non verificato; non ripetere automaticamente")
     val id = ContentUris.parseId(uri)
+    var reminderVerified = true
     args.int("promemoria_minuti")?.let { minutes ->
       val reminder = ContentValues().apply {
         put(CalendarContract.Reminders.EVENT_ID, id)
         put(CalendarContract.Reminders.MINUTES, minutes)
         put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT)
       }
-      withContext(Dispatchers.IO) { runCatching { ctx.app.contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, reminder) } }
+      reminderVerified = withContext(Dispatchers.IO) {
+        runCatching {
+          ctx.app.contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, reminder) ?: return@runCatching false
+          ctx.app.contentResolver.query(CalendarContract.Reminders.CONTENT_URI,
+            arrayOf(CalendarContract.Reminders._ID), "event_id = ? AND minutes = ? AND method = ?",
+            arrayOf(id.toString(), minutes.toString(), CalendarContract.Reminders.METHOD_ALERT.toString()), null)?.use { it.moveToFirst() } == true
+        }.getOrDefault(false)
+      }
     }
-    return ToolText.output {
-      line("fatto", "evento creato")
-      line("id", id)
-      line("titolo", title)
-      line("inizio", if (allDay) "tutto il giorno" else Dates.label(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ctx.zone)))
-      if (!allDay) line("fine", Dates.label(ZonedDateTime.ofInstant(Instant.ofEpochMilli(end), ctx.zone)))
-    }
+    val verified = CalendarReceipts.verify(ctx.app, id, values)
+    return if (reminderVerified) verified else verified.copy(text = verified.text + "; promemoria non verificato",
+      result = verified.result?.copy(outcome = if (verified.result?.outcome == dev.antigravity.fluidengine.ai.tools.ToolOutcome.COMPLETED) dev.antigravity.fluidengine.ai.tools.ToolOutcome.PARTIAL else dev.antigravity.fluidengine.ai.tools.ToolOutcome.UNCERTAIN))
   }
 }
 
@@ -221,15 +232,18 @@ class EventoModificaTool : AiTool<PampaiToolContext> {
     args.str("luogo")?.let { values.put(CalendarContract.Events.EVENT_LOCATION, it) }
     val duration = args.int("durata_minuti")?.let { it * 60_000L } ?: (current.second - current.first)
     val newStart = args.str("inizio")?.let { Dates.parseDateTime(it, ctx.nowDateTime, rollForward = false)?.atZone(ctx.zone)?.toInstant()?.toEpochMilli() }
+    if (args.str("inizio") != null && newStart == null) return ToolOutput.error("inizio non valido")
+    if (duration <= 0) return ToolOutput.error("durata non valida")
     if (newStart != null || args.int("durata_minuti") != null) {
       val start = newStart ?: current.first
       values.put(CalendarContract.Events.DTSTART, start)
       values.put(CalendarContract.Events.DTEND, start + duration)
     }
     if (values.size() == 0) return ToolOutput.error("niente da modificare: dai titolo, inizio, durata o luogo")
-    val rows = withContext(Dispatchers.IO) { runCatching { ctx.app.contentResolver.update(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id), values, null, null) }.getOrDefault(0) }
-    if (rows == 0) return ToolOutput.error("il calendario non ha accettato la modifica")
-    return ToolText.output { line("fatto", "evento \"${args.str("titolo") ?: current.third}\" modificato") }
+    val rows = withContext(Dispatchers.IO) { runCatching { ctx.app.contentResolver.update(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id), values, null, null) }.getOrNull() }
+    if (rows == null) return CalendarReceipts.uncertain("Invio modifica non verificato", id)
+    if (rows == 0) return ToolOutput.error("nessun evento modificato")
+    return CalendarReceipts.verify(ctx.app, id, values)
   }
 }
 
@@ -256,8 +270,9 @@ class EventoEliminaTool : AiTool<PampaiToolContext> {
     val id = args.int("id")?.toLong() ?: return ToolOutput.error("manca l'id")
     val confirmation = describe(args, ctx) ?: return ToolOutput.error("evento non trovato")
     ctx.confirm(name, confirmation.title, confirmation.detail)?.let { return it }
-    val rows = withContext(Dispatchers.IO) { runCatching { ctx.app.contentResolver.delete(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id), null, null) }.getOrDefault(0) }
-    return if (rows > 0) ToolText.output { line("fatto", "evento eliminato") } else ToolOutput.error("evento #$id non trovato")
+    val rows = withContext(Dispatchers.IO) { runCatching { ctx.app.contentResolver.delete(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id), null, null) }.getOrNull() }
+    if (rows == null) return CalendarReceipts.uncertain("Invio eliminazione non verificato", id)
+    return CalendarReceipts.verify(ctx.app, id, deleted = true)
   }
 }
 

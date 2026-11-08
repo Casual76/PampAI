@@ -7,12 +7,15 @@ import dev.antigravity.fluidengine.ai.tools.Args.str
 import dev.antigravity.fluidengine.ai.tools.ConfirmationText
 import dev.antigravity.fluidengine.ai.tools.Schema
 import dev.antigravity.fluidengine.ai.tools.ToolOutput
+import dev.antigravity.fluidengine.ai.tools.ToolExecution
 import dev.antigravity.fluidengine.ai.tools.ToolText
 import dev.pampa.pampai.core.assistant.tools.Dates
 import dev.pampa.pampai.core.assistant.tools.PampaiGroup
 import dev.pampa.pampai.core.assistant.tools.PampaiToolContext
 import java.time.Instant
 import kotlinx.serialization.json.JsonObject
+import kotlinx.coroutines.currentCoroutineContext
+import dev.pampa.pampai.core.assistant.research.TurnPrivacy
 
 /** Cosa sa fare Aria: le categorie, i gruppi, le app collegate. Per "cosa puoi fare?". */
 class AiutoTool : AiTool<PampaiToolContext> {
@@ -35,6 +38,8 @@ class RicordaTool : AiTool<PampaiToolContext> {
   override val description = "Salva un fatto sull'utente nella memoria a lungo termine (preferenze, nomi, posti, abitudini): entrera' in ogni conversazione futura. Solo se l'utente chiede di ricordare o dice qualcosa di sé che vale la pena tenere."
   override val parameters = Schema.obj(mapOf("testo" to Schema.str("il fatto, in una frase breve in terza persona (es. \"la sua fermata di casa e' Piazza Dalmazia\")")), required = listOf("testo"))
   override val isAction = true
+  // Safety confirmation is conditional, but its queued waiting time still needs a budget.
+  override val awaitsConfirmation = true
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
     val text = args.str("testo") ?: return ToolOutput.error("manca il testo")
@@ -45,10 +50,17 @@ class RicordaTool : AiTool<PampaiToolContext> {
     // schermo, un'app collegata), il "ricorda" potrebbe venire da li' e non dall'utente: quel
     // testo entrerebbe in ogni conversazione futura. Allora decide l'utente, con un tasto. E' una
     // domanda di sicurezza, non un'azione: vale anche con le azioni spente (`confirmSafety`).
-    if (ctx.traces.any { it.app != null || it.name in EXTERNAL_READERS }) {
+    // This is captured provenance from actual prompt retrieval/read consumption, not model
+    // arguments or a synthetic tool trace. Keep it across the confirmation suspension.
+    val turn = currentCoroutineContext()[TurnPrivacy]
+    turn?.check()
+    if (turn?.privateTurn == true || ctx.traces.any { it.app != null || it.name in EXTERNAL_READERS }) {
       ctx.confirmSafety(name, "Ricordare questo?", text)?.let { return it }
     }
-    ctx.memory.add(text, ctx.conversationId, ctx.now())
+    // Revalidate after user consent and insert in the SAME local Room privacy transaction.
+    // commit renews remote proof before entering Room; no transport runs under its lock.
+    if (turn != null) turn.commit { ctx.memory.add(text, ctx.conversationId, ctx.now()) }
+    else ctx.memory.add(text, ctx.conversationId, ctx.now())
     return ToolText.output { line("fatto", "ricordato: $text") }
   }
 
@@ -91,13 +103,21 @@ class MemoriaElencoTool : AiTool<PampaiToolContext> {
   override val description = "Elenca tutto cio' che Aria ricorda dell'utente."
   override val parameters = Schema.obj(emptyMap())
 
-  override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput = ToolText.output {
-    val all = ctx.memory.list()
-    if (all.isEmpty()) {
-      line("memoria", "vuota")
-    } else {
-      line("fatti", all.size)
-      all.forEach { line("${Dates.label(Instant.ofEpochMilli(it.createdAtMillis).atZone(ctx.zone).toLocalDate())}", it.text) }
+  override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput = readMemory(ctx)
+
+  override suspend fun run(args: JsonObject, ctx: PampaiToolContext, execution: ToolExecution): ToolOutput = readMemory(ctx)
+
+  private suspend fun readMemory(ctx: PampaiToolContext): ToolOutput {
+    if (currentCoroutineContext()[TurnPrivacy]?.storedKnowledgeAllowed == false)
+      return ToolOutput.error("STORED_KNOWLEDGE_REFUSED: l'utente ha escluso la memoria per questa domanda")
+    return ToolText.output {
+      val all = ctx.memory.list()
+      if (all.isEmpty()) {
+        line("memoria", "vuota")
+      } else {
+        line("fatti", all.size)
+        all.forEach { line("${Dates.label(Instant.ofEpochMilli(it.createdAtMillis).atZone(ctx.zone).toLocalDate())}", it.text) }
+      }
     }
   }
 }
@@ -109,8 +129,10 @@ class ConversazioniCercaTool : AiTool<PampaiToolContext> {
   override val parameters = Schema.obj(mapOf("testo" to Schema.str("le parole da cercare"), "limite" to Schema.int("quanti risultati", 1, 20)), required = listOf("testo"))
 
   override suspend fun run(args: JsonObject, ctx: PampaiToolContext): ToolOutput {
+    if (currentCoroutineContext()[TurnPrivacy]?.storedKnowledgeAllowed == false)
+      return ToolOutput.error("STORED_KNOWLEDGE_REFUSED: l'utente ha escluso i ricordi per questa domanda")
     val query = args.str("testo") ?: return ToolOutput.error("manca il testo")
-    val hits = ctx.conversations.search(query, args.int("limite") ?: 8)
+    val hits = ctx.conversations.search(query, args.int("limite") ?: 8, includePrivate = false)
     return ToolText.output(3_000) {
       if (hits.isEmpty()) {
         line("risultati", "nessuno per \"$query\"; prova con una parola sola o un sinonimo")

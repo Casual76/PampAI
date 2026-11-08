@@ -1,0 +1,26 @@
+{
+  "core-assistant": {
+    "tests": 229,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "feature-assistant": {
+    "tests": 61,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "engine-ai": {
+    "tests": 264,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "engine-ai-bridge": {
+    "tests": 25,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

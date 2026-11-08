@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-08T15:09:25.895Z" hostname="PC_FISSO" time="0.267">
+  <properties/>
+  <testcase name="process interruption after durable reservation never dispatches a second write" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.054"/>
+  <testcase name="uncertain result reconciles by readback before blocking retry and preserves original receipt" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.031"/>
+  <testcase name="repeated model tool call in same request cannot dispatch duplicate action" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.029"/>
+  <testcase name="retry is blocked but identical intentional next user request dispatches" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.025"/>
+  <testcase name="legacy output cannot certify write completion and full typed output persists" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.027"/>
+  <testcase name="cancelledWriteSurvivesReopen" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.056"/>
+  <testcase name="regeneration with different model arguments cannot replay an interrupted write" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.029"/>
+  <testcase name="timer dispatch receipt never invents countdown completion or entity ID" classname="dev.pampa.pampai.core.assistant.receipts.OperationLedgerTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

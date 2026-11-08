@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.chat.ToolResultCardsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:45:52.101Z" hostname="PC_FISSO" time="0.019">
+  <properties/>
+  <testcase name="signed Spotify data renders names and unavailable entries without promoting uncertain write" classname="dev.pampa.pampai.feature.assistant.chat.ToolResultCardsTest" time="0.018"/>
+  <testcase name="local MediaSession receipt keeps its flat fields and fallback has no raw ID" classname="dev.pampa.pampai.feature.assistant.chat.ToolResultCardsTest" time="0.0"/>
+  <testcase name="every outcome has a distinct honest label" classname="dev.pampa.pampai.feature.assistant.chat.ToolResultCardsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

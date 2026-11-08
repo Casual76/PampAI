@@ -153,7 +153,7 @@ class RegistryHolder @Inject constructor() {
       clockTools() + reminderTools() + calendarTools() + contactTools() + notificationTools() + systemTools() + openTools() + infoTools() + musicTools()
     // Due build della stessa app non devono far sparire tutte le app collegate: ne resta una.
     val sets = mountable(local, offered) { message -> runCatching { Log.w(TAG, message) } }
-    val tools = local.map { TracedTool(it) } + sets.flatMap { set -> set.tools.map { TracedTool(it, app = set.catalog.appLabel) } }
+    val tools = local.map { TracedTool(guardLegacySourceRead(it)) } + sets.flatMap { set -> set.tools.map { TracedTool(it, app = set.catalog.appLabel) } }
     // Solo i gruppi che hanno davvero dei tool (e i loro padri): una sottocategoria vuota nel
     // menu' del modello e' una porta su una stanza vuota.
     val registry = ToolRegistry(tools, declaredGroups(tools, sets), actionGroup = null)

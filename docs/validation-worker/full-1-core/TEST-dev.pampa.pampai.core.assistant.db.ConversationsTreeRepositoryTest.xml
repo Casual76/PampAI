@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-08T10:41:17.293Z" hostname="PC_FISSO" time="0.729">
+  <properties/>
+  <testcase name="un risultato della ricerca in un altro ramo diventa il ramo mostrato" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.129"/>
+  <testcase name="silent discard retains cancelled version with reserved write before output" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.052"/>
+  <testcase name="rigenera o modifica su un messaggio che non c'e' falliscono senza lasciare niente" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.058"/>
+  <testcase name="cancellare una conversazione porta via tutti i rami e i file" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.067"/>
+  <testcase name="le domande si attaccano in fondo al ramo mostrato" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.051"/>
+  <testcase name="una versione fermata senza testo si butta e si torna a quella di prima" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.082"/>
+  <testcase name="le scritture di una colonna sola non riportano indietro la foglia scelta" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.059"/>
+  <testcase name="replay uses target branch not later images and retains earlier image for text replay" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.069"/>
+  <testcase name="la storia per il modello e' solo il cammino sopra la domanda" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.049"/>
+  <testcase name="modifica e rinvia crea una domanda sorella con le copie degli allegati" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.051"/>
+  <testcase name="rigenera aggiunge una sorella alla risposta e le frecce passano da un ramo all'altro" classname="dev.pampa.pampai.core.assistant.db.ConversationsTreeRepositoryTest" time="0.062"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

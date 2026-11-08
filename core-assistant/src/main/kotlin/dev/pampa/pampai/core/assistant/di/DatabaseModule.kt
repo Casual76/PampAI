@@ -1,5 +1,6 @@
 package dev.pampa.pampai.core.assistant.di
 
+import dev.pampa.pampai.core.assistant.durable.*
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
@@ -77,6 +78,9 @@ object DatabaseModule {
       // un buco deve fallire in sviluppo, non cancellare in silenzio le conversazioni dell'utente.
       .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
       .build()
+
+  @Provides @Singleton fun durableFoundation(db: PampaiDatabase, proofs: dev.pampa.pampai.core.assistant.research.VerifiedSourceReceiptCache): DurableFoundation = DurableFoundation(db, proofs)
+  @Provides @Singleton fun budgetLedger(db: PampaiDatabase, proofs: dev.pampa.pampai.core.assistant.research.VerifiedSourceReceiptCache): BudgetLedger = BudgetLedger(db, proofs = proofs)
 
   @Provides fun conversations(db: PampaiDatabase): ConversationDao = db.conversations()
   @Provides fun messages(db: PampaiDatabase): MessageDao = db.messages()

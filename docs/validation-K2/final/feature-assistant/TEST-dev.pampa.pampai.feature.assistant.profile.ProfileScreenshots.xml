@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:07:57.830Z" hostname="PC_FISSO" time="12.857">
+  <properties/>
+  <testcase name="deductionProvenanceDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="2.081"/>
+  <testcase name="emptyDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.872"/>
+  <testcase name="wideDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.823"/>
+  <testcase name="emptyLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.776"/>
+  <testcase name="partialDeduction" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.178"/>
+  <testcase name="sourceScopeLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.706"/>
+  <testcase name="compactSetup" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.352"/>
+  <testcase name="profileDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.133"/>
+  <testcase name="hubDispatchesStableDestinationsAndLegacyEntry" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.077"/>
+  <testcase name="largeText" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.688"/>
+  <testcase name="profileLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.113"/>
+  <testcase name="wideSetupLargeText" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.668"/>
+  <testcase name="workerUncertainStatusDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.691"/>
+  <testcase name="actualMusicObservationDark" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="1.047"/>
+  <testcase name="workerQueuedStatusLight" classname="dev.pampa.pampai.feature.assistant.profile.ProfileScreenshots" time="0.652"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
