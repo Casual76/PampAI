@@ -30,6 +30,8 @@ SHA256 `90d26155cd6e83438d217b20e29251ba40f0158a0bb6ba7d5a9bdc91832acbb6`.
 The signature matches the installed Store app and PampAI. Provider export/authority,
 integer discovery metadata and proof-tool packaging were checked. Source freeze414/414
 unchanged. Stable7.16.1 and the existing CIE beta P2/runtime disclosures are preserved.
+The [beta is published](https://github.com/Casual76/classeviva-expressive/releases/tag/beta-classeviva-expressive-v7.17.0-beta.2);
+the uploaded APK was downloaded again and its hash/signature, manifest and Store index verified.
 
 Fluidify owner accepted2.1.0-beta.1/code25 as the proposed compatible beta, keeping
 stable2.0.1 and AirPods ProductFALSE. A newly versioned build and publication remain
@@ -42,8 +44,11 @@ definitions. I2 is still2.0.1/code24 and is not relabelled or treated as the ins
 PampAI targeted discovery5/5 and UI5/5 pass in distinct executions. The UI fixture now
 provides the actual Fluid modal host; animation input is driven by real pointer taps,
 with the clock frozen during the spring. Earlier fixture failures and one missing
-test-host parameter compilation failure remain archived. Final full validation and the
-stable build are in progress. Regression coverage targets real
+test-host parameter compilation failure remain archived. Fresh312core,77standard-feature
+and31motion tests pass. Hilt/R8/package/assemble and app/core/feature release lint pass;
+the combined invocation exits1 only for six documented engine-UI lint diagnostics in
+unchanged files. [PampAI1.4.0 stable is published and remotely verified](releases/1.4.0-validation.md).
+Regression coverage targets real
 pointer hit testing while springs are moving, Android back start/progress/cancel/commit,
 and installed/legacy/ready/signed-out/signature-failing discovery boundaries.
 

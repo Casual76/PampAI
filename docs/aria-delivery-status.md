@@ -1,5 +1,19 @@
 # Aria implementation checkpoint
 
+Current publication2026-11-08: **PampAI1.4.0 stable / versionCode11** is live on
+[Pampa Store/GitHub](https://github.com/Casual76/PampAI/releases/tag/stable-pampai-v1.4.0).
+The downloaded15021560byte APK matches SHA256 `a521884fad5152dc987e14738e931b678e17ac0e749eaab6f1a3088cc18546d9`
+and the existing Store signing certificate. Store stable and beta entries now both point
+to1.4.0 as intended; remote engine flags/configuration are unchanged. Fresh312core,
+77standard-feature and31engine-UI motion tests pass. Core/feature/app release lint has
+zero errors; engine-UI retains six documented diagnostics in unchanged files, so the
+combined invocation is not described as fully green. [Release verification](releases/1.4.0-validation.md).
+ClasseViva7.17.0-beta.2 is published with the memory contract, keeping its stable/CIE
+limits separate. Fluidify2.1.0-beta.1 is coordinated with its owner and remains pending;
+old source apps are shown with an explicit update-needed state. Existing physical and
+runtime NV remains NV, and no autonomous area is enabled by publication. Earlier
+publication/checkpoint paragraphs below are historical.
+
 Published beta2026-11-08: **PampAI1.4.0-beta.1 / versionCode10** on Pampa Store, with [release/APK](https://github.com/Casual76/PampAI/releases/tag/beta-pampai-v1.4.0-beta.1). Optimized release APK15005174bytes, SHA256 `7696E23455379B448D6557CD8B536810FBEF2B31EA13B5DA42FD9FD47518AC80`; downloaded asset and previous Store signing identity verified. Fresh release preparation ran307core/72standard-feature tests with zero failures/errors/skips and core/app release lint0errors;32 screenshot cases were not rerun. Sources/tag point to99f33eb, engine patches toab113365 on the dedicated PampAI beta branch. Stable remains1.3.1. [Publication evidence](releases/1.4.0-beta.1-validation.md). Earlier implementation snapshots below remain historical; publication does not close runtime NV or enable autonomous areas.
 
 This is an implementation checkpoint, **not runtime or independent final phase approval**. Updated2026-11-08 after both final K4 R3/3 reviews and localized ROOT closure of all four concrete findings: pasted-data refusal, legacy-memory dispatch, ordinary publication after Room commit, and queued Ricorda safety waiting. Their real Engine/Room/tool/orchestrator/gate regressions pass locally. Later ROOT changes have not been independently rereviewed; no additional delegated review cycle was started. [Both provisional reviews and C1-C7 adjudication](aria-K4-review.md). All runtime NV stays open and no autonomous area is enabled.
