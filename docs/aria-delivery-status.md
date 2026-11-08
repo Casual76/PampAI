@@ -12,6 +12,9 @@ ClasseViva7.17.0-beta.2 is published with the memory contract, keeping its stabl
 limits separate. [Fluidify2.1.0-beta.1 is also published](https://github.com/Casual76/Fluidify/releases/tag/beta-fluidify-v2.1.0-beta.1):
 the public APK was independently downloaded and matches the checked I4 candidate's
 hash/signature/version/provider metadata; its stable2.0.1 object is preserved exactly.
+Its owner subsequently reports the authorized in-place delivery of that exact public
+beta to the Samsung phone, with installed APK hash/signature checked after the update.
+This is package-installation evidence, not a PampAI connection or account-readiness pass.
 Old source apps are shown with an explicit update-needed state. Existing physical and
 runtime NV remains NV, and no autonomous area is enabled by publication.
 [Compatible source links and setup](releases/1.4.0-source-updates.md). Earlier

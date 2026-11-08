@@ -58,6 +58,16 @@ Evidence: external `stable-fixes/fluidify-I4-release-candidate.json` and the own
 `stable-fixes/fluidify-release/remote-verification.json`. No compiler or device was
 used for ROOT's artifact checks.
 
+The Fluidify owner subsequently performed the authorized install-only phone delivery:
+Samsung updated in place from2.0.1/code24 to the public2.1.0-beta.1/code25. That owner's
+post-install pull reports20684756bytes and the same release SHA/signature above; package,
+version and non-debuggable state were rechecked. ROOT read the terminal report but did
+not execute the install or a device test. This closes package delivery only: no source
+provider/Binder, account, consent, login/readiness or functional memory consultation was
+exercised. Evidence remains with that owner in
+`Fluidify/build/aria-source-proof-compat/device-delivery-beta25/{REPORT.md,verification.json}`.
+The install-only window is released; no new ROOT compiler/device work follows from it.
+
 Earlier read-only checks on immutable I2 independently found
 the correct package/provider, integer discovery metadata and all14 required class
 definitions. I2 is still2.0.1/code24 and is not relabelled or treated as the installed APK.
