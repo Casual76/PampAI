@@ -41,10 +41,22 @@ authority and integer discovery metadata. Four proof-tool strings and contract m
 are present in release DEX; string presence is not class-definition/runtime proof.
 The owner reports205targeted/725extended overlapping cases, separate26typed cases and
 14selected class definitions checked on debug. ROOT did not rerun those tests or infer
-R8 call-path coverage from the debug check. Publication/source closure remains with
-that owner and is **still pending**; stable2.0.1, ProductFALSE and runtime NV are preserved.
+R8 call-path coverage from the debug check.
+
+The owner has now [published the beta](https://github.com/Casual76/Fluidify/releases/tag/beta-fluidify-v2.1.0-beta.1)
+and its [signed APK](https://github.com/Casual76/Fluidify/releases/download/beta-fluidify-v2.1.0-beta.1/fluidify-2.1.0-beta.1.apk).
+ROOT independently downloaded the public asset: exact candidate SHA/size/signature,
+non-debuggable package and version confirmed. Tag source resolves to
+`de95775f6035eef7754db96d953390487f21f6f5`, with actual engine Gitlink
+`bcfc73debe9d4cb78942cc6cdf177aacc4fa7dcb`; the PampAI engine commit is not substituted.
+Remote master beta manifest/Store index verified; the stable2.0.1 object and engine
+configuration match the owner's before-publication snapshot exactly. ProductFALSE,
+H1/G1 and memory Binder/authentication/readiness runtime NV are preserved. There is
+no install, new compiler, or debug-to-R8 behavioral-equivalence claim.
 Evidence: external `stable-fixes/fluidify-I4-release-candidate.json` and the owner's
-`serial-validator-I4/REPORT.md`. No compiler or device was used for ROOT's artifact check.
+`serial-validator-I4/REPORT.md`; public verification is in
+`stable-fixes/fluidify-release/remote-verification.json`. No compiler or device was
+used for ROOT's artifact checks.
 
 Earlier read-only checks on immutable I2 independently found
 the correct package/provider, integer discovery metadata and all14 required class

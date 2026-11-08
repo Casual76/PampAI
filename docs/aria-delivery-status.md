@@ -9,10 +9,12 @@ to1.4.0 as intended; remote engine flags/configuration are unchanged. Fresh312co
 zero errors; engine-UI retains six documented diagnostics in unchanged files, so the
 combined invocation is not described as fully green. [Release verification](releases/1.4.0-validation.md).
 ClasseViva7.17.0-beta.2 is published with the memory contract, keeping its stable/CIE
-limits separate. Fluidify2.1.0-beta.1 has a signed I4 candidate independently checked
-for hash/signature/version/provider metadata; its owner's publication remains pending;
+limits separate. [Fluidify2.1.0-beta.1 is also published](https://github.com/Casual76/Fluidify/releases/tag/beta-fluidify-v2.1.0-beta.1):
+the public APK was independently downloaded and matches the checked I4 candidate's
+hash/signature/version/provider metadata; its stable2.0.1 object is preserved exactly.
 old source apps are shown with an explicit update-needed state. Existing physical and
-runtime NV remains NV, and no autonomous area is enabled by publication. Earlier
+runtime NV remains NV, and no autonomous area is enabled by publication.
+[Compatible source links and setup](releases/1.4.0-source-updates.md). Earlier
 publication/checkpoint paragraphs below are historical.
 
 Published beta2026-11-08: **PampAI1.4.0-beta.1 / versionCode10** on Pampa Store, with [release/APK](https://github.com/Casual76/PampAI/releases/tag/beta-pampai-v1.4.0-beta.1). Optimized release APK15005174bytes, SHA256 `7696E23455379B448D6557CD8B536810FBEF2B31EA13B5DA42FD9FD47518AC80`; downloaded asset and previous Store signing identity verified. Fresh release preparation ran307core/72standard-feature tests with zero failures/errors/skips and core/app release lint0errors;32 screenshot cases were not rerun. Sources/tag point to99f33eb, engine patches toab113365 on the dedicated PampAI beta branch. Stable remains1.3.1. [Publication evidence](releases/1.4.0-beta.1-validation.md). Earlier implementation snapshots below remain historical; publication does not close runtime NV or enable autonomous areas.
