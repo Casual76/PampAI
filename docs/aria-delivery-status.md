@@ -9,7 +9,8 @@ to1.4.0 as intended; remote engine flags/configuration are unchanged. Fresh312co
 zero errors; engine-UI retains six documented diagnostics in unchanged files, so the
 combined invocation is not described as fully green. [Release verification](releases/1.4.0-validation.md).
 ClasseViva7.17.0-beta.2 is published with the memory contract, keeping its stable/CIE
-limits separate. Fluidify2.1.0-beta.1 is coordinated with its owner and remains pending;
+limits separate. Fluidify2.1.0-beta.1 has a signed I4 candidate independently checked
+for hash/signature/version/provider metadata; its owner's publication remains pending;
 old source apps are shown with an explicit update-needed state. Existing physical and
 runtime NV remains NV, and no autonomous area is enabled by publication. Earlier
 publication/checkpoint paragraphs below are historical.

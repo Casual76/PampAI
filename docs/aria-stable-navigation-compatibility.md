@@ -33,9 +33,20 @@ unchanged. Stable7.16.1 and the existing CIE beta P2/runtime disclosures are pre
 The [beta is published](https://github.com/Casual76/classeviva-expressive/releases/tag/beta-classeviva-expressive-v7.17.0-beta.2);
 the uploaded APK was downloaded again and its hash/signature, manifest and Store index verified.
 
-Fluidify owner accepted2.1.0-beta.1/code25 as the proposed compatible beta, keeping
-stable2.0.1 and AirPods ProductFALSE. A newly versioned build and publication remain
-pending its serial compiler turn. Read-only checks on immutable I2 independently found
+Fluidify2.1.0-beta.1/code25 now has a fresh immutable R8 release candidate from its
+owner's terminal I4 validator. ROOT independently verified20684756bytes, SHA256
+`847d76034cbb01ecc3e5914c5d31c16c8ba99117c8f23f44f82e65d23c1d8f19`,
+the matching Pampa signer, exact version/package, non-debuggable state, exported provider
+authority and integer discovery metadata. Four proof-tool strings and contract marker
+are present in release DEX; string presence is not class-definition/runtime proof.
+The owner reports205targeted/725extended overlapping cases, separate26typed cases and
+14selected class definitions checked on debug. ROOT did not rerun those tests or infer
+R8 call-path coverage from the debug check. Publication/source closure remains with
+that owner and is **still pending**; stable2.0.1, ProductFALSE and runtime NV are preserved.
+Evidence: external `stable-fixes/fluidify-I4-release-candidate.json` and the owner's
+`serial-validator-I4/REPORT.md`. No compiler or device was used for ROOT's artifact check.
+
+Earlier read-only checks on immutable I2 independently found
 the correct package/provider, integer discovery metadata and all14 required class
 definitions. I2 is still2.0.1/code24 and is not relabelled or treated as the installed APK.
 
